@@ -92,7 +92,7 @@ class Application(BaseApplication):
             self.ns_app = macos_functions.get_app_instance_by_pid(self.process)
 
         def app_idle():
-            ax_element_info.cache_update()
+            macos_functions.cache_update()
             nom = self.ns_app.localizedName()
             elem = ax_element_info.AxElementInfo()
             for app in elem.children():
@@ -166,7 +166,7 @@ class Application(BaseApplication):
             if not result:
                 return result
             self.wait_for_process_exit()
-            ax_element_info.cache_update()
+            macos_functions.cache_update()
             self.ns_app = None
             return True
         return False
