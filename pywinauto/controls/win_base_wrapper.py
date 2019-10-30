@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2019 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -288,9 +288,10 @@ class WinBaseWrapper(BaseWrapper):
         with_tabs = False,
         with_newlines = False,
         turn_off_numlock = True,
-        set_foreground = True):
+        set_foreground = True,
+        vk_packet = True):
         """
-        Type keys to the element using keyboard.SendKeys
+        Type keys to the element using keyboard.send_keys
 
         This uses the re-written keyboard_ python module where you can
         find documentation on what to use for the **keys**.
@@ -330,7 +331,8 @@ class WinBaseWrapper(BaseWrapper):
             with_spaces,
             with_tabs,
             with_newlines,
-            turn_off_numlock)
+            turn_off_numlock,
+            vk_packet)
 
         # detach the python process from the window's process
         if self.element_info.handle:

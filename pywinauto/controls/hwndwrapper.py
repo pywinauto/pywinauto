@@ -505,10 +505,10 @@ class HwndWrapper(WinBaseWrapper):
             if unicode_char:
                 _, char = key_info[:2]
                 vk = win32functions.VkKeyScanExW(chr(char), input_locale_id) & 0xFF
-                scan = keyboard.MapVirtualKey(vk, 0)
+                scan = win32functions.MapVirtualKeyW(vk, 0)
             else:
                 vk, scan = key_info[:2]
-                char = keyboard.MapVirtualKey(vk, 2)
+                char = win32functions.MapVirtualKeyW(vk, 2)
 
             if char > 0:
                 lparam = 1 << 0 | scan << 16 | (flags & 1) << 24
@@ -579,7 +579,7 @@ class HwndWrapper(WinBaseWrapper):
                     vk_with_flags = win32functions.VkKeyScanExW(char, input_locale_id)
                     vk = vk_with_flags & 0xFF
                     shift_state = (vk_with_flags & 0xFF00) >> 8
-                    scan = keyboard.MapVirtualKey(vk, 0)
+                    scan = win32functions.MapVirtualKeyW(vk, 0)
 
                 if key.down and vk > 0:
                     new_keyboard_state = copy.deepcopy(keyboard_state_stack[-1])

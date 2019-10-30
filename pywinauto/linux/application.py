@@ -43,7 +43,14 @@ from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnec
 
 class Application(BaseApplication):
 
-    def __init__(self, backend="atspi"):
+    def __init__(self, backend="atspi", allow_magic_lookup=True):
+        """
+        Initialize the Application object
+
+        * **backend** is a name of used back-end (values: "atspi").
+	* **allow_magic_lookup** whether attribute access must turn into
+		child_window(best_match=...) search as fallback
+        """
         self.process = None
         self.xmlpath = ''
 
@@ -54,6 +61,7 @@ class Application(BaseApplication):
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
+        self.allow_magic_lookup = allow_magic_lookup
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True, work_dir=None):

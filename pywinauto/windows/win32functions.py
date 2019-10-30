@@ -31,7 +31,8 @@
 
 """Defines Windows(tm) functions"""
 
-from ctypes import windll
+from ctypes import LibraryLoader
+from ctypes import WinDLL
 from ctypes import wintypes
 from ctypes import c_short
 from ctypes import WINFUNCTYPE
@@ -45,7 +46,14 @@ from ctypes import c_size_t
 from . import win32defines, win32structures
 from ..actionlogger import ActionLogger
 
+# Quote: "If you want cached libs without polluting ctypes.cdll or
+# ctypes.windll, just create your own instance such as
+# windll = ctypes.LibraryLoader(ctypes.WinDLL)."
+# see https://bugs.python.org/issue22552
+windll = LibraryLoader(WinDLL)
+
 SHORT = c_short
+
 
 CreateBrushIndirect = windll.gdi32.CreateBrushIndirect
 CreateBrushIndirect.restype = wintypes.HBRUSH
@@ -205,12 +213,19 @@ GetKeyboardLayout.restype = wintypes.HKL
 GetKeyboardLayout.argtypes = [
     wintypes.DWORD,
 ]
+VkKeyScanW = windll.user32.VkKeyScanW
+VkKeyScanW.restype = SHORT
+VkKeyScanW.argtypes = [
+    wintypes.WCHAR,
+]
 VkKeyScanExW = windll.user32.VkKeyScanExW
 VkKeyScanExW.restype = SHORT
 VkKeyScanExW.argtypes = [
     wintypes.WCHAR,
     wintypes.HKL,
 ]
+GetMessageExtraInfo = windll.user32.GetMessageExtraInfo
+MapVirtualKeyW = windll.user32.MapVirtualKeyW
 # menu functions
 DrawMenuBar = windll.user32.DrawMenuBar
 DrawMenuBar.restype = wintypes.BOOL

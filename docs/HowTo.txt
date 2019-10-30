@@ -285,7 +285,7 @@ identifiers can be used
 
 And this will also cater for typos. Though you still have to be careful
 as if there are 2 similar identifiers in the dialog the typo you have
-used might be more similar to another control then the one you were
+used might be more similar to another control than the one you were
 thinking of.
 
 How to use pywinauto with application languages other than English

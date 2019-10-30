@@ -285,12 +285,14 @@ class Application(BaseApplication):
     .. automethod:: __getitem__
     """
 
-    def __init__(self, backend="win32", datafilename=None):
+    def __init__(self, backend="win32", datafilename=None, allow_magic_lookup=True):
         """
         Initialize the Application object
 
         * **backend** is a name of used back-end (values: "win32", "uia").
         * **datafilename** is a file name for reading matching history.
+	* **allow_magic_lookup** whether attribute access must turn into
+		child_window(best_match=...) search as fallback
         """
         self.process = None
         self.xmlpath = ''
@@ -301,6 +303,7 @@ class Application(BaseApplication):
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
+        self.allow_magic_lookup = allow_magic_lookup
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
             self.Start = deprecated(self.start)
@@ -525,6 +528,17 @@ class Application(BaseApplication):
         return self.window(best_match=key)
 
     def __getattribute__(self, attr_name):
+        allow_magic_lookup = object.__getattribute__(self, "allow_magic_lookup")  # Beware of recursions here!
+        if not allow_magic_lookup:
+            try:
+                return object.__getattribute__(self, attr_name)
+            except AttributeError:
+                message = (
+                    'Attribute "%s" doesn\'t exist on %s object'
+                    ' (typo? or set allow_magic_lookup to True?)' %
+                    (attr_name, self.__class__))
+                raise AttributeError(message)
+
         """Find the specified dialog of the application"""
         if attr_name in ['__dict__', '__members__', '__methods__', '__class__']:
             return object.__getattribute__(self, attr_name)
