@@ -77,7 +77,6 @@ import win32gui
 import win32con
 import win32event
 
-from .. import timings
 from .. import controls
 from .. import findbestmatch
 from .. import findwindows
@@ -292,6 +291,8 @@ class Application(BaseApplication):
 
         * **backend** is a name of used back-end (values: "win32", "uia").
         * **datafilename** is a file name for reading matching history.
+        * **allow_magic_lookup** whether attribute access must turn into
+                child_window(best_match=...) search as fallback
         """
         self.process = None
         self.xmlpath = ''
@@ -371,7 +372,7 @@ class Application(BaseApplication):
 
         elif 'path' in kwargs:
             try:
-                self.process = timings.wait_until_passes(
+                self.process = wait_until_passes(
                         timeout, retry_interval, process_from_module,
                         ProcessNotFoundError, kwargs['path'],
                     )
@@ -385,7 +386,7 @@ class Application(BaseApplication):
                 kwargs['visible_only'] = False
             if 'timeout' in kwargs:
                 del kwargs['timeout']
-                self.process = timings.wait_until_passes(
+                self.process = wait_until_passes(
                         timeout, retry_interval, findwindows.find_element,
                         exceptions=(findwindows.ElementNotFoundError, findbestmatch.MatchError,
                                     controls.InvalidWindowHandle, controls.InvalidElement),
@@ -527,6 +528,7 @@ class Application(BaseApplication):
         return self.window(best_match=key)
 
     def __getattribute__(self, attr_name):
+        """Find the specified dialog of the application"""
         allow_magic_lookup = object.__getattribute__(self, "allow_magic_lookup")  # Beware of recursions here!
         if not allow_magic_lookup:
             try:
@@ -538,7 +540,6 @@ class Application(BaseApplication):
                     (attr_name, self.__class__))
                 raise AttributeError(message)
 
-        """Find the specified dialog of the application"""
         if attr_name in ['__dict__', '__members__', '__methods__', '__class__']:
             return object.__getattribute__(self, attr_name)
 
@@ -723,7 +724,7 @@ def process_from_module(module):
     # as we are most likely to want to connect to the last
     # run instance
     modules.reverse()
-    for process, name, cmdline in modules:
+    for process, name, _ in modules:
         if name is None:
             continue
         if module_path.lower() in name.lower():
