@@ -41,7 +41,7 @@ import sys
 import six
 
 try:
-    from PIL import ImageGrab, Image
+    from PIL import ImageGrab
 except ImportError:
     ImageGrab = None
 
