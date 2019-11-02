@@ -721,11 +721,6 @@ class HwndWrapper(WinBaseWrapper):
     # Non PEP-8 alias
     NotifyParent = deprecated(notify_parent)
 
-    # -----------------------------------------------------------
-    def __hash__(self):
-        """Returns the hash value of the handle"""
-        return hash(self.handle)
-
     #-----------------------------------------------------------
     def wait_for_idle(self):
         """Backend specific function to wait for idle state of a thread or a window"""

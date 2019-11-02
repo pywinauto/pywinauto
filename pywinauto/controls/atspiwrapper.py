@@ -125,12 +125,6 @@ class AtspiWrapper(BaseWrapper):
         BaseWrapper.__init__(self, element_info, backend.registry.backends['atspi'])
 
     # ------------------------------------------------------------
-    def __hash__(self):
-        """Return a unique hash value based on the element's Runtime ID"""
-        return hash(self.element_info.runtime_id)
-
-    # ------------------------------------------------------------
-
     def set_keyboard_focus(self):
         """Set the focus to this element"""
         self.element_info.component.grab_focus("screen")

@@ -186,6 +186,11 @@ class HwndElementInfo(ElementInfo):
         """Dump a window as a set of properties"""
         return handleprops.dumpwindow(self.handle)
 
+    # ------------------------------------------------------------
+    def __hash__(self):
+        """Return a unique hash value based on the element's handle"""
+        return hash(self.handle)
+
     def __eq__(self, other):
         """Check if 2 HwndElementInfo objects describe 1 actual element"""
         if not isinstance(other, HwndElementInfo):

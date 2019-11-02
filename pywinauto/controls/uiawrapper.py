@@ -198,11 +198,6 @@ class UIAWrapper(WinBaseWrapper):
         WinBaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     # ------------------------------------------------------------
-    def __hash__(self):
-        """Return a unique hash value based on the element's Runtime ID"""
-        return hash(self.element_info.runtime_id)
-
-    # ------------------------------------------------------------
     @lazy_property
     def iface_expand_collapse(self):
         """Get the element's ExpandCollapse interface pattern"""
