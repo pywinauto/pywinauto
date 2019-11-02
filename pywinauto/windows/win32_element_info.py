@@ -32,8 +32,6 @@
 """Implementation of the class to deal with a native element (window with a handle)"""
 
 import ctypes
-from ctypes import wintypes
-
 import six
 import win32gui
 
@@ -143,7 +141,9 @@ class HwndElementInfo(ElementInfo):
             return True
 
         # define the type of the child procedure
-        enum_win_proc_t = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        enum_win_proc_t = ctypes.WINFUNCTYPE(ctypes.wintypes.BOOL,
+                                             ctypes.wintypes.HWND,
+                                             ctypes.wintypes.LPARAM)
 
         # 'construct' the callback with our function
         proc = enum_win_proc_t(enum_window_proc)
