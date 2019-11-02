@@ -38,6 +38,11 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill()
 
+        def testHash(self):
+            """Test element info hashing"""
+            d = { self.ctrl : "elem" }
+            self.assertEqual(d[self.ctrl], "elem")
+
         def testProcessId(self):
             """Test process_id equals"""
             self.assertEqual(self.ctrl.process_id, processid(self.handle))

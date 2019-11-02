@@ -353,6 +353,11 @@ class UIAElementInfo(ElementInfo):
         """Return rich_text of the element"""
         return self._get_rich_text()
 
+    # ------------------------------------------------------------
+    def __hash__(self):
+        """Return a unique hash value based on the element's Runtime ID"""
+        return hash(self.runtime_id)
+
     def __eq__(self, other):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):

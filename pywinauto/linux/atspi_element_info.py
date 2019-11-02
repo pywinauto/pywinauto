@@ -55,6 +55,10 @@ class AtspiElementInfo(ElementInfo):
         for el in root.children(**kwargs):
             self.__get_elements(el, tree, **kwargs)
 
+    def __hash__(self):
+        """Return a unique hash value based on the element's handle"""
+        return hash(self.handle)
+
     def __eq__(self, other):
         """Check if two AtspiElementInfo objects describe the same element"""
         if self.control_type == "Application":

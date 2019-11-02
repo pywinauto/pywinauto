@@ -198,11 +198,6 @@ class BaseWrapper(object):
         else:
             return "{0} - '{1}', {2}".format(type_name, title, class_name)
 
-    def __hash__(self):
-        """Returns the hash value of the handle"""
-        # Must be implemented in a sub-class
-        raise NotImplementedError()
-
     #------------------------------------------------------------
     @property
     def writable_props(self):
@@ -571,6 +566,11 @@ class BaseWrapper(object):
         for the child element.
         """
         return self in parent.children(class_name = self.class_name())
+
+    # ------------------------------------------------------------
+    def __hash__(self):
+        """Return a unique hash value based on the element's handle"""
+        return self.element_info.__hash__()
 
     #-----------------------------------------------------------
     def __eq__(self, other):
