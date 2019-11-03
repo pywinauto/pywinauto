@@ -197,6 +197,10 @@ class HwndElementInfo(ElementInfo):
             return self.handle == other
         return self.handle == other.handle
 
+    def __ne__(self, other):
+        """Check if two HwndElementInfo objects describe different elements"""
+        return not (self == other)
+
     @property
     def automation_id(self):
         """Return AutomationId of the element"""
