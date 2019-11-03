@@ -771,7 +771,7 @@ class BaseApplication(object):
         # delegate all functionality to item access
         return self[attr_name]
 
-    def kill(self):
+    def kill(self, soft=False):
         """
         Try to close and kill the application
 
