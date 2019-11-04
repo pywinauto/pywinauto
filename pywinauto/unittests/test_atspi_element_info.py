@@ -215,12 +215,15 @@ if sys.platform.startswith("linux"):
         def test_can_compare_applications(self):
             app_info = self.get_app(app_name)
             app_info1 = self.get_app(app_name)
-            assert app_info == app_info1
+            self.assertEqual(app_info, app_info1)
+            self.assertNotEqual(app_info, None)
+            self.assertNotEqual(app_info, app_info.handle)
+            self.assertNotEqual(app_info, AtspiElementInfo())
 
         def test_can_compare_desktop(self):
             desktop = AtspiElementInfo()
             desktop1 = AtspiElementInfo()
-            assert desktop == desktop1
+            self.assertEqual(desktop, desktop1)
 
         def test_can_get_layer(self):
             self.assertEqual(self.desktop_info.get_layer(), 3)
