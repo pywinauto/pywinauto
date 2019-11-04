@@ -61,7 +61,9 @@ class AtspiElementInfo(ElementInfo):
 
     def __eq__(self, other):
         """Check if two AtspiElementInfo objects describe the same element"""
-        if self.control_type == "Application":
+        if not isinstance(other, AtspiElementInfo):
+            return False
+        if self.control_type == "Application" and other.control_type == "Application":
             return self.process_id == other.process_id
         return self.rectangle == other.rectangle
 
