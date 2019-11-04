@@ -164,13 +164,17 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_info.control_type, "Application")
 
         def test_can_get_control_type_of_all_app_descendants(self):
-            print(self.app_info.descendants())
-            for children in self.app_info.descendants():
-                self.assertTrue(children.control_type in IATSPI().known_control_types.keys())
+            children = self.app_info.descendants()
+            self.assertNotEqual(len(children), 0)
+            print(children)
+            for child in children:
+                self.assertTrue(child.control_type in IATSPI().known_control_types.keys())
 
         def test_control_type_equal_class_name(self):
-            for children in self.app_info.descendants():
-                self.assertEqual(children.control_type, children.class_name)
+            children = self.app_info.descendants()
+            self.assertNotEqual(len(children), 0)
+            for child in children:
+                self.assertEqual(child.control_type, child.class_name)
 
         def test_can_get_description(self):
             # TODO find a way to add meaningful description to example application
