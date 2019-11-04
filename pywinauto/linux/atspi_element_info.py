@@ -65,6 +65,10 @@ class AtspiElementInfo(ElementInfo):
             return self.process_id == other.process_id
         return self.rectangle == other.rectangle
 
+    def __ne__(self, other):
+        """Check if two AtspiElementInfo objects describe different elements"""
+        return not (self == other)
+
     @staticmethod
     def _get_states_as_string(states):
         string_states = []

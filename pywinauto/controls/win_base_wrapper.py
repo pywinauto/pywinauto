@@ -250,7 +250,7 @@ class WinBaseWrapper(BaseWrapper):
         if not src:
             src = self
 
-        if dst is src:
+        if dst == src:
             raise AttributeError("Can't drag-n-drop on itself")
 
         if isinstance(src, WinBaseWrapper):

@@ -128,7 +128,7 @@ class Application(BaseApplication):
         except Exception:
             raise ProcessNotFoundError()
 
-    def kill(self):
+    def kill(self, soft=False):
         """
         Try to close and kill the application
 

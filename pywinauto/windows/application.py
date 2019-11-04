@@ -643,6 +643,14 @@ def assert_valid_process(process_id):
         message = "Process with ID '%d' could not be opened" % process_id
         raise ProcessNotFoundError(message)
 
+    # finished process can still exist and have exit code,
+    # but it's not usable any more, so let's check it
+    exit_code = win32process.GetExitCodeProcess(process_handle)
+    is_running = (exit_code == win32defines.PROCESS_STILL_ACTIVE)
+    if not is_running:
+        raise ProcessNotFoundError('Process with pid = {} has been already ' \
+            'finished with exit code = {}'.format(process_id, exit_code))
+
     return process_handle
 
 
