@@ -508,7 +508,7 @@ else:
                 win32api.keybd_event(inp.ki.wVk, inp.ki.wScan, inp.ki.dwFlags)
 
 
-    class PauseAction():
+    class PauseAction(object):
 
         """Represents a pause action"""
 
