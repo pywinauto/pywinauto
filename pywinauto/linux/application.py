@@ -80,7 +80,7 @@ class Application(BaseApplication):
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
+           are also can be used instead of **process** or **path**
         """
         connected = False
         if 'process' in kwargs:
@@ -104,7 +104,7 @@ class Application(BaseApplication):
 
         if not connected:
             raise RuntimeError(
-                "You must specify one of process, handle or path")
+                "You must specify process or handle")
 
     def cpu_usage(self, interval=None):
         """Return CPU usage percent during specified number of seconds"""
