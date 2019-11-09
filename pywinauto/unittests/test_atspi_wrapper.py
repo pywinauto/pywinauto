@@ -43,6 +43,7 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
     from pywinauto.linux.atspi_objects import IATSPI
+    from pywinauto import mouse
 
 app_name = r"gtk_example.py"
 
@@ -83,9 +84,9 @@ if sys.platform.startswith("linux"):
         def tearDown(self):
             self.app.kill()
 
-        def test_set_window_focus(self):
-            self.app_frame.set_focus()
-            states = self.app_frame.get_states()
+        def test_set_focus(self):
+            #TODO: make the app to be actually out focus
+            states = self.app_frame.set_focus().get_states()
             self.assertIn("STATE_VISIBLE", states)
             self.assertIn("STATE_SHOWING", states)
 

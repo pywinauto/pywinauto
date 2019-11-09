@@ -128,6 +128,7 @@ class AtspiWrapper(BaseWrapper):
     def set_keyboard_focus(self):
         """Set the focus to this element"""
         self.element_info.component.grab_focus("screen")
+        return self
 
     def set_window_focus(self, pid):
         display = Display()
@@ -160,6 +161,8 @@ class AtspiWrapper(BaseWrapper):
                 self.set_window_focus(self.element_info.process_id)
         else:
             self.set_keyboard_focus()
+
+        return self
 
     def get_states(self):
         return self.element_info.get_state_set()
