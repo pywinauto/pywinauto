@@ -387,9 +387,8 @@ class UIAElementInfo(ElementInfo):
     def __ne__(self, other):
         """Check if 2 UIAElementInfo objects describe 2 different elements"""
         return not (self == other)
-    
+
     @classmethod
     def get_active(cls):
         ae = IUIA().get_focused_element()
-
         return cls(ae)
