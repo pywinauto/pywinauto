@@ -343,6 +343,27 @@ from the method output. Say
        |    | child_window(title="Close", control_type="Button")
 
 
+
+How to disable magic attribute names
+------------------------------------
+
+In some cases, you might prefer disable the magic lookup system, so that Pywinauto immediately raises
+if you access an attribute which exists neither on the WindowSpecification object, nor on the underlying
+element-wrapper object.
+Indeed, by default, Pywinauto will add your attribute name to the search system, and will only fail on a subsequent
+attribute access or method call.
+
+In this case, turn off the `allow_magic_lookup` argument of your Desktop or Application instance::
+
+    desktop = Desktop(backend='win32', allow_magic_lookup=False)
+
+or::
+
+    app = Application(allow_magic_lookup=False)
+
+This flag will automatically be propagated to generated WindowSpecification objects.
+
+
 Look at the examples
 --------------------
 

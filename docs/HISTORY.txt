@@ -2,6 +2,48 @@
 Change Log
 ==========
 
+0.6.8 Bug Fixes
+--------------------------------------------------------------------
+27-October-2019
+
+Enhancements:
+ * Add ``allow_magic_lookup`` flag for Application and Desktop object. Thanks pakal_!
+ * Don't duplicate already pressed key in internal list in ``win32_hooks.py``. Thanks TomRobo237_!
+ * Allow finding an edit box by title (its editable text).
+ * Add option to send keyboard input for an application which doesn't handle VK_PACKET properly.
+   Use ``vk_packet=False`` in method ``type_keys``, default value is ``vk_packet=True``. Thanks philmbailey_!
+
+Bug Fixes:
+ * Fix ctypes.windll usage conflicts with other libraries.
+ * Minor fixes in top-level ``__init__.py``. Thanks pakal_!
+ * Fix logging issues in ``remote_memory_block.py``. Thanks TomRobo237_!
+ * Minor docs improvements. Thanks olesteban_, caoyaxing221_ and nuno-andre_!
+
+ .. _pakal: https://github.com/pakal
+ .. _TomRobo237: https://github.com/TomRobo237
+ .. _olesteban: https://github.com/olesteban
+ .. _caoyaxing221: https://github.com/caoyaxing221
+ .. _nuno-andre: https://github.com/nuno-andre
+ .. _philmbailey: https://github.com/philmbailey
+
+
+0.6.7 Bug Fixes
+--------------------------------------------------------------------
+07-July-2019
+
+Enhancements:
+ * Reuse ``ctypes.wintypes`` more to avoid redundant definitions for Win32 API.
+ * Add method ``EditWrapper.is_editable()`` for "uia" backend.
+
+Bug Fixes:
+ * Fix corner case with int/long conversion crash while getting text.
+ * Fix UIA crash: handle InvalidControlType properly.
+ * Fix menu_select() for one level main menu in WinForms apps.
+ * Make ``Application`` object non-iterable (iterating was hang).
+ * Fix type conversion crash in ``GetWindowRect`` (method ``.rectangle()``).
+ * Fix combo box fluttering/blinking in ``dump_tree() / print_control_identifiers()``.
+
+
 0.6.6 Better WinForms/Qt5 Support, Bug Fixes
 --------------------------------------------------------------------
 03-March-2019

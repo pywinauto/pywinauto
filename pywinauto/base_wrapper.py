@@ -924,7 +924,8 @@ class BaseWrapper(object):
         with_tabs = False,
         with_newlines = False,
         turn_off_numlock = True,
-        set_foreground = True):
+        set_foreground = True,
+        vk_packet = True):
         """
         Type keys to the element using keyboard.send_keys
 
@@ -966,7 +967,8 @@ class BaseWrapper(object):
             with_spaces,
             with_tabs,
             with_newlines,
-            turn_off_numlock)
+            turn_off_numlock,
+            vk_packet)
 
         # detach the python process from the window's process
         if self.element_info.handle:
