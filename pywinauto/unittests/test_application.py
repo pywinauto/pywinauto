@@ -1338,7 +1338,7 @@ if UIA_support:
             dlgs = self.desktop_no_magic.windows()
             self.assertTrue(len(dlgs) > 1)
 
-            window = self.desktop_no_magic.window(title="MFC_samples")
+            window = self.desktop_no_magic.window(name="MFC_samples")
             self.assertEqual(window.allow_magic_lookup, False)
 
             dlg = window.child_window(class_name="ShellTabWindowClass").wrapper_object()
@@ -1426,7 +1426,7 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         self.assertEqual(self.desktop.allow_magic_lookup, True)
         self.assertEqual(self.desktop_no_magic.allow_magic_lookup, False)
 
-        window = self.desktop_no_magic.window(title=self.window_title, process=self.app.process)
+        window = self.desktop_no_magic.window(name=self.window_title, pid=self.app.process)
         self.assertEqual(window.allow_magic_lookup, False)
 
         dlg = window.child_window(class_name="msctls_trackbar32").wrapper_object()
