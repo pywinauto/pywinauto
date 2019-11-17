@@ -235,7 +235,7 @@ def find_elements(**kwargs):
             if exact_search_value is not None and \
                     re_search_value is not None:
                 raise ValueError('Mutually exclusive keywords are used: "{}", "{}"'.format(prop, prop + '_re'))
-            if re_search_value is not None: 
+            if re_search_value is not None:
                 regex = re.compile(re_search_value)
                 elements = [elem for elem in elements if regex.match(getattr(elem, prop))]
         if exact_search_value is not None:
