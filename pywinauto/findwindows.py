@@ -33,7 +33,6 @@
 from __future__ import unicode_literals
 
 import re
-import ctypes
 import six
 
 from . import findbestmatch
