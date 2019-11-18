@@ -57,7 +57,7 @@ from ..windows import win32functions
 from ..windows import win32defines
 from ..windows import win32structures
 from .. import findbestmatch
-from ..remote_memory_block import RemoteMemoryBlock
+from ..windows.remote_memory_block import RemoteMemoryBlock
 from . import hwndwrapper
 
 from ..timings import Timings

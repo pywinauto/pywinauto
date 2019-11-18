@@ -432,7 +432,7 @@ class HwndWrapper(WinBaseWrapper):
     #    nmhdr.idFrom = self.control_id()
     #    nmhdr.code = code
 
-    #    from ..remote_memory_block import RemoteMemoryBlock
+    #    from ..windows.remote_memory_block import RemoteMemoryBlock
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
