@@ -44,11 +44,12 @@ from ctypes import sizeof
 from ctypes import byref
 from ctypes import c_size_t
 from ctypes import WinError
-from . import win32functions
-from . import win32defines
-from . import win32structures
-from pywinauto.windows import win32defines, win32functions, win32structures
-from .actionlogger import ActionLogger
+import win32api
+
+import win32functions
+import win32defines
+import win32structures
+from ..actionlogger import ActionLogger
 
 
 class AccessDenied(RuntimeError):
