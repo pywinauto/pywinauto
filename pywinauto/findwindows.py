@@ -37,9 +37,6 @@ import ctypes
 import sys
 import six
 
-if sys.platform == 'win32':
-    # TODO remove it after rewrite if active_only in find_elements
-    from .windows import win32functions, win32structures
 from . import findbestmatch
 from . import controls
 from .backend import registry
@@ -526,25 +523,6 @@ def find_windows(**kwargs):
 
 #=========================================================================
 def enum_windows():
-    """Return a list of handles of all the top level windows"""
-    windows = []
-
-    # The callback function that will be called for each HWND
-    # all we do is append the wrapped handle
-    def enum_window_proc(hwnd, lparam):
-        """Called for each window - adds handles to a list"""
-        windows.append(hwnd)
-        return True
-
-    # define the type of the child procedure
-    enum_win_proc_t = ctypes.WINFUNCTYPE(
-        ctypes.c_int, ctypes.c_long, ctypes.c_long)
-
-    # 'construct' the callback with our function
-    proc = enum_win_proc_t(enum_window_proc)
-
-    # loop over all the children (callback called for each)
-    win32functions.EnumWindows(proc, 0)
-
-    # return the collected wrapped windows
-    return windows
+    """(removed since 0.7.0) Return a list of handles of all the top level windows"""
+    raise NotImplementedError("The function has been removed. " \
+        "Use high level API instead or pin to version <=0.6.8.")
