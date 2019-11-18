@@ -38,7 +38,7 @@ import win32gui
 from pywinauto.windows import win32functions
 from pywinauto import handleprops
 from pywinauto.element_info import ElementInfo
-from pywinauto.remote_memory_block import RemoteMemoryBlock
+from pywinauto.windows.remote_memory_block import RemoteMemoryBlock
 
 
 def _register_win_msg(msg_name):

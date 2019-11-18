@@ -48,7 +48,7 @@ from pywinauto.windows.win32structures import RECT  # noqa: E402
 from pywinauto.windows import win32defines
 from pywinauto import findbestmatch  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
-from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa: E402
+from pywinauto.windows.remote_memory_block import RemoteMemoryBlock  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.timings import wait_until  # noqa: E402
