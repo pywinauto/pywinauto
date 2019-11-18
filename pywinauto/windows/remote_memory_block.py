@@ -44,10 +44,10 @@ from ctypes import c_size_t
 from ctypes import WinError
 import win32api
 
-from .windows import win32functions
-from .windows import win32defines
-from .windows import win32structures
-from .actionlogger import ActionLogger
+import win32functions
+import win32defines
+import win32structures
+from ..actionlogger import ActionLogger
 
 
 class AccessDenied(RuntimeError):
