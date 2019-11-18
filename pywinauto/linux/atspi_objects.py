@@ -490,7 +490,7 @@ class GLIB(object):
     LIB20 = "libglib-2.0.so"
     LIB22 = "libglib-2.2.so"
     DEFAULT_LIB_NAME = "libglib.so"
-    glib = cdll.LoadLibrary(_find_library([LIB12, LIB20, LIB22, DEFAULT_LIB_NAME]))
+    glib = cdll.LoadLibrary(_find_library([LIB22, LIB20, LIB12, DEFAULT_LIB_NAME]))
 
 
 class GHashTable(object):
