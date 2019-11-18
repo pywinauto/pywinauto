@@ -306,10 +306,6 @@ class _AtspiImage(Structure):
     pass
 
 
-class _AtspiStateSet(Structure):
-    pass
-
-
 class _AtspiAccessiblePrivate(Structure):
     pass
 
@@ -319,6 +315,15 @@ class _AtspiObject(Structure):
         ('parent', _GObject),
         ('accessible_parent', POINTER(_AtspiApplication)),
         ('path', c_char_p),
+    ]
+
+
+class _AtspiStateSet(Structure):
+    _fields_ = [
+        # TODO: investigate why defining fields as per
+        # at-spi2-core/atspi/atspi-stateset.h doesn't work
+        ('fake', c_uint64 * 4),
+        ('states', c_uint64),
     ]
 
 
@@ -377,11 +382,6 @@ _AtspiAccessible._fields_ = [
     ('attributes', POINTER(_GHashTable)),
     ('cached_properties', c_uint),
     ('priv', POINTER(_AtspiAccessiblePrivate)),
-]
-
-_AtspiStateSet._fields_ = [
-    ('fake', c_uint64 * 4),
-    ('states', c_uint64),
 ]
 
 
