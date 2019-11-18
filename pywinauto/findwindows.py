@@ -33,7 +33,6 @@
 from __future__ import unicode_literals
 
 import re
-import ctypes
 import sys
 import six
 
