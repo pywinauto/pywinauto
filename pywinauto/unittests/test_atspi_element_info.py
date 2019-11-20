@@ -265,6 +265,23 @@ if sys.platform.startswith("linux"):
         def test_service_is_not_visible(self):
             self.assertFalse(self.info.visible)
 
+    class AtspiElementInfoMockedTests(unittest.TestCase):
+
+        """Various mocked unit tests for the AtspiElementInfo"""
+
+        def setUp(self):
+            pass
+
+        def tearDown(self):
+            pass
+
+        def test_control_type_exception_on_bad_role_id(self):
+            with mock.patch.object(AtspiAccessible, 'get_role') as mock_get_role:
+                mock_get_role.return_value = 0xDEADBEEF
+                info = AtspiElementInfo()
+                with self.assertRaises(NotImplementedError):
+                    info.control_type()
+
     class GHashTableTests(unittest.TestCase):
 
         """Tests manipulating native GHashTable"""

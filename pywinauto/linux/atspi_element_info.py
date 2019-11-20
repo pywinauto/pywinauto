@@ -119,7 +119,10 @@ class AtspiElementInfo(ElementInfo):
     def control_type(self):
         """Return the class name of the element"""
         role_id = self.atspi_accessible.get_role(self._handle, None)
-        return IATSPI().known_control_type_ids[role_id]
+        try:
+            return IATSPI().known_control_type_ids[role_id]
+        except KeyError:
+            raise NotImplementedError('Unknown role ID has been retrieved: {0}'.format(role_id))
 
     @property
     def parent(self):
