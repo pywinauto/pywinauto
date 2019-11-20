@@ -163,7 +163,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(EditWrapper, self).__init__(elem)
-        self.text = AtspiText(self._atspi_accessible.get_text(self))
+        self.text = AtspiText(self.element_info.atspi_accessible.get_text(self))
 
     def is_editable(self):
         """Return the edit possibility of the element"""
@@ -249,7 +249,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
         current_text = self.window_text()
         new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
 
-        editable_text = AtspiEditableText(self._atspi_accessible.get_editable_text(self))
+        editable_text = AtspiEditableText(self.element_info.atspi_accessible.get_editable_text(self))
         editable_text.set_text(new_text.encode(locale.getpreferredencoding()))
 
         # return this control so that actions can be chained.
@@ -296,7 +296,7 @@ class ImageWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ImageWrapper, self).__init__(elem)
-        self.image = AtspiImage(self._atspi_accessible.get_image(self))
+        self.image = AtspiImage(self.element_info.atspi_accessible.get_image(self))
 
     def description(self):
         """Get image description"""
@@ -330,7 +330,7 @@ class DocumentWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(DocumentWrapper, self).__init__(elem)
-        self.document = AtspiDocument(self._atspi_accessible.get_document(elem.handle))
+        self.document = AtspiDocument(self.element_info.atspi_accessible.get_document(elem.handle))
 
     def locale(self):
         """Return the document's content locale"""
