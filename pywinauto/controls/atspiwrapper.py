@@ -105,7 +105,6 @@ class AtspiWrapper(BaseWrapper):
     """
 
     _control_types = []
-    _atspi_accessible = AtspiAccessible()
 
     # ------------------------------------------------------------
     def __new__(cls, element_info):
