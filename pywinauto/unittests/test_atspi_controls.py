@@ -136,8 +136,7 @@ if sys.platform.startswith("linux"):
         def test_button_toggle_state(self):
             toggle_button = self.app_window.Frame.Panel.Button
             self.assertFalse(toggle_button.get_toggle_state())
-            toggle_button.click()
-            self.assertTrue(toggle_button.get_toggle_state())
+            self.assertTrue(toggle_button.toggle().get_toggle_state())
 
         def test_text_area_is_editable(self):
             editable_state_button = self.app_window.Frame.Panel.Editable
