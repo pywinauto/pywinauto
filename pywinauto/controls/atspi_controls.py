@@ -68,8 +68,11 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
     # -----------------------------------------------------------
     def toggle(self):
-        """Method to change toggle button state"""
-        self.click()
+        """Method to change toggle button state
+
+        Currently, just a wrapper around the click() method
+        """
+        return self.click()
 
     # -----------------------------------------------------------
     def get_toggle_state(self):
