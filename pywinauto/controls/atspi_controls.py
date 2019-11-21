@@ -177,7 +177,10 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
         return self.text.get_whole_text().decode(locale.getpreferredencoding())
 
     def text_block(self):
-        """Get the text of the edit control"""
+        """Get the text of the edit control
+
+        Currently, only a wrapper around window_text()
+        """
         return self.window_text()
 
     def line_count(self):
@@ -206,9 +209,8 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     def texts(self):
-        """Get the text of the edit control"""
-        texts = [self.get_line(i) for i in range(self.line_count())]
-        return texts
+        """Get the texts of the edit control as a lines array"""
+        return [self.get_line(i) for i in range(self.line_count())]
 
     def selection_indices(self):
         """The start and end indices of the current selection"""
