@@ -41,7 +41,6 @@ from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
 
 from ..linux.atspi_element_info import AtspiElementInfo
-from ..linux.atspi_objects import AtspiAccessible
 
 from Xlib import Xatom
 from Xlib.display import Display
