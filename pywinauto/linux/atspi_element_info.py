@@ -39,7 +39,7 @@ from ..element_info import ElementInfo
 
 class AtspiElementInfo(ElementInfo):
 
-    """Wrapper for window handler"""
+    """Search class and hierarchy walker for AT-SPI elements"""
 
     atspi_accessible = AtspiAccessible()
 
