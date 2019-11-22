@@ -35,8 +35,6 @@ Win32 API functions to perform custom marshalling
 from __future__ import print_function
 
 import sys
-import win32api
-
 from ctypes import wintypes
 from ctypes import c_void_p
 from ctypes import pointer
@@ -44,10 +42,12 @@ from ctypes import sizeof
 from ctypes import byref
 from ctypes import c_size_t
 from ctypes import WinError
-from . import win32functions
-from . import win32defines
-from . import win32structures
-from .actionlogger import ActionLogger
+import win32api
+
+from ..windows import win32functions
+from ..windows import win32defines
+from ..windows import win32structures
+from ..actionlogger import ActionLogger
 
 
 class AccessDenied(RuntimeError):

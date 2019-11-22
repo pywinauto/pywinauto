@@ -41,11 +41,11 @@ import unittest
 import subprocess
 import time
 sys.path.append(".")
+from pywinauto.application import Application
 if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-    from pywinauto.application import Application
 else:
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
@@ -77,13 +77,13 @@ class SendKeysTests(unittest.TestCase):
 
     def setUp(self):
         """Start the application set some data and ensure the application is in the state we want it."""
+        self.app = Application()
         if sys.platform == 'win32':
-            self.app = Application()
             self.app.start(_notepad_exe())
             self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
         else:
-            self.app = subprocess.Popen("exec " + _test_app(), shell=True)
+            self.app.start(_test_app())
             time.sleep(0.1)
             mouse.click(coords=(300, 300))
             time.sleep(0.1)

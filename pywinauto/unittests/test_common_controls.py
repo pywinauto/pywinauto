@@ -43,12 +43,12 @@ import win32api
 import six
 
 sys.path.append(".")
-from pywinauto.application import Application  # noqa: E402
-from pywinauto.win32structures import RECT  # noqa: E402
-from pywinauto import win32defines  # noqa: E402
+from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.windows.win32structures import RECT  # noqa: E402
+from pywinauto.windows import win32defines
 from pywinauto import findbestmatch  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
-from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa: E402
+from pywinauto.windows.remote_memory_block import RemoteMemoryBlock  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.timings import wait_until  # noqa: E402
@@ -716,6 +716,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def testCheckBoxes(self):
         """Make sure tree view item method is_checked() works as expected"""
         self.dlg.set_focus()
+        self.dlg.TVS_CHECKBOXES.uncheck_by_click()
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.get_item(r'\Birds')
         self.ctrl.set_focus() # to make sure focus is not lost by any accident event

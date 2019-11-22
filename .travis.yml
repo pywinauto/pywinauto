@@ -9,9 +9,9 @@ language: python
 
 python:
   #- "2.6"
-  - "2.7"
+  - "2.7_with_system_site_packages"
   - "3.3"
-  - "3.4"
+  - "3.4_with_system_site_packages"
   - "3.5"
   - "3.6"
 os:
@@ -21,10 +21,14 @@ before_install:
 
 install:
   - pip install python-xlib codecov coverage
+  # All this dependencies only to build tests application. No real dependency of this packages
   - sudo apt-get update
-  - sudo apt-get install -qq qt58base; 
+  - sudo apt-get -y install at-spi2-core
+  - sudo apt-get install -qq qt58base;
   - sudo apt-get -y install qt58declarative qt58tools
   - sudo apt-get install xsel
+  - sudo apt-get install libgtk-3-dev libgtk2.0-dev
+  - sudo apt-get install -y python3-gi
   - source /opt/qt58/bin/qt58-env.sh;
   
 before_script:
@@ -53,11 +57,16 @@ before_script:
   - chmod a+x send_keys_test_app
   - cp send_keys_test_app ../
   - cd $TRAVIS_BUILD_DIR
+  - chmod a+x $TRAVIS_BUILD_DIR/apps/Gtk_samples/gtk_example.py
 
 script:
   - coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py
   - coverage run -a --include=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py
   - coverage run -a --include=pywinauto/linux/clipboard.py pywinauto/unittests/test_clipboard_linux.py
+  - coverage run -a --include=pywinauto/linux/application.py pywinauto/unittests/test_application_linux.py
+  - coverage run -a --source=pywinauto/linux,pywinauto/controls pywinauto/unittests/test_atspi_element_info.py
+  - coverage run -a --source=pywinauto/linux,pywinauto/controls pywinauto/unittests/test_atspi_wrapper.py
+  - coverage run -a --source=pywinauto/linux,pywinauto/controls pywinauto/unittests/test_atspi_controls.py
 
 after_success:
   - codecov

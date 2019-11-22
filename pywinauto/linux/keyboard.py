@@ -366,7 +366,7 @@ class KeyAction(object):
     __repr__ = __str__
 
 
-class PauseAction(KeyAction):
+class PauseAction(object):
 
     """Represents a pause action"""
 

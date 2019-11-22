@@ -34,10 +34,12 @@ from __future__ import unicode_literals
 
 import re
 import ctypes
+import sys
 import six
 
-from . import win32functions
-from . import win32structures
+if sys.platform == 'win32':
+    # TODO remove it after rewrite if active_only in find_elements
+    from .windows import win32functions, win32structures
 from . import findbestmatch
 from . import controls
 from .backend import registry

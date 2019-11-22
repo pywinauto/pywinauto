@@ -52,12 +52,12 @@ from pywinauto.application import Application  # noqa E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa E402
 from pywinauto.controls.hwndwrapper import InvalidWindowHandle  # noqa E402
 from pywinauto.controls.hwndwrapper import get_dialog_props_from_handle  # noqa E402
-from pywinauto import win32structures  # noqa E402
-from pywinauto import win32defines  # noqa E402
+from pywinauto.windows import win32structures  # noqa E402
+from pywinauto.windows import win32defines  # noqa E402
 from pywinauto.findwindows import ElementNotFoundError  # noqa E402
 from pywinauto.sysinfo import is_x64_Python  # noqa E402
 from pywinauto.sysinfo import is_x64_OS  # noqa E402
-from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa E402
+from pywinauto.windows.remote_memory_block import RemoteMemoryBlock  # noqa E402
 from pywinauto.timings import Timings  # noqa E402
 from pywinauto import clipboard  # noqa E402
 from pywinauto.base_wrapper import ElementNotEnabled  # noqa E402

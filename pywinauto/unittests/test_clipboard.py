@@ -37,8 +37,8 @@ import sys
 import time
 sys.path.append(".")
 from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard  # noqa E402
-from pywinauto.application import Application  # noqa E402
-from pywinauto.win32structures import RECT  # noqa E402
+from pywinauto.windows.application import Application  # noqa E402
+from pywinauto.windows.win32structures import RECT  # noqa E402
 from pywinauto.timings import Timings  # noqa E402
 
 

@@ -10,7 +10,8 @@ import mock
 import six
 
 sys.path.append(".")
-from pywinauto.application import Application, WindowSpecification  # noqa: E402
+from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.base_application import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
@@ -18,7 +19,7 @@ from pywinauto import Desktop
 from pywinauto import mouse  # noqa: E402
 if UIA_support:
     import comtypes
-    import pywinauto.uia_defines as uia_defs
+    import pywinauto.windows.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
 
 wpf_samples_folder = os.path.join(
@@ -228,6 +229,7 @@ if UIA_support:
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
 
+        @unittest.skip("To be solved with issue #790")
         def test_scroll(self):
             """Test scroll"""
             # Check an exception on a non-scrollable control

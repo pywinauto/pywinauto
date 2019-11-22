@@ -38,10 +38,10 @@ from ctypes.wintypes import tagPOINT
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
 
-from .handleprops import dumpwindow, controlid
-from .element_info import ElementInfo
+from pywinauto.handleprops import dumpwindow, controlid
+from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from .actionlogger import ActionLogger
+from pywinauto.actionlogger import ActionLogger
 
 
 def elements_from_uia_array(ptrs, cache_enable=False):
@@ -352,6 +352,11 @@ class UIAElementInfo(ElementInfo):
     def rich_text(self):
         """Return rich_text of the element"""
         return self._get_rich_text()
+
+    # ------------------------------------------------------------
+    def __hash__(self):
+        """Return a unique hash value based on the element's Runtime ID"""
+        return hash(self.runtime_id)
 
     def __eq__(self, other):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
