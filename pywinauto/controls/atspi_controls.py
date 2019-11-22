@@ -98,14 +98,17 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         self.action = self.element_info.get_action()
 
     def _press(self):
+        """Perform 'press' action on the control"""
         self.action.do_action_by_name("press")
 
     def expand(self):
+        """Drop down list of items of the control"""
         if not self.is_expanded():
             self._press()
         return self
 
     def collapse(self):
+        """Hide list of items of the control"""
         if self.is_expanded():
             self._press()
         return self
@@ -116,6 +119,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         return self.children()[0].is_visible()
 
     def texts(self):
+        """Get texts of all items in in the control as array"""
         combo_box_container = self.children()[0]
         texts = []
         for el in combo_box_container.children():
@@ -131,11 +135,15 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         return self.texts().index(self.selected_text())
 
     def item_count(self):
+        """Number of items in the control"""
         combo_box_container = self.children()[0]
         return combo_box_container.control_count()
 
     def select(self, item):
-        """Select the ComboBox item"""
+        """Select the control item.
+
+        Item can be specified as string or as index
+        """
         self.expand()
         children_lst = self.children(control_type='Menu')
         if len(children_lst) > 0:
