@@ -73,8 +73,8 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
             search_criteria['backend'] = registry.active_backend.name
-        if 'process' in search_criteria and 'app' in search_criteria:
-            raise KeyError('Keywords "process" and "app" cannot be combined (ambiguous). ' \
+        if 'pid' in search_criteria and 'app' in search_criteria:
+            raise KeyError('Keywords "pid" and "app" cannot be combined (ambiguous). ' \
                 'Use one option at a time: Application object with keyword "app" or ' \
                 'integer process ID with keyword "process".')
         self.app = search_criteria.get('app', None)
@@ -119,7 +119,7 @@ class WindowSpecification(object):
             criteria[0]['backend'] = self.backend.name
         if self.app is not None:
             # find_elements(...) accepts only "process" argument
-            criteria[0]['process'] = self.app.process
+            criteria[0]['pid'] = self.app.process
             del criteria[0]['app']
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
 
@@ -621,7 +621,7 @@ class BaseApplication(object):
 
         The action is performed according to only one of parameters
 
-        :param process: a process ID of the target
+        :param pid: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
         :param timeout: a timeout for process start (relevant if path is specified)
@@ -629,7 +629,7 @@ class BaseApplication(object):
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
+           are also can be used instead of **pid**, **handle** or **path**
         """
         raise NotImplementedError()
 

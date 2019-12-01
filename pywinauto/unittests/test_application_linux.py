@@ -67,7 +67,7 @@ if sys.platform != 'win32':
             self.subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
             time.sleep(1)
             app = Application()
-            app.connect(process=self.subprocess_app.pid)
+            app.connect(pid=self.subprocess_app.pid)
             self.assertEqual(app.process, self.subprocess_app.pid)
             app.kill()
 
@@ -112,7 +112,7 @@ if sys.platform != 'win32':
             self.subprocess_app = subprocess.Popen(_test_app().split(), stdout=subprocess.PIPE, shell=False)
             time.sleep(1)
             app = Application()
-            app.connect(process=self.subprocess_app.pid)
+            app.connect(pid=self.subprocess_app.pid)
             app.kill()
 
             # Unlock the subprocess explicity, otherwise
