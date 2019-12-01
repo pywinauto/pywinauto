@@ -53,9 +53,7 @@ import warnings
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
-from .. import win32functions
-from .. import win32defines
-from .. import win32structures
+from ..windows import win32defines, win32functions, win32structures
 from .. import controlproperties
 from ..actionlogger import ActionLogger
 from .. import keyboard
@@ -63,7 +61,7 @@ from .. import mouse
 from ..timings import Timings
 from .. import timings
 from .. import handleprops
-from ..win32_element_info import HwndElementInfo
+from ..windows.win32_element_info import HwndElementInfo
 from .. import backend
 
 # I leave this optional because PIL is a large dependency
@@ -76,7 +74,7 @@ except ImportError:
 # accessible from HwndWrapper module
 from .menuwrapper import Menu #, MenuItemNotEnabled
 
-from ..base_wrapper import BaseWrapper
+from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
 from .. import deprecated
 
@@ -152,7 +150,7 @@ class HwndMeta(BaseMeta):
 
 #====================================================================
 @six.add_metaclass(HwndMeta)
-class HwndWrapper(BaseWrapper):
+class HwndWrapper(WinBaseWrapper):
 
     """
     Default wrapper for controls.
@@ -194,7 +192,7 @@ class HwndWrapper(BaseWrapper):
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
 
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
+        WinBaseWrapper.__init__(self, element_info, backend.registry.backends['win32'])
 
         # verify that we have been passed in a valid windows handle
         if not handleprops.iswindow(self.handle):
@@ -434,7 +432,7 @@ class HwndWrapper(BaseWrapper):
     #    nmhdr.idFrom = self.control_id()
     #    nmhdr.code = code
 
-    #    from ..remote_memory_block import RemoteMemoryBlock
+    #    from ..windows.remote_memory_block import RemoteMemoryBlock
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
@@ -723,11 +721,6 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     NotifyParent = deprecated(notify_parent)
 
-    # -----------------------------------------------------------
-    def __hash__(self):
-        """Returns the hash value of the handle"""
-        return hash(self.handle)
-
     #-----------------------------------------------------------
     def wait_for_idle(self):
         """Backend specific function to wait for idle state of a thread or a window"""
@@ -906,7 +899,7 @@ class HwndWrapper(BaseWrapper):
         """Write some debug text over the window"""
         # don't draw if dialog is not visible
 
-        dc = win32functions.CreateDC("DISPLAY", None, None, None )
+        dc = win32functions.CreateDC("DISPLAY", None, None, None)
 
         if not dc:
             raise ctypes.WinError()
@@ -1426,39 +1419,39 @@ class HwndWrapper(BaseWrapper):
     # Non PEP-8 alias
     GetToolbar = deprecated(get_toolbar)
 
-    # Non PEP-8 aliases for BaseWrapper methods
+    # Non PEP-8 aliases for Win32Wrapper methods
     # We keep them for the backward compatibility in legacy scripts
-    ClickInput = deprecated(BaseWrapper.click_input)
-    DoubleClickInput = deprecated(BaseWrapper.double_click_input)
-    RightClickInput = deprecated(BaseWrapper.right_click_input)
-    VerifyVisible = deprecated(BaseWrapper.verify_visible)
-    _NeedsImageProp = deprecated(BaseWrapper._needs_image_prop, deprecated_name='_NeedsImageProp')
-    FriendlyClassName = deprecated(BaseWrapper.friendly_class_name)
-    Class = deprecated(BaseWrapper.class_name, deprecated_name='Class')
-    WindowText = deprecated(BaseWrapper.window_text)
-    ControlID = deprecated(BaseWrapper.control_id, deprecated_name='ControlID')
-    IsVisible = deprecated(BaseWrapper.is_visible)
-    IsEnabled = deprecated(BaseWrapper.is_enabled)
-    Rectangle = deprecated(BaseWrapper.rectangle)
-    ClientToScreen = deprecated(BaseWrapper.client_to_screen)
-    ProcessID = deprecated(BaseWrapper.process_id, deprecated_name='ProcessID')
-    IsDialog = deprecated(BaseWrapper.is_dialog)
-    Parent = deprecated(BaseWrapper.parent)
-    TopLevelParent = deprecated(BaseWrapper.top_level_parent)
-    Texts = deprecated(BaseWrapper.texts)
-    Children = deprecated(BaseWrapper.children)
-    CaptureAsImage = deprecated(BaseWrapper.capture_as_image)
-    GetProperties = deprecated(BaseWrapper.get_properties)
-    DrawOutline = deprecated(BaseWrapper.draw_outline)
-    IsChild = deprecated(BaseWrapper.is_child)
-    VerifyActionable = deprecated(BaseWrapper.verify_actionable)
-    VerifyEnabled = deprecated(BaseWrapper.verify_enabled)
-    PressMouseInput = deprecated(BaseWrapper.press_mouse_input)
-    ReleaseMouseInput = deprecated(BaseWrapper.release_mouse_input)
-    MoveMouseInput = deprecated(BaseWrapper.move_mouse_input)
-    DragMouseInput = deprecated(BaseWrapper.drag_mouse_input)
-    WheelMouseInput = deprecated(BaseWrapper.wheel_mouse_input)
-    TypeKeys = deprecated(BaseWrapper.type_keys)
+    ClickInput = deprecated(WinBaseWrapper.click_input)
+    DoubleClickInput = deprecated(WinBaseWrapper.double_click_input)
+    RightClickInput = deprecated(WinBaseWrapper.right_click_input)
+    VerifyVisible = deprecated(WinBaseWrapper.verify_visible)
+    _NeedsImageProp = deprecated(WinBaseWrapper._needs_image_prop, deprecated_name='_NeedsImageProp')
+    FriendlyClassName = deprecated(WinBaseWrapper.friendly_class_name)
+    Class = deprecated(WinBaseWrapper.class_name, deprecated_name='Class')
+    WindowText = deprecated(WinBaseWrapper.window_text)
+    ControlID = deprecated(WinBaseWrapper.control_id, deprecated_name='ControlID')
+    IsVisible = deprecated(WinBaseWrapper.is_visible)
+    IsEnabled = deprecated(WinBaseWrapper.is_enabled)
+    Rectangle = deprecated(WinBaseWrapper.rectangle)
+    ClientToScreen = deprecated(WinBaseWrapper.client_to_screen)
+    ProcessID = deprecated(WinBaseWrapper.process_id, deprecated_name='ProcessID')
+    IsDialog = deprecated(WinBaseWrapper.is_dialog)
+    Parent = deprecated(WinBaseWrapper.parent)
+    TopLevelParent = deprecated(WinBaseWrapper.top_level_parent)
+    Texts = deprecated(WinBaseWrapper.texts)
+    Children = deprecated(WinBaseWrapper.children)
+    CaptureAsImage = deprecated(WinBaseWrapper.capture_as_image)
+    GetProperties = deprecated(WinBaseWrapper.get_properties)
+    DrawOutline = deprecated(WinBaseWrapper.draw_outline)
+    IsChild = deprecated(WinBaseWrapper.is_child)
+    VerifyActionable = deprecated(WinBaseWrapper.verify_actionable)
+    VerifyEnabled = deprecated(WinBaseWrapper.verify_enabled)
+    PressMouseInput = deprecated(WinBaseWrapper.press_mouse_input)
+    ReleaseMouseInput = deprecated(WinBaseWrapper.release_mouse_input)
+    MoveMouseInput = deprecated(WinBaseWrapper.move_mouse_input)
+    DragMouseInput = deprecated(WinBaseWrapper.drag_mouse_input)
+    WheelMouseInput = deprecated(WinBaseWrapper.wheel_mouse_input)
+    TypeKeys = deprecated(WinBaseWrapper.type_keys)
 
 
 #====================================================================
@@ -1553,7 +1546,7 @@ class DialogWrapper(HwndWrapper):
         """Show the dialog in the Windows taskbar"""
         win32functions.ShowWindow(self, win32defines.SW_HIDE)
         win32functions.SetWindowLongPtr(self, win32defines.GWL_EXSTYLE,
-            self.exstyle() | win32defines.WS_EX_APPWINDOW)
+                                        self.exstyle() | win32defines.WS_EX_APPWINDOW)
         win32functions.ShowWindow(self, win32defines.SW_SHOW)
     # Non PEP-8 alias
     ShowInTaskbar = deprecated(show_in_taskbar)

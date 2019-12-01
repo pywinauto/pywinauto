@@ -36,7 +36,7 @@ import unittest
 
 import sys, os
 sys.path.append(".")
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.findwindows import find_window, find_windows
 from pywinauto.findwindows import WindowNotFoundError

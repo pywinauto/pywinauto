@@ -38,12 +38,12 @@ import sys
 import warnings
 sys.path.append(".")
 
-from pywinauto import win32structures
+from pywinauto.windows import win32structures
 from pywinauto.handleprops import children, classname, clientrect, contexthelpid, \
     controlid, dumpwindow, exstyle, font, has_exstyle, has_style, is64bitprocess, \
     is_toplevel_window, isenabled, isunicode, isvisible, iswindow, parent, processid, \
     rectangle, style, text, userdata, is64bitbinary
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.timings import Timings

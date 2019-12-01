@@ -46,12 +46,10 @@ import locale
 import six
 
 from functools import wraps
-from .. import win32structures
-from .. import win32functions
-from .. import win32defines
+from ..windows import win32defines, win32functions, win32structures
 from .. import findbestmatch
 from .. import mouse
-from ..remote_memory_block import RemoteMemoryBlock
+from ..windows.remote_memory_block import RemoteMemoryBlock
 from ..timings import Timings
 from .. import deprecated
 
@@ -254,8 +252,8 @@ class MenuItem(object):
     def is_enabled(self):
         """Return True if the item is enabled."""
         return not (
-            self.state() & win32defines.MF_DISABLED or
-            self.state() & win32defines.MF_GRAYED)
+                self.state() & win32defines.MF_DISABLED or
+                self.state() & win32defines.MF_GRAYED)
     # Non PEP-8 alias
     IsEnabled = deprecated(is_enabled)
 

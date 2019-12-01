@@ -32,15 +32,13 @@
 """Implementation of the class to deal with a native element (window with a handle)"""
 
 import ctypes
-from ctypes import wintypes
-
 import six
 import win32gui
 
 from . import win32functions
 from . import win32structures
-from . import handleprops
-from .element_info import ElementInfo
+from .. import handleprops
+from ..element_info import ElementInfo
 from .remote_memory_block import RemoteMemoryBlock
 
 
@@ -163,7 +161,9 @@ class HwndElementInfo(ElementInfo):
             return True
 
         # define the type of the child procedure
-        enum_win_proc_t = ctypes.WINFUNCTYPE(wintypes.BOOL, wintypes.HWND, wintypes.LPARAM)
+        enum_win_proc_t = ctypes.WINFUNCTYPE(ctypes.wintypes.BOOL,
+                                             ctypes.wintypes.HWND,
+                                             ctypes.wintypes.LPARAM)
 
         # 'construct' the callback with our function
         proc = enum_win_proc_t(enum_window_proc)
@@ -206,11 +206,19 @@ class HwndElementInfo(ElementInfo):
         """Dump a window as a set of properties"""
         return handleprops.dumpwindow(self.handle)
 
+    def __hash__(self):
+        """Return a unique hash value based on the element's handle"""
+        return hash(self.handle)
+
     def __eq__(self, other):
         """Check if 2 HwndElementInfo objects describe 1 actual element"""
         if not isinstance(other, HwndElementInfo):
             return self.handle == other
         return self.handle == other.handle
+
+    def __ne__(self, other):
+        """Check if two HwndElementInfo objects describe different elements"""
+        return not (self == other)
 
     @property
     def auto_id(self):

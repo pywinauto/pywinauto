@@ -35,7 +35,7 @@ import sys
 import os
 import unittest
 sys.path.append(".")
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.controls.menuwrapper import MenuItemNotEnabled
 from pywinauto.timings import Timings

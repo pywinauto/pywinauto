@@ -49,16 +49,15 @@ import six
 
 sys.path.append(".")
 from pywinauto import Desktop
-from pywinauto import win32defines
-from pywinauto import application
+from pywinauto.windows import application, win32defines
 from pywinauto.controls import hwndwrapper
-from pywinauto.application import Application
-from pywinauto.application import WindowSpecification
-from pywinauto.application import process_module
-from pywinauto.application import process_get_modules
-from pywinauto.application import ProcessNotFoundError
-from pywinauto.application import AppStartError
-from pywinauto.application import AppNotConnected
+from pywinauto.windows.application import Application
+from pywinauto.base_application import WindowSpecification  # noqa: E402
+from pywinauto.windows.application import process_module
+from pywinauto.windows.application import process_get_modules
+from pywinauto.windows.application import ProcessNotFoundError
+from pywinauto.windows.application import AppStartError
+from pywinauto.windows.application import AppNotConnected
 from pywinauto.controls.common_controls import TrackbarWrapper
 from pywinauto import findwindows
 from pywinauto import findbestmatch

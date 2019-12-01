@@ -35,11 +35,10 @@ import sys
 import time
 if sys.platform == 'win32':
     import pywintypes
-    from . import win32functions
-    from . import win32defines
-    from .timings import Timings
     import win32api
     import win32gui
+    from .windows import win32defines, win32functions
+    from .timings import Timings
     from . import keyboard
 else:
     from Xlib.display import Display
