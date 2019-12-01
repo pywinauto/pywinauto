@@ -343,8 +343,8 @@ class WindowSpecification(object):
         # windows - including not visible and disabled
         exists_criteria = self.criteria[:]
         for criterion in exists_criteria:
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
+            criterion['enabled'] = None
+            criterion['visible'] = None
 
         try:
             self.__resolve_control(exists_criteria, timeout, retry_interval)
@@ -683,7 +683,7 @@ class BaseApplication(object):
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_elements(process=self.process,
+            windows = findwindows.find_elements(pid=self.process,
                                                 backend=self.backend.name)
             if windows:
                 break
@@ -709,7 +709,7 @@ class BaseApplication(object):
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_elements(process=self.process,
+        windows = findwindows.find_elements(pid=self.process,
                                             active_only=True,
                                             backend=self.backend.name)
 
@@ -723,6 +723,7 @@ class BaseApplication(object):
         else:
             criteria['title'] = windows[0].name
 
+
         return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)
 
     def windows(self, **kwargs):
@@ -734,14 +735,16 @@ class BaseApplication(object):
             raise ValueError('Using another backend for this Application '
                              'instance is not allowed! Create another app object.')
 
-        if 'visible_only' not in kwargs:
-            kwargs['visible_only'] = False
+        if 'visible' not in kwargs:
+            kwargs['visible'] = None
 
-        if 'enabled_only' not in kwargs:
-            kwargs['enabled_only'] = False
+        if 'enabled' not in kwargs:
+            kwargs['enabled'] = None
 
-        kwargs['process'] = self.process
+        kwargs['pid'] = self.process
         kwargs['backend'] = self.backend.name
+        if kwargs.get('top_level_only') is None:
+            kwargs['top_level_only'] = True
 
         windows = findwindows.find_elements(**kwargs)
         return [self.backend.generic_wrapper_class(win) for win in windows]
