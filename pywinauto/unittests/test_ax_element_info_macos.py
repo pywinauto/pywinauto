@@ -28,7 +28,7 @@ class AxelementinfoTestCases(unittest.TestCase):
 
     def test_can_get_control_type_of_all_app_descendants_app(self):
         application = Application()
-        application.start(bundle_id = 'com.yourcompany.send-keys-test-app')
+        application.start(bundle_id = 'pywinauto.testapps.send-keys-test-app')
         elem = AxElementInfo(application.ns_app)
         for children in elem.descendants():
             self.assertTrue(children.control_type in known_control_types)
@@ -64,7 +64,7 @@ class AxelementinfoTestCases(unittest.TestCase):
 
     def test_can_get_name_application(self):
         application = Application()
-        application.start(bundle_id='com.yourcompany.send-keys-test-app')
+        application.start(bundle_id='pywinauto.testapps.send-keys-test-app')
         self.assertEqual(AxElementInfo(application.ns_app).name, "send_keys_test_app")
         application.kill()
 
@@ -76,13 +76,13 @@ class AxelementinfoTestCases(unittest.TestCase):
 
     def test_can_get_class_name_application(self):
         application = Application()
-        application.start(bundle_id='com.yourcompany.send-keys-test-app')
+        application.start(bundle_id='pywinauto.testapps.send-keys-test-app')
         self.assertEqual(AxElementInfo(application.ns_app).control_type, "Application")
         application.kill()
 
     def test_can_get_class_parent_application(self):
         application = Application()
-        application.start(bundle_id='com.yourcompany.send-keys-test-app')
+        application.start(bundle_id='pywinauto.testapps.send-keys-test-app')
         elem = AxElementInfo(application.ns_app)
         kid = elem.children()
         self.assertEqual(kid[0].parent.control_type, "Application")
@@ -90,7 +90,7 @@ class AxelementinfoTestCases(unittest.TestCase):
 
     def test_can_get_process_id(self):
         application = Application()
-        application.start(bundle_id='com.yourcompany.send-keys-test-app')
+        application.start(bundle_id='pywinauto.testapps.send-keys-test-app')
         self.assertEqual(AxElementInfo(application.ns_app).process_id, application.ns_app.processIdentifier())
         application.kill()
 
