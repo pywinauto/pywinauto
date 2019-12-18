@@ -30,7 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Keyboard input emulation module
+r"""Keyboard input emulation module
 
 Automate typing keys or individual key actions (viz. press and hold, release) to
 an active window by calling ``send_keys`` method.
