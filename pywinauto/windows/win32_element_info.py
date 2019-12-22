@@ -271,6 +271,7 @@ class HwndElementInfo(ElementInfo):
 
     @classmethod
     def from_point(cls, x, y):
+        """Return child element at specified point coordinates"""
         current_handle = win32gui.WindowFromPoint((x, y))
         child_handle = win32gui.ChildWindowFromPoint(current_handle, (x, y))
         if child_handle:
@@ -280,6 +281,7 @@ class HwndElementInfo(ElementInfo):
 
     @classmethod
     def top_from_point(cls, x, y):
+        """Return top level element at specified point coordinates"""
         current_elem = cls.from_point(x, y)
         current_parent = current_elem.parent
         while current_parent is not None and current_parent != cls():
@@ -289,6 +291,7 @@ class HwndElementInfo(ElementInfo):
 
     @classmethod
     def get_active(cls):
+        """Return current active element"""
         gui_info = win32structures.GUITHREADINFO()
         gui_info.cbSize = ctypes.sizeof(gui_info)
 

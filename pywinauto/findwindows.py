@@ -132,14 +132,14 @@ def find_elements(**kwargs):
     parent = kwargs.pop('parent', None)
     handle = kwargs.pop('handle', None)
     ctrl_index = kwargs.pop('ctrl_index', None)
-    top_level_only = kwargs.pop('top_level_only', None)
+    top_level_only = kwargs.pop('top_level_only', True)
     # TODO: depth = 1, remove top_level_only?
     depth = kwargs.pop('depth', None)
     best_match = kwargs.pop('best_match', None)
     predicate_func = kwargs.pop('predicate_func', None)
     # TODO: eliminate found_index by find_all
     found_index = kwargs.pop('found_index', None)
-    active_only = kwargs.pop('active_only', None)
+    active_only = kwargs.pop('active_only', False)
 
     if backend is None:
         backend = registry.active_backend.name
