@@ -357,10 +357,12 @@ class UIAElementInfo(ElementInfo):
 
     @classmethod
     def from_point(cls, x, y):
+        """Return child element at specified point coordinates"""
         return cls(IUIA().iuia.ElementFromPoint(tagPOINT(x, y)))
 
     @classmethod
     def top_from_point(cls, x, y):
+        """Return top level element at specified point coordinates"""
         current_elem = cls.from_point(x, y)
         current_parent = current_elem.parent
         while current_parent is not None and current_parent != cls():
@@ -390,5 +392,6 @@ class UIAElementInfo(ElementInfo):
 
     @classmethod
     def get_active(cls):
+        """Return current active element"""
         ae = IUIA().get_focused_element()
         return cls(ae)
