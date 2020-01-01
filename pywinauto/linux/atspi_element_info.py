@@ -43,6 +43,25 @@ class AtspiElementInfo(ElementInfo):
 
     atspi_accessible = AtspiAccessible()
 
+    re_props = ["class_name", "name", "control_type"]
+    exact_only_props = ["handle", "pid", "control_id", "visible", "enabled", "rectangle",
+        "framework_id", "framework_name", "atspi_version", "runtime_id", "description"]
+    search_order = ["handle", "control_type", "class_name", "pid", "control_id",
+        "visible", "enabled", "name", "rectangle",
+        "framework_id", "framework_name", "atspi_version", "runtime_id", "description"]
+    # "auto_id", "full_control_type"
+    assert set(re_props + exact_only_props) == set(search_order)
+
+    renamed_props = {
+        "title": ("name", None),
+        "title_re": ("name_re", None),
+        "process": ("pid", None),
+        "visible_only": ("visible", {True: True, False: None}),
+        "enabled_only": ("enabled", {True: True, False: None}),
+        "top_level_only": ("depth", {True: 1, False: None}),
+    }
+
+
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
         if handle is None:
@@ -103,6 +122,8 @@ class AtspiElementInfo(ElementInfo):
     def process_id(self):
         """Return the ID of process that controls this window"""
         return self.atspi_accessible.get_process_id(self._handle, None)
+
+    pid = process_id
 
     @property
     def class_name(self):

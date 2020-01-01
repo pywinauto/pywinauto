@@ -79,7 +79,8 @@ def text(handle):
         byref(c_length)
     )
     if result == 0:
-        ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + str(handle))
+        if isvisible(handle):
+            ActionLogger().log('WARNING! Cannot retrieve text length for handle = ' + hex(handle))
         return ''
     else:
         length = c_length.value

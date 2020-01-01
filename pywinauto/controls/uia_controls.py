@@ -145,7 +145,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             super(ComboBoxWrapper, self).expand()
         except NoPatternInterfaceError:
             # workaround for WinForms combo box using Open button
-            open_buttons = self.children(title='Open', control_type='Button')
+            open_buttons = self.children(name='Open', control_type='Button')
             if open_buttons:
                 open_buttons[0].invoke()
             else:
@@ -164,7 +164,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             super(ComboBoxWrapper, self).collapse()
         except NoPatternInterfaceError:
             # workaround for WinForms combo box using Open button
-            close_buttons = self.children(title='Close', control_type='Button')
+            close_buttons = self.children(name='Close', control_type='Button')
             if not close_buttons:
                 if self.element_info.framework_id == 'WinForm':
                     return self # simple WinForms combo box is always expanded
@@ -242,7 +242,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
                 children_lst[0]._select(item)
                 # do health check and apply workaround for Qt5 combo box if necessary
                 if isinstance(item, six.string_types):
-                    item = children_lst[0].children(title=item)[0]
+                    item = children_lst[0].children(name=item)[0]
                     if self.selected_text() != item:
                         # workaround for WinForms combo box
                         item.invoke()
@@ -844,7 +844,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 # com_elem is NULL pointer or item doesn't support ItemContainer pattern
                 # Get DataGrid row
                 try:
-                    itm = self.descendants(title=row)[0]
+                    itm = self.descendants(name=row)[0]
                     # Applications like explorer.exe usually return ListItem
                     # directly while other apps can return only a cell.
                     # In this case we need to take its parent - the whole row.

@@ -82,17 +82,17 @@ class Application(BaseApplication):
 
         The action is performed according to only one of parameters
 
-        :param process: a process ID of the target
+        :param pid: a process ID of the target
         :param path: a path used to launch the target
 
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process** or **path**
+           are also can be used instead of **pid** or **path**
         """
         connected = False
-        if 'process' in kwargs:
-            self.process = kwargs['process']
+        if 'pid' in kwargs:
+            self.process = kwargs['pid']
             assert_valid_process(self.process)
             connected = True
         elif 'path' in kwargs:

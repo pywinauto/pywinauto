@@ -35,10 +35,11 @@ import ctypes
 import six
 import win32gui
 
-from pywinauto.windows import win32functions
-from pywinauto import handleprops
-from pywinauto.element_info import ElementInfo
-from pywinauto.windows.remote_memory_block import RemoteMemoryBlock
+from . import win32functions
+from . import win32structures
+from .. import handleprops
+from ..element_info import ElementInfo
+from .remote_memory_block import RemoteMemoryBlock
 
 
 def _register_win_msg(msg_name):
@@ -57,6 +58,20 @@ class HwndElementInfo(ElementInfo):
 
     wm_get_ctrl_name = _register_win_msg('WM_GETCONTROLNAME')
     wm_get_ctrl_type = _register_win_msg('WM_GETCONTROLTYPE')
+    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type"]
+    exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle"]
+    search_order = ["handle", "class_name", "pid", "control_id", "visible", "enabled", "name",
+        "auto_id", "control_type", "full_control_type", "rectangle"]
+    assert set(re_props + exact_only_props) == set(search_order)
+
+    renamed_props = {
+        "title": ("name", None),
+        "title_re": ("name_re", None),
+        "process": ("pid", None),
+        "visible_only": ("visible", {True: True, False: None}),
+        "enabled_only": ("enabled", {True: True, False: None}),
+        "top_level_only": ("depth", {True: 1, False: None}),
+    }
 
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
@@ -92,6 +107,8 @@ class HwndElementInfo(ElementInfo):
         """Return the ID of process that controls this window"""
         return handleprops.processid(self.handle)
 
+    pid = process_id
+
     @property
     def class_name(self):
         """Return the class name of the window"""
@@ -119,8 +136,9 @@ class HwndElementInfo(ElementInfo):
     def children(self, **kwargs):
         """Return a list of immediate children of the window"""
         class_name = kwargs.get('class_name', None)
-        title = kwargs.get('title', None)
+        title = kwargs.get('name', None)
         control_type = kwargs.get('control_type', None)
+        process = kwargs.get('process', None)
         # TODO: 'cache_enable' and 'depth' are ignored so far
 
         # this will be filled in the callback function
@@ -131,6 +149,8 @@ class HwndElementInfo(ElementInfo):
         def enum_window_proc(hwnd, lparam):
             """Called for each window - adds wrapped elements to a list"""
             element = HwndElementInfo(hwnd)
+            if process is not None and process != element.pid:
+                return True
             if class_name is not None and class_name != element.class_name:
                 return True
             if title is not None and title != element.rich_text:
@@ -186,7 +206,6 @@ class HwndElementInfo(ElementInfo):
         """Dump a window as a set of properties"""
         return handleprops.dumpwindow(self.handle)
 
-    # ------------------------------------------------------------
     def __hash__(self):
         """Return a unique hash value based on the element's handle"""
         return hash(self.handle)
@@ -202,7 +221,7 @@ class HwndElementInfo(ElementInfo):
         return not (self == other)
 
     @property
-    def automation_id(self):
+    def auto_id(self):
         """Return AutomationId of the element"""
         textval = ''
 
@@ -252,6 +271,7 @@ class HwndElementInfo(ElementInfo):
 
     @classmethod
     def from_point(cls, x, y):
+        """Return child element at specified point coordinates"""
         current_handle = win32gui.WindowFromPoint((x, y))
         child_handle = win32gui.ChildWindowFromPoint(current_handle, (x, y))
         if child_handle:
@@ -261,9 +281,26 @@ class HwndElementInfo(ElementInfo):
 
     @classmethod
     def top_from_point(cls, x, y):
+        """Return top level element at specified point coordinates"""
         current_elem = cls.from_point(x, y)
         current_parent = current_elem.parent
         while current_parent is not None and current_parent != cls():
             current_elem = current_parent
             current_parent = current_elem.parent
         return current_elem
+
+    @classmethod
+    def get_active(cls):
+        """Return current active element"""
+        gui_info = win32structures.GUITHREADINFO()
+        gui_info.cbSize = ctypes.sizeof(gui_info)
+
+        # get all the active elements (not just the specified process)
+        ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
+
+        if not ret:
+            raise ctypes.WinError()
+
+        hwndActive = gui_info.hwndActive
+
+        return cls(hwndActive) if hwndActive is not None else None

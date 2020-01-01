@@ -172,10 +172,10 @@ class HandlepropsTestCases(unittest.TestCase):
             False,
             isenabled(
                 self.app.Replace.child_window(
-                    title_re = "Replace.*",
-                    class_name = "Button",
-                    enabled_only = False).handle))
-        self.app.Replace.Cancel.click()
+                    name_re="Replace.*",
+                    class_name="Button",
+                    enabled=None).handle))
+        self.app.Replace.Cancel.Click()
 
     def test_clientrect(self):
         """Make sure clientrect() function works"""

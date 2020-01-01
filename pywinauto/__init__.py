@@ -124,14 +124,10 @@ if sys.platform == 'win32':
 
         def windows(self, **kwargs):
             """Return a list of wrapped top level windows"""
+            if 'top_level_only' not in kwargs:
+                kwargs['top_level_only'] = True
             if 'backend' in kwargs:
                 raise ValueError('Using another backend than set in Desktop constructor is not allowed!!')
-
-            if 'visible_only' not in kwargs:
-                kwargs['visible_only'] = False
-
-            if 'enabled_only' not in kwargs:
-                kwargs['enabled_only'] = False
 
             kwargs['backend'] = self.backend.name
 

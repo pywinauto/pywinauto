@@ -74,8 +74,8 @@ class WindowSpecification(object):
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
             search_criteria['backend'] = registry.active_backend.name
-        if 'process' in search_criteria and 'app' in search_criteria:
-            raise KeyError('Keywords "process" and "app" cannot be combined (ambiguous). ' \
+        if 'pid' in search_criteria and 'app' in search_criteria:
+            raise KeyError('Keywords "pid" and "app" cannot be combined (ambiguous). ' \
                 'Use one option at a time: Application object with keyword "app" or ' \
                 'integer process ID with keyword "process".')
         self.app = search_criteria.get('app', None)
@@ -121,7 +121,7 @@ class WindowSpecification(object):
             criteria[0]['backend'] = self.backend.name
         if self.app is not None:
             # find_elements(...) accepts only "process" argument
-            criteria[0]['process'] = self.app.process
+            criteria[0]['pid'] = self.app.process
             del criteria[0]['app']
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
 
@@ -343,8 +343,8 @@ class WindowSpecification(object):
         # windows - including not visible and disabled
         exists_criteria = self.criteria[:]
         for criterion in exists_criteria:
-            criterion['enabled_only'] = False
-            criterion['visible_only'] = False
+            criterion['enabled'] = None
+            criterion['visible'] = None
 
         try:
             self.__resolve_control(exists_criteria, timeout, retry_interval)
@@ -639,7 +639,7 @@ class BaseApplication(object):
 
         The action is performed according to only one of parameters
 
-        :param process: a process ID of the target
+        :param pid: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
         :param timeout: a timeout for process start (relevant if path is specified)
@@ -647,7 +647,7 @@ class BaseApplication(object):
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
+           are also can be used instead of **pid**, **handle** or **path**
         """
         raise NotImplementedError()
 
@@ -683,7 +683,7 @@ class BaseApplication(object):
 
         timeout = Timings.window_find_timeout
         while timeout >= 0:
-            windows = findwindows.find_elements(process=self.process,
+            windows = findwindows.find_elements(pid=self.process,
                                                 backend=self.backend.name)
             if windows:
                 break
@@ -709,7 +709,7 @@ class BaseApplication(object):
 
         time.sleep(Timings.window_find_timeout)
         # very simple
-        windows = findwindows.find_elements(process=self.process,
+        windows = findwindows.find_elements(pid=self.process,
                                             active_only=True,
                                             backend=self.backend.name)
 
@@ -723,6 +723,7 @@ class BaseApplication(object):
         else:
             criteria['title'] = windows[0].name
 
+
         return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)
 
     def windows(self, **kwargs):
@@ -734,14 +735,16 @@ class BaseApplication(object):
             raise ValueError('Using another backend for this Application '
                              'instance is not allowed! Create another app object.')
 
-        if 'visible_only' not in kwargs:
-            kwargs['visible_only'] = False
+        if 'visible' not in kwargs:
+            kwargs['visible'] = None
 
-        if 'enabled_only' not in kwargs:
-            kwargs['enabled_only'] = False
+        if 'enabled' not in kwargs:
+            kwargs['enabled'] = None
 
-        kwargs['process'] = self.process
+        kwargs['pid'] = self.process
         kwargs['backend'] = self.backend.name
+        if kwargs.get('top_level_only') is None:
+            kwargs['top_level_only'] = True
 
         windows = findwindows.find_elements(**kwargs)
         return [self.backend.generic_wrapper_class(win) for win in windows]
@@ -758,13 +761,19 @@ class BaseApplication(object):
         if 'backend' in kwargs:
             raise ValueError('Using another backend than set in the app constructor is not allowed!')
         kwargs['backend'] = self.backend.name
+        if kwargs.get('top_level_only') is None:
+            kwargs['top_level_only'] = True
+            # TODO: figure out how to eliminate this workaround
+            if self.backend.name == 'win32':
+                kwargs['visible'] = True
 
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
         else:
             # add the restriction for this particular process
-            kwargs['process'] = self.process
+            kwargs['pid'] = self.process
+            # kwargs['app'] = self # TODO: figure out how to bind to Application object in new implementation
             win_spec = WindowSpecification(kwargs, allow_magic_lookup=self.allow_magic_lookup)
 
         return win_spec
