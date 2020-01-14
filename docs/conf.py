@@ -37,17 +37,18 @@ if sys.platform.startswith('linux'):
             'multiprocessing',
             '_winreg',
             'ctypes.wintypes',
-            'win32gui_struct',
-            'ctypes',
+            'ctypes.WINFUNCTYPE',
+            'ctypes.WinError',
             'Xlib',
             'Xlib.display',
             'Xlib.ext.xtest',
             'Xlib.ext',
             'Xlib.XK',
             'pywintypes',
-            'pywinauto.win32structures',
-            'pywinauto.win32defines',
-            "pywinauto.win32functions",
+            'pywinauto.windows.win32structures',
+            'pywinauto.windows.win32defines',
+            "pywinauto.windows.win32functions",
+            'pywinauto.windows.win32_hooks',
             "win32functions",
             'win32structures',
             'comtypes',
@@ -83,14 +84,14 @@ except ImportError:
 
 default_import_func = builtin_module.__import__
 def mocked_import(name, globals={}, locals={}, fromlist=[], level=0):
-    #print name
-    #print fromlist
+    #print(name)
+    #print(fromlist)
     modules_to_mock = ['win32structures', 'win32functions', 'win32defines']
     is_fromlist_listlike = isinstance(fromlist, list) or isinstance(fromlist, tuple)
     if name in modules_to_mock or (is_fromlist_listlike and [x for x in fromlist if x in modules_to_mock]):
         return mock.MagicMock()
     else:
-        #print 'doing import for' + str(name) + str(fromlist)
+        #print 'doing import for: ' + str(name) + ", lst: " + str(fromlist)
         return default_import_func(name, globals, locals, fromlist, level)
 builtin_module.__import__ = mocked_import
 
