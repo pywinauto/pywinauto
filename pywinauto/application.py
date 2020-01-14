@@ -7,4 +7,4 @@ if sys.platform == 'win32':
 else:
     from .linux.application import Application  # noqa: W0611
 
-__all__ = [WindowSpecification, Application]
+__all__ = ["WindowSpecification", "Application"]
