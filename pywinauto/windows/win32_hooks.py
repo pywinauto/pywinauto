@@ -53,9 +53,7 @@ import six
 from ctypes import wintypes
 from ctypes import windll
 from ctypes import CFUNCTYPE
-from ctypes import POINTER
 from ctypes import c_int
-from ctypes import c_uint
 from ctypes import byref
 from ctypes import pointer
 import atexit
@@ -67,9 +65,11 @@ import win32api
 
 from .win32defines import VK_PACKET
 from pywinauto.actionlogger import ActionLogger
+from pywinauto.windows import win32functions
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
 from .win32structures import LRESULT
+
 
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
 
@@ -79,18 +79,6 @@ windll.user32.SetWindowsHookExA.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExA.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
 windll.user32.SetWindowsHookExW.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExW.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
-windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
-windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
-
-# BOOL WINAPI PeekMessage(
-#  _Out_    LPMSG lpMsg,
-#  _In_opt_ HWND  hWnd,
-#  _In_     UINT  wMsgFilterMin,
-#  _In_     UINT  wMsgFilterMax,
-#  _In_     UINT  wRemoveMsg
-#);
-windll.user32.PeekMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint, c_uint]
-windll.user32.PeekMessageW.restypes = wintypes.BOOL
 
 # LRESULT WINAPI CallNextHookEx(
 #   _In_opt_ HHOOK  hhk,
@@ -576,15 +564,15 @@ class Hook(object):
         """Peek and process queued windows messages"""
         message = wintypes.MSG()
         while True:
-            res = windll.user32.PeekMessageW(pointer(message), 0, 0, 0, win32con.PM_REMOVE)
+            res = win32functions.PeekMessageW(pointer(message), 0, 0, 0, win32con.PM_REMOVE)
             if not res:
                 break
             if message.message == win32con.WM_QUIT:
                 self.stop()
                 sys.exit(0)
             else:
-                windll.user32.TranslateMessage(byref(message))
-                windll.user32.DispatchMessageW(byref(message))
+                win32functions.TranslateMessage(byref(message))
+                win32functions.DispatchMessageW(byref(message))
 
     def listen(self):
         """Listen for events"""

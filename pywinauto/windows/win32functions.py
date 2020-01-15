@@ -38,6 +38,7 @@ from ctypes import c_short
 from ctypes import WINFUNCTYPE
 from ctypes import c_void_p
 from ctypes import c_int
+from ctypes import c_uint
 from ctypes import byref
 from ctypes import POINTER
 from ctypes import c_ubyte
@@ -698,6 +699,23 @@ GetClipboardFormatName.argtypes = [
     wintypes.UINT,
     wintypes.LPWSTR,
     c_int,
+]
+TranslateMessage = windll.user32.TranslateMessage
+TranslateMessage.argtypes = [
+    POINTER(wintypes.MSG)
+]
+DispatchMessageW = windll.user32.DispatchMessageW
+DispatchMessageW.argtypes = [
+    POINTER(wintypes.MSG)
+]
+PeekMessageW = windll.user32.PeekMessageW
+PeekMessageW.restypes = wintypes.BOOL
+PeekMessageW.argtypes = [
+    POINTER(wintypes.MSG),
+    wintypes.HWND,
+    c_uint,
+    c_uint,
+    c_uint,
 ]
 
 # DPIAware API funcs are not available on WinXP
