@@ -271,7 +271,12 @@ class TaskbarTestCases(unittest.TestCase):
         def _show_popup_menu():
             taskbar.explorer_app.wait_cpu_usage_lower(threshold=5, timeout=self.tm)
             taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
-            menu = self.app.top_window().children()[0]
+            children = self.app.top_window().children()
+            if not children:
+                # Somehow, we ended up with a dialog - parent of the menu
+                menu = self.app.windows(visible=True)[0].children()[0]
+            else:
+                menu = children[0]
             res = isinstance(menu, ToolbarWrapper) and menu.is_visible()
             menu_window[0] = menu
             return res
