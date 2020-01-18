@@ -30,7 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Wrap various ATSPI windows controls"""
+"""Wrap various Linux ATSPI windows controls. To be used with 'atspi' backend"""
 
 import locale
 import six
