@@ -1,0 +1,8 @@
+pywinauto.linux.application
+----------------------------------
+
+.. automodule:: pywinauto.linux.application
+    :members:
+    :undoc-members:
+    :show-inheritance:
+

@@ -1,0 +1,9 @@
+pywinauto.windows.application
+------------------------------------
+
+.. automodule:: pywinauto.windows.application
+    :members:
+    :exclude-members: Kill_, kill_, Window_, window_
+    :undoc-members:
+    :show-inheritance:
+

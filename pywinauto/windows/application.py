@@ -29,7 +29,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""The application module is the main one that users will use first.
+"""Implementation of Application class for MS Windows platform."""
 
 When starting to automate an application you must initialize an instance
 of the Application class. Then you must :func:`Application.start` that
