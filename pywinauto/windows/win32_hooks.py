@@ -64,8 +64,8 @@ import win32con
 import win32api
 
 from .win32defines import VK_PACKET
-from pywinauto.actionlogger import ActionLogger
-from pywinauto.windows import win32functions
+from ..actionlogger import ActionLogger
+from . import win32functions
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
 from .win32structures import LRESULT
