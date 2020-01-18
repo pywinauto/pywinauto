@@ -124,10 +124,13 @@ if sys.platform.startswith("linux"):
 
         """Unit tests for the AtspiElementInfo class"""
 
-        def get_app(self, name):
-            for children in self.desktop_info.children():
-                if children.name == name:
-                    return children
+        def get_app(self, name, pid=None):
+            """Helper to find the application top window"""
+            if not pid:
+                pid = self.app.process
+            for child in self.desktop_info.children():
+                if child.name == name and pid == child.process_id:
+                        return child
             raise Exception("Application not found")
 
         def setUp(self):
@@ -136,9 +139,12 @@ if sys.platform.startswith("linux"):
             self.app.start(_test_app())
             time.sleep(1)
             self.app_info = self.get_app(app_name)
+            self.app2 = None
 
         def tearDown(self):
             self.app.kill()
+            if self.app2:
+                self.app2.kill()
 
         def test_can_get_desktop(self):
             self.assertEqual(self.desktop_info.control_type, "DesktopFrame")
@@ -243,6 +249,19 @@ if sys.platform.startswith("linux"):
         def test_enabled(self):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.enabled)
+
+        def test_hash(self):
+            self.app2 = Application().start(_test_app())
+            time.sleep(1)
+            app_info2 = self.get_app(app_name, pid=self.app2.process)
+            
+            frame_info1 = self.app_info.children()[0]
+            frame_info2 = app_info2.children()[0]
+            d = { frame_info1 : 1, frame_info2 : 2, }
+
+            self.assertEqual(d[frame_info1], d[self.app_info.children()[0]])
+            self.assertNotEqual(d[frame_info1], d[frame_info2])
+            self.assertEqual(d[frame_info2], d[frame_info2])
 
     class AtspiElementInfoWithoutChildrenMockedTests(unittest.TestCase):
 
