@@ -30,7 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Linux Application class"""
+"""Implementation of Application class for Linux platform."""
 
 import os.path
 import time
@@ -65,6 +65,7 @@ class Application(BaseApplication):
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True, work_dir=None):
+        """Start the application as specified by cmd_line"""
         command_line = shlex.split(cmd_line)
         try:
             process = subprocess.Popen(command_line, shell=create_new_console)
