@@ -92,7 +92,7 @@ def activate(name):
     """
     Set active backend by name
 
-    Possible values of **name** are "win32", "uia" or
+    Possible values of **name** are "win32", "uia", "atspi" or
     other name registered by the :py:func:`register` function.
     """
     if name not in registry.backends:

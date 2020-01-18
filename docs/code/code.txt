@@ -36,9 +36,12 @@ Controls Reference
    pywinauto.controls.menuwrapper.txt
    pywinauto.controls.common_controls.txt
    pywinauto.controls.win32_controls.txt
-   
+
    pywinauto.controls.uiawrapper.txt
    pywinauto.controls.uia_controls.txt
+
+   pywinauto.controls.atspi_controls.txt
+   pywinauto.controls.atspiwrapper.txt
 
 Pre-supplied Tests
 ==================
@@ -70,6 +73,8 @@ Backend Internal Implementation modules
 
    pywinauto.windows.uia_element_info.txt
    pywinauto.windows.uia_defines.txt
+
+   pywinauto.linux.atspi_element_info.txt
 
 Internal Modules
 ================

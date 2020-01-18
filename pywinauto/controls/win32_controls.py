@@ -29,7 +29,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Wraps various standard windows controls"""
+"""Wraps various standard windows controls. To be used with 'win32' backend"""
 from __future__ import unicode_literals
 
 import time
