@@ -1,0 +1,9 @@
+pywinauto.controls.atspiwrapper
+-------------------------------
+ .. automodule:: pywinauto.controls.atspiwrapper
+    :members:
+    :exclude-members: control_type_to_cls
+    :undoc-members:
+    :show-inheritance:
+
+
