@@ -18,6 +18,7 @@ Main User Modules
    pywinauto.findbestmatch.txt
    pywinauto.findwindows.txt
    pywinauto.timings.txt
+   pywinauto.txt
 
 Specific Functionality
 ======================
