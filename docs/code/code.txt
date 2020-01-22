@@ -12,10 +12,13 @@ Main User Modules
 .. toctree::
    :maxdepth: 1
    
-   pywinauto.application.txt
+   pywinauto.base_application.txt
+   pywinauto.windows.application.txt
+   pywinauto.linux.application.txt
    pywinauto.findbestmatch.txt
    pywinauto.findwindows.txt
    pywinauto.timings.txt
+   pywinauto.txt
 
 Specific Functionality
 ======================

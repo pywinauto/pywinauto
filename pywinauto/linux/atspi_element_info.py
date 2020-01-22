@@ -69,6 +69,11 @@ class AtspiElementInfo(ElementInfo):
         else:
             self._handle = handle
 
+        # Cache non-mutable element IDs
+        self._pid = self.atspi_accessible.get_process_id(self._handle, None)
+        self._root_id = self.atspi_accessible.get_id(self._handle, None)
+        self._runtime_id = self.atspi_accessible.get_index_in_parent(self._handle, None)
+
     def __get_elements(self, root, tree, **kwargs):
         tree.append(root)
         for el in root.children(**kwargs):
@@ -76,7 +81,7 @@ class AtspiElementInfo(ElementInfo):
 
     def __hash__(self):
         """Return a unique hash value based on the element's handle"""
-        return hash(self.handle)
+        return hash((self._pid, self._root_id, self._runtime_id))
 
     def __eq__(self, other):
         """Check if two AtspiElementInfo objects describe the same element"""
@@ -116,12 +121,12 @@ class AtspiElementInfo(ElementInfo):
     @property
     def runtime_id(self):
         """Return the runtime ID of the element"""
-        return self.atspi_accessible.get_index_in_parent(self._handle, None)
+        return self._runtime_id
 
     @property
     def process_id(self):
         """Return the ID of process that controls this window"""
-        return self.atspi_accessible.get_process_id(self._handle, None)
+        return self._pid
 
     pid = process_id
 

@@ -1,3 +1,80 @@
+# GUI Application automation and testing library
+# Copyright (C) 2006-2020 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.readthedocs.io/en/latest/credits.html
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+"""pywinauto.base_application module
+------------------------------------
+
+The application module is the main one that users will use first.
+
+When starting to automate an application you must initialize an instance
+of the Application class. Then you have to start the program with
+:meth:`Application.start<pywinauto.base_application.BaseApplication.start>`
+or connect to a runing process of an application with:
+:meth:`Application.connect<pywinauto.base_application.BaseApplication.connect>`
+
+Once you have an Application instance you can access dialogs in that
+application by using one of the methods below. ::
+
+   dlg = app.YourDialogTitle
+   dlg = app.child_window(name="your title", classname="your class", ...)
+   dlg = app['Your Dialog Title']
+
+Similarly once you have a dialog you can get a control from that dialog
+in almost exactly the same ways. ::
+
+   ctrl = dlg.YourControlTitle
+   ctrl = dlg.child_window(name="Your control", classname="Button", ...)
+   ctrl = dlg["Your control"]
+
+.. note::
+
+   For attribute access of controls and dialogs you do not have to
+   specify the exact name/title/text of the control. Pywinauto automatically
+   performs a best match of the available dialogs or controls.
+
+   With introducing the cross-platform support in pywinauto,
+   the Application class is automatically created with the platform
+   default backend. For MS Windows OS it is 'win32' and for Linux OS it is 'atspi'.
+
+.. seealso::
+
+   :func:`pywinauto.findwindows.find_elements` for the keyword arguments that
+   can be passed to both:
+   :meth:`WindowSpecification.child_window<pywinauto.base_application.WindowSpecification.child_window>` and
+   :meth:`WindowSpecification.window<pywinauto.base_application.WindowSpecification.window>`
+
+   :class:`pywinauto.windows.application.Application` for the 'win32' and 'uia' backends
+
+   :class:`pywinauto.linux.application.Application` for the 'atspi' backend
+"""
 from __future__ import print_function
 
 import sys
@@ -653,7 +730,15 @@ class BaseApplication(object):
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True, work_dir=None):
-        """Start the application as specified by cmd_line"""
+        """Start the application as specified by **cmd_line**
+
+        :param cmd_line: a string with a path to launch the target
+        :param timeout: a timeout for process to start (optional)
+        :param retry_interval: retry interval (optional)
+        :param create_new_console: create a new console (optional)
+        :param wait_for_idle: wait for idle (optional)
+        :param work_dir: working directory (optional)
+        """
         raise NotImplementedError()
 
     def cpu_usage(self, interval=None):

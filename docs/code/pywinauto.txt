@@ -1,0 +1,7 @@
+pywinauto
+-----------------------------
+ .. automodule:: pywinauto
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
