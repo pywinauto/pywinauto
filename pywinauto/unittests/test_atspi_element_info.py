@@ -113,7 +113,7 @@ if sys.platform.startswith("linux"):
             r0.bottom = 5
             self.assertEqual(r0, RECT(1, 2, 3, 5))
             self.assertEqual(r0, (1, 2, 3, 5))
-    
+
         def test_RECT_repr(self):
             """Test RECT repr"""
             r0 = RECT(0)
@@ -130,7 +130,7 @@ if sys.platform.startswith("linux"):
                 pid = self.app.process
             for child in self.desktop_info.children():
                 if child.name == name and pid == child.process_id:
-                        return child
+                    return child
             raise Exception("Application not found")
 
         def setUp(self):
@@ -254,7 +254,7 @@ if sys.platform.startswith("linux"):
             self.app2 = Application().start(_test_app())
             time.sleep(1)
             app_info2 = self.get_app(app_name, pid=self.app2.process)
-            
+
             frame_info1 = self.app_info.children()[0]
             frame_info2 = app_info2.children()[0]
             d = { frame_info1 : 1, frame_info2 : 2, }
