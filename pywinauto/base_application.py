@@ -856,9 +856,8 @@ class BaseApplication(object):
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
         else:
-            # add the restriction for this particular process
-            kwargs['pid'] = self.process
-            # kwargs['app'] = self # TODO: figure out how to bind to Application object in new implementation
+            # add the restriction for this particular application
+            kwargs['app'] = self
             win_spec = WindowSpecification(kwargs, allow_magic_lookup=self.allow_magic_lookup)
 
         return win_spec

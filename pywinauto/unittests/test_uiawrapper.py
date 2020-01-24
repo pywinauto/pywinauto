@@ -84,6 +84,8 @@ if UIA_support:
             """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
             menu_spec = self.dlg.Menu
             self.assertTrue(isinstance(menu_spec, WindowSpecification))
+            # Also check the app binding
+            self.assertTrue(menu_spec.app, self.app)
 
         def test_find_nontop_ctl_by_class_name_and_title(self):
             """Test getting a non-top control by a class name and a title"""
