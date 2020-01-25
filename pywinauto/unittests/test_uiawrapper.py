@@ -414,6 +414,7 @@ if UIA_support:
                                            name="OK").wrapper_object()
 
             self.label = dlg.child_window(class_name="Text", name="TestLabel").wrapper_object()
+            self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1.0)
 
         def tearDown(self):
             """Close the application after tests"""
@@ -424,7 +425,6 @@ if UIA_support:
 
         def test_click_input(self):
             """Test click_input method of a control"""
-            time.sleep(0.5)
             self.button.click_input()
             self.assertEqual(self.label.window_text(), "LeftClick")
 
@@ -441,7 +441,6 @@ if UIA_support:
 
         def test_right_click_input(self):
             """Test right_click_input method of a control"""
-            time.sleep(0.5)
             self.button.right_click_input()
             self.assertEqual(self.label.window_text(), "RightClick")
 
