@@ -17,7 +17,7 @@ dialogs and controls.
 
 Installation
 ------------
-- Just run ``pip install pywinauto``
+pywinauto can be installed with pip and conda. Run ``pip install pywinauto`` or ``conda install -c conda-forge pywinauto``.
 
 
 Manual installation

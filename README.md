@@ -8,6 +8,7 @@
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/b823b31c0f2b48d6873326d038c5a516)](https://www.codacy.com/app/pywinauto/pywinauto?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=pywinauto/pywinauto&amp;utm_campaign=Badge_Grade)
 [![Code Quality: Python](https://img.shields.io/lgtm/grade/python/g/pywinauto/pywinauto.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/pywinauto/pywinauto/context:python)
 [![Total Alerts](https://img.shields.io/lgtm/alerts/g/pywinauto/pywinauto.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/pywinauto/pywinauto/alerts)
+[![Conda Version](https://img.shields.io/conda/vn/conda-forge/pywinauto.svg)](https://anaconda.org/conda-forge/pywinauto)
 
 pywinauto
 ============
@@ -31,7 +32,14 @@ Your help is valuable since this is a hobby project for all of us: we do
  * More feature requests and discusions are welcome in [the issues](https://github.com/pywinauto/pywinauto/issues).
 
 ### Setup
-* run `pip install -U pywinauto` (dependencies will be installed automatically)
+
+#### pip
+
+Execute `pip install -U pywinauto`
+
+#### conda
+
+Execute `conda install -c conda-forge pywinauto`
 
 ### Documentation / Help
 * [Short Intro on ReadTheDocs](https://pywinauto.readthedocs.io/en/latest/)
