@@ -167,3 +167,4 @@ class AtspiWrapper(BaseWrapper):
 
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)
+backend.activate('atspi')  # default for Linux

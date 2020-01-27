@@ -1,14 +1,15 @@
-# TODO crossplatform join this tests with test_application.py
+# TODO crossplatform join these tests with test_application.py
 import sys
 import os
 import unittest
 import subprocess
 import time
-#import pprint
-#import pdb
 
 sys.path.append(".")
 from pywinauto.linux.application import Application, AppStartError, AppNotConnected
+from pywinauto.application import WindowSpecification  # noqa: E402
+if sys.platform != 'win32':
+    from pywinauto.controls import atspiwrapper  # register atspi backend
 
 app_name = r"gtk_example.py"
 
@@ -126,7 +127,22 @@ if sys.platform != 'win32':
             self.assertEqual(self.app.NonExistingDialog.app, self.app)
             self.assertEqual(self.app.Application.Panel.exists(), True)
             self.assertEqual(self.app.Application.Panel.app, self.app)
-            
+            self.assertIsInstance(self.app.Application.wrapper_object(), atspiwrapper.AtspiWrapper)
+
+            wspec = WindowSpecification(dict(name=u"blah", app=self.app))
+            self.assertEqual(wspec.app, self.app)
+
+        def test_app_binding_after_app_restart(self):
+            self.app.start(_test_app())
+            old_pid = self.app.process
+            wspec = self.app.Application.Panel
+            self.app.kill()
+            self.assertEqual(wspec.app, self.app)
+            self.app.start(_test_app())
+            new_pid = self.app.process
+            self.assertNotEqual(old_pid, new_pid)
+            self.assertEqual(wspec.app, self.app)
+
 
 if __name__ == "__main__":
     unittest.main()
