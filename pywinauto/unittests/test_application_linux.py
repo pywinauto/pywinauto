@@ -8,7 +8,7 @@ import time
 sys.path.append(".")
 from pywinauto.linux.application import Application, AppStartError, AppNotConnected
 from pywinauto.application import WindowSpecification  # noqa: E402
-if sys.platform != 'win32':
+if sys.platform.startswith('linux'):
     from pywinauto.controls import atspiwrapper  # register atspi backend
 
 app_name = r"gtk_example.py"
@@ -26,7 +26,7 @@ def _test_app():
 
 sys.path.append(".")
 
-if sys.platform != 'win32':
+if sys.platform.startswith('linux'):
     class ApplicationTestCases(unittest.TestCase):
 
         """Unit tests for the application.Application class"""
