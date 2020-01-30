@@ -821,6 +821,10 @@ class WindowSpecificationTestCases(unittest.TestCase):
             wspec.window_text(),
             u"Untitled - Notepad")
 
+        self.assertEqual(self.dlgspec.app, self.app)
+        self.assertEqual(self.ctrlspec.app, self.app)
+        self.assertEqual(wspec.app, self.app)
+
     def test__init__both_keywords(self):
         """Test creating a new spec with ambiguity by process and app simultaneously"""
         self.assertRaises(KeyError, WindowSpecification,
