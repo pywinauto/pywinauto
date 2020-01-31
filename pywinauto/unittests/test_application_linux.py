@@ -6,10 +6,13 @@ import subprocess
 import time
 
 sys.path.append(".")
-from pywinauto.linux.application import Application, AppStartError, AppNotConnected
 from pywinauto.application import WindowSpecification  # noqa: E402
 if sys.platform.startswith('linux'):
     from pywinauto.controls import atspiwrapper  # register atspi backend
+    from pywinauto.linux.application import Application  # noqa: E402
+    from pywinauto.linux.application import AppStartError  # noqa: E402
+    from pywinauto.linux.application import AppNotConnected  # noqa: E402
+    from pywinauto.linux.application import ProcessNotFoundError  # noqa: E402
 
 app_name = r"gtk_example.py"
 
@@ -77,10 +80,19 @@ if sys.platform.startswith('linux'):
             self.app.connect(path=_test_app())
             self.assertEqual(self.app.process, self.subprocess_app.pid)
 
-        def test_get_cpu_usage(self):
+        def test_cpu_usage(self):
             self.app.start(_test_app())
-            time.sleep(1)
-            self.assertGreater(self.app.cpu_usage(), 0)
+            self.assertGreater(self.app.cpu_usage(0.1), 0)
+            self.app.wait_cpu_usage_lower(threshold=0.1, timeout=2.9, usage_interval=0.2)
+            # default timings
+            self.assertEqual(self.app.cpu_usage(), 0)
+
+            # non-existing process
+            self.app.kill()
+            self.assertRaises(ProcessNotFoundError, self.app.cpu_usage, 7.8)
+
+            # not connected or not started app
+            self.assertRaises(AppNotConnected, Application().cpu_usage, 12.3)
 
         def test_is_process_running(self):
             self.app.start(_test_app())

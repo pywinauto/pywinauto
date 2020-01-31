@@ -39,6 +39,7 @@ import shlex
 
 from ..backend import registry
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
+from ..timings import Timings  # noqa: E402
 
 
 class Application(BaseApplication):
@@ -120,13 +121,32 @@ class Application(BaseApplication):
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
-        if interval:
-            time.sleep(interval)
+        proc_pid_stat = "/proc/{}/stat".format(self.process)
+        def read_cpu_info():
+            with open(proc_pid_stat, 'r') as s:
+                pid_info = s.read().split()
+            with open("/proc/stat") as s:
+                info = s.read().split()
+            # return a tuple as following:
+            # pid utime, pid stime, total utime, total stime
+            return (int(pid_info[13]), int(pid_info[14]), int(info[1]), int(info[3]))
+        
         try:
-            proc_info = subprocess.check_output(["ps", "-p", str(self.process), "-o", "%cpu"], universal_newlines=True)
-            proc_info = proc_info.split("\n")
-            return float(proc_info[1])
-        except Exception:
+            before = read_cpu_info()
+            if not interval:
+                interval = Timings.cpu_usage_interval
+            time.sleep(interval)
+            after = read_cpu_info()
+            pid_time = (after[0] - before[0]) + (after[1] - before[1])
+            sys_time = (after[2] - before[2]) + (after[3] - before[3])
+            if not sys_time:
+                res = 0.0
+            else:
+                res = 100.0 * (float(pid_time) / float(sys_time))
+            #print("linux app cpu usage: ", res)
+            return res
+
+        except IOError:
             raise ProcessNotFoundError()
 
     def kill(self, soft=False):
