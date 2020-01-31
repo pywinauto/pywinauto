@@ -354,7 +354,8 @@ class BaseWrapper(object):
         # Use a direct call to element_info.rectangle instead of self.rectangle
         # because the latter can be overriden in one of derived wrappers
         # (see _treeview_element.rectangle or _listview_item.rectangle)
-        raise NotImplementedError()
+        rect = self.element_info.rectangle
+        return (client_point[0] + rect.left, client_point[1] + rect.top)
 
     #-----------------------------------------------------------
     def process_id(self):
