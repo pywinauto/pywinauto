@@ -119,7 +119,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         return self.children()[0].is_visible()
 
     def texts(self):
-        """Get texts of all items in in the control as array"""
+        """Get texts of all items in the control as list"""
         combo_box_container = self.children()[0]
         texts = []
         for el in combo_box_container.children():
