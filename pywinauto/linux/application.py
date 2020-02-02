@@ -49,8 +49,8 @@ class Application(BaseApplication):
         Initialize the Application object
 
         * **backend** is a name of used back-end (values: "atspi").
-	* **allow_magic_lookup** whether attribute access must turn into
-		child_window(best_match=...) search as fallback
+        * **allow_magic_lookup** whether attribute access must turn into
+            child_window(best_match=...) search as fallback
         """
         self.process = None
         self.xmlpath = ''
@@ -58,7 +58,7 @@ class Application(BaseApplication):
         self._proc_descriptor = None
         self.match_history = []
         self.use_history = False
-        self.actions = None # TODO Action logger for linux
+        self.actions = None  # TODO Action logger for linux
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
@@ -122,6 +122,7 @@ class Application(BaseApplication):
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
         proc_pid_stat = "/proc/{}/stat".format(self.process)
+
         def read_cpu_info():
             with open(proc_pid_stat, 'r') as s:
                 pid_info = s.read().split()
@@ -130,7 +131,7 @@ class Application(BaseApplication):
             # return a tuple as following:
             # pid utime, pid stime, total utime, total stime
             return (int(pid_info[13]), int(pid_info[14]), int(info[1]), int(info[3]))
-        
+
         try:
             before = read_cpu_info()
             if not interval:
@@ -166,7 +167,7 @@ class Application(BaseApplication):
             self._proc_descriptor = None
 
         if not self.is_process_running():
-            return True # already closed
+            return True  # already closed
         status = subprocess.check_output(["kill", "-9", str(self.process)], universal_newlines=True)
         if "Operation not permitted" in status:
             raise Exception("Cannot kill process: {}".format(status))
