@@ -63,6 +63,7 @@ from .. import timings
 from .. import handleprops
 from ..windows.win32_element_info import HwndElementInfo
 from .. import backend
+from .. import WindowNotFoundError  # noqa #E402
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -1165,11 +1166,14 @@ class HwndWrapper(WinBaseWrapper):
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
-        timings.wait_until(
-            wait_time,
-            Timings.closeclick_retry,
-            has_closed
-        )
+        try:
+            timings.wait_until(
+                wait_time,
+                Timings.closeclick_retry,
+                has_closed
+            )
+        except timings.TimeoutError:
+            raise WindowNotFoundError
 
         self.actions.log('Closed window "{0}"'.format(window_text))
     # Non PEP-8 alias

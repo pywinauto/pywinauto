@@ -86,12 +86,18 @@ if sys.platform == 'win32':
     sys.coinit_flags = _get_com_threading_mode(sys)
 
 
+#=========================================================================
+class WindowNotFoundError(Exception):
+
+    """No window could be found"""
+    pass
+
 from . import findwindows
 
 WindowAmbiguousError = findwindows.WindowAmbiguousError
-WindowNotFoundError = findwindows.WindowNotFoundError
 ElementNotFoundError = findwindows.ElementNotFoundError
 ElementAmbiguousError = findwindows.ElementAmbiguousError
+
 
 from . import findbestmatch
 from . import backend as backends
