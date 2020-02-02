@@ -17,10 +17,12 @@ from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto import Desktop
 from pywinauto import mouse  # noqa: E402
+from pywinauto import WindowNotFoundError  # noqa: E402
 if UIA_support:
     import comtypes
     import pywinauto.windows.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
+    from pywinauto.controls.uiawrapper import UIAWrapper
 
 wpf_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -177,6 +179,28 @@ if UIA_support:
             button = self.dlg.child_window(class_name="Button",
                                            name="OK").wrapper_object()
             self.assertEqual(button.is_dialog(), False)
+
+        def test_close(self):
+            """Test close method of a control"""
+            wrp = self.dlg.wrapper_object()
+
+            # mock a failure in get_elem_interface() method only for 'Window' param
+            orig_get_elem_interface = uia_defs.get_elem_interface
+            with mock.patch.object(uia_defs, 'get_elem_interface') as mock_get_iface:
+                def side_effect(elm_info, ptrn_name):
+                    if ptrn_name == "Window":
+                        raise uia_defs.NoPatternInterfaceError()
+                    else:
+                        return orig_get_elem_interface(elm_info, ptrn_name)
+                mock_get_iface.side_effect=side_effect
+                # also mock a failure in type_keys() method
+                with mock.patch.object(UIAWrapper, 'type_keys') as mock_type_keys:
+                    exception_err = comtypes.COMError(-2147220991, 'An event was unable to invoke any of the subscribers', ())
+                    mock_type_keys.side_effect = exception_err
+                    self.assertRaises(WindowNotFoundError, self.dlg.close)
+
+            self.dlg.close()
+            self.assertEqual(self.dlg.exists(), False)
 
         def test_parent(self):
             """Test getting a parent of a control"""

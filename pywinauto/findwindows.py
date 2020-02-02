@@ -37,17 +37,12 @@ import sys
 import six
 
 from . import findbestmatch
+from . import WindowNotFoundError
 from . import controls
 from .backend import registry
 
 
 # TODO: we should filter out invalid elements before returning
-
-#=========================================================================
-class WindowNotFoundError(Exception):
-
-    """No window could be found"""
-    pass
 
 
 #=========================================================================
