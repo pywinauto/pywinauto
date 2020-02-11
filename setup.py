@@ -88,9 +88,6 @@ setup(name='pywinauto',
     description = 'A set of Python modules to automate the Microsoft Windows GUI',
     keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
     url = "http://pywinauto.github.io/",
-    project_urls = {
-        "Source": "https://github.com/pywinauto/pywinauto",
-    },
     author = 'Mark Mc Mahon and Contributors',
     author_email = 'pywinauto-users@lists.sourceforge.net',
     long_description = """
