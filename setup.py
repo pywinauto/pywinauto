@@ -64,10 +64,22 @@ if sys.platform == 'win32':
         install_requires.append('pywin32')
 
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
+elif sys.platform == 'darwin':
+    install_requires = [
+        'codecov', 
+        'six', 
+        'pyobjc-core==5.3',                              
+        'pyobjc-framework-AppleScriptObjC==5.3',         
+        'pyobjc-framework-ApplicationServices==5.3',     
+        'pyobjc-framework-Cocoa==5.3',                   
+        'pyobjc-framework-CoreText==5.3',                
+        'pyobjc-framework-FSEvents==5.3',                
+        'pyobjc-framework-Quartz==5.3'                  
+         ]
+    packages = ["pywinauto", "pywinauto.macos"]
 else:
     install_requires = ['six', 'python-xlib']
     packages = ["pywinauto", "pywinauto.linux"]
-
 setup(name='pywinauto',
     version = '0.6.6',
     description = 'A set of Python modules to automate the Microsoft Windows GUI',
