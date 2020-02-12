@@ -40,7 +40,7 @@ import warnings
 import comtypes
 
 from .. import backend
-from ..findwindows import WindowNotFoundError
+from .. import WindowNotFoundError  # noqa #E402
 from ..timings import Timings
 from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
@@ -131,7 +131,7 @@ class LazyProperty(object):
         if obj is None:
             return None
         value = self.fget(obj)
-        setattr(obj, self.func_name, value)
+        #setattr(obj, self.func_name, value)
         return value
 lazy_property = LazyProperty
 
