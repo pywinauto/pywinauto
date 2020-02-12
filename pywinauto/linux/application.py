@@ -143,7 +143,6 @@ class Application(BaseApplication):
                 res = 0.0
             else:
                 res = 100.0 * (float(pid_time) / float(sys_time))
-            #print("linux app cpu usage: ", res)
             return res
 
         except IOError:
