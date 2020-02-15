@@ -1,4 +1,24 @@
-pywin32
+# Win32 specific packages
+#
+pywin32                                   ;sys_platform == 'pywin32'
+Pillow==5.2.0                             ; sys_platform == 'pywin32'
+
+# Darwin specific packages
+#
+pyobjc-core==5.3                          ; sys_platform == 'darwin'
+pyobjc-framework-AppleScriptObjC==5.3     ; sys_platform == 'darwin'
+pyobjc-framework-ApplicationServices==5.3 ; sys_platform == 'darwin'
+pyobjc-framework-Cocoa==5.3               ; sys_platform == 'darwin'
+pyobjc-framework-CoreText==5.3            ; sys_platform == 'darwin'
+pyobjc-framework-FSEvents==5.3            ; sys_platform == 'darwin'
+pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
+
+# Linux specific packages
+#
+
+# Cross Platform packages
+#
+Pillow==5.2.0
 six
 pillow>=6.2.0
 coverage
@@ -8,3 +28,4 @@ rst2pdf
 Sphinx
 mock==2.0.0
 codacy-coverage
+
