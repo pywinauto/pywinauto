@@ -1,4 +1,4 @@
-# Windows specific packages
+# Win32 specific packages
 #
 pywin32<=227; python_version <= '3.6' and platform_system == 'Windows'
 pywin32>=300; python_version > '3.6' and platform_system == 'Windows'
@@ -15,7 +15,6 @@ pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
 
 # Linux specific packages
 #
-python-xlib                               ; sys_platform == 'linux'
 
 # Cross Platform packages
 #
