@@ -1,6 +1,25 @@
-docutils<0.18
+# Win32 specific packages
+#
 pywin32<=227; python_version <= '3.6' and platform_system == 'Windows'
 pywin32>=300; python_version > '3.6' and platform_system == 'Windows'
+
+# Darwin specific packages
+#
+pyobjc-core==5.3                          ; sys_platform == 'darwin'
+pyobjc-framework-AppleScriptObjC==5.3     ; sys_platform == 'darwin'
+pyobjc-framework-ApplicationServices==5.3 ; sys_platform == 'darwin'
+pyobjc-framework-Cocoa==5.3               ; sys_platform == 'darwin'
+pyobjc-framework-CoreText==5.3            ; sys_platform == 'darwin'
+pyobjc-framework-FSEvents==5.3            ; sys_platform == 'darwin'
+pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
+
+# Linux specific packages
+#
+
+# Cross Platform packages
+#
+docutils<0.18
+six
 Pillow==6.2.0; python_version <= '3.7'
 Pillow==10.3.0; python_version == '3.8'
 Pillow==11.1.0; python_version > '3.8'
