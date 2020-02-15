@@ -1,7 +1,6 @@
 # Win32 specific packages
 #
 pywin32                                   ;sys_platform == 'pywin32'
-Pillow==5.2.0                             ; sys_platform == 'pywin32'
 
 # Darwin specific packages
 #
