@@ -1,4 +1,4 @@
-# Windows specific packages
+# Win32 specific packages
 #
 pywin32==301 ; python_version == '3.6' and sys_platform == "win32"
 pywin32 ; python_version != '3.6' and sys_platform == "win32"
@@ -15,7 +15,6 @@ pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
 
 # Linux specific packages
 #
-python-xlib                               ; sys_platform == 'linux'
 
 # Cross Platform packages
 #
@@ -29,4 +28,3 @@ Sphinx
 mock==2.0.0
 codacy-coverage
 PyQt5==5.15.4 ; python_version >= '3.6'
-
