@@ -40,6 +40,7 @@ import warnings
 import comtypes
 
 from .. import backend
+from .. import WindowNotFoundError  # noqa #E402
 from ..timings import Timings
 from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
@@ -436,7 +437,10 @@ class UIAWrapper(WinBaseWrapper):
             if name and control_type:
                 self.actions.log("Closed " + control_type.lower() + ' "' +  name + '"')
         except(uia_defs.NoPatternInterfaceError):
-            self.type_keys("{ESC}")
+            try:
+                self.type_keys("{ESC}")
+            except comtypes.COMError:
+                raise WindowNotFoundError
 
     # -----------------------------------------------------------
     def minimize(self):

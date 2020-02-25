@@ -39,6 +39,7 @@ import shlex
 
 from ..backend import registry
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
+from ..timings import Timings  # noqa: E402
 
 
 class Application(BaseApplication):
@@ -48,8 +49,8 @@ class Application(BaseApplication):
         Initialize the Application object
 
         * **backend** is a name of used back-end (values: "atspi").
-	* **allow_magic_lookup** whether attribute access must turn into
-		child_window(best_match=...) search as fallback
+        * **allow_magic_lookup** whether attribute access must turn into
+            child_window(best_match=...) search as fallback
         """
         self.process = None
         self.xmlpath = ''
@@ -57,7 +58,7 @@ class Application(BaseApplication):
         self._proc_descriptor = None
         self.match_history = []
         self.use_history = False
-        self.actions = None # TODO Action logger for linux
+        self.actions = None  # TODO Action logger for linux
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
@@ -120,13 +121,32 @@ class Application(BaseApplication):
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
-        if interval:
-            time.sleep(interval)
+        proc_pid_stat = "/proc/{}/stat".format(self.process)
+
+        def read_cpu_info():
+            with open(proc_pid_stat, 'r') as s:
+                pid_info = s.read().split()
+            with open("/proc/stat") as s:
+                info = s.read().split()
+            # return a tuple as following:
+            # pid utime, pid stime, total utime, total stime
+            return (int(pid_info[13]), int(pid_info[14]), int(info[1]), int(info[3]))
+
         try:
-            proc_info = subprocess.check_output(["ps", "-p", str(self.process), "-o", "%cpu"], universal_newlines=True)
-            proc_info = proc_info.split("\n")
-            return float(proc_info[1])
-        except Exception:
+            before = read_cpu_info()
+            if not interval:
+                interval = Timings.cpu_usage_interval
+            time.sleep(interval)
+            after = read_cpu_info()
+            pid_time = (after[0] - before[0]) + (after[1] - before[1])
+            sys_time = (after[2] - before[2]) + (after[3] - before[3])
+            if not sys_time:
+                res = 0.0
+            else:
+                res = 100.0 * (float(pid_time) / float(sys_time))
+            return res
+
+        except IOError:
             raise ProcessNotFoundError()
 
     def kill(self, soft=False):
@@ -146,7 +166,7 @@ class Application(BaseApplication):
             self._proc_descriptor = None
 
         if not self.is_process_running():
-            return True # already closed
+            return True  # already closed
         status = subprocess.check_output(["kill", "-9", str(self.process)], universal_newlines=True)
         if "Operation not permitted" in status:
             raise Exception("Cannot kill process: {}".format(status))

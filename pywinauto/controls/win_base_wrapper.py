@@ -78,18 +78,6 @@ class WinBaseWrapper(BaseWrapper):
     def __new__(cls, element_info):
         return WinBaseWrapper._create_wrapper(cls, element_info, WinBaseWrapper)
 
-    #------------------------------------------------------------
-    def client_to_screen(self, client_point):
-        """Maps point from client to screen coordinates"""
-        # Use a direct call to element_info.rectangle instead of self.rectangle
-        # because the latter can be overriden in one of derived wrappers
-        # (see _treeview_element.rectangle or _listview_item.rectangle)
-        rect = self.element_info.rectangle
-        if isinstance(client_point, win32structures.POINT):
-            return (client_point.x + rect.left, client_point.y + rect.top)
-        else:
-            return (client_point[0] + rect.left, client_point[1] + rect.top)
-
     #-----------------------------------------------------------
     def draw_outline(
         self,

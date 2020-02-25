@@ -64,6 +64,8 @@ from pywinauto.base_wrapper import ElementNotEnabled  # noqa E402
 from pywinauto.base_wrapper import ElementNotVisible  # noqa E402
 from pywinauto import findbestmatch  # noqa E402
 from pywinauto import keyboard  # noqa E402
+from pywinauto import timings  # noqa E402
+from pywinauto import WindowNotFoundError  # noqa E402
 
 
 mfc_samples_folder = os.path.join(
@@ -102,6 +104,13 @@ class HwndWrapperTests(unittest.TestCase):
         #self.dlg.type_keys("%{F4}")
         #self.dlg.close()
         self.app.kill()
+
+    def test_close_not_found(self):
+        """Test dialog close handle non existing window"""
+        wrp = self.dlg.wrapper_object()
+        with mock.patch.object(timings, 'wait_until') as mock_wait_until:
+            mock_wait_until.side_effect = timings.TimeoutError
+            self.assertRaises(WindowNotFoundError, wrp.close)
 
     def test_scroll(self):
         """Test control scrolling"""

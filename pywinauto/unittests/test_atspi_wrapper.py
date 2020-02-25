@@ -34,7 +34,6 @@
 
 import os
 import sys
-import time
 import unittest
 
 if sys.platform.startswith("linux"):
@@ -43,7 +42,7 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
     from pywinauto.linux.atspi_objects import IATSPI
-    from pywinauto import mouse
+    from pywinauto.linux.atspi_objects import POINT
 
 app_name = r"gtk_example.py"
 
@@ -129,6 +128,13 @@ if sys.platform.startswith("linux"):
             self.assertEqual(rect.width(), 600)
             rect = self.app_frame.Icon.rectangle()
             self.assertAlmostEqual(rect.height(), 26, delta=2)
+
+        def test_client_to_screen(self):
+            rect = self.app_wrapper.rectangle()
+            self.assertEqual(self.app_wrapper.client_to_screen((0, 0)),
+                    (rect.left, rect.top))
+            self.assertEqual(self.app_wrapper.client_to_screen(POINT(20, 20)),
+                    (rect.left + 20, rect.top + 20))
 
         def test_can_get_process_id(self):
             self.assertEqual(self.app_wrapper.process_id(), self.app.process)
