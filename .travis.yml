@@ -46,10 +46,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo add-apt-repository -y ppa:beineri/opt-qt58-trusty; fi
 
 install:
-
-  # macOS dev dependencies:
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then sudo sqlite3 "/Library/Application Support/com.apple.TCC/TCC.db" "INSERT INTO access VALUES ('kTCCServiceAccessibility','com.apple.dt.Xcode-Helper',0,1,1,NULL,NULL);"; fi
-
   # Install 'pyenv': a utility for downloading and switching between multiple
   # Python interpreters on the same system.
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then git clone https://github.com/yyuu/pyenv.git ~/.pyenv; fi
@@ -130,8 +126,9 @@ before_script:
 script:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=pywinauto/macos/keyboard_helper.py pywinauto/unittests/test_keyboard.py; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_application_macos.py; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_element_info_macos.py; fi
+  # Application and element info unit test are turned off due to we are not able to provide the accessibility permissions for testing on remote environment
+  # - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_application_macos.py; fi
+  # - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_element_info_macos.py; fi
 
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py; fi
