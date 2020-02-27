@@ -46,9 +46,6 @@ before_install:
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then sudo add-apt-repository -y ppa:beineri/opt-qt58-trusty; fi
 
 install:
-
-  # macOS dev dependencies:
-
   # Install 'pyenv': a utility for downloading and switching between multiple
   # Python interpreters on the same system.
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then git clone https://github.com/yyuu/pyenv.git ~/.pyenv; fi
@@ -67,8 +64,6 @@ install:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then python -m pip install pip==9.0.3; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then python -m pip install six; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then pip install codecov coverage pyobjc; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew install qt; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then brew link qt --force; fi
 
 
   # Linux dev dependencies:
@@ -120,7 +115,7 @@ before_script:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then sudo hdiutil attach mousebuttons.dmg; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then sudo cp -R /Volumes/mousebuttons/mousebuttons.app /Applications; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then sudo hdiutil detach /Volumes/mousebuttons/; fi
-
+  
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd $TRAVIS_BUILD_DIR; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then cd apps/SendKeysTester/macos; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then sudo hdiutil attach send_keys_test_app.dmg; fi
