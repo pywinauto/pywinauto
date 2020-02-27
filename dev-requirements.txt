@@ -1,9 +1,9 @@
-# Win32 specific packages
+# Windows specific packages
 #
 pywin32<=227; python_version <= '3.6' and platform_system == 'Windows'
 pywin32>=300; python_version > '3.6' and platform_system == 'Windows'
 
-# Darwin specific packages
+# macOS specific packages
 #
 pyobjc-core==5.3                          ; sys_platform == 'darwin'
 pyobjc-framework-AppleScriptObjC==5.3     ; sys_platform == 'darwin'
@@ -15,6 +15,7 @@ pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
 
 # Linux specific packages
 #
+python-xlib                               ; sys_platform == 'linux'
 
 # Cross Platform packages
 #
