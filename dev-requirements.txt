@@ -15,6 +15,7 @@ pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
 
 # Linux specific packages
 #
+python-xlib                               ; sys_platform == 'linux'
 
 # Cross Platform packages
 #
