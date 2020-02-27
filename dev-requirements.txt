@@ -1,6 +1,6 @@
 # Win32 specific packages
 #
-pywin32                                   ;sys_platform == 'pywin32'
+pywin32                                   ;sys_platform == 'win32'
 
 # Darwin specific packages
 #
@@ -14,6 +14,7 @@ pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
 
 # Linux specific packages
 #
+python-xlib                               ; sys_platform == 'linux'
 
 # Cross Platform packages
 #
