@@ -11,13 +11,6 @@ matrix:
       osx_image: xcode8
       env: PYVER=2.7
       language: generic
-    # - os: osx
-    #   env: PYVER=3.3
-    #   language: generic
-    - os: osx
-      osx_image: xcode8
-      env: PYVER=3.4
-      language: generic
     - os: osx
       osx_image: xcode8
       env: PYVER=3.5
