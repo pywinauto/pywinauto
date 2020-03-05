@@ -1,9 +1,9 @@
-# Win32 specific packages
+# Windows specific packages
 #
 pywin32==301 ; python_version == '3.6' and sys_platform == "win32"
 pywin32 ; python_version != '3.6' and sys_platform == "win32"
 
-# Darwin specific packages
+# macOS specific packages
 #
 pyobjc-core==5.3                          ; sys_platform == 'darwin'
 pyobjc-framework-AppleScriptObjC==5.3     ; sys_platform == 'darwin'
