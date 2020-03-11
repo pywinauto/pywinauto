@@ -1,14 +1,16 @@
+import os
 import time
-# import os
-# import sys
+import sys
+from os import path
 import subprocess
+from subprocess import Popen, PIPE
 
 from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
 from Foundation import NSAppleEventDescriptor
 from ApplicationServices import AXUIElementCreateApplication
 
 from . import macos_functions
-from . import ax_element_info
+from . import ax_element_info # TODO: move cache_update() to macos_functions.py
 from .. import backend
 from ..backend import registry
 from ..element_info import ElementInfo
@@ -21,7 +23,7 @@ backend.register('ax', ElementInfo, BaseWrapper)
 
 def get_process_ids(cache_update=False):
     if cache_update:
-        macos_functions.cache_update()
+        ax_element_info.cache_update()
     return [apps.processIdentifier() for apps in macos_functions.running_applications()]
 
 
@@ -40,21 +42,16 @@ class Application(BaseApplication):
         pids_before = get_process_ids(cache_update=False)
 
         if name is not None and bundle_id is not None:
-            raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
+              raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
 
         if name is not None:
             bundle = macos_functions.bundle_identifier_for_application_name(name)
-            if bundle is not None:
-                macos_functions.launch_application_by_bundle(bundle, new_instance)
-                ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
-                self.ns_app = ns_app_array[0]
-            else:
-                # Workaround when user has not opened the application
-                executable_url = macos_functions.url_for_application_name(name)
-                macos_functions.launch_application_by_url(executable_url, new_instance)
-                self.ns_app = macos_functions.get_instance_of_app(name)
+            # print(bundle)
+            macos_functions.launch_application_by_bundle(bundle, new_instance)
+            ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
 
-            if (self.ns_app is None):
+            self.ns_app = ns_app_array[0]
+            if self.ns_app is None:
                 message = ('Could not get instance of "%s" app\n') % (name)
                 raise AppStartError(message)
 
@@ -92,7 +89,7 @@ class Application(BaseApplication):
             self.ns_app = macos_functions.get_app_instance_by_pid(self.process)
 
         def app_idle():
-            macos_functions.cache_update()
+            ax_element_info.cache_update()
             nom = self.ns_app.localizedName()
             elem = ax_element_info.AxElementInfo()
             for app in elem.children():
@@ -103,10 +100,6 @@ class Application(BaseApplication):
         wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_idle, value=True)
 
         return self
-
-    def __iter__(self):
-        """Raise to avoid infinite loops"""
-        raise NotImplementedError("Object is not iterable, try to use .windows()")
 
     def connect(self, **kwargs):
         self.connected = False
@@ -170,7 +163,7 @@ class Application(BaseApplication):
             if not result:
                 return result
             self.wait_for_process_exit()
-            macos_functions.cache_update()
+            ax_element_info.cache_update()
             self.ns_app = None
             return True
         return False
@@ -221,6 +214,7 @@ class Application(BaseApplication):
 
 
 if __name__ == "__main__":
-    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    parent_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(parent_dir)
+    # TODO:
+    # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # parent_dir = os.path.dirname(os.path.abspath(__file__))
+    # sys.path.append(parent_dir)
