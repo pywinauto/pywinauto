@@ -65,11 +65,18 @@ Repetition count can be specified for special keys. ``{ENTER 2}`` says to
 press Enter twice.
 '''
 import time
-from Quartz.CoreGraphics import (CGEventCreateKeyboardEvent,
-    CGEventSourceCreate, CGEventPost, kCGHIDEventTap,
-    kCGEventSourceStateHIDSystemState, CGEventSetFlags, kCGEventFlagMaskShift,
-    kCGEventFlagMaskControl,kCGEventFlagMaskAlternate, kCGEventFlagMaskCommand,
-    kCGEventFlagMaskSecondaryFn)
+
+from Quartz.CoreGraphics import CGEventCreateKeyboardEvent
+from Quartz.CoreGraphics import CGEventSourceCreate
+from Quartz.CoreGraphics import CGEventPost
+from Quartz.CoreGraphics import kCGHIDEventTap
+from Quartz.CoreGraphics import kCGEventSourceStateHIDSystemState
+from Quartz.CoreGraphics import CGEventSetFlags
+from Quartz.CoreGraphics import kCGEventFlagMaskShift
+from Quartz.CoreGraphics import kCGEventFlagMaskControl
+from Quartz.CoreGraphics import kCGEventFlagMaskAlternate
+from Quartz.CoreGraphics import kCGEventFlagMaskCommand
+from Quartz.CoreGraphics import kCGEventFlagMaskSecondaryFn
 
 VK_SHIFT = 0x38
 VK_CONTROL = 0x3B
@@ -249,7 +256,7 @@ class US_Keyboard():
         '"': '\'',
         '<': ',',
         '>': '.',
-        '?': '/'
+        '?': '/',
     }
     key_code_map={
         'a'              : 0x00,
@@ -373,7 +380,7 @@ class US_Keyboard():
         'left'           : 0x7B,
         'right'          : 0x7C,
         'down'           : 0x7D,
-        'up'             : 0x7E
+        'up'             : 0x7E,
     }
 
 MODIFIERS = {
@@ -392,7 +399,7 @@ class KeySequenceError(Exception):
 
 class KeyAction(object):
 
-    def __init__(self, key, down = True, up = True, flag=None):
+    def __init__(self, key, down=True, up=True, flag=None):
         self.key = key
         self.down = down
         self.up = up
@@ -400,8 +407,8 @@ class KeyAction(object):
 
     def run(self):
         """Execute the action"""
-        src=CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
-        keyboard_event=CGEventCreateKeyboardEvent(src, self.key, self.down)
+        src = CGEventSourceCreate(kCGEventSourceStateHIDSystemState);
+        keyboard_event = CGEventCreateKeyboardEvent(src, self.key, self.down)
         if self.flag is not None:
             CGEventSetFlags(keyboard_event, self.flag)
         else:
@@ -481,33 +488,33 @@ def handle_code(code_name):
     # it is a known code (e.g. {DOWN}, {ENTER}, etc)
     flag = None
     if code_name in selected_keyboard.hot_keys_components:
-        res=handle_flag_by_code(code_name)
+        res = handle_flag_by_code(code_name)
         if res is not None:
-            flag=res
+            flag = res
     elif code_name in selected_keyboard.CODES:
         code_keys.append(KeyAction(selected_keyboard.CODES[code_name]))
 
     # it is an escaped modifier e.g. {%}, {^}, {+},
     elif code_name in MODIFIERS.keys():
-        res=handle_flag_by_code(code_name)
+        res = handle_flag_by_code(code_name)
         if res is not None:
-            flag=res
+            flag = res
 
     elif len(code_name) == 1:
         if code_name.isalpha() and code_name.isupper():
-            flag=kCGEventFlagMaskShift
-            code_name=code_name.lower()
+            flag = kCGEventFlagMaskShift
+            code_name = code_name.lower()
         if code_name in selected_keyboard.shift_chars:
-            key_code=selected_keyboard.shift_chars[code_name]
-            if(key_code in selected_keyboard.key_code_map):
-                flag=kCGEventFlagMaskShift
-                key_code=selected_keyboard.key_code_map[key_code]
-                code_keys.append(KeyAction(key_code,flag=flag))
-                flag=None
-        elif(code_name in selected_keyboard.key_code_map):
-            key_code=selected_keyboard.key_code_map[code_name]
-            code_keys.append(KeyAction(key_code,flag=flag))
-            flag=None
+            key_code = selected_keyboard.shift_chars[code_name]
+            if key_code in selected_keyboard.key_code_map:
+                flag = kCGEventFlagMaskShift
+                key_code = selected_keyboard.key_code_map[key_code]
+                code_keys.append(KeyAction(key_code, flag=flag))
+                flag = None
+        elif code_name in selected_keyboard.key_code_map:
+            key_code = selected_keyboard.key_code_map[code_name]
+            code_keys.append(KeyAction(key_code, flag=flag))
+            flag = None
     # it is a repetition or a pause  {DOWN 5}, {PAUSE 1.3}
     elif ' ' in code_name:
         to_repeat, count = code_name.rsplit(None, 1)
@@ -532,12 +539,12 @@ def handle_code(code_name):
                     [KeyAction(selected_keyboard.CODES[to_repeat])] * count)
             # otherwise parse the keys and we get back a KeyAction
             else:
-                flag=None
+                flag = None
                 if to_repeat.isalpha() and to_repeat.isupper():
-                    flag=kCGEventFlagMaskShift
-                    to_repeat=to_repeat.lower()
+                    flag = kCGEventFlagMaskShift
+                    to_repeat = to_repeat.lower()
                 to_repeat = parse_keys(to_repeat,flag=flag)
-                flag=None
+                flag = None
                 if isinstance(to_repeat, list):
                     keys = to_repeat * count
                 else:
@@ -545,28 +552,31 @@ def handle_code(code_name):
                 code_keys.extend(keys)
     else:
         raise RuntimeError("Unknown code: {}".format(code_name))
-    return code_keys,flag
+    return code_keys, flag
 
 def decode_flag_to_key(flag):
-    keys=[]
-    if flag==kCGEventFlagMaskShift:
+    keys = []
+    if flag == kCGEventFlagMaskShift:
         keys.append(KeyAction(selected_keyboard.key_code_map['k+']))
-    elif flag==kCGEventFlagMaskControl:
-        keys.append(KeyAction(selected_keyboard.key_code_map['6'],flag=kCGEventFlagMaskShift))
-    elif flag==kCGEventFlagMaskCommand:
+    elif flag == kCGEventFlagMaskControl:
+        keys.append(KeyAction(selected_keyboard.key_code_map['6'], flag=kCGEventFlagMaskShift))
+    elif flag == kCGEventFlagMaskCommand:
         keys.append(KeyAction(selected_keyboard.key_code_map['cmd']))
-    elif flag==kCGEventFlagMaskAlternate:
-        keys.append(KeyAction(selected_keyboard.key_code_map['5'],flag=kCGEventFlagMaskShift))
-    elif flag==kCGEventFlagMaskSecondaryFn:
+    elif flag == kCGEventFlagMaskAlternate:
+        keys.append(KeyAction(selected_keyboard.key_code_map['5'], flag=kCGEventFlagMaskShift))
+    elif flag == kCGEventFlagMaskSecondaryFn:
         keys.append(KeyAction(selected_keyboard.key_code_map['function']))
     return keys
 
-def parse_keys(string,with_spaces = False,
-    with_tabs = False, with_newlines = False,
-    modifiers = None,flag=None):
+def parse_keys(string,
+               with_spaces=False,
+               with_tabs=False,
+               with_newlines=False,
+               modifiers=None,
+               flag=None):
     """Return the parsed keys"""
     keys = []
-    flag = flag
+    next_flag = flag
     if not modifiers:
         modifiers = []
     index = 0
@@ -579,9 +589,9 @@ def parse_keys(string,with_spaces = False,
             # remember that we are currently modified
             modifiers.append(modifier)
             # hold down the modifier key
-            code_keys,flag_from_func=handle_code(c)
+            code_keys, flag_from_func = handle_code(c)
             if flag_from_func is not None:
-                flag=flag_from_func
+                next_flag = flag_from_func
             # keys.append(KeyAction(modifier, up = False))
             if DEBUG:
                 print("MODS+", modifiers)
@@ -593,7 +603,7 @@ def parse_keys(string,with_spaces = False,
             end_pos = string.find(")", index)
             if end_pos == -1:
                 raise KeySequenceError('`)` not found')
-            keys.extend(parse_keys(string[index:end_pos], modifiers = modifiers,flag=flag))
+            keys.extend(parse_keys(string[index:end_pos], modifiers = modifiers, flag=next_flag))
             index = end_pos + 1
 
         # Escape or named key
@@ -605,12 +615,12 @@ def parse_keys(string,with_spaces = False,
 
             code_name = string[index:end_pos]
             index = end_pos + 1
-            code_keys,flag_from_func=handle_code(code_name)
-            if flag is not None:
-                keys.extend(decode_flag_to_key(flag))
-            flag=flag_from_func
-            if index==len(string) and flag is not None:
-                keys.extend(decode_flag_to_key(flag))
+            code_keys, flag_from_func = handle_code(code_name)
+            if next_flag is not None:
+                keys.extend(decode_flag_to_key(next_flag))
+            next_flag = flag_from_func
+            if index == len(string) and next_flag is not None:
+                keys.extend(decode_flag_to_key(next_flag))
             keys.extend(code_keys)
         # unmatched ")"
         elif c == ')':
@@ -629,33 +639,33 @@ def parse_keys(string,with_spaces = False,
 
             # output newline
             if c in ('~', '\n'):
-                keys.append(KeyAction(selected_keyboard.CODES["ENTER"],flag=flag))
-                flag=None
+                keys.append(KeyAction(selected_keyboard.CODES["ENTER"], flag=next_flag))
+                next_flag = None
             else:
                 if c.isalpha() and c.isupper():
-                    flag=kCGEventFlagMaskShift
-                    c=c.lower()
+                    next_flag = kCGEventFlagMaskShift
+                    c = c.lower()
                 if c in selected_keyboard.shift_chars:
-                    key_code=selected_keyboard.shift_chars[c]
-                    if(key_code in selected_keyboard.key_code_map):
-                        flag=kCGEventFlagMaskShift
-                        key_code=selected_keyboard.key_code_map[key_code]
-                        keys.append(KeyAction(key_code,flag=flag))
-                    flag=None
-                elif(c in selected_keyboard.key_code_map):
-                    key_code=selected_keyboard.key_code_map[c]
-                    keys.append(KeyAction(key_code,flag=flag))
-                    flag=None
+                    key_code = selected_keyboard.shift_chars[c]
+                    if key_code in selected_keyboard.key_code_map:
+                        next_flag = kCGEventFlagMaskShift
+                        key_code = selected_keyboard.key_code_map[key_code]
+                        keys.append(KeyAction(key_code, flag=next_flag))
+                    next_flag = None
+                elif c in selected_keyboard.key_code_map:
+                    key_code = selected_keyboard.key_code_map[c]
+                    keys.append(KeyAction(key_code, flag=next_flag))
+                    next_flag = None
 
     return keys
 
 
 def send_keys(keys,
-             pause=0.05,
-             with_spaces=False,
-             with_tabs=False,
-             with_newlines=False,
-             turn_off_numlock=True):
+              pause=0.05,
+              with_spaces=False,
+              with_tabs=False,
+              with_newlines=False,
+              turn_off_numlock=True):
     """Parse the keys and type them"""
     keys = parse_keys(keys, with_spaces, with_tabs, with_newlines,flag=None)
     for k in keys:
