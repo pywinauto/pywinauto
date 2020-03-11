@@ -29,57 +29,22 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""The application module is the main one that users will use first.
+"""Implementation of Application class for MS Windows platform."""
 
-When starting to automate an application you must initialize an instance
-of the Application class. Then you must :func:`Application.start` that
-application or :func:`Application.connect()` to a running instance of that
-application.
-
-Once you have an Application instance you can access dialogs in that
-application either by using one of the methods below. ::
-
-   dlg = app.YourDialogTitle
-   dlg = app.child_window(title="your title", classname="your class", ...)
-   dlg = app['Your Dialog Title']
-
-Similarly once you have a dialog you can get a control from that dialog
-in almost exactly the same ways. ::
-
-  ctrl = dlg.YourControlTitle
-  ctrl = dlg.child_window(title="Your control", classname="Button", ...)
-  ctrl = dlg["Your control"]
-
-.. note::
-
-   For attribute access of controls and dialogs you do not have to
-   have the title of the control exactly, it does a best match of the
-   available dialogs or controls.
-
-.. seealso::
-
-   :func:`pywinauto.findwindows.find_elements` for the keyword arguments that
-   can be passed to both: :func:`Application.window` and
-   :func:`WindowSpecification.child_window`
-"""
 from __future__ import print_function
 
-import sys
 import os.path
 import pickle
 import time
 import warnings
 import multiprocessing
-import locale
 
 import win32process
 import win32api
 import win32gui
 import win32con
 import win32event
-import six
 
-from .. import timings
 from .. import controls
 from .. import findbestmatch
 from .. import findwindows
@@ -90,8 +55,7 @@ from ..backend import registry
 from ..actionlogger import ActionLogger
 from ..timings import Timings, wait_until, TimeoutError, wait_until_passes
 from ..sysinfo import is_x64_Python
-from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication, \
-    WindowSpecification
+from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 from .. import deprecated
 
 # Display User and Deprecation warnings every time
@@ -289,12 +253,14 @@ class Application(BaseApplication):
     .. automethod:: __getitem__
     """
 
-    def __init__(self, backend="win32", datafilename=None):
+    def __init__(self, backend="win32", datafilename=None, allow_magic_lookup=True):
         """
         Initialize the Application object
 
         * **backend** is a name of used back-end (values: "win32", "uia").
         * **datafilename** is a file name for reading matching history.
+        * **allow_magic_lookup** whether attribute access must turn into
+                child_window(best_match=...) search as fallback
         """
         self.process = None
         self.xmlpath = ''
@@ -305,6 +271,7 @@ class Application(BaseApplication):
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
+        self.allow_magic_lookup = allow_magic_lookup
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
             self.Start = deprecated(self.start)
@@ -330,7 +297,7 @@ class Application(BaseApplication):
 
         The action is performed according to only one of parameters
 
-        :param process: a process ID of the target
+        :param pid: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
         :param timeout: a timeout for process start (relevant if path is specified)
@@ -338,7 +305,7 @@ class Application(BaseApplication):
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
+           are also can be used instead of **pid**, **handle** or **path**
         """
         timeout = Timings.app_connect_timeout
         retry_interval = Timings.app_connect_retry
@@ -348,8 +315,8 @@ class Application(BaseApplication):
             retry_interval = kwargs['retry_interval']
 
         connected = False
-        if 'process' in kwargs:
-            self.process = kwargs['process']
+        if 'pid' in kwargs:
+            self.process = kwargs['pid']
             try:
                 wait_until(timeout, retry_interval, self.is_process_running, value=True)
             except TimeoutError:
@@ -369,7 +336,7 @@ class Application(BaseApplication):
 
         elif 'path' in kwargs:
             try:
-                self.process = timings.wait_until_passes(
+                self.process = wait_until_passes(
                         timeout, retry_interval, process_from_module,
                         ProcessNotFoundError, kwargs['path'],
                     )
@@ -379,11 +346,15 @@ class Application(BaseApplication):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
-            if 'visible_only' not in kwargs:
-                kwargs['visible_only'] = False
+            # XXX: vryabov
+            # if 'found_index' not in kwargs:
+            #     kwargs['found_index'] = 0
+
+            #if 'visible_only' not in kwargs:
+            #    kwargs['visible_only'] = False
             if 'timeout' in kwargs:
                 del kwargs['timeout']
-                self.process = timings.wait_until_passes(
+                self.process = wait_until_passes(
                         timeout, retry_interval, findwindows.find_element,
                         exceptions=(findwindows.ElementNotFoundError, findbestmatch.MatchError,
                                     controls.InvalidWindowHandle, controls.InvalidElement),
@@ -526,6 +497,17 @@ class Application(BaseApplication):
 
     def __getattribute__(self, attr_name):
         """Find the specified dialog of the application"""
+        allow_magic_lookup = object.__getattribute__(self, "allow_magic_lookup")  # Beware of recursions here!
+        if not allow_magic_lookup:
+            try:
+                return object.__getattribute__(self, attr_name)
+            except AttributeError:
+                message = (
+                    'Attribute "%s" doesn\'t exist on %s object'
+                    ' (typo? or set allow_magic_lookup to True?)' %
+                    (attr_name, self.__class__))
+                raise AttributeError(message)
+
         if attr_name in ['__dict__', '__members__', '__methods__', '__class__']:
             return object.__getattribute__(self, attr_name)
 
@@ -557,7 +539,7 @@ class Application(BaseApplication):
         would do in task manager.
         """
         if soft:
-            windows = self.windows(visible_only=True)
+            windows = self.windows(visible=True)
 
             for win in windows:
                 try:
@@ -630,6 +612,14 @@ def assert_valid_process(process_id):
         message = "Process with ID '%d' could not be opened" % process_id
         raise ProcessNotFoundError(message)
 
+    # finished process can still exist and have exit code,
+    # but it's not usable any more, so let's check it
+    exit_code = win32process.GetExitCodeProcess(process_handle)
+    is_running = (exit_code == win32defines.PROCESS_STILL_ACTIVE)
+    if not is_running:
+        raise ProcessNotFoundError('Process with pid = {} has been already ' \
+            'finished with exit code = {}'.format(process_id, exit_code))
+
     return process_handle
 
 
@@ -700,7 +690,7 @@ def process_from_module(module):
     # as we are most likely to want to connect to the last
     # run instance
     modules.reverse()
-    for process, name, cmdline in modules:
+    for process, name, _ in modules:
         if name is None:
             continue
         if module_path.lower() in name.lower():

@@ -15,6 +15,7 @@ from threading import Timer
 sys.path.append(".")
 import pywinauto.actionlogger
 from pywinauto.windows import win32structures
+from pywinauto.windows import win32functions
 from pywinauto.windows.win32_hooks import Hook
 from pywinauto.windows.win32_hooks import KeyboardEvent
 from pywinauto.windows.win32_hooks import MouseEvent
@@ -196,9 +197,9 @@ class Win32HooksWithMocksTests(unittest.TestCase):
 
         # Save pointers to original system calls before mocking
         self.CallNextHookEx = windll.user32.CallNextHookEx
-        self.PeekMessageW = windll.user32.PeekMessageW
-        self.TranslateMessage = windll.user32.TranslateMessage
-        self.DispatchMessageW = windll.user32.DispatchMessageW
+        self.PeekMessageW = win32functions.PeekMessageW
+        self.TranslateMessage = win32functions.TranslateMessage
+        self.DispatchMessageW = win32functions.DispatchMessageW
         self.atexit_register = atexit.register
         self.sys_exit = sys.exit
         self.fake_kbhook_id = 22
@@ -210,9 +211,9 @@ class Win32HooksWithMocksTests(unittest.TestCase):
 
         # Restore the pointers to original system calls after mocking
         windll.user32.CallNextHookEx = self.CallNextHookEx
-        windll.user32.PeekMessageW = self.PeekMessageW
-        windll.user32.TranslateMessage = self.TranslateMessage
-        windll.user32.DispatchMessageW = self.DispatchMessageW
+        win32functions.PeekMessageW = self.PeekMessageW
+        win32functions.TranslateMessage = self.TranslateMessage
+        win32functions.DispatchMessageW = self.DispatchMessageW
         atexit.register = self.atexit_register
         sys.exit = self.sys_exit
 
@@ -307,22 +308,22 @@ class Win32HooksWithMocksTests(unittest.TestCase):
     def test_process_win_msg(self, mock_stop):
         """Test Hook._process_win_msgs"""
         # Mock external API
-        windll.user32.PeekMessageW = mock.Mock(side_effect=[1, 0])
-        windll.user32.TranslateMessage = mock.Mock()
-        windll.user32.DispatchMessageW = mock.Mock()
+        win32functions.PeekMessageW = mock.Mock(side_effect=[1, 0])
+        win32functions.TranslateMessage = mock.Mock()
+        win32functions.DispatchMessageW = mock.Mock()
 
         # Test processing the normal messages
         self.hook._process_win_msgs()
-        windll.user32.PeekMessageW.assert_called()
-        windll.user32.TranslateMessage.assert_called()
-        windll.user32.DispatchMessageW.assert_called()
+        win32functions.PeekMessageW.assert_called()
+        win32functions.TranslateMessage.assert_called()
+        win32functions.DispatchMessageW.assert_called()
 
         # Test processing WM_QUIT
         def side_effect(*args):
             """Emulate reception of WM_QUIT"""
             args[0].contents.message = win32con.WM_QUIT
             return 1
-        windll.user32.PeekMessageW = mock.Mock(side_effect=side_effect)
+        win32functions.PeekMessageW = mock.Mock(side_effect=side_effect)
         self.assertRaises(SystemExit, self.hook._process_win_msgs)
         mock_stop.assert_called_once()
 

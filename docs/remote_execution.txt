@@ -119,6 +119,7 @@ First option is PsExec. Thanks to `this post on StackExchange`_.
 
  1. Download `PsTools`_.
  2. Get process ID of RDP session using ``tasklist`` command. PowerShell script:
+ 
   ::
  
      $session = tasklist /fo CSV | findstr RDP ; $session = $session.Split(",")[3] ; $session.Split('"')[1]

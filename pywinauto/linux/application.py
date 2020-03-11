@@ -30,7 +30,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Linux Application class"""
+"""Implementation of Application class for Linux platform."""
 
 import os.path
 import time
@@ -39,24 +39,34 @@ import shlex
 
 from ..backend import registry
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
+from ..timings import Timings  # noqa: E402
 
 
 class Application(BaseApplication):
 
-    def __init__(self, backend="atspi"):
+    def __init__(self, backend="atspi", allow_magic_lookup=True):
+        """
+        Initialize the Application object
+
+        * **backend** is a name of used back-end (values: "atspi").
+        * **allow_magic_lookup** whether attribute access must turn into
+            child_window(best_match=...) search as fallback
+        """
         self.process = None
         self.xmlpath = ''
 
         self._proc_descriptor = None
         self.match_history = []
         self.use_history = False
-        self.actions = None # TODO Action logger for linux
+        self.actions = None  # TODO Action logger for linux
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
+        self.allow_magic_lookup = allow_magic_lookup
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True, work_dir=None):
+        """Start the application as specified by cmd_line"""
         command_line = shlex.split(cmd_line)
         try:
             process = subprocess.Popen(command_line, shell=create_new_console)
@@ -74,17 +84,17 @@ class Application(BaseApplication):
 
         The action is performed according to only one of parameters
 
-        :param process: a process ID of the target
+        :param pid: a process ID of the target
         :param path: a path used to launch the target
 
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
+           are also can be used instead of **pid** or **path**
         """
         connected = False
-        if 'process' in kwargs:
-            self.process = kwargs['process']
+        if 'pid' in kwargs:
+            self.process = kwargs['pid']
             assert_valid_process(self.process)
             connected = True
         elif 'path' in kwargs:
@@ -94,7 +104,7 @@ class Application(BaseApplication):
                 try:
                     with open('/proc/{}/cmdline'.format(proc_id), mode='rb') as fd:
                         content = fd.read().decode().split('\x00')
-                except Exception:
+                except IOError:
                     continue
 
                 if kwargs['path'] in " ".join(content):
@@ -104,20 +114,39 @@ class Application(BaseApplication):
 
         if not connected:
             raise RuntimeError(
-                "You must specify one of process, handle or path")
+                "You must specify process or handle")
 
     def cpu_usage(self, interval=None):
         """Return CPU usage percent during specified number of seconds"""
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
-        if interval:
-            time.sleep(interval)
+        proc_pid_stat = "/proc/{}/stat".format(self.process)
+
+        def read_cpu_info():
+            with open(proc_pid_stat, 'r') as s:
+                pid_info = s.read().split()
+            with open("/proc/stat") as s:
+                info = s.read().split()
+            # return a tuple as following:
+            # pid utime, pid stime, total utime, total stime
+            return (int(pid_info[13]), int(pid_info[14]), int(info[1]), int(info[3]))
+
         try:
-            proc_info = subprocess.check_output(["ps", "-p", str(self.process), "-o", "%cpu"], universal_newlines=True)
-            proc_info = proc_info.split("\n")
-            return float(proc_info[1])
-        except Exception:
+            before = read_cpu_info()
+            if not interval:
+                interval = Timings.cpu_usage_interval
+            time.sleep(interval)
+            after = read_cpu_info()
+            pid_time = (after[0] - before[0]) + (after[1] - before[1])
+            sys_time = (after[2] - before[2]) + (after[3] - before[3])
+            if not sys_time:
+                res = 0.0
+            else:
+                res = 100.0 * (float(pid_time) / float(sys_time))
+            return res
+
+        except IOError:
             raise ProcessNotFoundError()
 
     def kill(self, soft=False):
@@ -139,7 +168,7 @@ class Application(BaseApplication):
             self._proc_descriptor = None
 
         if not self.is_process_running():
-            return True # already closed
+            return True  # already closed
         status = subprocess.check_output(["kill", "-9", str(self.process)], universal_newlines=True)
         if "Operation not permitted" in status:
             raise Exception("Cannot kill process: {}".format(status))

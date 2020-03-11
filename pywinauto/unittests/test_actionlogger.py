@@ -91,7 +91,7 @@ class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
         self.assertEqual(self.__lineCount(), prev_line_count + 1)
 
         actionlogger.enable()
-        self.app.window(title='About Notepad').OK.click()
+        self.app.window(name='About Notepad').OK.click()
         self.assertEqual(self.__lineCount(), prev_line_count + 2)
 
 

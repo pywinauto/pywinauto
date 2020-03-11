@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2019 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -77,18 +77,6 @@ class WinBaseWrapper(BaseWrapper):
     #------------------------------------------------------------
     def __new__(cls, element_info):
         return WinBaseWrapper._create_wrapper(cls, element_info, WinBaseWrapper)
-
-    #------------------------------------------------------------
-    def client_to_screen(self, client_point):
-        """Maps point from client to screen coordinates"""
-        # Use a direct call to element_info.rectangle instead of self.rectangle
-        # because the latter can be overriden in one of derived wrappers
-        # (see _treeview_element.rectangle or _listview_item.rectangle)
-        rect = self.element_info.rectangle
-        if isinstance(client_point, win32structures.POINT):
-            return (client_point.x + rect.left, client_point.y + rect.top)
-        else:
-            return (client_point[0] + rect.left, client_point[1] + rect.top)
 
     #-----------------------------------------------------------
     def draw_outline(
@@ -250,7 +238,7 @@ class WinBaseWrapper(BaseWrapper):
         if not src:
             src = self
 
-        if dst is src:
+        if dst == src:
             raise AttributeError("Can't drag-n-drop on itself")
 
         if isinstance(src, WinBaseWrapper):
@@ -288,7 +276,8 @@ class WinBaseWrapper(BaseWrapper):
         with_tabs = False,
         with_newlines = False,
         turn_off_numlock = True,
-        set_foreground = True):
+        set_foreground = True,
+        vk_packet = True):
         """
         Type keys to the element using keyboard.send_keys
 
@@ -330,7 +319,8 @@ class WinBaseWrapper(BaseWrapper):
             with_spaces,
             with_tabs,
             with_newlines,
-            turn_off_numlock)
+            turn_off_numlock,
+            vk_packet)
 
         # detach the python process from the window's process
         if self.element_info.handle:

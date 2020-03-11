@@ -44,10 +44,10 @@ from ctypes import c_size_t
 from ctypes import WinError
 import win32api
 
-from .windows import win32functions
-from .windows import win32defines
-from .windows import win32structures
-from .actionlogger import ActionLogger
+from ..windows import win32functions
+from ..windows import win32defines
+from ..windows import win32structures
+from ..actionlogger import ActionLogger
 
 
 class AccessDenied(RuntimeError):
@@ -205,9 +205,9 @@ class RemoteMemoryBlock(object):
         )
 
         if ret == 0:
-            ActionLogger().log('Error: Write failed: address = ', address)
+            ActionLogger().log('Error: Write failed: address = ' + str(address))
             last_error = win32api.GetLastError()
-            ActionLogger().log('Error: LastError = ', last_error, ': ',
+            ActionLogger().log('Error: LastError = ' + str(last_error) + ': ' +
                                win32api.FormatMessage(last_error).rstrip())
             raise WinError()
         self.CheckGuardSignature()

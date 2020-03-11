@@ -32,17 +32,35 @@
 
 """Linux AtspiElementInfo class"""
 
-from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiText, AtspiValue, \
-    AtspiEditableText, IATSPI
-from .atspi_objects import AtspiDocument
+from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiValue, \
+    IATSPI
 from ..element_info import ElementInfo
 
 
 class AtspiElementInfo(ElementInfo):
 
-    """Wrapper for window handler"""
+    """Search class and hierarchy walker for AT-SPI elements"""
 
     atspi_accessible = AtspiAccessible()
+
+    re_props = ["class_name", "name", "control_type"]
+    exact_only_props = ["handle", "pid", "control_id", "visible", "enabled", "rectangle",
+        "framework_id", "framework_name", "atspi_version", "runtime_id", "description"]
+    search_order = ["handle", "control_type", "class_name", "pid", "control_id",
+        "visible", "enabled", "name", "rectangle",
+        "framework_id", "framework_name", "atspi_version", "runtime_id", "description"]
+    # "auto_id", "full_control_type"
+    assert set(re_props + exact_only_props) == set(search_order)
+
+    renamed_props = {
+        "title": ("name", None),
+        "title_re": ("name_re", None),
+        "process": ("pid", None),
+        "visible_only": ("visible", {True: True, False: None}),
+        "enabled_only": ("enabled", {True: True, False: None}),
+        "top_level_only": ("depth", {True: 1, False: None}),
+    }
+
 
     def __init__(self, handle=None):
         """Create element by handle (default is root element)"""
@@ -51,16 +69,31 @@ class AtspiElementInfo(ElementInfo):
         else:
             self._handle = handle
 
+        # Cache non-mutable element IDs
+        self._pid = self.atspi_accessible.get_process_id(self._handle, None)
+        self._root_id = self.atspi_accessible.get_id(self._handle, None)
+        self._runtime_id = self.atspi_accessible.get_index_in_parent(self._handle, None)
+
     def __get_elements(self, root, tree, **kwargs):
         tree.append(root)
         for el in root.children(**kwargs):
             self.__get_elements(el, tree, **kwargs)
 
+    def __hash__(self):
+        """Return a unique hash value based on the element's handle"""
+        return hash((self._pid, self._root_id, self._runtime_id))
+
     def __eq__(self, other):
         """Check if two AtspiElementInfo objects describe the same element"""
-        if self.control_type == "Application":
+        if not isinstance(other, AtspiElementInfo):
+            return False
+        if self.control_type == "Application" and other.control_type == "Application":
             return self.process_id == other.process_id
         return self.rectangle == other.rectangle
+
+    def __ne__(self, other):
+        """Check if two AtspiElementInfo objects describe different elements"""
+        return not (self == other)
 
     @staticmethod
     def _get_states_as_string(states):
@@ -86,9 +119,16 @@ class AtspiElementInfo(ElementInfo):
         return self.atspi_accessible.get_role(self._handle, None)
 
     @property
+    def runtime_id(self):
+        """Return the runtime ID of the element"""
+        return self._runtime_id
+
+    @property
     def process_id(self):
         """Return the ID of process that controls this window"""
-        return self.atspi_accessible.get_process_id(self._handle, None)
+        return self._pid
+
+    pid = process_id
 
     @property
     def class_name(self):
@@ -105,7 +145,10 @@ class AtspiElementInfo(ElementInfo):
     def control_type(self):
         """Return the class name of the element"""
         role_id = self.atspi_accessible.get_role(self._handle, None)
-        return IATSPI().known_control_type_ids[role_id]
+        try:
+            return IATSPI().known_control_type_ids[role_id]
+        except KeyError:
+            raise NotImplementedError('Unknown role ID has been retrieved: {0}'.format(role_id))
 
     @property
     def parent(self):
@@ -171,7 +214,7 @@ class AtspiElementInfo(ElementInfo):
     def get_order(self):
         if self.control_type == "Application":
             return self.children()[0].get_order()
-        return self.component.get_mdi_x_order()
+        return self.component.get_mdi_z_order()
 
     def get_state_set(self):
         val = self.atspi_accessible.get_state_set(self.handle)
@@ -183,12 +226,6 @@ class AtspiElementInfo(ElementInfo):
         else:
             return None
 
-    def get_text_property(self):
-        return AtspiText(self.atspi_accessible.get_text(self.handle))
-
-    def get_editable_text_property(self):
-        return AtspiEditableText(self.atspi_accessible.get_editable_text(self.handle))
-
     def get_value_property(self):
         return AtspiValue(self.atspi_accessible.get_value(self.handle))
 
@@ -196,8 +233,12 @@ class AtspiElementInfo(ElementInfo):
     def visible(self):
         states = self.get_state_set()
         if self.control_type == "Application":
-            states = self.children()[0].get_state_set()
-        return "STATE_VISIBLE" in states and "STATE_SHOWING" in states
+            children = self.children()
+            if children:
+                states = children[0].get_state_set()
+            else:
+                return False
+        return "STATE_VISIBLE" in states and "STATE_SHOWING" in states and "STATE_ICONIFIED" not in states
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""
@@ -218,24 +259,3 @@ class AtspiElementInfo(ElementInfo):
             # info such as process ID, window name etc. Will return application frame rectangle
             return self.children()[0].rectangle
         return self.component.get_rectangle(coord_type="screen")
-
-    @property
-    def document(self):
-        """Return AtspiDocument interface"""
-        if self.control_type == "DocumentFrame":
-            document = self.atspi_accessible.get_document(self._handle)
-            return AtspiDocument(document)
-        else:
-            raise AttributeError
-
-    def document_get_locale(self):
-        """Return the document's content locale"""
-        return self.document.get_locale().decode(encoding='UTF-8')
-
-    def document_get_attribute_value(self, attrib):
-        """Return the document's attribute value"""
-        return self.document.get_attribute_value(attrib).decode(encoding='UTF-8')
-
-    def document_get_attributes(self):
-        """Return the document's constant attributes"""
-        return self.document.get_attributes()

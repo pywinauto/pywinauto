@@ -31,101 +31,17 @@
 
 """Definition of Windows structures"""
 
-import six
-from ctypes import Structure as Struct
 from ctypes import \
-    c_int, c_long, c_void_p, c_char, memmove, addressof, \
+    c_int, c_long, c_void_p, c_char, \
     POINTER, sizeof, alignment, Union, c_longlong, c_size_t, wintypes
 
+from ..base_types import Structure
+from ..base_types import StructureMixIn
+from ..base_types import PointIteratorMixin
+from ..base_types import RectExtMixin
+from ..base_types import _reduce
 from .win32defines import LF_FACESIZE
 from pywinauto import sysinfo
-
-
-class StructureMixIn(object):
-
-    """Define printing and comparison behaviors to be used for the Structure class from ctypes"""
-
-    #----------------------------------------------------------------
-    def __str__(self):
-        """Print out the fields of the ctypes Structure
-
-        fields in exceptList will not be printed"""
-        lines = []
-        for field_name, _ in getattr(self, "_fields_", []):
-            lines.append("%20s\t%s"% (field_name, getattr(self, field_name)))
-
-        return "\n".join(lines)
-
-    #----------------------------------------------------------------
-    def __eq__(self, other):
-        """Return True if the two instances have the same coordinates"""
-        fields = getattr(self, "_fields_", [])
-        if isinstance(other, Struct):
-            try:
-                # pretend they are two structures - check that they both
-                # have the same value for all fields
-                if len(fields) != len(getattr(other, "_fields_", [])):
-                    return False
-                for field_name, _ in fields:
-                    if getattr(self, field_name) != getattr(other, field_name):
-                        return False
-                return True
-
-            except AttributeError:
-                return False
-
-        elif isinstance(other, (list, tuple)):
-            # Now try to see if we have been passed in a list or tuple
-            if len(fields) != len(other):
-                return False
-            try:
-                for i, (field_name, _) in enumerate(fields):
-                    if getattr(self, field_name) != other[i]:
-                        return False
-                return True
-
-            except Exception:
-                return False
-
-        return False
-
-    #----------------------------------------------------------------
-    def __ne__(self, other):
-        """Return False if the two instances have the same coordinates"""
-        return not self.__eq__(other)
-
-    __hash__ = None
-
-
-class Structure(Struct, StructureMixIn):
-
-    """Override the Structure class from ctypes to add printing and comparison"""
-
-    pass
-
-
-##====================================================================
-#def PrintCtypesStruct(struct, exceptList = []):
-#    """Print out the fields of the ctypes Structure
-#
-#    fields in exceptList will not be printed"""
-#    for f in struct._fields_:
-#        name = f[0]
-#        if name in exceptList:
-#            continue
-#        print("%20s "% name, getattr(struct, name))
-
-
-# allow ctypes structures to be pickled
-# set struct.__reduce__ = _reduce
-# e.g. RECT.__reduce__ = _reduce
-def _construct(typ, buf):
-    obj = typ.__new__(typ)
-    memmove(addressof(obj), buf, len(buf))
-    return obj
-
-def _reduce(self):
-    return (_construct, (self.__class__, bytes(memoryview(self))))
 
 
 #LPTTTOOLINFOW = POINTER(tagTOOLINFOW)
@@ -165,120 +81,38 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(wintypes.POINT, StructureMixIn):
-
-    """Wrap the POINT structure and add extra functionality"""
-
-    def __iter__(self):
-        """Allow iteration through coordinates"""
-        yield self.x
-        yield self.y
-
-    def __getitem__(self, key):
-        """Allow indexing of coordinates"""
-        if key == 0 or key == -2:
-            return self.x
-        elif key == 1 or key == -1:
-            return self.y
-        else:
-            raise IndexError("Illegal index")
-
+class POINT(wintypes.POINT, PointIteratorMixin, StructureMixIn):
+    pass
 
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 
 
-# ====================================================================
-class RECT(wintypes.RECT, StructureMixIn):
+RectExtMixin._POINT = POINT
 
-    """Wrap the RECT structure and add extra functionality"""
+
+class RECT(wintypes.RECT, RectExtMixin, StructureMixIn):
+
+    """Wrap the wintypes.RECT structure and add extra functionality"""
 
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
-        """Provide a constructor for RECT structures
-
-        A RECT can be constructed by:
-        - Another RECT (each value will be copied)
-        - Values for left, top, right and bottom
-
-        e.g. my_rect = RECT(otherRect)
-        or   my_rect = RECT(10, 20, 34, 100)
+    def __init__(self, other=0, top=0, right=0, bottom=0):
         """
-        if isinstance(otherRect_or_left, RECT):
-            self.left = otherRect_or_left.left
-            self.right = otherRect_or_left.right
-            self.top = otherRect_or_left.top
-            self.bottom = otherRect_or_left.bottom
+        Try to construct RECT from wintypes.RECT otherwise pass it down to RecExtMixin
+        """
+        if isinstance(other, wintypes.RECT):
+            self.left = other.left
+            self.right = other.right
+            self.top = other.top
+            self.bottom = other.bottom
         else:
-            #if not isinstance(otherRect_or_left, (int, long)):
-            #    print type(self), type(otherRect_or_left), otherRect_or_left
-            long_int = six.integer_types[-1]
-            self.left = long_int(otherRect_or_left)
-            self.right = long_int(right)
-            self.top = long_int(top)
-            self.bottom = long_int(bottom)
-
-    # ----------------------------------------------------------------
-    def __str__(self):
-        """Return a string representation of the RECT"""
-        return "(L%d, T%d, R%d, B%d)" % (
-            self.left, self.top, self.right, self.bottom)
-
-    # ----------------------------------------------------------------
-    def __repr__(self):
-        """Return some representation of the RECT"""
-        return "<RECT L%d, T%d, R%d, B%d>" % (
-            self.left, self.top, self.right, self.bottom)
-
-    # ----------------------------------------------------------------
-    def __sub__(self, other):
-        """Return a new rectangle which is offset from the one passed in"""
-        newRect = RECT()
-
-        newRect.left = self.left - other.left
-        newRect.right = self.right - other.left
-
-        newRect.top = self.top - other.top
-        newRect.bottom = self.bottom - other.top
-
-        return newRect
-
-    # ----------------------------------------------------------------
-    def __add__(self, other):
-        """Allow two rects to be added using +"""
-        newRect = RECT()
-
-        newRect.left = self.left + other.left
-        newRect.right = self.right + other.left
-
-        newRect.top = self.top + other.top
-        newRect.bottom = self.bottom + other.top
-
-        return newRect
-
-    # ----------------------------------------------------------------
-    def width(self):
-        """Return the width of the  rect"""
-        return self.right - self.left
-
-    # ----------------------------------------------------------------
-    def height(self):
-        """Return the height of the rect"""
-        return self.bottom - self.top
-
-    # ----------------------------------------------------------------
-    def mid_point(self):
-        """Return a POINT structure representing the mid point"""
-        pt = POINT()
-        pt.x = self.left + int(float(self.width()) / 2.)
-        pt.y = self.top + int(float(self.height()) / 2.)
-        return pt
-
-    __reduce__ = _reduce
-
+            RectExtMixin.__init__(self, other, top, right, bottom)
 
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
+
+
+RectExtMixin._RECT = RECT
 
 
 class SETTEXTEX(Structure):

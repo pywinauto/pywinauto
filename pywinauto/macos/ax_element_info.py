@@ -12,7 +12,7 @@ from ApplicationServices import AXUIElementGetTypeID
 from ApplicationServices import AXValueGetType
 from ApplicationServices import kAXValueCGSizeType
 from ApplicationServices import kAXValueCGPointType
-from ApplicationServices import kAXValueCFRangeType
+# from ApplicationServices import kAXValueCFRangeType
 from ApplicationServices import kAXErrorAPIDisabled
 from ApplicationServices import kAXErrorActionUnsupported
 from ApplicationServices import kAXErrorAttributeUnsupported
@@ -28,7 +28,7 @@ from ApplicationServices import kAXErrorSuccess
 from ApplicationServices import AXUIElementCopyAttributeNames
 from ApplicationServices import AXUIElementCopyAttributeValue
 from ApplicationServices import AXUIElementRef
-from ApplicationServices import AXUIElementCopyActionNames
+# from ApplicationServices import AXUIElementCopyActionNames
 from ApplicationServices import AXUIElementCreateApplication
 from ApplicationServices import AXUIElementGetPid
 # from ApplicationServices import AXUIElementCreateSystemWide
@@ -37,7 +37,7 @@ from PyObjCTools import AppHelper
 import AppKit
 from AppKit import NSScreen
 from AppKit import NSRunningApplication
-from AppKit import NSSize
+# from AppKit import NSSize
 # from AppKit import NSPoint
 
 ax_type_from_string = {
@@ -139,8 +139,6 @@ class AxElementInfo(object):
 
     def __repr__(self):
         """Build a descriptive string for UIElements."""
-        title = repr('')
-        role = '<No role!>'
         c = repr(self.__class__).partition('<class \'')[-1].rpartition('\'>')[0]
         title = repr(self.name)
         role = self.control_type

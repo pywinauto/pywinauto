@@ -40,6 +40,7 @@ import warnings
 import comtypes
 
 from .. import backend
+from .. import WindowNotFoundError  # noqa #E402
 from ..timings import Timings
 from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
@@ -196,11 +197,6 @@ class UIAWrapper(WinBaseWrapper):
         is raised.
         """
         WinBaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
-
-    # ------------------------------------------------------------
-    def __hash__(self):
-        """Return a unique hash value based on the element's Runtime ID"""
-        return hash(self.element_info.runtime_id)
 
     # ------------------------------------------------------------
     @lazy_property
@@ -386,7 +382,7 @@ class UIAWrapper(WinBaseWrapper):
     #------------------------------------------------------------
     def automation_id(self):
         """Return the Automation ID of the control"""
-        return self.element_info.automation_id
+        return self.element_info.auto_id
 
     # -----------------------------------------------------------
     def is_keyboard_focusable(self):
@@ -427,6 +423,10 @@ class UIAWrapper(WinBaseWrapper):
         Only a control supporting Window pattern should answer.
         If it doesn't (menu shadows, tooltips,...), try to send "Esc" key
         """
+        if not self.is_visible() or \
+                not self.is_enabled():
+            return
+
         try:
             name = self.element_info.name
             control_type = self.element_info.control_type
@@ -437,7 +437,10 @@ class UIAWrapper(WinBaseWrapper):
             if name and control_type:
                 self.actions.log("Closed " + control_type.lower() + ' "' +  name + '"')
         except(uia_defs.NoPatternInterfaceError):
-            self.type_keys("{ESC}")
+            try:
+                self.type_keys("{ESC}")
+            except comtypes.COMError:
+                raise WindowNotFoundError
 
     # -----------------------------------------------------------
     def minimize(self):
@@ -670,7 +673,7 @@ class UIAWrapper(WinBaseWrapper):
             err_msg = u"unsupported {0} for item {1}".format(type(item), item)
             raise ValueError(err_msg)
 
-        list_ = self.children(title=title)
+        list_ = self.children(name=title)
         if item_index < len(list_):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()

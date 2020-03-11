@@ -41,7 +41,7 @@ import sys
 import six
 
 try:
-    from PIL import ImageGrab, Image
+    from PIL import ImageGrab
 except ImportError:
     ImageGrab = None
 
@@ -197,11 +197,6 @@ class BaseWrapper(object):
             return b"{0} - '{1}', {2}".format(type_name, title, class_name)
         else:
             return "{0} - '{1}', {2}".format(type_name, title, class_name)
-
-    def __hash__(self):
-        """Returns the hash value of the handle"""
-        # Must be implemented in a sub-class
-        raise NotImplementedError()
 
     #------------------------------------------------------------
     @property
@@ -359,7 +354,8 @@ class BaseWrapper(object):
         # Use a direct call to element_info.rectangle instead of self.rectangle
         # because the latter can be overriden in one of derived wrappers
         # (see _treeview_element.rectangle or _listview_item.rectangle)
-        raise NotImplementedError()
+        rect = self.element_info.rectangle
+        return (client_point[0] + rect.left, client_point[1] + rect.top)
 
     #-----------------------------------------------------------
     def process_id(self):
@@ -572,6 +568,11 @@ class BaseWrapper(object):
         """
         return self in parent.children(class_name = self.class_name())
 
+    # ------------------------------------------------------------
+    def __hash__(self):
+        """Return a unique hash value based on the element's handle"""
+        return self.element_info.__hash__()
+
     #-----------------------------------------------------------
     def __eq__(self, other):
         """Return True if 2 BaseWrapper's describe 1 actual element"""
@@ -768,7 +769,8 @@ class BaseWrapper(object):
         with_tabs = False,
         with_newlines = False,
         turn_off_numlock = True,
-        set_foreground = True):
+        set_foreground = True,
+        vk_packet = True):
         """
         Type keys to the element using keyboard.send_keys
 

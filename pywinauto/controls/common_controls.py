@@ -57,7 +57,7 @@ from ..windows import win32functions
 from ..windows import win32defines
 from ..windows import win32structures
 from .. import findbestmatch
-from ..remote_memory_block import RemoteMemoryBlock
+from ..windows.remote_memory_block import RemoteMemoryBlock
 from . import hwndwrapper
 
 from ..timings import Timings
@@ -2761,11 +2761,11 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
         current_toolbar = self
         current_toolbar.set_focus() # to make sure it can be clicked immediately
         for i, index in enumerate(indices):
-            windows_before = app.windows(visible_only=True)
+            windows_before = app.windows(visible=True)
             current_toolbar.button(index).click_input()
             if i < len(indices) - 1:
-                wait_until(5, 0.1, lambda: len(app.windows(visible_only=True)) > len(windows_before))
-                windows_after = app.windows(visible_only=True)
+                wait_until(5, 0.1, lambda: len(app.windows(visible=True)) > len(windows_before))
+                windows_after = app.windows(visible=True)
                 new_window = set(windows_after) - set(windows_before)
                 current_toolbar = list(new_window)[0].children()[0]
         self.actions.logSectionEnd()

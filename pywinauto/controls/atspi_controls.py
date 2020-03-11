@@ -30,12 +30,16 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Wrap various ATSPI windows controls"""
+"""Wrap various Linux ATSPI windows controls. To be used with 'atspi' backend"""
 
 import locale
 import six
 
 from . import atspiwrapper
+from ..linux.atspi_objects import AtspiImage
+from ..linux.atspi_objects import AtspiDocument
+from ..linux.atspi_objects import AtspiText
+from ..linux.atspi_objects import AtspiEditableText
 
 # region PATTERNS
 
@@ -64,8 +68,11 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
 
     # -----------------------------------------------------------
     def toggle(self):
-        """Method to change toggle button state"""
-        self.click()
+        """Method to change toggle button state
+
+        Currently, just a wrapper around the click() method
+        """
+        return self.click()
 
     # -----------------------------------------------------------
     def get_toggle_state(self):
@@ -91,14 +98,17 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         self.action = self.element_info.get_action()
 
     def _press(self):
+        """Perform 'press' action on the control"""
         self.action.do_action_by_name("press")
 
     def expand(self):
+        """Drop down list of items of the control"""
         if not self.is_expanded():
             self._press()
         return self
 
     def collapse(self):
+        """Hide list of items of the control"""
         if self.is_expanded():
             self._press()
         return self
@@ -109,6 +119,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         return self.children()[0].is_visible()
 
     def texts(self):
+        """Get texts of all items in the control as list"""
         combo_box_container = self.children()[0]
         texts = []
         for el in combo_box_container.children():
@@ -124,11 +135,15 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         return self.texts().index(self.selected_text())
 
     def item_count(self):
+        """Number of items in the control"""
         combo_box_container = self.children()[0]
         return combo_box_container.control_count()
 
     def select(self, item):
-        """Select the ComboBox item"""
+        """Select the control item.
+
+        Item can be specified as string or as index
+        """
         self.expand()
         children_lst = self.children(control_type='Menu')
         if len(children_lst) > 0:
@@ -141,7 +156,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
                 if item < len(items):
                     items[item].click()
                 else:
-                    raise IndexError('Item number #{} is out of range ' \
+                    raise IndexError('Item number #{} is out of range '
                                      '({} items in total)'.format(item, len(items)))
         # else: TODO: probably raise an exception if there is no children
 
@@ -159,6 +174,7 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(EditWrapper, self).__init__(elem)
+        self.text = AtspiText(self.element_info.atspi_accessible.get_text(self))
 
     def is_editable(self):
         """Return the edit possibility of the element"""
@@ -166,10 +182,13 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
     def window_text(self):
         """Window text of the element"""
-        return self.element_info.get_text_property().get_whole_text().decode(locale.getpreferredencoding())
+        return self.text.get_whole_text().decode(locale.getpreferredencoding())
 
     def text_block(self):
-        """Get the text of the edit control"""
+        """Get the text of the edit control
+
+        Currently, only a wrapper around window_text()
+        """
         return self.window_text()
 
     def line_count(self):
@@ -198,13 +217,12 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     def texts(self):
-        """Get the text of the edit control"""
-        texts = [self.get_line(i) for i in range(self.line_count())]
-        return texts
+        """Get the texts of the edit control as a lines array"""
+        return [self.get_line(i) for i in range(self.line_count())]
 
     def selection_indices(self):
         """The start and end indices of the current selection"""
-        return self.element_info.get_text_property().get_selection()
+        return self.text.get_selection()
 
     def set_edit_text(self, text, pos_start=None, pos_end=None):
         """Set the text of the edit control"""
@@ -244,7 +262,8 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
         current_text = self.window_text()
         new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
 
-        self.element_info.get_editable_text_property().set_text(new_text.encode(locale.getpreferredencoding()))
+        editable_text = AtspiEditableText(self.element_info.atspi_accessible.get_editable_text(self))
+        editable_text.set_text(new_text.encode(locale.getpreferredencoding()))
 
         # return this control so that actions can be chained.
         return self
@@ -274,7 +293,66 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
             end = start + len(string_to_select)
 
-        self.element_info.get_text_property().add_selection(start, end)
+        self.text.add_selection(start, end)
 
         # return this control so that actions can be chained.
         return self
+
+
+class ImageWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap image controls"""
+
+    _control_types = ['Image', 'Icon']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ImageWrapper, self).__init__(elem)
+        self.image = AtspiImage(self.element_info.atspi_accessible.get_image(self))
+
+    def description(self):
+        """Get image description"""
+        return self.image.get_description().decode(encoding='UTF-8')
+
+    def locale(self):
+        """Get image locale"""
+        return self.image.get_locale().decode(encoding='UTF-8')
+
+    def size(self):
+        """Get image size. Return a tuple with width and height"""
+        pnt = self.image.get_size()
+        return (pnt.x, pnt.y)
+
+    def bounding_box(self):
+        """Get image bounding box"""
+        return self.image.get_extents()
+
+    def position(self):
+        """Get image position coordinates"""
+        return self.image.get_position()
+
+
+class DocumentWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap document control"""
+
+    _control_types = ['DocumentFrame']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(DocumentWrapper, self).__init__(elem)
+        self.document = AtspiDocument(self.element_info.atspi_accessible.get_document(elem.handle))
+
+    def locale(self):
+        """Return the document's content locale"""
+        return self.document.get_locale().decode(encoding='UTF-8')
+
+    def attribute_value(self, attrib):
+        """Return the document's attribute value"""
+        return self.document.get_attribute_value(attrib).decode(encoding='UTF-8')
+
+    def attributes(self):
+        """Return the document's constant attributes"""
+        return self.document.get_attributes()

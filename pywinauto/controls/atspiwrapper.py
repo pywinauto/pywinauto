@@ -29,7 +29,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Basic wrapping of UI Automation elements"""
+"""Basic wrapping of Linux ATSPI elements"""
 
 from __future__ import unicode_literals
 from __future__ import print_function
@@ -123,15 +123,10 @@ class AtspiWrapper(BaseWrapper):
         BaseWrapper.__init__(self, element_info, backend.registry.backends['atspi'])
 
     # ------------------------------------------------------------
-    def __hash__(self):
-        """Return a unique hash value based on the element's Runtime ID"""
-        return hash(self.element_info.runtime_id)
-
-    # ------------------------------------------------------------
-
     def set_keyboard_focus(self):
         """Set the focus to this element"""
         self.element_info.component.grab_focus("screen")
+        return self
 
     def set_window_focus(self, pid):
         display = Display()
@@ -154,7 +149,7 @@ class AtspiWrapper(BaseWrapper):
             # It should automatically set focus to window.
             for child in self.descendants():
                 # TODO extend list of focusable elements
-                if child.element_info.control_type in ['Push_button', 'Check_box', 'Toggle_button', 'Radio_button',
+                if child.element_info.control_type in ['PushButton', 'CheckBox', 'ToggleButton', 'RadioButton',
                                                        'Text']:
                     child.set_keyboard_focus()
                     break
@@ -165,8 +160,11 @@ class AtspiWrapper(BaseWrapper):
         else:
             self.set_keyboard_focus()
 
+        return self
+
     def get_states(self):
         return self.element_info.get_state_set()
 
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)
+backend.activate('atspi')  # default for Linux

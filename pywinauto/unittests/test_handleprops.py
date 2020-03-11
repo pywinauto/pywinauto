@@ -71,8 +71,8 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure the text method returns correct result"""
         self.assertEqual("Untitled - Notepad", text(self.dlghandle))
         self.assertEqual("", text(self.edit_handle))
-        self.assertEqual(None, text(sys.maxsize))
-        self.assertEqual(None, text(None))
+        self.assertEqual("", text(sys.maxsize))
+        self.assertEqual("", text(None))
 
 
     def test_classname(self):
@@ -172,10 +172,10 @@ class HandlepropsTestCases(unittest.TestCase):
             False,
             isenabled(
                 self.app.Replace.child_window(
-                    title_re = "Replace.*",
-                    class_name = "Button",
-                    enabled_only = False).handle))
-        self.app.Replace.Cancel.click()
+                    name_re="Replace.*",
+                    class_name="Button",
+                    enabled=None).handle))
+        self.app.Replace.Cancel.Click()
 
     def test_clientrect(self):
         """Make sure clientrect() function works"""

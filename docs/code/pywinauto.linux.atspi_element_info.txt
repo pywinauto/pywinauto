@@ -1,0 +1,7 @@
+pywinauto.linux.atspi_element_info
+----------------------------------
+ .. automodule:: pywinauto.linux.atspi_element_info
+    :members:
+    :undoc-members:
+
+

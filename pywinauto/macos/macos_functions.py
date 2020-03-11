@@ -113,9 +113,9 @@ def get_windows_list_info():
     if list_info is not None:
         return list_info
 
-def print_list_of_atrributes(ax_element):
-    for iter in dir(ax_element):
-        print (iter)
+def print_list_of_atrributes(ax_element): # TODO: remove debug function
+    for attr in dir(ax_element):
+        print (attr)
 
 def check_is_process_trusted():
     if not (AXIsProcessTrusted()):

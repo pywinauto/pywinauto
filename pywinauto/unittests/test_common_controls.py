@@ -48,7 +48,7 @@ from pywinauto.windows.win32structures import RECT  # noqa: E402
 from pywinauto.windows import win32defines
 from pywinauto import findbestmatch  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
-from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa: E402
+from pywinauto.windows.remote_memory_block import RemoteMemoryBlock  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.timings import wait_until  # noqa: E402
@@ -485,7 +485,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         app.start(self.path)
 
         self.dlg = app.ListViewEx
-        self.ctrl = app.ListViewEx.ListView.wrapper_object()
+        self.ctrl = self.dlg.ListView.wrapper_object()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -716,6 +716,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
     def testCheckBoxes(self):
         """Make sure tree view item method is_checked() works as expected"""
         self.dlg.set_focus()
+        self.dlg.TVS_CHECKBOXES.uncheck_by_click()
         self.dlg.TVS_CHECKBOXES.check_by_click()
         birds = self.ctrl.get_item(r'\Birds')
         self.ctrl.set_focus() # to make sure focus is not lost by any accident event
@@ -1301,8 +1302,8 @@ class RebarTestCases(unittest.TestCase):
         """Make sure we can click on Afx ToolBar button by index"""
         Timings.closeclick_dialog_close_wait = 2.
         self.dlg.StandardToolbar.button(1).click()
-        self.app.window(title='Open').wait('ready', timeout=30)
-        self.app.window(title='Open').Cancel.close_click()
+        self.app.window(name='Open').wait('ready', timeout=30)
+        self.app.window(name='Open').Cancel.close_click()
 
     def testMenuBarClickInput(self):
         """Make sure we can click on Menu Bar items by indexed path"""
@@ -1313,8 +1314,8 @@ class RebarTestCases(unittest.TestCase):
         self.app.Customize.wait_not('visible')
 
         self.dlg.MenuBar.menu_bar_click_input([2, 0], self.app)
-        self.app.window(title='About RebarTest').OK.click()
-        self.app.window(title='About RebarTest').wait_not('visible')
+        self.app.window(name='About RebarTest').OK.click()
+        self.app.window(name='About RebarTest').wait_not('visible')
 
 
 class DatetimeTestCases(unittest.TestCase):

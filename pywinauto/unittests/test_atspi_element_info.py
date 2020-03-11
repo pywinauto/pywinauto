@@ -38,19 +38,20 @@ import subprocess
 import time
 import unittest
 import re
-import six
 import mock
 import ctypes
 
 if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_objects import AtspiAccessible
-    from pywinauto.linux.atspi_objects import AtspiDocument
-    from pywinauto.linux.atspi_objects import _GError
+    from pywinauto.linux.atspi_objects import _AtspiRect
+    from pywinauto.linux.atspi_objects import RECT
+    from pywinauto.linux.atspi_objects import _AtspiPoint
+    from pywinauto.linux.atspi_objects import POINT
+    from pywinauto.linux.atspi_objects import _AtspiCoordType
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
     from pywinauto.linux.atspi_objects import IATSPI
     from pywinauto.linux.application import Application
-    from pywinauto.linux.atspi_objects import GErrorException
     from pywinauto.linux.atspi_objects import GHashTable
     from pywinauto.linux.atspi_objects import _find_library
 
@@ -68,16 +69,69 @@ def _test_app():
 
 
 if sys.platform.startswith("linux"):
+    class AtspiPointTests(unittest.TestCase):
+
+        """Unit tests for AtspiPoint class"""
+
+        def test_indexation(self):
+            p = POINT(1, 2)
+            self.assertEqual(p[0], p.x)
+            self.assertEqual(p[1], p.y)
+            self.assertEqual(p[-2], p.x)
+            self.assertEqual(p[-1], p.y)
+            self.assertRaises(IndexError, lambda: p[2])
+            self.assertRaises(IndexError, lambda: p[-3])
+
+        def test_iteration(self):
+            p = POINT(1, 2)
+            self.assertEqual([1, 2], [i for i in p])
+
+        def test_equal(self):
+            p0 = POINT(1, 2)
+            p1 = POINT(0, 2)
+            self.assertNotEqual(p0, p1)
+            p1.x = p0.x
+            self.assertEqual(p0, p1)
+
+
+    class AtspiRectTests(unittest.TestCase):
+
+        """Unit tests for AtspiRect class"""
+
+        def test_RECT_hash(self):
+            """Test RECT is not hashable"""
+            self.assertRaises(TypeError, hash, RECT())
+
+        def test_RECT_eq(self):
+            r0 = RECT(1, 2, 3, 4)
+            self.assertEqual(r0, RECT(1, 2, 3, 4))
+            self.assertEqual(r0, [1, 2, 3, 4])
+            self.assertNotEqual(r0, RECT(1, 2, 3, 5))
+            self.assertNotEqual(r0, [1, 2, 3, 5])
+            self.assertNotEqual(r0, [1, 2, 3])
+            self.assertNotEqual(r0, [1, 2, 3, 4, 5])
+            r0.bottom = 5
+            self.assertEqual(r0, RECT(1, 2, 3, 5))
+            self.assertEqual(r0, (1, 2, 3, 5))
+
+        def test_RECT_repr(self):
+            """Test RECT repr"""
+            r0 = RECT(0)
+            self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
+
+
     class AtspiElementInfoTests(unittest.TestCase):
 
         """Unit tests for the AtspiElementInfo class"""
 
-        def get_app(self, name):
-            for children in self.desktop_info.children():
-                if children.name == name:
-                    return children
-            else:
-                raise Exception("Application not found")
+        def get_app(self, name, pid=None):
+            """Helper to find the application top window"""
+            if not pid:
+                pid = self.app.process
+            for child in self.desktop_info.children():
+                if child.name == name and pid == child.process_id:
+                    return child
+            raise Exception("Application not found")
 
         def setUp(self):
             self.desktop_info = AtspiElementInfo()
@@ -85,9 +139,12 @@ if sys.platform.startswith("linux"):
             self.app.start(_test_app())
             time.sleep(1)
             self.app_info = self.get_app(app_name)
+            self.app2 = None
 
         def tearDown(self):
             self.app.kill()
+            if self.app2:
+                self.app2.kill()
 
         def test_can_get_desktop(self):
             self.assertEqual(self.desktop_info.control_type, "DesktopFrame")
@@ -113,13 +170,17 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_info.control_type, "Application")
 
         def test_can_get_control_type_of_all_app_descendants(self):
-            print(self.app_info.descendants())
-            for children in self.app_info.descendants():
-                self.assertTrue(children.control_type in IATSPI().known_control_types.keys())
+            children = self.app_info.descendants()
+            self.assertNotEqual(len(children), 0)
+            print(children)
+            for child in children:
+                self.assertTrue(child.control_type in IATSPI().known_control_types.keys())
 
         def test_control_type_equal_class_name(self):
-            for children in self.app_info.descendants():
-                self.assertEqual(children.control_type, children.class_name)
+            children = self.app_info.descendants()
+            self.assertNotEqual(len(children), 0)
+            for child in children:
+                self.assertEqual(child.control_type, child.class_name)
 
         def test_can_get_description(self):
             # TODO find a way to add meaningful description to example application
@@ -155,20 +216,26 @@ if sys.platform.startswith("linux"):
             filler = frame.children()[0]
             rectangle = filler.rectangle
             self.assertEqual(rectangle.width(), 600)
-            self.assertEqual(rectangle.height(), 492)
+            self.assertAlmostEqual(rectangle.height(), 450, delta=50)
 
         def test_can_compare_applications(self):
             app_info = self.get_app(app_name)
             app_info1 = self.get_app(app_name)
-            assert app_info == app_info1
+            self.assertEqual(app_info, app_info1)
+            self.assertNotEqual(app_info, None)
+            self.assertNotEqual(app_info, app_info.handle)
+            self.assertNotEqual(app_info, AtspiElementInfo())
 
         def test_can_compare_desktop(self):
             desktop = AtspiElementInfo()
             desktop1 = AtspiElementInfo()
-            assert desktop == desktop1
+            self.assertEqual(desktop, desktop1)
 
         def test_can_get_layer(self):
             self.assertEqual(self.desktop_info.get_layer(), 3)
+
+        def test_can_get_order(self):
+            self.assertEqual(self.desktop_info.get_order(), 0)
 
         def test_can_get_state_set(self):
             frame_info = self.app_info.children()[0]
@@ -183,66 +250,56 @@ if sys.platform.startswith("linux"):
             frame_info = self.app_info.children()[0]
             self.assertTrue(frame_info.enabled)
 
-    class AtspiElementInfoDocumentMockedTests(unittest.TestCase):
+        def test_hash(self):
+            self.app2 = Application().start(_test_app())
+            time.sleep(1)
+            app_info2 = self.get_app(app_name, pid=self.app2.process)
 
-        """Mocked unit tests for the AtspiElementInfo.document related functionality"""
+            frame_info1 = self.app_info.children()[0]
+            frame_info2 = app_info2.children()[0]
+            d = { frame_info1 : 1, frame_info2 : 2, }
+
+            self.assertEqual(d[frame_info1], d[self.app_info.children()[0]])
+            self.assertNotEqual(d[frame_info1], d[frame_info2])
+            self.assertEqual(d[frame_info2], d[frame_info2])
+
+    class AtspiElementInfoWithoutChildrenMockedTests(unittest.TestCase):
+
+        """Mocked unit tests for the AtspiElementInfo without children"""
 
         def setUp(self):
             self.info = AtspiElementInfo()
+            self.patch_get_child_count = mock.patch.object(AtspiAccessible, 'get_child_count')
+            self.mock_get_child_count = self.patch_get_child_count.start()
+            # we suppose the app running as a service doesn't have children
+            self.mock_get_child_count.return_value = 0
             self.patch_get_role = mock.patch.object(AtspiAccessible, 'get_role')
             self.mock_get_role = self.patch_get_role.start()
-            self.mock_get_role.return_value = IATSPI().known_control_types["DocumentFrame"]
+            self.mock_get_role.return_value = IATSPI().known_control_types["Application"]
 
         def tearDown(self):
             self.patch_get_role.stop()
+            self.patch_get_child_count.stop()
 
-        def test_document_success(self):
-            self.assertEqual(type(self.info.document), AtspiDocument)
+        def test_service_is_not_visible(self):
+            self.assertFalse(self.info.visible)
 
-        def test_document_fail_on_wrong_role(self):
-            self.mock_get_role.return_value = IATSPI().known_control_types["Invalid"]
-            self.assertRaises(AttributeError, lambda: self.info.document)
+    class AtspiElementInfoMockedTests(unittest.TestCase):
 
-        @mock.patch.object(AtspiDocument, 'get_locale')
-        def test_document_get_locale_success(self, mock_get_locale):
-            mock_get_locale.return_value = b"C"
-            self.assertEqual(self.info.document_get_locale(), u"C")
+        """Various mocked unit tests for the AtspiElementInfo"""
 
-        @mock.patch.object(AtspiDocument, '_get_locale')
-        def test_document_get_locale_gerror_fail(self, mock_get_locale):
-            gerror = _GError()
-            gerror.code = 222
-            gerror.message = b"Mocked GError message"
+        def setUp(self):
+            pass
 
-            def stub_get_locale(atspi_doc_ptr, gerr_pp):
-                self.assertEqual(type(atspi_doc_ptr), AtspiAccessible.get_document.restype)
-                self.assertEqual(type(gerr_pp), (ctypes.POINTER(ctypes.POINTER(_GError))))
-                gerr_pp[0] = ctypes.pointer(gerror)
-                return b"C"
+        def tearDown(self):
+            pass
 
-            mock_get_locale.side_effect = stub_get_locale
-
-            expected_err_msg = "GError with code: {0}, message: '{1}'".format(
-                               gerror.code, gerror.message.decode(encoding='UTF-8'))
-            six.assertRaisesRegex(self,
-                                  GErrorException,
-                                  expected_err_msg,
-                                  self.info.document_get_locale)
-
-        @mock.patch.object(AtspiDocument, '_get_attribute_value')
-        def test_document_get_attribute_value_success(self, mock_get_attribute_value):
-            attrib = u"dummy attribute"
-            mock_get_attribute_value.return_value = b"dummy val"
-            self.assertEqual(self.info.document_get_attribute_value(attrib), u"dummy val")
-            self.assertEqual(type(mock_get_attribute_value.call_args[0][1]), ctypes.c_char_p)
-
-        @mock.patch.object(AtspiDocument, '_get_attributes')
-        def test_document_get_attributes_success(self, mock_get_attributes):
-            attrib = b"dummy attribute"
-            mock_get_attributes.return_value = GHashTable.dic2ghash({attrib: b"dummy val"})
-            res = self.info.document_get_attributes()
-            self.assertEqual(len(res), 1)
-            self.assertEqual(res[attrib.decode('utf-8')], u"dummy val")
+        def test_control_type_exception_on_bad_role_id(self):
+            with mock.patch.object(AtspiAccessible, 'get_role') as mock_get_role:
+                mock_get_role.return_value = 0xDEADBEEF
+                info = AtspiElementInfo()
+                with self.assertRaises(NotImplementedError):
+                    info.control_type()
 
     class GHashTableTests(unittest.TestCase):
 
@@ -277,6 +334,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(res, libs[-1])
 
             mock_popen.side_effect = None
+
             class MockProcess(object):
                 def communicate(self):
                     return ["a a a l\nb b b lb\nc c  c lib1\nd d d lib0\n"]

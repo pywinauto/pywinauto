@@ -63,6 +63,7 @@ from .. import timings
 from .. import handleprops
 from ..windows.win32_element_info import HwndElementInfo
 from .. import backend
+from .. import WindowNotFoundError  # noqa #E402
 
 # I leave this optional because PIL is a large dependency
 try:
@@ -250,7 +251,7 @@ class HwndWrapper(WinBaseWrapper):
     #------------------------------------------------------------
     def automation_id(self):
         """Return the .NET name of the control"""
-        return self.element_info.automation_id
+        return self.element_info.auto_id
 
     #------------------------------------------------------------
     def control_type(self):
@@ -432,7 +433,7 @@ class HwndWrapper(WinBaseWrapper):
     #    nmhdr.idFrom = self.control_id()
     #    nmhdr.code = code
 
-    #    from ..remote_memory_block import RemoteMemoryBlock
+    #    from ..windows.remote_memory_block import RemoteMemoryBlock
     #    remote_mem = RemoteMemoryBlock(self, size=ctypes.sizeof(nmhdr))
     #    remote_mem.Write(nmhdr, size=ctypes.sizeof(nmhdr))
 
@@ -505,10 +506,10 @@ class HwndWrapper(WinBaseWrapper):
             if unicode_char:
                 _, char = key_info[:2]
                 vk = win32functions.VkKeyScanExW(chr(char), input_locale_id) & 0xFF
-                scan = keyboard.MapVirtualKey(vk, 0)
+                scan = win32functions.MapVirtualKeyW(vk, 0)
             else:
                 vk, scan = key_info[:2]
-                char = keyboard.MapVirtualKey(vk, 2)
+                char = win32functions.MapVirtualKeyW(vk, 2)
 
             if char > 0:
                 lparam = 1 << 0 | scan << 16 | (flags & 1) << 24
@@ -579,7 +580,7 @@ class HwndWrapper(WinBaseWrapper):
                     vk_with_flags = win32functions.VkKeyScanExW(char, input_locale_id)
                     vk = vk_with_flags & 0xFF
                     shift_state = (vk_with_flags & 0xFF00) >> 8
-                    scan = keyboard.MapVirtualKey(vk, 0)
+                    scan = win32functions.MapVirtualKeyW(vk, 0)
 
                 if key.down and vk > 0:
                     new_keyboard_state = copy.deepcopy(keyboard_state_stack[-1])
@@ -720,11 +721,6 @@ class HwndWrapper(WinBaseWrapper):
             self)
     # Non PEP-8 alias
     NotifyParent = deprecated(notify_parent)
-
-    # -----------------------------------------------------------
-    def __hash__(self):
-        """Returns the hash value of the handle"""
-        return hash(self.handle)
 
     #-----------------------------------------------------------
     def wait_for_idle(self):
@@ -1170,11 +1166,14 @@ class HwndWrapper(WinBaseWrapper):
 
         # Keep waiting until both this control and it's parent
         # are no longer valid controls
-        timings.wait_until(
-            wait_time,
-            Timings.closeclick_retry,
-            has_closed
-        )
+        try:
+            timings.wait_until(
+                wait_time,
+                Timings.closeclick_retry,
+                has_closed
+            )
+        except timings.TimeoutError:
+            raise WindowNotFoundError
 
         self.actions.log('Closed window "{0}"'.format(window_text))
     # Non PEP-8 alias
@@ -1251,21 +1250,9 @@ class HwndWrapper(WinBaseWrapper):
     # -----------------------------------------------------------
     def get_active(self):
         """Return a handle to the active window within the process"""
-        gui_info = win32structures.GUITHREADINFO()
-        gui_info.cbSize = ctypes.sizeof(gui_info)
-        window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
-        ret = win32functions.GetGUIThreadInfo(
-            window_thread_id,
-            ctypes.byref(gui_info))
+        active_elem = HwndElementInfo.get_active()
 
-        if not ret:
-            raise ctypes.WinError()
-
-        hwndActive = gui_info.hwndActive
-        if hwndActive:
-            return HwndWrapper(hwndActive)
-        else:
-            return None
+        return HwndWrapper(active_elem) if active_elem is not None else None
     # Non PEP-8 alias
     GetActive = deprecated(get_active)
 

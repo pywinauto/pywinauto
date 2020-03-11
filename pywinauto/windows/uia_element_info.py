@@ -58,6 +58,21 @@ def elements_from_uia_array(ptrs, cache_enable=False):
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
+    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type"]
+    exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle", "framework_id", "runtime_id"]
+    search_order = ["handle", "control_type", "class_name", "pid", "control_id", "visible", "enabled",
+        "name", "auto_id", "full_control_type", "rectangle", "framework_id", "runtime_id"]
+    assert set(re_props + exact_only_props) == set(search_order)
+
+    renamed_props = {
+        "title": ("name", None),
+        "title_re": ("name_re", None),
+        "process": ("pid", None),
+        "visible_only": ("visible", {True: True, False: None}),
+        "enabled_only": ("enabled", {True: True, False: None}),
+        "top_level_only": ("depth", {True: 1, False: None}),
+    }
+
     def __init__(self, handle_or_elem=None, cache_enable=False):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
@@ -195,7 +210,7 @@ class UIAElementInfo(ElementInfo):
         return self._element
 
     @property
-    def automation_id(self):
+    def auto_id(self):
         """Return AutomationId of the element"""
         try:
             return self._element.CurrentAutomationId
@@ -217,6 +232,8 @@ class UIAElementInfo(ElementInfo):
             return self._element.CurrentProcessId
         except COMError:
             return None  # probably element already doesn't exist
+
+    pid = process_id
 
     @property
     def framework_id(self):
@@ -318,7 +335,10 @@ class UIAElementInfo(ElementInfo):
     @property
     def enabled(self):
         """Check if the element is enabled"""
-        return bool(self._element.CurrentIsEnabled)
+        try:
+            return bool(self._element.CurrentIsEnabled)
+        except COMError:
+            return False
 
     @property
     def rectangle(self):
@@ -337,10 +357,12 @@ class UIAElementInfo(ElementInfo):
 
     @classmethod
     def from_point(cls, x, y):
+        """Return child element at specified point coordinates"""
         return cls(IUIA().iuia.ElementFromPoint(tagPOINT(x, y)))
 
     @classmethod
     def top_from_point(cls, x, y):
+        """Return top level element at specified point coordinates"""
         current_elem = cls.from_point(x, y)
         current_parent = current_elem.parent
         while current_parent is not None and current_parent != cls():
@@ -353,6 +375,11 @@ class UIAElementInfo(ElementInfo):
         """Return rich_text of the element"""
         return self._get_rich_text()
 
+    # ------------------------------------------------------------
+    def __hash__(self):
+        """Return a unique hash value based on the element's Runtime ID"""
+        return hash(self.runtime_id)
+
     def __eq__(self, other):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):
@@ -362,3 +389,9 @@ class UIAElementInfo(ElementInfo):
     def __ne__(self, other):
         """Check if 2 UIAElementInfo objects describe 2 different elements"""
         return not (self == other)
+
+    @classmethod
+    def get_active(cls):
+        """Return current active element"""
+        ae = IUIA().get_focused_element()
+        return cls(ae)

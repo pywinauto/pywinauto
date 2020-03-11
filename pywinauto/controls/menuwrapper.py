@@ -49,7 +49,7 @@ from functools import wraps
 from ..windows import win32defines, win32functions, win32structures
 from .. import findbestmatch
 from .. import mouse
-from ..remote_memory_block import RemoteMemoryBlock
+from ..windows.remote_memory_block import RemoteMemoryBlock
 from ..timings import Timings
 from .. import deprecated
 

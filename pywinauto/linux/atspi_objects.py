@@ -35,10 +35,13 @@
 import subprocess
 import six
 
-from ctypes import Structure, c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
+from ctypes import c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
     create_string_buffer, cdll, pointer, c_void_p, CFUNCTYPE
 from functools import wraps
 
+from ..base_types import Structure
+from ..base_types import PointIteratorMixin
+from ..base_types import RectExtMixin
 from ..backend import Singleton
 
 
@@ -51,118 +54,19 @@ class CtypesEnum(object):
         return int(obj)
 
 
-class RECT(Structure):
-
-    """Wrap the RECT structure and add extra functionality"""
-
-    _fields_ = [
-        ('left', c_int),
-        ('top', c_int),
-        ('right', c_int),
-        ('bottom', c_int),
-    ]
-
-    # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
-        """
-        Provide a constructor for RECT structures
-
-        A RECT can be constructed by:
-        - Another RECT (each value will be copied)
-        - Values for left, top, right and bottom
-
-        e.g. my_rect = RECT(otherRect)
-        or   my_rect = RECT(10, 20, 34, 100)
-        """
-        if isinstance(otherRect_or_left, RECT):
-            self.left = otherRect_or_left.left
-            self.right = otherRect_or_left.right
-            self.top = otherRect_or_left.top
-            self.bottom = otherRect_or_left.bottom
-        elif isinstance(otherRect_or_left, AtspiRect):
-            self.left = otherRect_or_left.x
-            self.right = otherRect_or_left.x + otherRect_or_left.width
-            self.top = otherRect_or_left.y
-            self.bottom = otherRect_or_left.y + otherRect_or_left.height
-        else:
-            # if not isinstance(otherRect_or_left, (int, long)):
-            #    print type(self), type(otherRect_or_left), otherRect_or_left
-            self.left = otherRect_or_left
-            self.right = right
-            self.top = top
-            self.bottom = bottom
-
-    def __eq__(self, other):
-        "return true if the two rectangles have the same coordinates"
-        try:
-            return \
-                self.left == other.left and \
-                self.top == other.top and \
-                self.right == other.right and \
-                self.bottom == other.bottom
-        except AttributeError:
-            return False
-
-    # ----------------------------------------------------------------
-    def __str__(self):
-        """Return a string representation of the RECT"""
-        return "(L%d, T%d, R%d, B%d)" % (
-            self.left, self.top, self.right, self.bottom)
-
-    # ----------------------------------------------------------------
-    def __repr__(self):
-        """Return some representation of the RECT"""
-        return "<RECT L%d, T%d, R%d, B%d>" % (
-            self.left, self.top, self.right, self.bottom)
-
-    # ----------------------------------------------------------------
-    def __sub__(self, other):
-        """Return a new rectangle which is offset from the one passed in"""
-        newRect = RECT()
-
-        newRect.left = self.left - other.left
-        newRect.right = self.right - other.left
-
-        newRect.top = self.top - other.top
-        newRect.bottom = self.bottom - other.top
-
-        return newRect
-
-    # ----------------------------------------------------------------
-    def __add__(self, other):
-        """Allow two rects to be added using +"""
-        newRect = RECT()
-
-        newRect.left = self.left + other.left
-        newRect.right = self.right + other.left
-
-        newRect.top = self.top + other.top
-        newRect.bottom = self.bottom + other.top
-
-        return newRect
-
-    # ----------------------------------------------------------------
-    def width(self):
-        """Return the width of the  rect"""
-        return self.right - self.left
-
-    # ----------------------------------------------------------------
-    def height(self):
-        """Return the height of the rect"""
-        return self.bottom - self.top
-
-    # ----------------------------------------------------------------
-    def mid_point(self):
-        """Return a POINT structure representing the mid point"""
-        pt = AtspiPoint()
-        pt.x = self.left + int(float(self.width()) / 2.)
-        pt.y = self.top + int(float(self.height()) / 2.)
-        return pt
-
-
 class _AtspiCoordType(CtypesEnum):
     ATSPI_COORD_TYPE_SCREEN = 0
     ATSPI_COORD_TYPE_WINDOW = 1
+
+
+def _coord_type_to_atspi(t="window"):
+    """Helper to convert string to ATSPI coordinate types"""
+    if t not in ["window", "screen"]:
+        raise ValueError('Wrong coord_type "{}".'.format(t))
+    if t == "screen":
+        return _AtspiCoordType.ATSPI_COORD_TYPE_SCREEN
+    else:
+        return _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW
 
 
 class _AtspiComponentLayer(CtypesEnum):
@@ -287,7 +191,7 @@ AtspiStateEnum = {
 }
 
 
-class AtspiRect(Structure):
+class _AtspiRect(Structure):
     _fields_ = [
         ('x', c_int),
         ('y', c_int),
@@ -296,11 +200,47 @@ class AtspiRect(Structure):
     ]
 
 
-class AtspiPoint(Structure):
+class _AtspiPoint(Structure):
     _fields_ = [
         ('x', c_int),
         ('y', c_int),
     ]
+
+
+class POINT(_AtspiPoint, PointIteratorMixin):
+    """Coordinates point"""
+    pass
+
+
+RectExtMixin._POINT = POINT
+
+
+class RECT(RectExtMixin, Structure):
+
+    """Wrap the RECT structure and add extra functionality"""
+
+    _fields_ = [
+        ('left', c_int),
+        ('top', c_int),
+        ('right', c_int),
+        ('bottom', c_int),
+    ]
+
+    # ----------------------------------------------------------------
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
+        """
+        Try to construct RECT from _AtspiRect otherwise pass it down to RecExtMixin
+        """
+        if isinstance(otherRect_or_left, _AtspiRect):
+            self.left = otherRect_or_left.x
+            self.right = otherRect_or_left.x + otherRect_or_left.width
+            self.top = otherRect_or_left.y
+            self.bottom = otherRect_or_left.y + otherRect_or_left.height
+        else:
+            RectExtMixin.__init__(self, otherRect_or_left, top, right, bottom)
+
+
+RectExtMixin._RECT = RECT
 
 
 class _GTypeInstance(Structure):
@@ -362,7 +302,7 @@ class _AtspiDocument(Structure):
     pass
 
 
-class _AtspiStateSet(Structure):
+class _AtspiImage(Structure):
     pass
 
 
@@ -375,6 +315,15 @@ class _AtspiObject(Structure):
         ('parent', _GObject),
         ('accessible_parent', POINTER(_AtspiApplication)),
         ('path', c_char_p),
+    ]
+
+
+class _AtspiStateSet(Structure):
+    _fields_ = [
+        # TODO: investigate why defining fields as per
+        # at-spi2-core/atspi/atspi-stateset.h doesn't work
+        ('fake', c_uint64 * 4),
+        ('states', c_uint64),
     ]
 
 
@@ -432,12 +381,7 @@ _AtspiAccessible._fields_ = [
     ('states', POINTER(_AtspiStateSet)),
     ('attributes', POINTER(_GHashTable)),
     ('cached_properties', c_uint),
-    ('cached_properties', _AtspiAccessiblePrivate),
-]
-
-_AtspiStateSet._fields_ = [
-    ('fake', c_uint64 * 4),
-    ('states', c_uint64),
+    ('priv', POINTER(_AtspiAccessiblePrivate)),
 ]
 
 
@@ -546,7 +490,7 @@ class GLIB(object):
     LIB20 = "libglib-2.0.so"
     LIB22 = "libglib-2.2.so"
     DEFAULT_LIB_NAME = "libglib.so"
-    glib = cdll.LoadLibrary(_find_library([LIB12, LIB20, LIB22, DEFAULT_LIB_NAME]))
+    glib = cdll.LoadLibrary(_find_library([LIB22, LIB20, LIB12, DEFAULT_LIB_NAME]))
 
 
 class GHashTable(object):
@@ -610,7 +554,6 @@ class GHashTable(object):
                 raise ValueError("Failed to insert k='{0}', v='{1}'".format(k, v))
 
         return ghash_table_p
-
 
     @classmethod
     def ghash2dic(cls, ghash):
@@ -686,6 +629,10 @@ class AtspiAccessible(object):
     get_child_at_index.argtypes = [POINTER(_AtspiAccessible), c_int, POINTER(POINTER(_GError))]
     get_child_at_index.restype = POINTER(_AtspiAccessible)
 
+    get_index_in_parent = IATSPI().get_iface_func("atspi_accessible_get_index_in_parent")
+    get_index_in_parent.argtypes = [POINTER(_AtspiAccessible), POINTER(POINTER(_GError))]
+    get_index_in_parent.restype = c_int
+
     get_component = IATSPI().get_iface_func("atspi_accessible_get_component")
     get_component.argtypes = [POINTER(_AtspiAccessible)]
     get_component.restype = POINTER(_AtspiComponent)
@@ -718,6 +665,10 @@ class AtspiAccessible(object):
     get_document.argtypes = [POINTER(_AtspiAccessible)]
     get_document.restype = POINTER(_AtspiDocument)
 
+    get_image = IATSPI().get_iface_func("atspi_accessible_get_image")
+    get_image.argtypes = [POINTER(_AtspiAccessible)]
+    get_image.restype = POINTER(_AtspiImage)
+
 
 class AtspiComponent(object):
 
@@ -734,15 +685,15 @@ class AtspiComponent(object):
 
     _get_rectangle = IATSPI().get_iface_func("atspi_component_get_extents")
     _get_rectangle.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, POINTER(POINTER(_GError))]
-    _get_rectangle.restype = POINTER(AtspiRect)
+    _get_rectangle.restype = POINTER(_AtspiRect)
 
     _get_position = IATSPI().get_iface_func("atspi_component_get_position")
     _get_position.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, POINTER(POINTER(_GError))]
-    _get_position.restype = POINTER(AtspiPoint)
+    _get_position.restype = POINTER(_AtspiPoint)
 
     _get_size = IATSPI().get_iface_func("atspi_component_get_size")
     _get_size.argtypes = [POINTER(_AtspiComponent), POINTER(POINTER(_GError))]
-    _get_size.restype = POINTER(AtspiPoint)
+    _get_size.restype = POINTER(_AtspiPoint)
 
     _get_layer = IATSPI().get_iface_func("atspi_component_get_layer")
     _get_layer.argtypes = [POINTER(_AtspiComponent), POINTER(POINTER(_GError))]
@@ -776,21 +727,15 @@ class AtspiComponent(object):
 
     _scroll_to = IATSPI().get_iface_func("atspi_component_scroll_to")
 
-    try:
+    if _scroll_to:
         _scroll_to.restype = c_bool
         _scroll_to.argtypes = [POINTER(_AtspiComponent), _AtspiScrollType, POINTER(POINTER(_GError))]
-    except:
-        # TODO add version check
-        pass
 
     _scroll_to_point = IATSPI().get_iface_func("atspi_component_scroll_to_point")
-    try:
+    if _scroll_to_point:
         _scroll_to_point.argtypes = [POINTER(_AtspiComponent), _AtspiCoordType, c_int, c_int,
                                      POINTER(POINTER(_GError))]
         _scroll_to_point.restype = c_bool
-    except:
-        # TODO add version check
-        pass
 
     def __init__(self, pointer):
         self._pointer = pointer
@@ -803,9 +748,7 @@ class AtspiComponent(object):
 
     @g_error_handler
     def get_rectangle(self, coord_type="window", g_error_pointer=None):
-        if coord_type not in ["window", "screen"]:
-            raise ValueError('Wrong coord_type "{}".'.format(coord_type))
-        prect = self._get_rectangle(self._pointer, 0 if coord_type == "screen" else 1, g_error_pointer)
+        prect = self._get_rectangle(self._pointer, _coord_type_to_atspi(coord_type), g_error_pointer)
         return RECT(prect.contents)
 
     @g_error_handler
@@ -813,8 +756,8 @@ class AtspiComponent(object):
         return self._get_layer(self._pointer, g_error_pointer)
 
     @g_error_handler
-    def get_mdi_x_order(self, g_error_pointer=None):
-        return self._get_layer(self._pointer, g_error_pointer)
+    def get_mdi_z_order(self, g_error_pointer=None):
+        return self._get_mdi_z_order(self._pointer, g_error_pointer)
 
 
 class AtspiStateSet(object):
@@ -992,9 +935,9 @@ class AtspiText(object):
     _get_character_at_offset.argtypes = [POINTER(_AtspiText), c_int, POINTER(POINTER(_GError))]
     _get_character_at_offset.restype = c_uint
 
-    _get_character_extents = IATSPI().get_iface_func("atspi_text_get_character_at_offset")
+    _get_character_extents = IATSPI().get_iface_func("atspi_text_get_character_extents")
     _get_character_extents.argtypes = [POINTER(_AtspiText), c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
-    _get_character_extents.restype = POINTER(AtspiRect)
+    _get_character_extents.restype = POINTER(_AtspiRect)
 
     _get_offset_at_point = IATSPI().get_iface_func("atspi_text_get_offset_at_point")
     _get_offset_at_point.argtypes = [POINTER(_AtspiText), c_int, c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
@@ -1002,7 +945,7 @@ class AtspiText(object):
 
     _get_range_extents = IATSPI().get_iface_func("atspi_text_get_range_extents")
     _get_range_extents.argtypes = [POINTER(_AtspiText), c_int, c_int, _AtspiCoordType, POINTER(POINTER(_GError))]
-    _get_range_extents.restype = POINTER(AtspiRect)
+    _get_range_extents.restype = POINTER(_AtspiRect)
 
     _get_n_selections = IATSPI().get_iface_func("atspi_text_get_n_selections")
     _get_n_selections.argtypes = [POINTER(_AtspiText), POINTER(POINTER(_GError))]
@@ -1200,3 +1143,83 @@ class AtspiDocument(object):
         """
         res = self._get_attributes(self._pointer, g_error_pointer)
         return GHashTable.ghash2dic(res)
+
+
+class AtspiImage(object):
+
+    """Access to ATSPI Image Interface"""
+
+    _get_image_locale = IATSPI().get_iface_func("atspi_image_get_image_locale")
+    _get_image_locale.argtypes = [POINTER(_AtspiImage), POINTER(POINTER(_GError))]
+    _get_image_locale.restype = c_char_p
+
+    _get_image_extents = IATSPI().get_iface_func("atspi_image_get_image_extents")
+    _get_image_extents.argtypes = [POINTER(_AtspiImage), _AtspiCoordType, POINTER(POINTER(_GError))]
+    _get_image_extents.restype = POINTER(_AtspiRect)
+
+    _get_image_position = IATSPI().get_iface_func("atspi_image_get_image_position")
+    _get_image_position.argtypes = [POINTER(_AtspiImage), _AtspiCoordType, POINTER(POINTER(_GError))]
+    _get_image_position.restype = POINTER(_AtspiPoint)
+
+    _get_image_size = IATSPI().get_iface_func("atspi_image_get_image_size")
+    _get_image_size.argtypes = [POINTER(_AtspiImage), POINTER(POINTER(_GError))]
+    _get_image_size.restype = POINTER(_AtspiPoint)
+
+    _get_image_description = IATSPI().get_iface_func("atspi_image_get_image_description")
+    _get_image_description.argtypes = [POINTER(_AtspiImage), POINTER(POINTER(_GError))]
+    _get_image_description.restype = c_char_p
+
+    def __init__(self, pointer):
+        """Init the ATSPI Image Interface"""
+        self._pointer = pointer
+
+    @g_error_handler
+    def get_description(self, g_error_pointer=None):
+        """
+        Get the description of the image displayed in an AtspiImage object.
+
+        Return a UTF-8 string describing the image.
+        """
+        return self._get_image_description(self._pointer, g_error_pointer)
+
+    @g_error_handler
+    def get_locale(self, g_error_pointer=None):
+        """
+        Get the locale associated with an image and its textual representation.
+
+        Return a POSIX LC_MESSAGES-style locale value for image description and text
+        """
+        return self._get_image_locale(self._pointer, g_error_pointer)
+
+    @g_error_handler
+    def get_size(self, g_error_pointer=None):
+        """
+        Get the size of the image displayed in a specified AtspiImage object.
+
+        Return POINT structure
+        where x corresponds to the image's width and y corresponds to the image's height.
+        """
+        pnt = self._get_image_size(self._pointer, g_error_pointer)
+        return POINT(pnt.contents.x, pnt.contents.y)
+
+    @g_error_handler
+    def get_position(self, coord_type="window", g_error_pointer=None):
+        """
+        Get the minimum x and y coordinates of the image displayed in a specified AtspiImage implementor
+
+        Return POINT structure
+        where x and y correspond to the minimum coordinates of the displayed image
+        """
+        pnt = self._get_image_position(self._pointer, _coord_type_to_atspi(coord_type), g_error_pointer)
+        return POINT(pnt.contents.x, pnt.contents.y)
+
+    @g_error_handler
+    def get_extents(self, coord_type="window", g_error_pointer=None):
+        """
+        Get the bounding box of the image displayed in a specified AtspiImage implementor
+
+        Return a pointer to an RECT corresponding to the image's bounding box.
+        The minimum x and y coordinates, width, and height are specified.
+        """
+        rect = self._get_image_extents(self._pointer, _coord_type_to_atspi(coord_type), g_error_pointer)
+        return RECT(rect.contents)

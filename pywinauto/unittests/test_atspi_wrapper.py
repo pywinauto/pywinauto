@@ -34,7 +34,6 @@
 
 import os
 import sys
-import time
 import unittest
 
 if sys.platform.startswith("linux"):
@@ -43,6 +42,7 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.application import Application
     from pywinauto.controls.atspiwrapper import AtspiWrapper
     from pywinauto.linux.atspi_objects import IATSPI
+    from pywinauto.linux.atspi_objects import POINT
 
 app_name = r"gtk_example.py"
 
@@ -63,8 +63,8 @@ def print_tree(start_el_info, level_shifter=""):
         level_shifter += "-"
 
     for children in start_el_info.children():
-        print(level_shifter, "  ", children.control_type, "    ", children.control_id, "!")
-        print_tree(children, level_shifter+"-")
+        print(level_shifter, "  ", children.control_type, "    ", children.control_id, children.runtime_id, "!")
+        print_tree(children, level_shifter + "-")
 
 
 if sys.platform.startswith("linux"):
@@ -77,16 +77,15 @@ if sys.platform.startswith("linux"):
             self.desktop_wrapper = AtspiWrapper(self.desktop_info)
             self.app = Application()
             self.app.start(_test_app())
-            time.sleep(1)
             self.app_wrapper = self.app.gtk_example.wrapper_object()
             self.app_frame = self.app.gtk_example.Frame
 
         def tearDown(self):
             self.app.kill()
 
-        def test_set_window_focus(self):
-            self.app_frame.set_focus()
-            states = self.app_frame.get_states()
+        def test_set_focus(self):
+            #TODO: make the app to be actually out focus
+            states = self.app_frame.set_focus().get_states()
             self.assertIn("STATE_VISIBLE", states)
             self.assertIn("STATE_SHOWING", states)
 
@@ -109,10 +108,33 @@ if sys.platform.startswith("linux"):
         def test_control_id(self):
             self.assertEqual(self.app_wrapper.control_id(), IATSPI().known_control_types["Application"])
 
+        def test_image(self):
+            img_wrp = self.app_frame.Icon.wrapper_object()
+            self.assertEqual(img_wrp.description(), u'')
+            self.assertEqual(img_wrp.class_name(), u"Icon")
+            self.assertEqual(img_wrp.locale(), u'')
+            self.assertEqual(img_wrp.size(), (48, 24))
+            pos = img_wrp.position()
+            self.assertEqual(pos.x, 422)
+            self.assertAlmostEqual(pos.y, 31, delta=2)
+            bb = img_wrp.bounding_box()
+            self.assertEqual(bb.left, pos.x)
+            self.assertEqual(bb.top, pos.y)
+            self.assertEqual(bb.right, 470)
+            self.assertAlmostEqual(bb.bottom, 55, delta=2)
+
         def test_can_get_rectangle(self):
             rect = self.app_frame.Panel.rectangle()
             self.assertEqual(rect.width(), 600)
-            self.assertEqual(rect.height(), 492)
+            rect = self.app_frame.Icon.rectangle()
+            self.assertAlmostEqual(rect.height(), 26, delta=2)
+
+        def test_client_to_screen(self):
+            rect = self.app_wrapper.rectangle()
+            self.assertEqual(self.app_wrapper.client_to_screen((0, 0)),
+                    (rect.left, rect.top))
+            self.assertEqual(self.app_wrapper.client_to_screen(POINT(20, 20)),
+                    (rect.left + 20, rect.top + 20))
 
         def test_can_get_process_id(self):
             self.assertEqual(self.app_wrapper.process_id(), self.app.process)
@@ -140,6 +162,7 @@ if sys.platform.startswith("linux"):
 
         def test_app_is_child_of_desktop(self):
             self.assertTrue(self.app_wrapper.is_child(self.desktop_wrapper))
+
 
 if __name__ == "__main__":
     unittest.main()

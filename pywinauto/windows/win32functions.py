@@ -31,12 +31,14 @@
 
 """Defines Windows(tm) functions"""
 
-from ctypes import windll
+from ctypes import LibraryLoader
+from ctypes import WinDLL
 from ctypes import wintypes
 from ctypes import c_short
 from ctypes import WINFUNCTYPE
 from ctypes import c_void_p
 from ctypes import c_int
+from ctypes import c_uint
 from ctypes import byref
 from ctypes import POINTER
 from ctypes import c_ubyte
@@ -45,7 +47,14 @@ from ctypes import c_size_t
 from . import win32defines, win32structures
 from ..actionlogger import ActionLogger
 
+# Quote: "If you want cached libs without polluting ctypes.cdll or
+# ctypes.windll, just create your own instance such as
+# windll = ctypes.LibraryLoader(ctypes.WinDLL)."
+# see https://bugs.python.org/issue22552
+windll = LibraryLoader(WinDLL)
+
 SHORT = c_short
+
 
 CreateBrushIndirect = windll.gdi32.CreateBrushIndirect
 CreateBrushIndirect.restype = wintypes.HBRUSH
@@ -205,12 +214,19 @@ GetKeyboardLayout.restype = wintypes.HKL
 GetKeyboardLayout.argtypes = [
     wintypes.DWORD,
 ]
+VkKeyScanW = windll.user32.VkKeyScanW
+VkKeyScanW.restype = SHORT
+VkKeyScanW.argtypes = [
+    wintypes.WCHAR,
+]
 VkKeyScanExW = windll.user32.VkKeyScanExW
 VkKeyScanExW.restype = SHORT
 VkKeyScanExW.argtypes = [
     wintypes.WCHAR,
     wintypes.HKL,
 ]
+GetMessageExtraInfo = windll.user32.GetMessageExtraInfo
+MapVirtualKeyW = windll.user32.MapVirtualKeyW
 # menu functions
 DrawMenuBar = windll.user32.DrawMenuBar
 DrawMenuBar.restype = wintypes.BOOL
@@ -683,6 +699,23 @@ GetClipboardFormatName.argtypes = [
     wintypes.UINT,
     wintypes.LPWSTR,
     c_int,
+]
+TranslateMessage = windll.user32.TranslateMessage
+TranslateMessage.argtypes = [
+    POINTER(wintypes.MSG)
+]
+DispatchMessageW = windll.user32.DispatchMessageW
+DispatchMessageW.argtypes = [
+    POINTER(wintypes.MSG)
+]
+PeekMessageW = windll.user32.PeekMessageW
+PeekMessageW.restypes = wintypes.BOOL
+PeekMessageW.argtypes = [
+    POINTER(wintypes.MSG),
+    wintypes.HWND,
+    c_uint,
+    c_uint,
+    c_uint,
 ]
 
 # DPIAware API funcs are not available on WinXP

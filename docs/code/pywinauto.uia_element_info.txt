@@ -1,6 +1,0 @@
-pywinauto.uia_element_info
---------------------------
- .. automodule:: pywinauto.uia_element_info
-    :members:
-    :undoc-members:
-

@@ -110,14 +110,14 @@ class MenuWrapperTests(unittest.TestCase):
 
     def testClick(self):
         self.dlg.menu().get_menu_path('&Help->&About Notepad')[-1].click()
-        About = self.app.window(title='About Notepad')
+        About = self.app.window(name='About Notepad')
         About.wait('ready')
         About.OK.click()
         About.wait_not('visible')
 
     def testClickInput(self):
         self.dlg.menu().get_menu_path('&Help->&About Notepad')[-1].click_input()
-        About = self.app.window(title='About Notepad')
+        About = self.app.window(name='About Notepad')
         About.wait('ready')
         About.OK.click()
         About.wait_not('visible')

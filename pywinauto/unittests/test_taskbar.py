@@ -40,7 +40,7 @@ from pywinauto import taskbar  # noqa: E402
 from pywinauto import findwindows  # noqa: E402
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.windows.application import ProcessNotFoundError  # noqa: E402
-from pywinauto.windows.application import WindowSpecification  # noqa: E402
+from pywinauto.base_application import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, is_x64_OS  # noqa: E402
 from pywinauto.windows import win32defines
 from pywinauto.timings import wait_until  # noqa: E402
@@ -84,7 +84,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     handle = findwindows.find_elements(active_only=True,
                                        class_name=class_name)[-1].handle
     window = WindowSpecification({'handle': handle, 'backend': 'win32', })
-    explorer = Application().connect(process=window.process_id())
+    explorer = Application().connect(pid=window.process_id())
     cur_state = None
 
     try:
@@ -114,7 +114,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
         explorer.wait_cpu_usage_lower(threshold=5, timeout=_ready_timeout)
 
         # Get the new opened applet
-        notif_area = Desktop().window(title="Notification Area Icons",
+        notif_area = Desktop().window(name="Notification Area Icons",
                                       class_name=class_name)
         notif_area.wait("ready", timeout=_ready_timeout)
         cur_state = notif_area.CheckBox.get_check_state()
@@ -257,7 +257,12 @@ class TaskbarTestCases(unittest.TestCase):
         def _show_popup_menu():
             taskbar.explorer_app.wait_cpu_usage_lower(threshold=5, timeout=self.tm)
             taskbar.RightClickSystemTrayIcon('MFCTrayDemo')
-            menu = self.app.top_window().children()[0]
+            children = self.app.top_window().children()
+            if not children:
+                # Somehow, we ended up with a dialog - parent of the menu
+                menu = self.app.windows(visible=True)[0].children()[0]
+            else:
+                menu = children[0]
             res = isinstance(menu, ToolbarWrapper) and menu.is_visible()
             menu_window[0] = menu
             return res
@@ -345,7 +350,7 @@ class TaskbarTestCases(unittest.TestCase):
         niow_dlg.SysLink.click_input()
 
         nai = Desktop().window(
-            title="Notification Area Icons",
+            name="Notification Area Icons",
             class_name="CabinetWClass"
         )
         nai.wait('ready')

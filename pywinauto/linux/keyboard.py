@@ -366,7 +366,7 @@ class KeyAction(object):
     __repr__ = __str__
 
 
-class PauseAction(KeyAction):
+class PauseAction(object):
 
     """Represents a pause action"""
 
@@ -382,7 +382,7 @@ class PauseAction(KeyAction):
     __repr__ = __str__
 
 
-def handle_code(code):
+def handle_code(code, vk_packet=True):
     """Handle a key or sequence of keys in braces"""
     code_keys = []
     # it is a known code (e.g. {DOWN}, {ENTER}, etc)
@@ -433,7 +433,8 @@ def parse_keys(string,
                 with_spaces = False,
                 with_tabs = False,
                 with_newlines = False,
-                modifiers = None):
+                modifiers = None,
+                vk_packet=True):
     """Return the parsed keys"""
     keys = []
     if not modifiers:
@@ -523,7 +524,8 @@ def send_keys(keys,
               with_spaces=False,
               with_tabs=False,
               with_newlines=False,
-              turn_off_numlock=True):
+              turn_off_numlock=True,
+              vk_packet=True):
     """Parse the keys and type them"""
     keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
     for k in keys:
