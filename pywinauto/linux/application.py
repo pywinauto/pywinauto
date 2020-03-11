@@ -120,7 +120,7 @@ class Application(BaseApplication):
         except Exception:
             raise ProcessNotFoundError()
 
-    def kill(self):
+    def kill(self, soft=False):
         """
         Try to close and kill the application
 
@@ -129,6 +129,8 @@ class Application(BaseApplication):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
+        if soft:
+            raise NotImplementedError("Soft kill is not implemented on Linux")
         if self._proc_descriptor is not None:
             # Kill process created via Application with subprocess kill
             self._proc_descriptor.kill()

@@ -1,55 +1,31 @@
-import os
 import time
-import sys
-from os import path
+# import os
+# import sys
 import subprocess
-from subprocess import Popen, PIPE
 
 from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
 from Foundation import NSAppleEventDescriptor
 from ApplicationServices import AXUIElementCreateApplication
 
 from . import macos_functions
-from . import ax_element_info
+from . import ax_element_info # TODO: move cache_update() to macos_functions.py
 from .. import backend
 from ..backend import registry
 from ..element_info import ElementInfo
 from ..base_wrapper import BaseWrapper
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 
-
-sys.path.append(path.dirname(path.dirname(path.abspath(__file__))))
-parent_dir = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(parent_dir)
-os.path.join
 from ..timings import Timings, wait_until
 backend.register('ax', ElementInfo, BaseWrapper)
 
 
-class Pidmonitor():
-    
-    pid = None
-    pid_before = []
-
-    @staticmethod
-    def pid_before():
-        liste1 = []
-        for apps in macos_functions.running_applications():
-            liste1.append(apps.processIdentifier()) 
-        return liste1
-
-    @staticmethod        
-    def pid_after():
-        liste2 = [] 
+def get_process_ids(cache_update=False):
+    if cache_update:
         ax_element_info.cache_update()
-        for apps in macos_functions.running_applications():
-            liste2.append(apps.processIdentifier())
-        return liste2
+    return [apps.processIdentifier() for apps in macos_functions.running_applications()]
 
 
 class Application(BaseApplication):
-
-    Pidmonitor.pid_before = Pidmonitor.pid_before()
 
     def __init__(self, backend="ax"):
         self.connected = False
@@ -60,23 +36,25 @@ class Application(BaseApplication):
         self.backend = registry.backends[backend]
 
     def start(self, name=None, bundle_id=None, new_instance=True):
+        self.process = None
+        pids_before = get_process_ids(cache_update=False)
 
         if name is not None and bundle_id is not None:
               raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
 
         if name is not None:
             bundle = macos_functions.bundle_identifier_for_application_name(name)
-            print(bundle)
+            # print(bundle)
             macos_functions.launch_application_by_bundle(bundle, new_instance)
-            NsArray = macos_functions.get_app_instance_by_bundle(bundle)
+            ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
 
-            self.ns_app = NsArray[0]
-            if (self.ns_app is None):
+            self.ns_app = ns_app_array[0]
+            if self.ns_app is None:
                 message = ('Could not get instance of "%s" app\n') % (name)
                 raise AppStartError(message)
 
-        if bundle_id is not None: 
-            if (new_instance):
+        if bundle_id is not None:
+            if new_instance:
                 param = NSWorkspaceLaunchNewInstance
             else:
                 param = NSWorkspaceLaunchAllowingClassicStartup
@@ -88,25 +66,25 @@ class Application(BaseApplication):
             if not r[0]:
                     raise AppStartError('Could not launch application by bundle id "{}". Error code: {}'.format(bundle_id, r))
 
-            NsArray = macos_functions.get_app_instance_by_bundle(bundle_id)
-            self.ns_app = NsArray[0]
+            ns_app_array = macos_functions.get_app_instance_by_bundle(bundle_id)
+            self.ns_app = ns_app_array[0]
 
         self.connected = True
 
-        def app_launched(pid_before = Pidmonitor.pid_before):
-            pid_after = Pidmonitor.pid_after()
-            for element in pid_after:
-                if element not in pid_before:
+        def app_launched():
+            pids_after = get_process_ids(cache_update=True)
+            for element in pids_after:
+                if element not in pids_before:
                     name_app = macos_functions.get_app_instance_by_pid(element)
-                    print(name_app)
+                    # print(name_app)
                     if name == name_app.localizedName() or bundle_id == name_app.bundleIdentifier():
-                        Pidmonitor.pid = element
+                        self.process = element
                         return True
             return False
 
         if new_instance:
             wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_launched, value=True)
-            self.ns_app = macos_functions.get_app_instance_by_pid(Pidmonitor.pid)
+            self.ns_app = macos_functions.get_app_instance_by_pid(self.process)
 
         def app_idle():
             ax_element_info.cache_update()
@@ -122,20 +100,18 @@ class Application(BaseApplication):
         return self
 
     def connect(self, **kwargs):
-        
         self.connected = False
         if 'process' in kwargs:
             app = macos_functions.get_app_instance_by_pid(kwargs['process'])
-            if (app):
+            if app:
                 self.ns_app = app
                 self.connected = True
             else:
                 raise ProcessNotFoundError('pid = ' + str(self.process_id))
-
         elif 'name' in kwargs:
             # For os x you have to pass just app name
             app = macos_functions.get_instance_of_app(kwargs['name'])
-            if (app):
+            if app:
                 self.ns_app = app
                 self.connected = True
             else:
@@ -143,7 +119,7 @@ class Application(BaseApplication):
         elif 'bundle' in kwargs:
             # For os x you have to pass just app name
             app = macos_functions.get_app_instance_by_bundle(kwargs['bundle'])
-            if (app):
+            if app:
                 pid = app[0].processIdentifier()
                 self.ns_app = app[0]
                 self.connected = None
@@ -177,8 +153,8 @@ class Application(BaseApplication):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
-        if (self.ns_app):
-            if (soft):
+        if self.ns_app:
+            if soft:
                 result = self.ns_app.terminate()
             else:
                 result = self.ns_app.forceTerminate()
@@ -197,18 +173,18 @@ class Application(BaseApplication):
         Returns True if process is running otherwise - False
         """
         result = False
-        if (self.ns_app):
+        if self.ns_app:
             name = self.ns_app.localizedName()
             pid = self.process_id
             app_by_pid = macos_functions.get_app_instance_by_pid(pid)
-            if (app_by_pid and (app_by_pid.localizedName() == name)):
+            if app_by_pid and app_by_pid.localizedName() == name:
                 result = True
         return result
 
     @property
     def process_id(self):
         identifier = None
-        if (self.ns_app):
+        if self.ns_app:
             identifier = self.ns_app.processIdentifier()
         return identifier
 
@@ -236,4 +212,7 @@ class Application(BaseApplication):
 
 
 if __name__ == "__main__":
-    app = BaseApplication()
+    # TODO:
+    # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    # parent_dir = os.path.dirname(os.path.abspath(__file__))
+    # sys.path.append(parent_dir)

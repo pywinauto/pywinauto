@@ -38,9 +38,7 @@ from ApplicationServices import (AXIsProcessTrusted,
     AXUIElementCopyAttributeValue, AXUIElementCopyActionNames,
     AXUIElementPerformAction,CGWindowListCopyWindowInfo)
 from AppKit import NSScreen, NSWorkspace, NSRunningApplication, NSBundle, NSWorkspaceLaunchNewInstance
-import CoreFoundation
 import subprocess
-import os
 from ApplicationServices import *
 
 is_debug = False
@@ -58,12 +56,10 @@ def bundle_identifier_for_application_name(app_name):
     return (bundleIdentifier)
 
 def launch_application_by_bundle(bundle_id, new_instance=True):
-    
     if (new_instance):
             param = NSWorkspaceLaunchNewInstance
     else:
             param = NSWorkspaceLaunchAllowingClassicStartup
-
 
     r = get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundle_id,
             param,
@@ -71,7 +67,7 @@ def launch_application_by_bundle(bundle_id, new_instance=True):
             None)
     if not r[0]:
             raise RuntimeError('Error launching specified application. Result: {}'.format(r))
-    
+
 def terminate_application(obj):
     if check_if_its_nsrunning_application(obj):
         obj.terminate();
@@ -148,8 +144,8 @@ def check_attribute_valid(ax_element,attribute):
     list_of_options = get_list_of_attributes(ax_element)
     if list_of_options is None:
         return False
-    for iter in list_of_options:
-        if iter == attribute:
+    for option in list_of_options:
+        if option == attribute:
             return True
     return False
 
@@ -172,7 +168,7 @@ def get_list_of_actions(ax_element):
 def perform_action(ax_element,action):
     AXUIElementPerformAction(ax_element,action)
 
-def print_child_tree(ui_element_ref,count = 0):
+def print_child_tree(ui_element_ref, count=0):
     role = get_ax_attribute(ui_element_ref,"AXRole")
     if role is not None:
         print("-"*count + role)
@@ -183,17 +179,15 @@ def print_child_tree(ui_element_ref,count = 0):
                 continue
             print_child_tree(item,count + 1)
 
-def get_descendants(root,descendants):
-    childrens = get_ax_attribute(ui_element_ref,"AXChildren")
+def get_descendants(root, descendants):
+    childrens = get_ax_attribute(ui_element_ref, "AXChildren")
     if childrens is not None:
         for child in childrens:
-            if child is None:
+            if child is not None:
                 descendants.append(child)
-            get_descendants(child,descendants)
+            get_descendants(child, descendants)
 
-
-
-def get_all_ax_elements_of_a_particular_type_from_app(ui_element_ref,input_type,store):
+def get_all_ax_elements_of_a_particular_type_from_app(ui_element_ref, input_type, store):
     if ( isinstance(store, list) and isinstance(input_type,str) ):
         if (check_attribute_valid(ui_element_ref,"AXRole") and get_ax_attribute(ui_element_ref,"AXRole") is not None):
             if (get_ax_attribute(ui_element_ref,"AXRole")==input_type):
@@ -205,7 +199,7 @@ def get_all_ax_elements_of_a_particular_type_from_app(ui_element_ref,input_type,
                     get_all_ax_elements_of_a_particular_type_from_app(child,input_type,store)
 
 
-def filter_list_of_ax_element_by_attr(ui_element_refs_list,attribute_name,attr_expected_value,store):
+def filter_list_of_ax_element_by_attr(ui_element_refs_list, attribute_name, attr_expected_value, store):
     if (isinstance(ui_element_refs_list,list) and isinstance(attribute_name, str) and isinstance(store, list)):
         for element in ui_element_refs_list:
             if (check_attribute_valid(element,attribute_name) and get_ax_attribute(element,attribute_name) is not None):
@@ -213,24 +207,5 @@ def filter_list_of_ax_element_by_attr(ui_element_refs_list,attribute_name,attr_e
                     store.append(element)
 
 def get_desktop():
-    # TODO: implement 
+    # TODO: implement
     pass
-
-def cpu_usage(interval=None):
-        """Return CPU usage percent during specified number of seconds"""
-        # if not self.ns_app and self.connected:
-        #     raise AppNotConnected("Please use start or connect before trying "
-        #                           "anything else")
-        if interval:
-            time.sleep(interval)
-        try:
-            proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
-            proc_info = proc_info.split("\n")
-            return float(proc_info[1])
-        except Exception:
-            raise ProcessNotFoundError()
-
-
-#print(dir(get_ws_instance()))
-
-
