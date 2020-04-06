@@ -35,7 +35,7 @@ import sys
 import os
 import unittest
 sys.path.append(".")
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.controls.menuwrapper import MenuItemNotEnabled
 from pywinauto.timings import Timings
@@ -110,14 +110,14 @@ class MenuWrapperTests(unittest.TestCase):
 
     def testClick(self):
         self.dlg.menu().get_menu_path('&Help->&About Notepad')[-1].click()
-        About = self.app.window(title='About Notepad')
+        About = self.app.window(name='About Notepad')
         About.wait('ready')
         About.OK.click()
         About.wait_not('visible')
 
     def testClickInput(self):
         self.dlg.menu().get_menu_path('&Help->&About Notepad')[-1].click_input()
-        About = self.app.window(title='About Notepad')
+        About = self.app.window(name='About Notepad')
         About.wait('ready')
         About.OK.click()
         About.wait_not('visible')

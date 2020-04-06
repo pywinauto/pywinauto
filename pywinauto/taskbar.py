@@ -83,7 +83,7 @@ TaskBar = explorer_app.window(handle=TaskBarHandle())
 
 # The Start button
 try:
-    StartButton = explorer_app.window(title='Start', class_name='Button').wait('exists', 0.1) # Win7
+    StartButton = explorer_app.window(name='Start', class_name='Button').wait('exists', 0.1) # Win7
 except Exception:
     StartButton = TaskBar.Start # Win8.1
 

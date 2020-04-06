@@ -34,27 +34,18 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import abc
-import ctypes
 import locale
 import re
-import time
-import win32gui
-import win32con
-import win32api
-import win32ui
-import six
 import sys
 
+import six
+
 try:
-    from PIL import ImageGrab, Image
+    from PIL import ImageGrab
 except ImportError:
     ImageGrab = None
 
-from . import keyboard
-from . import win32defines, win32structures, win32functions
-from .timings import Timings
 from .actionlogger import ActionLogger
-from .mouse import _perform_click_input
 
 
 #=========================================================================
@@ -207,11 +198,6 @@ class BaseWrapper(object):
         else:
             return "{0} - '{1}', {2}".format(type_name, title, class_name)
 
-    def __hash__(self):
-        """Returns the hash value of the handle"""
-        # Must be implemented in a sub-class
-        raise NotImplementedError()
-
     #------------------------------------------------------------
     @property
     def writable_props(self):
@@ -346,11 +332,7 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
     def was_maximized(self):
         """Indicate whether the window was maximized before minimizing or not"""
-        if self.handle:
-            (flags, _, _, _, _) = win32gui.GetWindowPlacement(self.handle)
-            return (flags & win32con.WPF_RESTORETOMAXIMIZED == win32con.WPF_RESTORETOMAXIMIZED)
-        else:
-            return None
+        raise NotImplementedError
 
     #------------------------------------------------------------
     def rectangle(self):
@@ -373,10 +355,7 @@ class BaseWrapper(object):
         # because the latter can be overriden in one of derived wrappers
         # (see _treeview_element.rectangle or _listview_item.rectangle)
         rect = self.element_info.rectangle
-        if isinstance(client_point, win32structures.POINT):
-            return (client_point.x + rect.left, client_point.y + rect.top)
-        else:
-            return (client_point[0] + rect.left, client_point[1] + rect.top)
+        return (client_point[0] + rect.left, client_point[1] + rect.top)
 
     #-----------------------------------------------------------
     def process_id(self):
@@ -532,39 +511,16 @@ class BaseWrapper(object):
             control_rectangle = rect
 
         # get the control rectangle in a way that PIL likes it
-        width = control_rectangle.width()
-        height = control_rectangle.height()
         left = control_rectangle.left
         right = control_rectangle.right
         top = control_rectangle.top
         bottom = control_rectangle.bottom
         box = (left, top, right, bottom)
 
-        # check the number of monitors connected
-        if (sys.platform == 'win32') and (len(win32api.EnumDisplayMonitors()) > 1):
-                hwin = win32gui.GetDesktopWindow()
-                hwindc = win32gui.GetWindowDC(hwin)
-                srcdc = win32ui.CreateDCFromHandle(hwindc)
-                memdc = srcdc.CreateCompatibleDC()
-                bmp = win32ui.CreateBitmap()
-                bmp.CreateCompatibleBitmap(srcdc, width, height)
-                memdc.SelectObject(bmp)
-                memdc.BitBlt((0, 0), (width, height), srcdc, (left, top), win32con.SRCCOPY)
+        # TODO: maybe check the number of monitors on Linux
 
-                bmpinfo = bmp.GetInfo()
-                bmpstr = bmp.GetBitmapBits(True)
-                pil_img_obj = Image.frombuffer('RGB',
-                                               (bmpinfo['bmWidth'], bmpinfo['bmHeight']),
-                                               bmpstr,
-                                               'raw',
-                                               'BGRX',
-                                               0,
-                                               1)
-        else:
-            # grab the image and get raw data as a string
-            pil_img_obj = ImageGrab.grab(box)
-
-        return pil_img_obj
+        # grab the image and get raw data as a string
+        return ImageGrab.grab(box)
 
     #-----------------------------------------------------------
     def get_properties(self):
@@ -586,7 +542,7 @@ class BaseWrapper(object):
         self,
         colour='green',
         thickness=2,
-        fill=win32defines.BS_NULL,
+        fill=None,
         rect=None):
         """
         Draw an outline around the window.
@@ -598,50 +554,7 @@ class BaseWrapper(object):
         * **rect** the coordinates of the rectangle to draw (defaults to
           the rectangle of the control)
         """
-        # don't draw if dialog is not visible
-        if not self.is_visible():
-            return
-
-        colours = {
-            "green": 0x00ff00,
-            "blue": 0xff0000,
-            "red": 0x0000ff,
-        }
-
-        # if it's a known colour
-        if colour in colours:
-            colour = colours[colour]
-
-        if rect is None:
-            rect = self.rectangle()
-
-        # create the pen(outline)
-        pen_handle = win32functions.CreatePen(
-                win32defines.PS_SOLID, thickness, colour)
-
-        # create the brush (inside)
-        brush = win32structures.LOGBRUSH()
-        brush.lbStyle = fill
-        brush.lbHatch = win32defines.HS_DIAGCROSS
-        brush_handle = win32functions.CreateBrushIndirect(ctypes.byref(brush))
-
-        # get the Device Context
-        dc = win32functions.CreateDC("DISPLAY", None, None, None )
-
-        # push our objects into it
-        win32functions.SelectObject(dc, brush_handle)
-        win32functions.SelectObject(dc, pen_handle)
-
-        # draw the rectangle to the DC
-        win32functions.Rectangle(
-            dc, rect.left, rect.top, rect.right, rect.bottom)
-
-        # Delete the brush and pen we created
-        win32functions.DeleteObject(brush_handle)
-        win32functions.DeleteObject(pen_handle)
-
-        # delete the Display context that we created
-        win32functions.DeleteDC(dc)
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def is_child(self, parent):
@@ -654,6 +567,11 @@ class BaseWrapper(object):
         for the child element.
         """
         return self in parent.children(class_name = self.class_name())
+
+    # ------------------------------------------------------------
+    def __hash__(self):
+        """Return a unique hash value based on the element's handle"""
+        return self.element_info.__hash__()
 
     #-----------------------------------------------------------
     def __eq__(self, other):
@@ -733,50 +651,7 @@ class BaseWrapper(object):
            as that could easily move the mouse off the control before the
            click_input has finished.
         """
-        if self.is_dialog():
-            self.set_focus()
-        if self.backend.name == "win32":
-            self._ensure_enough_privileges('win32api.SetCursorPos(x, y)')
-        # TODO: check it in more general way for both backends
-
-        if isinstance(coords, win32structures.RECT):
-            coords = coords.mid_point()
-        # allow points objects to be passed as the coords
-        elif isinstance(coords, win32structures.POINT):
-            coords = [coords.x, coords.y]
-        else:
-            coords = list(coords)
-
-        # set the default coordinates
-        if coords[0] is None:
-            coords[0] = int(self.rectangle().width() / 2)
-        if coords[1] is None:
-            coords[1] = int(self.rectangle().height() / 2)
-
-        if not absolute:
-            coords = self.client_to_screen(coords)
-
-        message = None
-        if use_log:
-            ctrl_text = self.window_text()
-            if ctrl_text is None:
-                ctrl_text = six.text_type(ctrl_text)
-            if button.lower() == 'move':
-                message = 'Moved mouse over {} "{}" to screen point ('.format(
-                    self.friendly_class_name(), ctrl_text)
-            else:
-                message = 'Clicked {} "{}" by {} button mouse click at '.format(
-                    self.friendly_class_name(), ctrl_text, button)
-                if double:
-                    message = 'Double-c' + message[1:]
-            message += str(tuple(coords))
-
-        _perform_click_input(button, coords, double, button_down, button_up,
-                             wheel_dist=wheel_dist, pressed=pressed,
-                             key_down=key_down, key_up=key_up)
-
-        if message:
-            self.actions.log(message)
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def double_click_input(self, button ="left", coords = (None, None)):
@@ -871,37 +746,7 @@ class BaseWrapper(object):
         * **absolute** specifies whether to use absolute coordinates
           for the mouse pointer locations
         """
-        if not src:
-            src = self
-
-        if dst is src:
-            raise AttributeError("Can't drag-n-drop on itself")
-
-        if isinstance(src, BaseWrapper):
-            press_coords = src._calc_click_coords()
-        elif isinstance(src, win32structures.POINT):
-            press_coords = (src.x, src.y)
-        else:
-            press_coords = src
-
-        if isinstance(dst, BaseWrapper):
-            release_coords = dst._calc_click_coords()
-        elif isinstance(dst, win32structures.POINT):
-            release_coords = (dst.x, dst.y)
-        else:
-            release_coords = dst
-        self.actions.log('Drag mouse from coordinates {0} to {1}'.format(press_coords, release_coords))
-
-        self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
-        time.sleep(Timings.before_drag_wait)
-        for i in range(5):
-            self.move_mouse_input((press_coords[0] + i, press_coords[1]), pressed=pressed, absolute=absolute) # "left"
-            time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute) # "left"
-        time.sleep(Timings.before_drop_wait)
-        self.release_mouse_input(button, release_coords, pressed, absolute=absolute)
-        time.sleep(Timings.after_drag_n_drop_wait)
-        return self
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def wheel_mouse_input(self, coords = (None, None), wheel_dist = 1, pressed =""):
@@ -924,7 +769,8 @@ class BaseWrapper(object):
         with_tabs = False,
         with_newlines = False,
         turn_off_numlock = True,
-        set_foreground = True):
+        set_foreground = True,
+        vk_packet = True):
         """
         Type keys to the element using keyboard.send_keys
 
@@ -933,53 +779,7 @@ class BaseWrapper(object):
 
         .. _keyboard: pywinauto.keyboard.html
         """
-        self.verify_actionable()
-        friendly_class_name = self.friendly_class_name()
-
-        if pause is None:
-            pause = Timings.after_sendkeys_key_wait
-
-        if set_foreground:
-            self.set_focus()
-
-        # attach the Python process with the process that self is in
-        if self.element_info.handle:
-            window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
-            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
-            # TODO: check return value of AttachThreadInput properly
-        else:
-            # TODO: UIA stuff maybe
-            pass
-
-        if isinstance(keys, six.text_type):
-            aligned_keys = keys
-        elif isinstance(keys, six.binary_type):
-            aligned_keys = keys.decode(locale.getpreferredencoding())
-        else:
-            # convert a non-string input
-            aligned_keys = six.text_type(keys)
-
-        # Play the keys to the active window
-        keyboard.send_keys(
-            aligned_keys,
-            pause,
-            with_spaces,
-            with_tabs,
-            with_newlines,
-            turn_off_numlock)
-
-        # detach the python process from the window's process
-        if self.element_info.handle:
-            win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.FALSE)
-            # TODO: check return value of AttachThreadInput properly
-        else:
-            # TODO: UIA stuff
-            pass
-
-        self.wait_for_idle()
-
-        self.actions.log('Typed text to the ' + friendly_class_name + ': ' + aligned_keys)
-        return self
+        raise NotImplementedError()
 
     #-----------------------------------------------------------
     def set_focus(self):

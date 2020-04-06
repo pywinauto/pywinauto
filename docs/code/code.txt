@@ -12,10 +12,13 @@ Main User Modules
 .. toctree::
    :maxdepth: 1
    
-   pywinauto.application.txt
+   pywinauto.base_application.txt
+   pywinauto.windows.application.txt
+   pywinauto.linux.application.txt
    pywinauto.findbestmatch.txt
    pywinauto.findwindows.txt
    pywinauto.timings.txt
+   pywinauto.txt
 
 Specific Functionality
 ======================
@@ -23,7 +26,7 @@ Specific Functionality
    :maxdepth: 1
    
    pywinauto.clipboard.txt
-   pywinauto.win32_hooks.txt
+   pywinauto.windows.win32_hooks.txt
 
 
 Controls Reference
@@ -36,9 +39,12 @@ Controls Reference
    pywinauto.controls.menuwrapper.txt
    pywinauto.controls.common_controls.txt
    pywinauto.controls.win32_controls.txt
-   
+
    pywinauto.controls.uiawrapper.txt
    pywinauto.controls.uia_controls.txt
+
+   pywinauto.controls.atspi_controls.txt
+   pywinauto.controls.atspiwrapper.txt
 
 Pre-supplied Tests
 ==================
@@ -66,10 +72,12 @@ Backend Internal Implementation modules
    pywinauto.backend.txt
    pywinauto.element_info.txt
 
-   pywinauto.win32_element_info.txt
+   pywinauto.windows.win32_element_info.txt
 
-   pywinauto.uia_element_info.txt
-   pywinauto.uia_defines.txt
+   pywinauto.windows.uia_element_info.txt
+   pywinauto.windows.uia_defines.txt
+
+   pywinauto.linux.atspi_element_info.txt
 
 Internal Modules
 ================
@@ -82,4 +90,4 @@ Internal Modules
    pywinauto.fuzzydict.txt
    pywinauto.actionlogger.txt
    pywinauto.sysinfo.txt
-   pywinauto.remote_memory_block.txt
+   pywinauto.windows.remote_memory_block.txt

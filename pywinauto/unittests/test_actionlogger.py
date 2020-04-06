@@ -40,7 +40,7 @@ import mock
 from six.moves import reload_module
 sys.path.append(".")
 from pywinauto import actionlogger  # noqa: E402
-from pywinauto.application import Application  # noqa: E402
+from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.sysinfo import is_x64_OS  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
@@ -91,7 +91,7 @@ class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
         self.assertEqual(self.__lineCount(), prev_line_count + 1)
 
         actionlogger.enable()
-        self.app.window(title='About Notepad').OK.click()
+        self.app.window(name='About Notepad').OK.click()
         self.assertEqual(self.__lineCount(), prev_line_count + 2)
 
 

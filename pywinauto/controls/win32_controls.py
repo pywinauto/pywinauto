@@ -29,7 +29,7 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Wraps various standard windows controls"""
+"""Wraps various standard windows controls. To be used with 'win32' backend"""
 from __future__ import unicode_literals
 
 import time
@@ -40,9 +40,7 @@ import six
 
 from . import hwndwrapper
 
-from .. import win32functions
-from .. import win32defines
-from .. import win32structures
+from ..windows import win32defines, win32functions, win32structures
 
 from ..timings import Timings
 from .. import deprecated
@@ -113,12 +111,12 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
             f_class_name = vb_buttons[self.class_name()]
 
         if style_lsb in [win32defines.BS_3STATE,
-                        win32defines.BS_AUTO3STATE,
-                        win32defines.BS_AUTOCHECKBOX,
-                        win32defines.BS_CHECKBOX, ]:
+                         win32defines.BS_AUTO3STATE,
+                         win32defines.BS_AUTOCHECKBOX,
+                         win32defines.BS_CHECKBOX, ]:
             f_class_name = "CheckBox"
         elif style_lsb in [win32defines.BS_RADIOBUTTON,
-                        win32defines.BS_AUTORADIOBUTTON, ]:
+                           win32defines.BS_AUTORADIOBUTTON, ]:
             f_class_name = "RadioButton"
         elif style_lsb == win32defines.BS_GROUPBOX:
             f_class_name = "GroupBox"

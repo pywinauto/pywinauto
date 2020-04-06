@@ -1,7 +1,7 @@
 from ..recorder_defines import EVENT, PROPERTY, STRUCTURE_EVENT
 from ..recorder_defines import ApplicationEvent
 
-from ...uia_defines import IUIA
+from ...windows.uia_defines import IUIA
 
 EVENT_ID_TO_NAME_MAP = {
     IUIA().UIA_dll.UIA_AsyncContentLoadedEventId: EVENT.ASYNC_CONTENT_LOADED,

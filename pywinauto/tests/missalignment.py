@@ -71,7 +71,8 @@ The identifier for this test/bug is "Missalignment" """
 
 testname = "Missalignment"
 
-from pywinauto import win32structures
+from pywinauto.windows import win32structures
+
 
 #====================================================================
 def MissalignmentTest(windows):

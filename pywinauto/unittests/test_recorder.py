@@ -12,7 +12,7 @@ else:
 sys.path.append(".")
 
 import pywinauto.recorder.uia.uia_recorder
-import pywinauto.win32_hooks
+import pywinauto.windows.win32_hooks
 
 from pywinauto.application import Application
 from pywinauto.recorder.base_recorder import BaseRecorder
@@ -23,8 +23,8 @@ from pywinauto.recorder.recorder_defines import HOOK_KEY_DOWN, HOOK_KEY_UP, HOOK
 from pywinauto.recorder.uia.uia_event_handlers import EventHandler, MenuOpenedHandler, MenuClosedHandler, \
     ExpandCollapseHandler, SelectionChangedHandler, MouseClickHandler, UIA_EVENT_PATTERN_MAP
 from pywinauto.recorder.uia.uia_recorder import UiaRecorder
-from pywinauto.uia_defines import IUIA, window_visual_state_normal, expand_state_expanded
-from pywinauto.win32structures import RECT
+from pywinauto.windows.uia_defines import IUIA, window_visual_state_normal, expand_state_expanded
+from pywinauto.windows.win32structures import RECT
 
 
 class EventPatternTestCases(unittest.TestCase):
@@ -461,7 +461,7 @@ class UiaRecorderTestCases(unittest.TestCase):
         IUIA().iuia.RemoveAllEventHandlers = mock.Mock()
 
         cls.hook_hook_mock = mock.Mock(spec=["keyboard", "mouse"])
-        pywinauto.win32_hooks.Hook = mock.Mock(return_value=mock.Mock(hook=cls.hook_hook_mock))
+        pywinauto.windows.win32_hooks.Hook = mock.Mock(return_value=mock.Mock(hook=cls.hook_hook_mock))
 
     def setUp(self):
         self.app_mock = mock.MagicMock(spec=Application, is_process_running=mock.Mock(return_value=True), process=0,
@@ -482,7 +482,7 @@ class UiaRecorderTestCases(unittest.TestCase):
         IUIA().iuia.RemoveAllEventHandlers.reset_mock()
 
         self.hook_hook_mock.reset_mock()
-        pywinauto.win32_hooks.Hook.reset_mock()
+        pywinauto.windows.win32_hooks.Hook.reset_mock()
 
     def tearDown(self):
         self.uia_recorder.stop()
@@ -539,7 +539,7 @@ class UiaRecorderTestCases(unittest.TestCase):
     def test_hook_target(self):
         self.uia_recorder.hook_target()
 
-        pywinauto.win32_hooks.Hook.assert_called()
+        pywinauto.windows.win32_hooks.Hook.assert_called()
         self.hook_hook_mock.assert_called_with(keyboard=True, mouse=True)
 
 

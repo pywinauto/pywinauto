@@ -3,7 +3,8 @@ import threading
 from abc import abstractmethod
 
 from .. import __version__ as recorded_version
-from ..application import Application, get_process_command_line_wmi
+from ..application import Application
+from ..windows.application import get_process_command_line_wmi
 from .log_parser import LogParser
 
 

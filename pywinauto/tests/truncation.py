@@ -74,9 +74,7 @@ testname = "Truncation"
 import ctypes
 import six
 
-from pywinauto import win32defines
-from pywinauto import win32functions
-from pywinauto import win32structures
+from pywinauto.windows import win32defines, win32functions, win32structures
 
 
 #==============================================================================
@@ -160,7 +158,7 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
 
     # try to create the font
     # create a Display DC (compatible to the screen)
-    txtDC = win32functions.CreateDC(u"DISPLAY", None, None, None )
+    txtDC = win32functions.CreateDC(u"DISPLAY", None, None, None)
 
     hFontGUI = win32functions.CreateFontIndirect(ctypes.byref(font))
 
@@ -190,12 +188,12 @@ def _GetMinimumRect(text, font, usableRect, drawFlags):
     modifiedRect = win32structures.RECT(usableRect)
     # Now write the text to our DC with our font to get the
     # rectangle that the text needs to fit in
-    win32functions.DrawText (txtDC, # The DC
-        six.text_type(text),		# The Title of the control
-        -1,			# -1 because sTitle is NULL terminated
-        ctypes.byref(modifiedRect),	# The rectangle to be calculated to
-        #truncCtrlData.drawTextFormat |
-        win32defines.DT_CALCRECT | drawFlags)
+    win32functions.DrawText (txtDC,  # The DC
+                             six.text_type(text),  # The Title of the control
+                             -1,  # -1 because sTitle is NULL terminated
+                             ctypes.byref(modifiedRect),  # The rectangle to be calculated to
+                             #truncCtrlData.drawTextFormat |
+                             win32defines.DT_CALCRECT | drawFlags)
 
     #elif modifiedRect.right == usableRect.right and \
     #	modifiedRect.bottom == usableRect.bottom:
@@ -423,8 +421,8 @@ def _DialogTruncInfo(win):
     # if it has the system menu but is a small caption
     # then the only button it can have is the close button
     if win.has_style(win32defines.WS_SYSMENU) and \
-        (win.HasExStyle(win32defines.WS_EX_PALETTEWINDOW) or
-        win.HasExStyle(win32defines.WS_EX_TOOLWINDOW)):
+        (win.has_exstyle(win32defines.WS_EX_PALETTEWINDOW) or
+         win.has_exstyle(win32defines.WS_EX_TOOLWINDOW)):
         newRect.right -= 15
 
 
@@ -436,12 +434,12 @@ def _DialogTruncInfo(win):
         buttons.append('close')
 
         # account for Icon if it is not disabled
-        if not win.HasExStyle(win32defines.WS_EX_DLGMODALFRAME):
+        if not win.has_exstyle(win32defines.WS_EX_DLGMODALFRAME):
             newRect.left += 19 # icon
 
 
         # account for context sensitive help if set
-        if win.HasExStyle(win32defines.WS_EX_CONTEXTHELP) and not ( \
+        if win.has_exstyle(win32defines.WS_EX_CONTEXTHELP) and not ( \
             win.has_style(win32defines.WS_MAXIMIZEBOX) and \
             win.has_style(win32defines.WS_MINIMIZEBOX)):
 

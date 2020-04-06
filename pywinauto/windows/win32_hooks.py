@@ -55,7 +55,6 @@ from ctypes import CFUNCTYPE
 from ctypes import POINTER
 from ctypes import byref
 from ctypes import c_int
-from ctypes import c_uint
 from ctypes import c_char
 from ctypes import c_wchar
 from ctypes import pointer
@@ -72,12 +71,14 @@ import win32con
 import win32gui
 import win32process
 
-from . import keyboard
-from .actionlogger import ActionLogger
+from .. import keyboard
 from .win32defines import VK_PACKET
+from ..actionlogger import ActionLogger
+from . import win32functions
 from .win32structures import KBDLLHOOKSTRUCT
 from .win32structures import MSLLHOOKSTRUCT
 from .win32structures import LRESULT
+
 
 HOOKCB = CFUNCTYPE(LRESULT, c_int, wintypes.WPARAM, wintypes.LPARAM)
 
@@ -99,20 +100,8 @@ windll.user32.SetWindowsHookExA.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExA.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
 windll.user32.SetWindowsHookExW.restype = wintypes.HHOOK
 windll.user32.SetWindowsHookExW.argtypes = [c_int, HOOKCB, wintypes.HINSTANCE, wintypes.DWORD]
-windll.user32.TranslateMessage.argtypes = [POINTER(wintypes.MSG)]
-windll.user32.DispatchMessageW.argtypes = [POINTER(wintypes.MSG)]
 windll.user32.UnhookWindowsHookEx.argtypes = [wintypes.HHOOK]
 windll.user32.UnhookWindowsHookEx.restype = wintypes.BOOL
-
-# BOOL WINAPI PeekMessage(
-#  _Out_    LPMSG lpMsg,
-#  _In_opt_ HWND  hWnd,
-#  _In_     UINT  wMsgFilterMin,
-#  _In_     UINT  wMsgFilterMax,
-#  _In_     UINT  wRemoveMsg
-# );
-windll.user32.PeekMessageW.argtypes = [POINTER(wintypes.MSG), wintypes.HWND, c_uint, c_uint, c_uint]
-windll.user32.PeekMessageW.restypes = wintypes.BOOL
 
 # LRESULT WINAPI CallNextHookEx(
 #   _In_opt_ HHOOK  hhk,
@@ -491,7 +480,7 @@ class Hook(object):
         else:
             self.actions.log("_process_kbd_msg_type, bad event_type: {0}".format(event_type))
 
-        if event_type == 'key down':
+        if event_type == 'key down' and current_key not in self.pressed_keys:
             if current_key not in self.pressed_keys:
                 self.pressed_keys.append(current_key)
         elif event_type == 'key up':
@@ -614,15 +603,15 @@ class Hook(object):
         """Peek and process queued windows messages"""
         message = wintypes.MSG()
         while True:
-            res = windll.user32.PeekMessageW(pointer(message), 0, 0, 0, win32con.PM_REMOVE)
+            res = win32functions.PeekMessageW(pointer(message), 0, 0, 0, win32con.PM_REMOVE)
             if not res:
                 break
             if message.message == win32con.WM_QUIT:
                 self.stop()
                 sys.exit(0)
             else:
-                windll.user32.TranslateMessage(byref(message))
-                windll.user32.DispatchMessageW(byref(message))
+                win32functions.TranslateMessage(byref(message))
+                win32functions.DispatchMessageW(byref(message))
 
     def listen(self):
         """Listen for events"""

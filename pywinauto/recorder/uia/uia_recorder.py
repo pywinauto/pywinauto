@@ -3,10 +3,10 @@ import timeit
 
 from comtypes import COMObject, COMError
 
-from ... import win32_hooks
-from ...win32structures import POINT
-from ...uia_defines import IUIA, window_visual_state_normal, expand_state_expanded
-from ...uia_element_info import UIAElementInfo
+from ...windows import win32_hooks
+from ...windows.win32structures import POINT
+from ...windows.uia_defines import IUIA, window_visual_state_normal, expand_state_expanded
+from ...windows.uia_element_info import UIAElementInfo
 from ...findbestmatch import ControlNames
 
 from ..control_tree import ControlTree

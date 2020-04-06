@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # GUI Application automation and testing library
 # Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
@@ -50,7 +51,7 @@ def cmd_exists(cmd):
 def set_up_clipboard(is_input):
     """Find clipboard app in system"""
     command = []
-    if sys.platform == 'linux' or sys.platform == 'linux2':
+    if sys.platform.startswith('linux'):
         if cmd_exists('xclip'):
             command.append('xclip')
             if is_input:

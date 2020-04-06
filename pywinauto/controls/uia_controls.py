@@ -29,24 +29,23 @@
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
-"""Wrap various UIA windows controls"""
+"""Wrap various UIA windows controls. To be used with 'uia' backend."""
 import locale
 import comtypes
 import six
 
-from .. import uia_element_info
-from .. import findbestmatch
-from .. import timings
-
-from .. import uia_defines as uia_defs
 from . import uiawrapper
 from . import win32_controls
 from . import common_controls
-from ..uia_element_info import UIAElementInfo
-from ..uia_defines import IUIA
-from ..uia_defines import NoPatternInterfaceError
-from ..uia_defines import toggle_state_on
-from ..uia_defines import get_elem_interface
+from .. import findbestmatch
+from .. import timings
+from ..windows import uia_defines as uia_defs
+from ..windows.uia_defines import IUIA
+from ..windows.uia_defines import NoPatternInterfaceError
+from ..windows.uia_defines import toggle_state_on
+from ..windows.uia_defines import get_elem_interface
+from ..windows.uia_element_info import UIAElementInfo
+from ..windows.uia_element_info import elements_from_uia_array
 
 
 # ====================================================================
@@ -146,7 +145,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             super(ComboBoxWrapper, self).expand()
         except NoPatternInterfaceError:
             # workaround for WinForms combo box using Open button
-            open_buttons = self.children(title='Open', control_type='Button')
+            open_buttons = self.children(name='Open', control_type='Button')
             if open_buttons:
                 open_buttons[0].invoke()
             else:
@@ -165,7 +164,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             super(ComboBoxWrapper, self).collapse()
         except NoPatternInterfaceError:
             # workaround for WinForms combo box using Open button
-            close_buttons = self.children(title='Close', control_type='Button')
+            close_buttons = self.children(name='Close', control_type='Button')
             if not close_buttons:
                 if self.element_info.framework_id == 'WinForm':
                     return self # simple WinForms combo box is always expanded
@@ -243,7 +242,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
                 children_lst[0]._select(item)
                 # do health check and apply workaround for Qt5 combo box if necessary
                 if isinstance(item, six.string_types):
-                    item = children_lst[0].children(title=item)[0]
+                    item = children_lst[0].children(name=item)[0]
                     if self.selected_text() != item:
                         # workaround for WinForms combo box
                         item.invoke()
@@ -774,7 +773,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         """Get the information on the columns of the ListView"""
         if self.iface_grid_support:
             arr = self.iface_table.GetCurrentColumnHeaders()
-            cols = uia_element_info.elements_from_uia_array(arr)
+            cols = elements_from_uia_array(arr)
             return [uiawrapper.UIAWrapper(e) for e in cols]
         elif self.is_table:
             self.__raise_not_implemented()
@@ -808,7 +807,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         if self.iface_grid_support:
             try:
                 e = self.iface_grid.GetItem(row, column)
-                elem_info = uia_element_info.UIAElementInfo(e)
+                elem_info = UIAElementInfo(e)
                 cell_elem = uiawrapper.UIAWrapper(elem_info)
             except (comtypes.COMError, ValueError):
                 raise IndexError
@@ -837,15 +836,15 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                 # Try to load element using VirtualizedItem pattern
                 try:
                     get_elem_interface(com_elem, "VirtualizedItem").Realize()
-                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                    itm = uiawrapper.UIAWrapper(UIAElementInfo(com_elem))
                 except NoPatternInterfaceError:
                     # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
-                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                    itm = uiawrapper.UIAWrapper(UIAElementInfo(com_elem))
             except (NoPatternInterfaceError, ValueError):
                 # com_elem is NULL pointer or item doesn't support ItemContainer pattern
                 # Get DataGrid row
                 try:
-                    itm = self.descendants(title=row)[0]
+                    itm = self.descendants(name=row)[0]
                     # Applications like explorer.exe usually return ListItem
                     # directly while other apps can return only a cell.
                     # In this case we need to take its parent - the whole row.
@@ -864,7 +863,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                     get_elem_interface(com_elem, "VirtualizedItem").Realize()
                 except NoPatternInterfaceError:
                     pass
-                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                itm = uiawrapper.UIAWrapper(UIAElementInfo(com_elem))
             except (NoPatternInterfaceError, ValueError, AttributeError):
                 list_items = self.children(content_only=True)
                 itm = list_items[self.__resolve_row_index(row)]

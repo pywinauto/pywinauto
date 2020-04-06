@@ -35,24 +35,10 @@ import comtypes
 import comtypes.client
 import six
 
-
-class _Singleton(type):
-
-    """
-    Singleton metaclass implementation from StackOverflow
-
-    http://stackoverflow.com/q/6760685/3648361
-    """
-
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(_Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
+from ..backend import Singleton
 
 
-@six.add_metaclass(_Singleton)
+@six.add_metaclass(Singleton)
 class IUIA(object):
 
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
@@ -114,7 +100,8 @@ class IUIA(object):
         attrs = [attr[start_len:-end_len] for attr in dir(self.UIA_dll) if attr.endswith(endswith)]
         return attrs
 
-    def build_condition(self, process=None, class_name=None, title=None, control_type=None, content_only=None):
+    def build_condition(self, process=None, class_name=None, name=None, control_type=None,
+                        content_only=None):
         """Build UIA filtering conditions"""
         conditions = []
         if process:
@@ -130,9 +117,9 @@ class IUIA(object):
                 raise TypeError('control_type must be string or integer')
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
 
-        if title:
+        if name:
             # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, title))
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, name))
 
         if isinstance(content_only, bool):
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,

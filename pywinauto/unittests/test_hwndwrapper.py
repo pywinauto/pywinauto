@@ -52,18 +52,20 @@ from pywinauto.application import Application  # noqa E402
 from pywinauto.controls.hwndwrapper import HwndWrapper  # noqa E402
 from pywinauto.controls.hwndwrapper import InvalidWindowHandle  # noqa E402
 from pywinauto.controls.hwndwrapper import get_dialog_props_from_handle  # noqa E402
-from pywinauto import win32structures  # noqa E402
-from pywinauto import win32defines  # noqa E402
+from pywinauto.windows import win32structures  # noqa E402
+from pywinauto.windows import win32defines  # noqa E402
 from pywinauto.findwindows import ElementNotFoundError  # noqa E402
 from pywinauto.sysinfo import is_x64_Python  # noqa E402
 from pywinauto.sysinfo import is_x64_OS  # noqa E402
-from pywinauto.remote_memory_block import RemoteMemoryBlock  # noqa E402
+from pywinauto.windows.remote_memory_block import RemoteMemoryBlock  # noqa E402
 from pywinauto.timings import Timings  # noqa E402
 from pywinauto import clipboard  # noqa E402
 from pywinauto.base_wrapper import ElementNotEnabled  # noqa E402
 from pywinauto.base_wrapper import ElementNotVisible  # noqa E402
 from pywinauto import findbestmatch  # noqa E402
 from pywinauto import keyboard  # noqa E402
+from pywinauto import timings  # noqa E402
+from pywinauto import WindowNotFoundError  # noqa E402
 
 
 mfc_samples_folder = os.path.join(
@@ -102,6 +104,13 @@ class HwndWrapperTests(unittest.TestCase):
         #self.dlg.type_keys("%{F4}")
         #self.dlg.close()
         self.app.kill()
+
+    def test_close_not_found(self):
+        """Test dialog close handle non existing window"""
+        wrp = self.dlg.wrapper_object()
+        with mock.patch.object(timings, 'wait_until') as mock_wait_until:
+            mock_wait_until.side_effect = timings.TimeoutError
+            self.assertRaises(WindowNotFoundError, wrp.close)
 
     def test_scroll(self):
         """Test control scrolling"""
@@ -326,15 +335,6 @@ class HwndWrapperTests(unittest.TestCase):
         actual = self.dlg.Edit.texts()[0]
         expected = "Hawaii#%@$"
         self.assertEqual(expected, actual)
-
-    def test_send_keystrokes_enter(self):
-        with self.assertRaises(findbestmatch.MatchError):
-            testString = "{ENTER}"
-
-            self.dlg.minimize()
-            self.dlg.Edit.send_keystrokes(testString)
-
-            self.dlg.restore()
 
     def test_send_keystrokes_virtual_keys_left_del_back(self):
         testString = "+hello123{LEFT 2}{DEL 2}{BACKSPACE} +world"
@@ -562,6 +562,41 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertSequenceEqual(dlg.children(), children)
 
 
+class SendKeystrokesTests(unittest.TestCase):
+    """Unit tests for the SendKeyStrokes class"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.fast()
+        notepad2_mod_folder = os.path.join(
+        os.path.dirname(__file__), r"..\..\apps\Notepad2-mod")
+        if is_x64_Python():
+            notepad2_mod_folder = os.path.join(notepad2_mod_folder, 'x64')
+        self.app = Application().start(os.path.join(notepad2_mod_folder, u"Notepad2.exe"))
+
+        self.dlg = self.app.window(name_re=".*Untitled - Notepad2-mod", visible=None)
+        self.ctrl = HwndWrapper(self.dlg.Scintilla.handle)
+
+        #self.dlg = self.app.Calculator
+        #self.dlg.menu_select('View->Scientific\tAlt+2')
+        #self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
+
+    def tearDown(self):
+        """Close the application after tests"""
+        #self.dlg.type_keys("%{F4}")
+        #self.dlg.close()
+        self.app.kill()
+
+    def test_send_keystrokes_enter(self):
+        expected = "some test string"
+
+        self.dlg.minimize()
+        self.ctrl.send_keystrokes(expected)
+        self.ctrl.send_keystrokes("{ENTER}") # click set button
+        self.dlg.restore()
+        actual = self.ctrl.window_text()
+        self.assertEqual(expected + "\r\n", actual)
+
 class HwndWrapperMenuTests(unittest.TestCase):
 
     """Unit tests for menu actions of the HwndWrapper class"""
@@ -601,17 +636,17 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
         # make sure it is open and visible
         self.app.AboutRowList.wait("visible", 20)
-        self.assertTrue(self.app.window(title='About RowList').is_visible(), True)
+        self.assertTrue(self.app.window(name='About RowList').is_visible(), True)
 
         # close it
-        self.app.window(title='About RowList', class_name='#32770').close(1)
+        self.app.window(name='About RowList', class_name='#32770').close(1)
 
         # make sure that it is not visible
         try:
             #self.assertRaises(ElementNotFoundError,
-            #                  self.app.window(title='About RowList', class_name='#32770').wrapper_object())
+            #                  self.app.window(name='About RowList', class_name='#32770').wrapper_object())
             # vvryabov: TimeoutError is caught by assertRaises, so the second raise is not caught correctly
-            self.app.window(title='About RowList', class_name='#32770').wrapper_object()
+            self.app.window(name='About RowList', class_name='#32770').wrapper_object()
         except ElementNotFoundError:
             print('ElementNotFoundError exception is raised as expected. OK.')
 
@@ -635,7 +670,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
 
     def testCloseAltF4(self):
         self.dlg.menu_select('Help->About RowList...')
-        AboutRowList = self.app.window(title='About RowList', active_only=True, class_name='#32770')
+        AboutRowList = self.app.window(name='About RowList', active_only=True, class_name='#32770')
         AboutWrapper = AboutRowList.wait("enabled")
         AboutRowList.close_alt_f4()
         AboutRowList.wait_not('visible')
@@ -811,7 +846,7 @@ class NotepadRegressionTests(unittest.TestCase):
         self.app = Application()
         self.app.start(_notepad_exe())
 
-        self.dlg = self.app.window(title='Untitled - Notepad', class_name='Notepad')
+        self.dlg = self.app.window(name='Untitled - Notepad', class_name='Notepad')
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
         self.dlg.Edit.set_edit_text("Here is some text\r\n and some more")
 
@@ -852,7 +887,7 @@ class NotepadRegressionTests(unittest.TestCase):
         self.dlg.menu_select("Edit->Paste")
 
         self.app2.UntitledNotepad.menu_select("File->Exit")
-        self.app2.window(title='Notepad', class_name='#32770')["Don't save"].click()
+        self.app2.window(name='Notepad', class_name='#32770')["Don't save"].click()
 
         self.assertEqual(self.dlg.Edit.text_block().encode(locale.getpreferredencoding()), text * 3)
 

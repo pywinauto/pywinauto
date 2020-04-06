@@ -38,12 +38,12 @@ import sys
 import warnings
 sys.path.append(".")
 
-from pywinauto import win32structures
+from pywinauto.windows import win32structures
 from pywinauto.handleprops import children, classname, clientrect, contexthelpid, \
     controlid, dumpwindow, exstyle, font, has_exstyle, has_style, is64bitprocess, \
     is_toplevel_window, isenabled, isunicode, isvisible, iswindow, parent, processid, \
     rectangle, style, text, userdata, is64bitbinary
-from pywinauto.application import Application
+from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.timings import Timings
@@ -71,8 +71,8 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure the text method returns correct result"""
         self.assertEqual("Untitled - Notepad", text(self.dlghandle))
         self.assertEqual("", text(self.edit_handle))
-        self.assertEqual(None, text(sys.maxsize))
-        self.assertEqual(None, text(None))
+        self.assertEqual("", text(sys.maxsize))
+        self.assertEqual("", text(None))
 
 
     def test_classname(self):
@@ -172,10 +172,10 @@ class HandlepropsTestCases(unittest.TestCase):
             False,
             isenabled(
                 self.app.Replace.child_window(
-                    title_re = "Replace.*",
-                    class_name = "Button",
-                    enabled_only = False).handle))
-        self.app.Replace.Cancel.click()
+                    name_re="Replace.*",
+                    class_name="Button",
+                    enabled=None).handle))
+        self.app.Replace.Cancel.Click()
 
     def test_clientrect(self):
         """Make sure clientrect() function works"""

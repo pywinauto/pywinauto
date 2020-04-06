@@ -40,13 +40,14 @@ import warnings
 import comtypes
 
 from .. import backend
+from .. import WindowNotFoundError  # noqa #E402
 from ..timings import Timings
-from ..base_wrapper import BaseWrapper
+from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
 
-from ..uia_defines import IUIA
-from .. import uia_defines as uia_defs
-from ..uia_element_info import UIAElementInfo, elements_from_uia_array
+from ..windows.uia_defines import IUIA
+from ..windows import uia_defines as uia_defs
+from ..windows.uia_element_info import UIAElementInfo, elements_from_uia_array
 
 # =========================================================================
 _friendly_classes = {
@@ -138,7 +139,7 @@ class UiaMeta(BaseMeta):
 
 # =========================================================================
 @six.add_metaclass(UiaMeta)
-class UIAWrapper(BaseWrapper):
+class UIAWrapper(WinBaseWrapper):
 
     """
     Default wrapper for User Interface Automation (UIA) controls.
@@ -169,12 +170,7 @@ class UIAWrapper(BaseWrapper):
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        BaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
-
-    # ------------------------------------------------------------
-    def __hash__(self):
-        """Return a unique hash value based on the element's Runtime ID"""
-        return hash(self.element_info.runtime_id)
+        WinBaseWrapper.__init__(self, element_info, backend.registry.backends['uia'])
 
     # ------------------------------------------------------------
     @lazy_property
@@ -363,7 +359,7 @@ class UIAWrapper(BaseWrapper):
     #------------------------------------------------------------
     def automation_id(self):
         """Return the Automation ID of the control"""
-        return self.element_info.automation_id
+        return self.element_info.auto_id
 
     # -----------------------------------------------------------
     def is_keyboard_focusable(self):
@@ -404,6 +400,10 @@ class UIAWrapper(BaseWrapper):
         Only a control supporting Window pattern should answer.
         If it doesn't (menu shadows, tooltips,...), try to send "Esc" key
         """
+        if not self.is_visible() or \
+                not self.is_enabled():
+            return
+
         try:
             name = self.element_info.name
             control_type = self.element_info.control_type
@@ -414,7 +414,10 @@ class UIAWrapper(BaseWrapper):
             if name and control_type:
                 self.actions.log("Closed " + control_type.lower() + ' "' +  name + '"')
         except(uia_defs.NoPatternInterfaceError):
-            self.type_keys("{ESC}")
+            try:
+                self.type_keys("{ESC}")
+            except comtypes.COMError:
+                raise WindowNotFoundError
 
     # -----------------------------------------------------------
     def minimize(self):
@@ -647,7 +650,7 @@ class UIAWrapper(BaseWrapper):
             err_msg = u"unsupported {0} for item {1}".format(type(item), item)
             raise ValueError(err_msg)
 
-        list_ = self.children(title=title)
+        list_ = self.children(name=title)
         if item_index < len(list_):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()

@@ -1,6 +1,6 @@
-pywinauto.win32_hooks
----------------------
- .. automodule:: pywinauto.win32_hooks
+pywinauto.windows.win32_hooks
+-----------------------------
+ .. automodule:: pywinauto.windows.win32_hooks
     :members:
     :exclude-members: ID_TO_KEY, MOUSE_ID_TO_EVENT_TYPE, MOUSE_ID_TO_KEY, event_types
     :undoc-members:

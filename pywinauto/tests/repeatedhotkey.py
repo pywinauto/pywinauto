@@ -80,7 +80,7 @@ The identifier for this test/bug is "RepeatedHotkey"
 
 testname = "RepeatedHotkey"
 
-from pywinauto.win32defines import SS_NOPREFIX
+from pywinauto.windows.win32defines import SS_NOPREFIX
 
 
 #-----------------------------------------------------------------------------
