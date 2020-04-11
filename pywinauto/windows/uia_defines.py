@@ -78,7 +78,13 @@ class IUIA(object):
             type_id = getattr(self.UIA_dll, type_id_name)
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
-
+        
+        # add some unknown control types
+        unknown_control_types_ids = { 50039: 'SemanticZoom' }
+        for key in unknown_control_types_ids:
+            self.known_control_types[unknown_control_types_ids[key]] = key
+            self.known_control_type_ids[key] = unknown_control_types_ids[key]
+            
     def build_condition(self, process=None, class_name=None, name=None, control_type=None,
                         content_only=None):
         """Build UIA filtering conditions"""
