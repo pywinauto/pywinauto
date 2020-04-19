@@ -8,7 +8,7 @@ from Foundation import NSAppleEventDescriptor
 from ApplicationServices import AXUIElementCreateApplication
 
 from . import macos_functions
-from . import ax_element_info # TODO: move cache_update() to macos_functions.py
+from . import ax_element_info
 from .. import backend
 from ..backend import registry
 from ..element_info import ElementInfo
@@ -21,7 +21,7 @@ backend.register('ax', ElementInfo, BaseWrapper)
 
 def get_process_ids(cache_update=False):
     if cache_update:
-        ax_element_info.cache_update()
+        macos_functions.cache_update()
     return [apps.processIdentifier() for apps in macos_functions.running_applications()]
 
 
@@ -217,7 +217,6 @@ class Application(BaseApplication):
 
 
 if __name__ == "__main__":
-    # TODO:
-    # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # parent_dir = os.path.dirname(os.path.abspath(__file__))
-    # sys.path.append(parent_dir)
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    parent_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(parent_dir)
