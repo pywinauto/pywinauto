@@ -31,7 +31,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 from __future__ import print_function
 
-import os
 import subprocess
 import six
 
@@ -74,9 +73,6 @@ def launch_application_by_bundle(bundle_id, new_instance=True):
     if not r[0]:
         raise RuntimeError('Error launching specified application. Result: {}'.format(r))
 
-    
-    
-
 def url_for_application_name(app_name):
     path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
     bundle = NSBundle.bundleWithPath_(path)
@@ -91,7 +87,7 @@ def launch_application_by_url(url, new_instance=True):
     r = get_ws_instance().launchApplicationAtURL_options_configuration_error_(url, param, {}, None)
     if not r[0]:
         raise RuntimeError('Error launching specified application. Result: {}'.format(r))
-    
+
 def terminate_application(obj):
     if check_if_its_nsrunning_application(obj):
         obj.terminate();
