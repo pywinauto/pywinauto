@@ -67,13 +67,13 @@ if sys.platform == 'win32':
 elif sys.platform == 'darwin':
     install_requires = [
         'six', 
-        'pyobjc-core==5.3',                              
-        'pyobjc-framework-AppleScriptObjC==5.3',         
-        'pyobjc-framework-ApplicationServices==5.3',     
-        'pyobjc-framework-Cocoa==5.3',                   
-        'pyobjc-framework-CoreText==5.3',                
-        'pyobjc-framework-FSEvents==5.3',                
-        'pyobjc-framework-Quartz==5.3'                  
+        'pyobjc-core==5.3',
+        'pyobjc-framework-AppleScriptObjC==5.3',
+        'pyobjc-framework-ApplicationServices==5.3',
+        'pyobjc-framework-Cocoa==5.3',
+        'pyobjc-framework-CoreText==5.3',
+        'pyobjc-framework-FSEvents==5.3',
+        'pyobjc-framework-Quartz==5.3'
          ]
     packages = ["pywinauto", "pywinauto.macos"]
 else:
