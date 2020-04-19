@@ -31,7 +31,6 @@ from ApplicationServices import AXUIElementRef
 from ApplicationServices import AXUIElementCreateApplication
 from ApplicationServices import AXUIElementGetPid
 from Foundation import * # TODO: eliminate wildcard import
-from PyObjCTools import AppHelper
 import AppKit
 from AppKit import NSScreen
 from AppKit import NSRunningApplication
@@ -47,7 +46,6 @@ ax_type_from_string = {
 # ax_type_from_string = {
 #     kAXValueCGSizeType: AppKit.NSSizeFromCGSize,
 #     kAXValueCGPointType: AppKit.NSPointFromCGPoint,
-    
 # }
 
 # d = {
