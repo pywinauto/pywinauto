@@ -17,7 +17,7 @@ from ApplicationServices import kAXErrorAPIDisabled
 from ApplicationServices import kAXErrorActionUnsupported
 from ApplicationServices import kAXErrorAttributeUnsupported
 from ApplicationServices import kAXErrorCannotComplete
-from ApplicationServices import kAXErrorFailure,
+from ApplicationServices import kAXErrorFailure
 from ApplicationServices import kAXErrorIllegalArgument
 from ApplicationServices import kAXErrorInvalidUIElement
 from ApplicationServices import kAXErrorInvalidUIElementObserver
@@ -28,10 +28,8 @@ from ApplicationServices import kAXErrorSuccess
 from ApplicationServices import AXUIElementCopyAttributeNames
 from ApplicationServices import AXUIElementCopyAttributeValue
 from ApplicationServices import AXUIElementRef
-# from ApplicationServices import AXUIElementCopyActionNames
 from ApplicationServices import AXUIElementCreateApplication
 from ApplicationServices import AXUIElementGetPid
-# from ApplicationServices import AXUIElementCreateSystemWide
 from Foundation import * # TODO: eliminate wildcard import
 from PyObjCTools import AppHelper
 import AppKit
