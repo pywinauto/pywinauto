@@ -29,17 +29,22 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 from __future__ import print_function
+
+import subprocess
 import six
+
 from Quartz import kCGWindowListOptionOnScreenOnly, kCGNullWindowID
 from ApplicationServices import (AXIsProcessTrusted,
     AXUIElementCopyAttributeNames, kAXErrorSuccess,
     AXUIElementCopyAttributeValue, AXUIElementCopyActionNames,
-    AXUIElementPerformAction,CGWindowListCopyWindowInfo)
-from AppKit import NSScreen, NSWorkspace, NSRunningApplication, NSBundle, NSWorkspaceLaunchNewInstance
-import subprocess
-from ApplicationServices import *
+    AXUIElementPerformAction, CGWindowListCopyWindowInfo)
+
+from AppKit import (NSScreen, NSWorkspace, NSRunningApplication, NSBundle, NSWorkspaceLaunchNewInstance,
+    NSWorkspaceLaunchAllowingClassicStartup)
+
+from Foundation import NSAppleEventDescriptor
+from PyObjCTools import AppHelper
 
 is_debug = False
 
@@ -51,22 +56,37 @@ def launch_application(name):
 
 def bundle_identifier_for_application_name(app_name):
     path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
-    bundle=NSBundle.bundleWithPath_(path)
-    bundleIdentifier=bundle.bundleIdentifier()
-    return (bundleIdentifier)
+    bundle = NSBundle.bundleWithPath_(path)
+    bundleIdentifier = bundle.bundleIdentifier()
+    return bundleIdentifier
 
 def launch_application_by_bundle(bundle_id, new_instance=True):
     if (new_instance):
-            param = NSWorkspaceLaunchNewInstance
+        param = NSWorkspaceLaunchNewInstance
     else:
-            param = NSWorkspaceLaunchAllowingClassicStartup
+        param = NSWorkspaceLaunchAllowingClassicStartup
 
     r = get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundle_id,
             param,
             NSAppleEventDescriptor.nullDescriptor(),
             None)
     if not r[0]:
-            raise RuntimeError('Error launching specified application. Result: {}'.format(r))
+        raise RuntimeError('Error launching specified application. Result: {}'.format(r))
+
+def url_for_application_name(app_name):
+    path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
+    bundle = NSBundle.bundleWithPath_(path)
+    return bundle.executableURL()
+
+def launch_application_by_url(url, new_instance=True):
+    if (new_instance):
+        param = NSWorkspaceLaunchNewInstance
+    else:
+        param = NSWorkspaceLaunchAllowingClassicStartup
+
+    r = get_ws_instance().launchApplicationAtURL_options_configuration_error_(url, param, {}, None)
+    if not r[0]:
+        raise RuntimeError('Error launching specified application. Result: {}'.format(r))
 
 def terminate_application(obj):
     if check_if_its_nsrunning_application(obj):
@@ -83,6 +103,7 @@ def get_ws_instance():
 
 def running_applications():
     """Return all running apps(system too)"""
+    cache_update()
     rApps = get_ws_instance().runningApplications()
     return rApps
 
@@ -94,7 +115,8 @@ def get_instance_of_app(name):
         if app.localizedName() == name:
             return app
     if (is_debug):
-        print ("App is not allready running.Can't get instance")
+        print ("App is not already running.Can't get instance")
+    return None
 
 def get_app_instance_by_pid(pid):
     return NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
@@ -206,6 +228,11 @@ def filter_list_of_ax_element_by_attr(ui_element_refs_list, attribute_name, attr
                 if (get_ax_attribute(element,attribute_name) == attr_expected_value):
                     store.append(element)
 
-def get_desktop():
-    # TODO: implement
-    pass
+
+def run_loop_and_exit():
+    AppHelper.stopEventLoop()
+
+def cache_update():
+    AppHelper.callAfter(run_loop_and_exit)
+    AppHelper.runConsoleEventLoop()
+
