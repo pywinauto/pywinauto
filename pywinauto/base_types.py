@@ -192,6 +192,14 @@ class RectExtMixin(object):
             self.left, self.top, self.right, self.bottom)
 
     # ----------------------------------------------------------------
+    def __iter__(self):
+        """Allow iteration through coordinates"""
+        yield self.left
+        yield self.top
+        yield self.right
+        yield self.bottom
+
+    # ----------------------------------------------------------------
     def __sub__(self, other):
         """Return a new rectangle which is offset from the one passed in"""
         new_rect = self._RECT()

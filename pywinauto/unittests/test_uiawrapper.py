@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import time
 import os
 import sys
+import collections
 import unittest
 import mock
 import six
@@ -18,7 +19,6 @@ from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto import Desktop
 from pywinauto import mouse  # noqa: E402
 from pywinauto import WindowNotFoundError  # noqa: E402
-from pywinauto.windows import win32structures  # noqa: E402
 if UIA_support:
     import comtypes
     import pywinauto.windows.uia_defines as uia_defs
@@ -192,33 +192,28 @@ if UIA_support:
 
             # move_window call for a not supported control
             button = self.dlg.child_window(class_name="Button", name="OK")
-            self.assertRaises(NotImplementedError, button.move_window)
+            self.assertRaises(AttributeError, button.move_window)
 
-            dlg_rect = self.dlg.parent().rectangle()  # use the parent as a reference
-            prev_rect = self.dlg.rectangle() - dlg_rect
-
-            new_rect = win32structures.RECT(prev_rect)
-            new_rect.left -= 1
-            new_rect.top -= 1
-            new_rect.right += 2
-            new_rect.bottom += 2
+            # Make RECT stub to avoid import win32structures
+            Rect = collections.namedtuple('Rect', 'left top right bottom')
+            prev_rect = self.dlg.rectangle()
+            new_rect = Rect._make([i + 5 for i in prev_rect])
 
             self.dlg.move_window(
                 new_rect.left,
                 new_rect.top,
-                new_rect.width(),
-                new_rect.height(),
+                new_rect.right - new_rect.left,
+                new_rect.bottom - new_rect.top
             )
             time.sleep(0.1)
             logger = ActionLogger()
             logger.log("prev_rect = ", prev_rect)
             logger.log("new_rect = ", new_rect)
-            logger.log("dlg_rect = ", dlg_rect)
             logger.log("self.dlg.rectangle() = ", self.dlg.rectangle())
-            self.assertEqual(self.dlg.rectangle(), new_rect + dlg_rect)
+            self.assertEqual(self.dlg.rectangle(), new_rect)
 
             self.dlg.move_window(prev_rect)
-            self.assertEqual(self.dlg.rectangle(), prev_rect + dlg_rect)
+            self.assertEqual(self.dlg.rectangle(), prev_rect)
 
         def test_close(self):
             """Test close method of a control"""

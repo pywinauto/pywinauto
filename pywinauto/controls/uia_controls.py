@@ -31,9 +31,9 @@
 
 """Wrap various UIA windows controls. To be used with 'uia' backend."""
 import locale
+import time
 import comtypes
 import six
-import time
 
 from pywinauto.windows import uia_element_info
 from .. import findbestmatch
