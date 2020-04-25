@@ -153,12 +153,13 @@ class UiaMeta(BaseMeta):
     @staticmethod
     def find_wrapper(element):
         """Find the correct wrapper for this UIA element"""
-        # Set a general wrapper by default
-        wrapper_match = UIAWrapper
 
         # Check for a more specific wrapper in the registry
-        if element.control_type in UiaMeta.control_type_to_cls:
+        try:
             wrapper_match = UiaMeta.control_type_to_cls[element.control_type]
+        except KeyError:
+            # Set a general wrapper by default
+            wrapper_match = UIAWrapper
 
         return wrapper_match
 
