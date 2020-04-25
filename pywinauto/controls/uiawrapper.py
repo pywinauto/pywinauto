@@ -804,7 +804,7 @@ class UIAWrapper(WinBaseWrapper):
         """Move the window to the new coordinates
         The method should be implemented explicitly by controls that
         support this action. The most obvious is the Window control.
-        Otherwise the method throws NotImplementedError.
+        Otherwise the method throws AttributeError
 
         * **x** Specifies the new left position of the window.
           Defaults to the current left position of the window.
@@ -815,7 +815,7 @@ class UIAWrapper(WinBaseWrapper):
         * **height** Specifies the new height of the window. Default to the
           current height of the window.
         """
-        raise NotImplementedError("This method is not supported for {0}".format(self))
+        raise AttributeError("This method is not supported for {0}".format(self))
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

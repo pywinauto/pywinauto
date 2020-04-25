@@ -31,9 +31,9 @@
 
 """Wrap various UIA windows controls. To be used with 'uia' backend."""
 import locale
+import time
 import comtypes
 import six
-import time
 
 from . import uiawrapper
 from . import win32_controls
