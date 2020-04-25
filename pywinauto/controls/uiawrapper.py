@@ -800,7 +800,7 @@ class UIAWrapper(WinBaseWrapper):
         return texts
 
     # -----------------------------------------------------------
-    def move_window(self, x=None, y=None, width=None, height=None, repaint=True):
+    def move_window(self, x=None, y=None, width=None, height=None):
         """Move the window to the new coordinates
         The method should be implemented explicitly by controls that
         support this action. The most obvious is the Window control.
@@ -814,9 +814,6 @@ class UIAWrapper(WinBaseWrapper):
           current width of the window.
         * **height** Specifies the new height of the window. Default to the
           current height of the window.
-        * **repaint** Whether the window should be repainted or not.
-          Defaults to True
-
         """
         raise NotImplementedError("This method is not supported for {0}".format(self))
 
