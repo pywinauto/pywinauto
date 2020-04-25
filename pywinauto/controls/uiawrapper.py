@@ -799,5 +799,26 @@ class UIAWrapper(WinBaseWrapper):
             pass
         return texts
 
+    # -----------------------------------------------------------
+    def move_window(self, x=None, y=None, width=None, height=None, repaint=True):
+        """Move the window to the new coordinates
+        The method should be implemented explicitly by controls that
+        support this action. The most obvious is the Window control.
+        Otherwise the method throws NotImplementedError.
+
+        * **x** Specifies the new left position of the window.
+          Defaults to the current left position of the window.
+        * **y** Specifies the new top position of the window.
+          Defaults to the current top position of the window.
+        * **width** Specifies the new width of the window. Defaults to the
+          current width of the window.
+        * **height** Specifies the new height of the window. Default to the
+          current height of the window.
+        * **repaint** Whether the window should be repainted or not.
+          Defaults to True
+
+        """
+        raise NotImplementedError("This method is not supported for {0}".format(self))
+
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

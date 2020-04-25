@@ -33,6 +33,7 @@
 import locale
 import comtypes
 import six
+import time
 
 from . import uiawrapper
 from . import win32_controls
@@ -46,6 +47,69 @@ from ..windows.uia_defines import toggle_state_on
 from ..windows.uia_defines import get_elem_interface
 from ..windows.uia_element_info import UIAElementInfo
 from ..windows.uia_element_info import elements_from_uia_array
+
+
+# ====================================================================
+class WindowWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap a UIA-compatible Window control"""
+
+    _control_types = ['Window']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(WindowWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def move_window(self, x=None, y=None, width=None, height=None):
+        """Move the window to the new coordinates
+
+        * **x** Specifies the new left position of the window.
+                Defaults to the current left position of the window.
+        * **y** Specifies the new top position of the window.
+                Defaults to the current top position of the window.
+        * **width** Specifies the new width of the window.
+                Defaults to the current width of the window.
+        * **height** Specifies the new height of the window.
+                Defaults to the current height of the window.
+        """
+        cur_rect = self.rectangle()
+
+        # if no X is specified - so use current coordinate
+        if x is None:
+            x = cur_rect.left
+        else:
+            try:
+                y = x.top
+                width = x.width()
+                height = x.height()
+                x = x.left
+            except AttributeError:
+                pass
+
+        # if no Y is specified - so use current coordinate
+        if y is None:
+            y = cur_rect.top
+
+        # if no width is specified - so use current width
+        if width is None:
+            width = cur_rect.width()
+
+        # if no height is specified - so use current height
+        if height is None:
+            height = cur_rect.height()
+
+        # ask for the window to be moved
+        self.iface_transform.Move(x, y)
+        self.iface_transform.Resize(width, height)
+
+        time.sleep(timings.Timings.after_movewindow_wait)
+
+    # -----------------------------------------------------------
+    def is_dialog(self):
+        """Window is always a dialog so return True"""
+        return True
 
 
 # ====================================================================
