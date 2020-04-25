@@ -1080,13 +1080,7 @@ class HwndWrapper(WinBaseWrapper):
     MenuSelect = deprecated(menu_select)
 
     # -----------------------------------------------------------
-    def move_window(
-        self,
-        x = None,
-        y = None,
-        width = None,
-        height = None,
-        repaint = True):
+    def move_window(self, x=None, y=None, width=None, height=None):
         """Move the window to the new coordinates
 
         * **x** Specifies the new left position of the window.
@@ -1097,9 +1091,6 @@ class HwndWrapper(WinBaseWrapper):
           current width of the window.
         * **height** Specifies the new height of the window. Default to the
           current height of the window.
-        * **repaint** Whether the window should be repainted or not.
-          Defaults to True
-
         """
         cur_rect = self.rectangle()
 
@@ -1128,7 +1119,7 @@ class HwndWrapper(WinBaseWrapper):
             height = cur_rect.height()
 
         # ask for the window to be moved
-        ret = win32functions.MoveWindow(self, x, y, width, height, repaint)
+        ret = win32functions.MoveWindow(self, x, y, width, height, True)
 
         # check that it worked correctly
         if not ret:
