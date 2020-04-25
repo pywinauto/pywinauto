@@ -77,12 +77,13 @@ class AtspiMeta(BaseMeta):
     @staticmethod
     def find_wrapper(element):
         """Find the correct wrapper for this Atspi element"""
-        # Set a general wrapper by default
-        wrapper_match = AtspiWrapper
 
         # Check for a more specific wrapper in the registry
-        if element.control_type in AtspiMeta.control_type_to_cls:
+        try:
             wrapper_match = AtspiMeta.control_type_to_cls[element.control_type]
+        except KeyError:
+            # Set a general wrapper by default
+            wrapper_match = AtspiWrapper
 
         return wrapper_match
 
