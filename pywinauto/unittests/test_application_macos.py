@@ -31,18 +31,11 @@ def _test_app():
 sys.path.append(".")
 
 if sys.platform == 'darwin':
-    class ApplicationTestCases(unittest.TestCase):
-
-        """Unit tests for the application.Application class"""
-
-        def setUp(self):
-
-            pass
-
-        def tearDown(self):
-
-            pass
-
+    class ApplicationEspecialTestCases(unittest.TestCase):
+        """
+        Unit tests for the application.Application class
+        There are test cases which has unique start/end logic
+        """ 
         def test__init__(self):
             """Verify that Application instance is initialized or not"""
             self.assertRaises(ValueError, Application, backend='unregistered')
@@ -53,14 +46,6 @@ if sys.platform == 'darwin':
             self.assertRaises(AppNotConnected, Application().__getitem__, 'Hiya')
             self.assertRaises(AppNotConnected, Application().window_, title='Hiya')
             self.assertRaises(AppNotConnected, Application().top_window, )
-
-        def test_cpu_error(self):
-            """Verify that it raises when the app is not connected"""
-            app = Application()
-            app.start('send_keys_test_app')
-            Popen(["kill", "-9", str(app.process_id)], stdout=PIPE).communicate()[0]
-            self.assertRaises(ProcessNotFoundError, app.cpu_usage, interval = 1)
-            app.kill()
 
         def test_cpu_app_not_started(self):
             """Verify that it raises when the app is not connected"""
@@ -77,16 +62,6 @@ if sys.platform == 'darwin':
             self.assertEqual(app.ns_app, None)
             app.start('send_keys_test_app')
             self.assertNotEqual(app.ns_app, None)
-            app.kill()
-
-        def test_start_with_same_instance(self):
-            """test start() works correctly after being called by name"""
-            app = Application()
-            app.start(bundle_id = 'pywinauto.testapps.send-keys-test-app',new_instance=False)
-            first = app.process_id
-            app.start(bundle_id = 'pywinauto.testapps.send-keys-test-app', new_instance=False)
-            second = app.process_id
-            self.assertEqual(first, second)
             app.kill()
 
         def test_kill_soft(self):
@@ -121,65 +96,70 @@ if sys.platform == 'darwin':
             app.wait_for_process_exit()
             self.assertFalse(app.is_process_running())
 
-        def test_start_by_bundle(self):
-            """test start() works correctly after being called by bundle"""
+        def test_not_connected_app(self):
             app = Application()
             self.assertEqual(app.ns_app, None)
-            app.start(bundle_id='pywinauto.testapps.send-keys-test-app')
-            self.assertNotEqual(app.ns_app, None)
-            app.kill()
+
+        def test_not_running_app(self):
+            app = Application()
+            self.assertFalse(app.is_process_running())
+
+    class ApplicationTestCases(unittest.TestCase):
+
+        """Unit tests for the application.Application class"""
+
+        def setUp(self):
+            self.app = Application()
+            self.app.start(bundle_id = 'pywinauto.testapps.send-keys-test-app',new_instance=False)
+
+        def tearDown(self):
+            self.app.kill()
+
+        def test_cpu_error(self):
+            """Verify that it raises when the app is not connected"""
+            Popen(["kill", "-9", str(self.app.process_id)], stdout=PIPE).communicate()[0]
+            self.assertRaises(ProcessNotFoundError, self.app.cpu_usage, interval = 1)
+
+        def test_start_with_same_instance(self):
+            """test start() works correctly after being called by name"""
+            first = self.app.process_id
+            self.app.start(bundle_id = 'pywinauto.testapps.send-keys-test-app', new_instance=False)
+            second = self.app.process_id
+            self.assertEqual(first, second)
+
+        def test_start_by_bundle(self):
+            """test start() works correctly after being called by bundle"""
+            self.assertNotEqual(self.app.ns_app, None)
 
         def test_process_id(self):
-            """Test that connect_() works with a path"""
-            app = Application()
-            self.assertEqual(app.process_id, None)
-            app.start(bundle_id='pywinauto.testapps.send-keys-test-app')
-            self.assertNotEqual(app.process_id, None)
-            app.kill()
+            """Test process_id method of the application"""
+            self.assertNotEqual(self.app.process_id, None)
 
         def test_cpu_usage(self):
             """Verify that cpu_usage() works correctly"""
-            app = Application()
-            app.start(bundle_id='pywinauto.testapps.send-keys-test-app')
-            self.assertEqual(0.0 <= app.cpu_usage() <= 100.0, True)
-            app.kill()
+            self.assertEqual(0.0 <= self.app.cpu_usage() <= 100.0, True)
 
         def test_wait_for_process_running(self):
             """test is_process_running of the application"""
-            app = Application()
-            self.assertFalse(app.is_process_running())
-            app.start(bundle_id='pywinauto.testapps.send-keys-test-app')
-            app.wait_for_process_running()
-            self.assertTrue(app.is_process_running())
-            app.kill()
-
+            self.app.wait_for_process_running()
+            self.assertTrue(self.app.is_process_running())
 
         def test_connect_by_process(self):
             """Test that connect_() works with a process"""
-            app1 = Application()
-            app1.start(bundle_id='pywinauto.testapps.send-keys-test-app')
             app_conn = Application()
-            app_conn.connect(process=app1.process_id)
-            self.assertEqual(app1.process_id, app_conn.process_id)
-            app1.kill()
+            app_conn.connect(process = self.app.process_id)
+            self.assertEqual(self.app.process_id, app_conn.process_id)
 
         def test_connect_by_bundle(self):
             """Test that connect_() works with a bundle"""
-            app1 = Application()
-            app1.start(bundle_id='pywinauto.testapps.send-keys-test-app')
             app_conn = Application()
             app_conn.connect(bundle='pywinauto.testapps.send-keys-test-app')
-            self.assertEqual(app1.process_id, app_conn.process_id)
-            app1.kill()
+            self.assertEqual(self.app.process_id, app_conn.process_id)
 
         def test_connect_by_name(self):
-            app1 = Application()
-            app1.start(bundle_id='pywinauto.testapps.send-keys-test-app')
             app_conn = Application()
             app_conn.connect(name='send_keys_test_app')
-            self.assertEqual(app1.process_id, app_conn.process_id)
-            app1.kill()
-
+            self.assertEqual(self.app.process_id, app_conn.process_id)
 
 if __name__ == "__main__":
     unittest.main()
