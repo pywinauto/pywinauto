@@ -69,7 +69,7 @@ app = application.Application().start(
 # some pages are slow to open - so wait some seconds
 time.sleep(10)
 
-ie =  app.window(title_re = ".*Windows Internet Explorer.*")
+ie =  app.window(name_re = ".*Windows Internet Explorer.*")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
 print("No Menu's in IE:", ie.menu_items())
