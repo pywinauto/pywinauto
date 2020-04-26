@@ -25,19 +25,19 @@ if args.log:
     logger.handlers[0] = logging.FileHandler(args.log)
 
 app = Application(backend='uia').start(r'mspaint.exe')
-dlg = app.window(title_re='.* - Paint')
+dlg = app.window(name_re='.* - Paint')
 
 # File->Open menu selection
 dlg.File_tab.click()
-dlg.child_window(title='Open', control_type='MenuItem', found_index=0).invoke()
+dlg.child_window(name='Open', control_type='MenuItem', found_index=0).invoke()
 
 # handle Open dialog
-file_name_edit = dlg.Open.child_window(title="File name:", control_type="Edit")
+file_name_edit = dlg.Open.child_window(name="File name:", control_type="Edit")
 file_name_edit.set_text('walter_cat.jpg')
 # There are 2 Open buttons:
 # dlg.Open.Open.click() will call drop down list of the file name combo box.
 # The child_window statement is just copied from print_control_identifiers().
-dlg.Open.child_window(title="Open", auto_id="1", control_type="Button").click()
+dlg.Open.child_window(name="Open", auto_id="1", control_type="Button").click()
 
 dlg.ResizeButton.click()
 dlg.ResizeAndSkew.Pixels.select()
@@ -48,8 +48,8 @@ dlg.ResizeAndSkew.OK.click()
 
 # Select menu "File->Save as->PNG picture"
 dlg.File_tab.click()
-dlg.SaveAsGroup.child_window(title="Save as", found_index=1).invoke()
-dlg.child_window(title='PNG picture', found_index=0).invoke()
+dlg.SaveAsGroup.child_window(name="Save as", found_index=1).invoke()
+dlg.child_window(name='PNG picture', found_index=0).invoke()
 # Type output file name and save
 dlg.SaveAs.File_name_ComboBox.Edit.set_text('walter_cat_resized.png')
 dlg.SaveAs.Save.click()

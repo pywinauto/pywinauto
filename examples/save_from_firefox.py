@@ -83,11 +83,11 @@ time.sleep(5)
 #  - find the actual process
 #  - connect to it
 if app.windows():
-    mozilla =  app.window(title_re=".*Mozilla Firefox")
+    mozilla =  app.window(name_re=".*Mozilla Firefox")
 
 else:
-    app = application.Application().connect(title_re=".*Mozilla Firefox")
-    mozilla = app.window(title_re=".*Mozilla Firefox")
+    app = application.Application().connect(name_re=".*Mozilla Firefox")
+    mozilla = app.window(name_re=".*Mozilla Firefox")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
 print("No Menu's in FireFox:", mozilla.menu_items())
