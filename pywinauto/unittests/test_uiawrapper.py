@@ -5,6 +5,7 @@ from __future__ import unicode_literals
 import time
 import os
 import sys
+import collections
 import unittest
 import mock
 import six
@@ -179,6 +180,40 @@ if UIA_support:
             button = self.dlg.child_window(class_name="Button",
                                            name="OK").wrapper_object()
             self.assertEqual(button.is_dialog(), False)
+            self.assertEqual(self.dlg.is_dialog(), True)
+
+        def test_move_window(self):
+            """Test  move_window without any parameters"""
+
+            # move_window with default parameters
+            prevRect = self.dlg.rectangle()
+            self.dlg.move_window()
+            self.assertEqual(prevRect, self.dlg.rectangle())
+
+            # move_window call for a not supported control
+            button = self.dlg.child_window(class_name="Button", name="OK")
+            self.assertRaises(AttributeError, button.move_window)
+
+            # Make RECT stub to avoid import win32structures
+            Rect = collections.namedtuple('Rect', 'left top right bottom')
+            prev_rect = self.dlg.rectangle()
+            new_rect = Rect._make([i + 5 for i in prev_rect])
+
+            self.dlg.move_window(
+                new_rect.left,
+                new_rect.top,
+                new_rect.right - new_rect.left,
+                new_rect.bottom - new_rect.top
+            )
+            time.sleep(0.1)
+            logger = ActionLogger()
+            logger.log("prev_rect = ", prev_rect)
+            logger.log("new_rect = ", new_rect)
+            logger.log("self.dlg.rectangle() = ", self.dlg.rectangle())
+            self.assertEqual(self.dlg.rectangle(), new_rect)
+
+            self.dlg.move_window(prev_rect)
+            self.assertEqual(self.dlg.rectangle(), prev_rect)
 
         def test_close(self):
             """Test close method of a control"""
@@ -529,8 +564,8 @@ if UIA_support:
                          "^<uia_controls.StaticWrapper - 'TestLabel', Static, [0-9-]+>$")
 
             wrp = self.dlg.wrapper_object()
-            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog$")
-            assert_regex(wrp.__repr__(), "^<uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog, [0-9-]+>$")
+            assert_regex(wrp.__str__(), "^uia_controls\.WindowWrapper - 'WPF Sample Application', Dialog$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.WindowWrapper - 'WPF Sample Application', Dialog, [0-9-]+>$")
 
             # ElementInfo.__str__
             assert_regex(wrp.element_info.__str__(),
@@ -541,10 +576,10 @@ if UIA_support:
             # mock a failure in window_text() method
             orig = wrp.window_text
             wrp.window_text = mock.Mock(return_value="")  # empty text
-            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '', Dialog$")
-            assert_regex(wrp.__repr__(), "^<uiawrapper\.UIAWrapper - '', Dialog, [0-9-]+>$")
+            assert_regex(wrp.__str__(), "^uia_controls\.WindowWrapper - '', Dialog$")
+            assert_regex(wrp.__repr__(), "^<uia_controls\.WindowWrapper - '', Dialog, [0-9-]+>$")
             wrp.window_text.return_value = u'\xd1\xc1\\\xa1\xb1\ua000'  # unicode string
-            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '.+', Dialog$")
+            assert_regex(wrp.__str__(), "^uia_controls\.WindowWrapper - '.+', Dialog$")
             wrp.window_text = orig  # restore the original method
 
             # mock a failure in element_info.name property (it's based on _get_name())

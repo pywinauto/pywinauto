@@ -441,7 +441,7 @@ class HwndWrapperTests(unittest.TestCase):
 #    def testVerifyActionable(self):
 
     def testMoveWindow_same(self):
-        """Test calling movewindow without any parameters"""
+        """Test calling move_window without any parameters"""
         prevRect = self.dlg.rectangle()
         self.dlg.move_window()
         self.assertEqual(prevRect, self.dlg.rectangle())

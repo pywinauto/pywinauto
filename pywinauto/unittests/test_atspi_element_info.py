@@ -39,7 +39,6 @@ import time
 import unittest
 import re
 import mock
-import ctypes
 
 if sys.platform.startswith("linux"):
     sys.path.append(".")
@@ -118,6 +117,15 @@ if sys.platform.startswith("linux"):
             """Test RECT repr"""
             r0 = RECT(0)
             self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
+
+        def test_RECT_iter(self):
+            """Test RECT is iterable"""
+            r = RECT(1, 2, 3, 4)
+            (left, top, right, bottom) = r
+            self.assertEqual(left, r.left)
+            self.assertEqual(right, r.right)
+            self.assertEqual(top, r.top)
+            self.assertEqual(bottom, r.bottom)
 
 
     class AtspiElementInfoTests(unittest.TestCase):
