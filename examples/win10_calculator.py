@@ -22,4 +22,4 @@ dlg.type_keys('2*3=')
 dlg.print_control_identifiers()
 
 dlg.minimize()
-Desktop(backend="uia").window(title='Calculator', visible=None).restore()
+Desktop(backend="uia").window(name='Calculator', visible=None).restore()

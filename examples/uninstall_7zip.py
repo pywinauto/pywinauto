@@ -19,7 +19,7 @@ try:
     NewWindow.type_keys(r'Control Panel\Programs\Programs and Features{ENTER}',
                         with_spaces=True, set_foreground=False)
     ProgramsAndFeatures = explorer.window(top_level_only=True, active_only=True,
-                                          title='Programs and Features', class_name='CabinetWClass')
+                                          name='Programs and Features', class_name='CabinetWClass')
 
     # wait while the list of programs is loading
     explorer.wait_cpu_usage_lower(threshold=5)
@@ -29,16 +29,16 @@ try:
     item_7z.click_input(button='right', where='icon')
     explorer.PopupMenu.menu_item('Uninstall').click()
 
-    Confirmation = explorer.window(title='Programs and Features', class_name='#32770', active_only=True)
+    Confirmation = explorer.window(name='Programs and Features', class_name='#32770', active_only=True)
     if Confirmation.Exists():
         Confirmation.Yes.click_input()
         Confirmation.wait_not('visible')
 
-    WindowsInstaller = explorer.window(title='Windows Installer', class_name='#32770', active_only=True)
+    WindowsInstaller = explorer.window(name='Windows Installer', class_name='#32770', active_only=True)
     if WindowsInstaller.Exists():
         WindowsInstaller.wait_not('visible', timeout=20)
 
-    SevenZipInstaller = explorer.window(title='7-Zip 9.20 (x64 edition)', class_name='#32770', active_only=True)
+    SevenZipInstaller = explorer.window(name='7-Zip 9.20 (x64 edition)', class_name='#32770', active_only=True)
     if SevenZipInstaller.Exists():
         SevenZipInstaller.wait_not('visible', timeout=20)
 
