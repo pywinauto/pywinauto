@@ -738,20 +738,62 @@ try:
     SetProcessDpiAwareness = shcore.SetProcessDpiAwareness
     GetProcessDpiAwareness = shcore.GetProcessDpiAwareness
     Process_DPI_Awareness = {
-        "Process_DPI_Unaware"           : 0,
-        "Process_System_DPI_Aware"      : 1,
-        "Process_Per_Monitor_DPI_Aware" : 2
+        "PROCESS_DPI_UNAWARE"              : 0,
+        "PROCESS_SYSTEM_DPI_AWARE"         : 1,
+        "PROCESS_PER_MONITOR_DPI_AWARE"    : 2,
         }
 except (OSError, AttributeError):
     SetProcessDpiAwareness = None
     GetProcessDpiAwareness = None
     Process_DPI_Awareness = None
 
+
+# SetProcessDpiAwarenessContext is available from
+# Windows 10, version 1703 or Windows Server 2016
+try:
+    # Notice that argument values for SetProcessDpiAwarenessContext are
+    # different from values returned by GetAwarenessFromDpiAwarenessContext
+
+    # GetAwarenessFromDpiAwarenessContext
+    # https://docs.microsoft.com/en-us/windows/win32/api/windef/ne-windef-dpi_awareness
+    # typedef enum DPI_AWARENESS {
+    #   DPI_AWARENESS_INVALID,
+    #   DPI_AWARENESS_UNAWARE,
+    #   DPI_AWARENESS_SYSTEM_AWARE,
+    #   DPI_AWARENESS_PER_MONITOR_AWARE
+    # };
+
+    # SetProcessDpiAwarenessContext
+    # https://docs.microsoft.com/en-au/windows/win32/hidpi/dpi-awareness-context
+    # #define DPI_AWARENESS_CONTEXT_UNAWARE              ((DPI_AWARENESS_CONTEXT)-1)
+    # #define DPI_AWARENESS_CONTEXT_SYSTEM_AWARE         ((DPI_AWARENESS_CONTEXT)-2)
+    # #define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE    ((DPI_AWARENESS_CONTEXT)-3)
+    # #define DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2 ((DPI_AWARENESS_CONTEXT)-4)
+    # #define DPI_AWARENESS_CONTEXT_UNAWARE_GDISCALED    ((DPI_AWARENESS_CONTEXT)-5)
+    DPI_AWARENESS_CONTEXT = {
+            "UNAWARE":              wintypes.HANDLE(-1),
+            "SYSTEM_AWARE":         wintypes.HANDLE(-2),
+            "PER_MONITOR_AWARE":    wintypes.HANDLE(-3),
+            "PER_MONITOR_AWARE_V2": wintypes.HANDLE(-4),
+            "UNAWARE_GDISCALED":    wintypes.HANDLE(-5),
+            }
+    SetProcessDpiAwarenessContext = windll.user32.SetProcessDpiAwarenessContext
+    SetProcessDpiAwarenessContext.restype = wintypes.BOOL
+    SetProcessDpiAwarenessContext.argtypes = [
+        wintypes.HANDLE,
+    ]
+except (OSError, AttributeError):
+    SetProcessDpiAwarenessContext = None
+
 # Setup DPI awareness for the python process if any is supported
-if SetProcessDpiAwareness:
-    ActionLogger().log("Call SetProcessDpiAwareness")
+if SetProcessDpiAwarenessContext:
+    ActionLogger().log("Call SetProcessDpiAwarenessContext with PROCESS_PER_MONITOR_DPI_AWARE")
+    SetProcessDpiAwarenessContext(
+            DPI_AWARENESS_CONTEXT["PER_MONITOR_AWARE"])
+elif SetProcessDpiAwareness:
+    ActionLogger().log("Call SetProcessDpiAwareness with PROCESS_PER_MONITOR_DPI_AWARE")
     SetProcessDpiAwareness(
-            Process_DPI_Awareness["Process_Per_Monitor_DPI_Aware"])
+                Process_DPI_Awareness["PROCESS_PER_MONITOR_DPI_AWARE"])
 elif SetProcessDPIAware:
     ActionLogger().log("Call SetProcessDPIAware")
     SetProcessDPIAware()
