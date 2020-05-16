@@ -83,7 +83,7 @@ if sys.platform.startswith('linux'):
         def test_cpu_usage(self):
             self.app.start(_test_app())
             self.assertGreater(self.app.cpu_usage(0.1), 0)
-            self.app.wait_cpu_usage_lower(threshold=0.1, timeout=2.9, usage_interval=0.2)
+            self.app.wait_cpu_usage_lower(threshold=0.1, timeout=4.0, usage_interval=0.3)
             # default timings
             self.assertEqual(self.app.cpu_usage(), 0)
 
