@@ -28,13 +28,15 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-import sys
 """Controls package"""
+
+import sys
+
 if sys.platform.startswith('linux'):
     from . import atspiwrapper  # register "atspi" back-end
     from . import atspi_controls
     from .atspiwrapper import InvalidWindowHandle
-else:
+elif sys.platform == 'win32':
     from ..sysinfo import UIA_support
     if UIA_support:
         from . import uiawrapper # register "uia" back-end (at the end of uiawrapper module)
@@ -47,6 +49,9 @@ else:
     # contain
     from . import common_controls
     from . import win32_controls
-
+elif sys.platform == "darwin":
+    pass
+else:
+    raise NotImplementedError('Platform "{}" is not supported'.format(sys.platform))
 
 from ..base_wrapper import InvalidElement

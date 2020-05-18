@@ -34,7 +34,12 @@ from .base_application import WindowSpecification  # noqa: W0611
 
 if sys.platform == 'win32':
     from .windows.application import Application  # noqa: W0611
-else:
+elif sys.platform == 'darwin':
+    from .macos.application import Application
+elif sys.platform.startswith('linux'):
     from .linux.application import Application  # noqa: W0611
+else:
+    raise NotImplementedError('Platform "{}" is not supported! ' \
+        'Possible platforms: "win32", "linux*", "darwin".'.format(sys.platform))
 
 __all__ = ["WindowSpecification", "Application"]

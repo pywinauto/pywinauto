@@ -40,6 +40,13 @@ if sys.platform == 'win32':
     from .windows import win32defines, win32functions
     from .timings import Timings
     from . import keyboard
+elif sys.platform == 'darwin':
+    import macos.macos_defines as macos_defines
+    from Quartz import (kCGScrollEventUnitPixel, kCGEventOtherMouseDown,
+        kCGEventLeftMouseDown, kCGEventRightMouseDown, kCGEventOtherMouseUp,
+        kCGEventLeftMouseUp, kCGEventRightMouseUp, kCGEventMouseMoved,
+        kCGMouseButtonLeft, kCGHIDEventTap, CGEventCreateMouseEvent,
+        CGEventCreateScrollWheelEvent, objc, CGEventPost)
 else:
     from Xlib.display import Display
     from Xlib import X
@@ -186,6 +193,47 @@ if sys.platform == 'win32':
         if ('alt' in keyboard_keys) and key_up:
             keyboard.VirtualKeyAction(keyboard.VK_MENU, down=False).run()
 
+elif sys.platform == 'darwin':
+    def _perform_click_input(button='left', coords=(0, 0),
+                             button_down=True, button_up=True, double=False,
+                             wheel_dist=0, pressed="", key_down=True, key_up=True):
+        events = []
+        pause_value = 0.5
+        if button.lower() == 'wheel' and wheel_dist != 0:
+            scroll_event = CGEventCreateScrollWheelEvent(objc.NULL, kCGScrollEventUnitPixel, 1, wheel_dist)
+            events.append(scroll_event)
+        else:
+            if button_down:
+                mouse_button = macos_defines.mouse_buttons_map[button]
+                rcg_event = kCGEventOtherMouseDown
+                if button == 'left':
+                    rcg_event = kCGEventLeftMouseDown
+                elif button == 'right':
+                    rcg_event = kCGEventRightMouseDown
+                click_down = CGEventCreateMouseEvent(objc.NULL, rcg_event, coords, mouse_button)
+                time.sleep(pause_value)
+                events.append(click_down)
+            if button_up:
+                mouse_button = macos_defines.mouse_buttons_map[button]
+                rcg_event = kCGEventOtherMouseUp
+                if button == 'left':
+                    rcg_event = kCGEventLeftMouseUp
+                elif button == 'right':
+                    rcg_event = kCGEventRightMouseUp
+                click_up = CGEventCreateMouseEvent(objc.NULL, rcg_event, coords, mouse_button)
+                time.sleep(pause_value)
+                events.append(click_up)
+        # set the cursor position
+        mouse_move = CGEventCreateMouseEvent(objc.NULL, kCGEventMouseMoved, coords, kCGMouseButtonLeft)
+        CGEventPost(kCGHIDEventTap, mouse_move)
+
+        if double and button_down and button_up:
+                events *= 2
+                pause_value = 0
+        for event in events:
+            CGEventPost(kCGHIDEventTap, event)
+            if pause_value > 0:
+                time.sleep(pause_value)
 
 else:
     _display = Display()

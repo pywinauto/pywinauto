@@ -79,6 +79,10 @@ class Application(BaseApplication):
         self.process = process.pid
         return self
 
+    def __iter__(self):
+        """Raise to avoid infinite loops"""
+        raise NotImplementedError("Object is not iterable, try to use .windows()")
+
     def connect(self, **kwargs):
         """Connect to an already running process
 
@@ -158,6 +162,8 @@ class Application(BaseApplication):
         This should only be used when it is OK to kill the process like you
         would do in task manager.
         """
+        if soft:
+            raise NotImplementedError("Soft kill is not implemented on Linux")
         if self._proc_descriptor is not None:
             # Kill process created via Application with subprocess kill
             self._proc_descriptor.kill()
