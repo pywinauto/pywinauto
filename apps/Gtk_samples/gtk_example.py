@@ -107,23 +107,23 @@ class TestApplicationMainWindow(Gtk.Window):
         grid = Gtk.Grid()
         self.add(grid)
 
-        self.button1 = Gtk.Button("Click")
+        self.button1 = Gtk.Button(label="Click")
         self.button1.connect("clicked", self.on_click_me_clicked)
 
         self.button2 = Gtk.Button(stock=Gtk.STOCK_OPEN)
         self.button2.connect("clicked", self.on_open_clicked)
 
-        self.button3 = Gtk.Button("C_l_o_s_e", use_underline=True)
+        self.button3 = Gtk.Button(label="C_l_o_s_e", use_underline=True)
         self.button3.connect("clicked", self.on_close_clicked)
 
-        self.button4 = Gtk.CheckButton("Button 1")
+        self.button4 = Gtk.CheckButton(label="Button 1")
         self.button4.connect("toggled", self.on_button_toggled, "1")
 
-        self.button5 = Gtk.CheckButton("Editable", use_underline=True)
+        self.button5 = Gtk.CheckButton(label="Editable", use_underline=True)
         self.button5.set_active(True)
         self.button5.connect("toggled", self.on_text_editable_button_toggled, "2")
 
-        self.label = Gtk.Label("Status")
+        self.label = Gtk.Label(label="Status")
         self.combo = self._add_combobox()
         self.treeview = self._add_listview()
         self.image = _add_image_widget()
