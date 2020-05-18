@@ -79,6 +79,10 @@ class Application(BaseApplication):
         self.process = process.pid
         return self
 
+    def __iter__(self):
+        """Raise to avoid infinite loops"""
+        raise NotImplementedError("Object is not iterable, try to use .windows()")
+
     def connect(self, **kwargs):
         """Connect to an already running process
 
