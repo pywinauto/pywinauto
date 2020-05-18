@@ -104,6 +104,10 @@ class Application(BaseApplication):
 
         return self
 
+    def __iter__(self):
+        """Raise to avoid infinite loops"""
+        raise NotImplementedError("Object is not iterable, try to use .windows()")
+
     def connect(self, **kwargs):
         self.connected = False
         if 'process' in kwargs:
