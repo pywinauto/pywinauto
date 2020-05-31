@@ -145,9 +145,9 @@ class BaseWrapper(object):
             #    element_info = self.backend.element_info_class(element_info)
 
             self._element_info = element_info
-
-            self.handle = self._element_info.handle
-            self._as_parameter_ = self.handle
+            if sys.platform != "darwin":
+                self.handle = self._element_info.handle
+                self._as_parameter_ = self.handle
 
             self.ref = None
             self.appdata = None

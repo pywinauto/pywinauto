@@ -2,26 +2,30 @@ import sys
 import os
 import time
 import unittest
-from CoreFoundation import CFNumberCreate
+
 if sys.platform == 'darwin':
     parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     sys.path.append(parent_dir)
     sys.path.append(parent_dir + '/macos')
     os.path.join
-    # from pywinauto.macos import macos_functions
-    from pywinauto.macos.ax_element_info import AXError, _cf_attr_to_py_object, AxElementInfo
-    from pywinauto.macos.ax_element_info_object import known_control_types
+
+    from pywinauto.macos.ax_element_info import AXError, AxElementInfo
+    from pywinauto.macos.ax_element_info_object import known_control_types, known_top_lvl_control_types
     from pywinauto.macos.macos_functions import get_screen_frame
     from pywinauto.macos.application import Application
+    from pywinauto.macos.macos_structures import AX_RECT, AX_SIZE, AX_POINT
 
 class AxElementInfoDesktopSpecificTestCases(unittest.TestCase):
     def setUp(self):
         self.desktop = AxElementInfo()
 
-    def test_can_get_childrens_desktop(self):
-        apps = self.desktop.children()
-        for app in apps:
-            self.assertTrue(app.control_type in ["Application", "InvalidControlType"])
+    def tearDown(self):
+        pass
+
+    def test_can_get_app_top_windows(self):
+        top_lvl_windows = self.desktop.children()
+        for top_lvl_window in top_lvl_windows:
+            self.assertTrue(top_lvl_window.control_type in known_top_lvl_control_types)
 
     def test_repr_desktop(self):
         self.assertEqual(repr(AxElementInfo()),"<pywinauto.macos.ax_element_info.AxElementInfo Desktop 'Desktop'>")
@@ -39,13 +43,12 @@ class AxElementInfoDesktopSpecificTestCases(unittest.TestCase):
         self.assertEqual(self.desktop.control_type, "Desktop")
 
     def test_can_get_rectangle_desktop(self):
-        e = get_screen_frame()
-        self.assertEqual(self.desktop.rectangle, (0, 0, int(float(e.size.width)), int(float(e.size.height))))
+        expected_rect = AX_RECT(nsrect=get_screen_frame())
+        self.assertEqual(self.desktop.rectangle, expected_rect)
 
     def test_is_instance(self):
         element = AxElementInfo(self.desktop.children()[0])
-        self.assertTrue(element.control_type in ["Application", "InvalidControlType"])
-
+        self.assertTrue(element.control_type in known_top_lvl_control_types)
 
 class AxelementinfoTestCases(unittest.TestCase):
 
@@ -68,33 +71,36 @@ class AxelementinfoTestCases(unittest.TestCase):
     def test_can_get_class_name_application(self):
         self.assertEqual(AxElementInfo(self.app.ns_app).control_type, "Application")
 
-    def test_can_get_class_parent_application(self):
+    def test_hidding_the_ns_app_layer(self):
         elem = AxElementInfo(self.app.ns_app)
         kid = elem.children()
-        self.assertEqual(kid[0].parent.control_type, "Application")
+        self.assertEqual(kid[0].parent.control_type, "Desktop")
+        desktop = AxElementInfo()
+        self.assertTrue(desktop.children()[0].control_type in known_top_lvl_control_types)
 
     def test_can_get_process_id(self):
         self.assertEqual(AxElementInfo(self.app.ns_app).process_id, self.app.ns_app.processIdentifier())
 
     def test_return_full_screen_rectangle_app(self):
         elem = AxElementInfo(self.app.ns_app)
-        e = get_screen_frame()
         time.sleep(3)
-        self.assertEqual(elem.children()[0].rectangle, (0, 0, int(float(e.size.width)), int(float(e.size.height))))
+        expected_rect = AX_RECT(nsrect=get_screen_frame())
+        self.assertEqual(elem.children()[0].rectangle, expected_rect)
 
     def test_return_size_and_position_app(self):
         elem = AxElementInfo(self.app.ns_app)
-        e = get_screen_frame()
         time.sleep(3)
-        self.assertEqual(elem.children()[0].size, (float(e.size.width), float(e.size.height)))
-        self.assertEqual(elem.children()[0].position, (0.0,0.0))
+        expected_size = AX_SIZE(nssize=get_screen_frame().size)
+        extected_point = AX_POINT(x=0,y=0)
+        self.assertEqual(elem.children()[0].size, expected_size)
+        self.assertEqual(elem.children()[0].position, extected_point)
 
     def test_is_enabled_app(self):
         elem = AxElementInfo(self.app.ns_app)
         for child in elem.descendants():
             attribute = child._get_ax_attributes()
             if 'AXEnabled' in attribute:
-                self.assertTrue(child.is_enabled)
+                self.assertTrue(child.enabled)
                 break 
 
     def test_is_enabled_not_anapp(self):
@@ -102,7 +108,7 @@ class AxelementinfoTestCases(unittest.TestCase):
         for child in elem.descendants():
             attribute = child._get_ax_attributes()
             if 'AXEnabled' in attribute:
-                self.assertTrue(child.is_enabled)
+                self.assertTrue(child.enabled)
                 break 
 
     def test_is_selected_app(self):

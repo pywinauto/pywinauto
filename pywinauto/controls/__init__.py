@@ -44,7 +44,9 @@ if sys.platform == 'win32':
     from . import common_controls
     from . import win32_controls
 elif sys.platform == "darwin":
-    pass
+    from . import ax_wrapper # register "ax" back-end
+    from . import ax_controls
+    from .ax_wrapper import InvalidWindowHandle
 else:
     from . import atspiwrapper  # register "atspi" back-end
     from . import atspi_controls
