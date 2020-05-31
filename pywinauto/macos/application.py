@@ -1,16 +1,14 @@
-import os
 import time
-import sys
-from os import path
+# import os
+# import sys
 import subprocess
-from subprocess import Popen, PIPE
 
 from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
 from Foundation import NSAppleEventDescriptor
 from ApplicationServices import AXUIElementCreateApplication
 
 from . import macos_functions
-from . import ax_element_info # TODO: move cache_update() to macos_functions.py
+from . import ax_element_info
 from .. import backend
 from ..backend import registry
 from ..element_info import ElementInfo
@@ -23,35 +21,41 @@ backend.register('ax', ElementInfo, BaseWrapper)
 
 def get_process_ids(cache_update=False):
     if cache_update:
-        ax_element_info.cache_update()
+        macos_functions.cache_update()
     return [apps.processIdentifier() for apps in macos_functions.running_applications()]
 
 
 class Application(BaseApplication):
 
-    def __init__(self, backend="ax"):
+    def __init__(self, backend="ax", allow_magic_lookup=True):
         self.connected = False
         self.ns_app = None
         self.process = None
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
+        self.allow_magic_lookup = allow_magic_lookup
 
     def start(self, name=None, bundle_id=None, new_instance=True):
         self.process = None
         pids_before = get_process_ids(cache_update=False)
 
-        if name is not None and bundle_id is not None:
-              raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
+        if name and bundle_id:
+            raise ValueError('Parameters name and bundle_id are mutually exclusive. Use only one of them at the moment.')
 
-        if name is not None:
+        if name:
             bundle = macos_functions.bundle_identifier_for_application_name(name)
-            # print(bundle)
-            macos_functions.launch_application_by_bundle(bundle, new_instance)
-            ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
+            if bundle is not None:
+                macos_functions.launch_application_by_bundle(bundle, new_instance)
+                ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
+                self.ns_app = ns_app_array[0]
+            else:
+                # Workaround when user has not opened the application
+                executable_url = macos_functions.url_for_application_name(name)
+                macos_functions.launch_application_by_url(executable_url, new_instance)
+                self.ns_app = macos_functions.get_instance_of_app(name)
 
-            self.ns_app = ns_app_array[0]
-            if self.ns_app is None:
+            if (self.ns_app is None):
                 message = ('Could not get instance of "%s" app\n') % (name)
                 raise AppStartError(message)
 
@@ -72,28 +76,14 @@ class Application(BaseApplication):
             self.ns_app = ns_app_array[0]
 
         self.connected = True
-
-        def app_launched():
-            pids_after = get_process_ids(cache_update=True)
-            for element in pids_after:
-                if element not in pids_before:
-                    name_app = macos_functions.get_app_instance_by_pid(element)
-                    # print(name_app)
-                    if name == name_app.localizedName() or bundle_id == name_app.bundleIdentifier():
-                        self.process = element
-                        return True
-            return False
-
-        if new_instance:
-            wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_launched, value=True)
-            self.ns_app = macos_functions.get_app_instance_by_pid(self.process)
+        self.process = self.ns_app.processIdentifier()
 
         def app_idle():
-            ax_element_info.cache_update()
-            nom = self.ns_app.localizedName()
+            macos_functions.cache_update()
+            pid = self.ns_app.processIdentifier()
             elem = ax_element_info.AxElementInfo()
             for app in elem.children():
-                if app.name == nom:
+                if app.process_id == pid:
                     return True
             return False
 
@@ -108,6 +98,7 @@ class Application(BaseApplication):
             if app:
                 self.ns_app = app
                 self.connected = True
+                self.process = app.processIdentifier()
             else:
                 raise ProcessNotFoundError('pid = ' + str(self.process_id))
         elif 'name' in kwargs:
@@ -116,6 +107,7 @@ class Application(BaseApplication):
             if app:
                 self.ns_app = app
                 self.connected = True
+                self.process = app.processIdentifier()
             else:
                 raise ProcessNotFoundError('name = ' + str(kwargs['name']))
         elif 'bundle' in kwargs:
@@ -125,6 +117,7 @@ class Application(BaseApplication):
                 pid = app[0].processIdentifier()
                 self.ns_app = app[0]
                 self.connected = None
+                self.process = app.processIdentifier()
                 AXUIElementCreateApplication(pid)
             else:
                 raise ProcessNotFoundError('bundle = ' + str(kwargs['bundle']))
@@ -163,7 +156,7 @@ class Application(BaseApplication):
             if not result:
                 return result
             self.wait_for_process_exit()
-            ax_element_info.cache_update()
+            macos_functions.cache_update()
             self.ns_app = None
             return True
         return False
@@ -212,9 +205,14 @@ class Application(BaseApplication):
             retry_interval = Timings.app_exit_retry
         wait_until(timeout, retry_interval, self.is_process_running, value=False)
 
+    def set_frontmost(self, value=True):
+        """
+        The application is activated regardless of the currently active app.
+        All windows of application will be frontmost
+        """
+        self.ns_app.activateWithOptions_(NSApplicationActivateIgnoringOtherApps)
 
 if __name__ == "__main__":
-    # TODO:
-    # sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    # parent_dir = os.path.dirname(os.path.abspath(__file__))
-    # sys.path.append(parent_dir)
+    sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    parent_dir = os.path.dirname(os.path.abspath(__file__))
+    sys.path.append(parent_dir)

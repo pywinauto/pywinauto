@@ -29,19 +29,34 @@
 # CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
 # OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
 from __future__ import print_function
-import six
-from Quartz import kCGWindowListOptionOnScreenOnly, kCGNullWindowID
-from ApplicationServices import (AXIsProcessTrusted,
-    AXUIElementCopyAttributeNames, kAXErrorSuccess,
-    AXUIElementCopyAttributeValue, AXUIElementCopyActionNames,
-    AXUIElementPerformAction,CGWindowListCopyWindowInfo)
-from AppKit import NSScreen, NSWorkspace, NSRunningApplication, NSBundle, NSWorkspaceLaunchNewInstance
-import CoreFoundation
+
 import subprocess
-import os
-from ApplicationServices import *
+import six
+
+from Quartz import kCGWindowListOptionOnScreenOnly, kCGNullWindowID
+
+from ApplicationServices import AXUIElementSetAttributeValue
+from ApplicationServices import AXIsProcessTrusted
+from ApplicationServices import AXUIElementCopyAttributeNames
+from ApplicationServices import kAXErrorSuccess
+from ApplicationServices import AXUIElementCopyAttributeValue
+from ApplicationServices import AXUIElementCopyActionNames
+from ApplicationServices import AXUIElementPerformAction
+from ApplicationServices import CGWindowListCopyWindowInfo
+from ApplicationServices import AXUIElementCreateSystemWide
+
+from AppKit import NSScreen
+from AppKit import NSWorkspace
+from AppKit import NSRunningApplication
+from AppKit import NSBundle
+from AppKit import NSWorkspaceLaunchNewInstance
+from AppKit import NSWorkspaceLaunchAllowingClassicStartup
+
+from Foundation import NSAppleEventDescriptor
+from PyObjCTools import AppHelper
+
+from pywinauto.macos.ax_error import AXError
 
 is_debug = False
 
@@ -83,8 +98,8 @@ def launch_application_by_url(url, new_instance=True):
 
     r = get_ws_instance().launchApplicationAtURL_options_configuration_error_(url, param, {}, None)
     if not r[0]:
-            raise RuntimeError('Error launching specified application. Result: {}'.format(r))
-    
+        raise RuntimeError('Error launching specified application. Result: {}'.format(r))
+
 def terminate_application(obj):
     if check_if_its_nsrunning_application(obj):
         obj.terminate();
@@ -100,6 +115,7 @@ def get_ws_instance():
 
 def running_applications():
     """Return all running apps(system too)"""
+    cache_update()
     rApps = get_ws_instance().runningApplications()
     return rApps
 
@@ -111,7 +127,8 @@ def get_instance_of_app(name):
         if app.localizedName() == name:
             return app
     if (is_debug):
-        print ("App is not allready running.Can't get instance")
+        print ("App is not already running.Can't get instance")
+    return None
 
 def get_app_instance_by_pid(pid):
     return NSRunningApplication.runningApplicationWithProcessIdentifier_(pid)
@@ -130,9 +147,9 @@ def get_windows_list_info():
     if list_info is not None:
         return list_info
 
-def print_list_of_atrributes(ax_element):
-    for iter in dir(ax_element):
-        print (iter)
+def print_list_of_atrributes(ax_element): # TODO: remove debug function
+    for attr in dir(ax_element):
+        print (attr)
 
 def check_is_process_trusted():
     if not (AXIsProcessTrusted()):
@@ -140,14 +157,13 @@ def check_is_process_trusted():
             print("Process is not Trusted")
         exit(-1)
 
-def from_py_objc_to_apple_attribute(pyObjcName):
-    return six.text_type(pyObjcName)
-
 def get_list_of_attributes(ax_element):
     list_of_options_result_with_error_code = AXUIElementCopyAttributeNames(ax_element,None)
     if not (check_error(list_of_options_result_with_error_code)):
         list_of_options = list_of_options_result_with_error_code[1]
         return list_of_options
+    else:
+        return []
 
 def check_error(obj):
     if obj[0] == kAXErrorSuccess:
@@ -168,24 +184,34 @@ def check_attribute_valid(ax_element,attribute):
 
 def get_ax_attribute(ax_element,attribute_name):
     if check_attribute_valid(ax_element,attribute_name):
-        new_attribute_name = from_py_objc_to_apple_attribute(attribute_name)
-        fetch_result_with_error = AXUIElementCopyAttributeValue(ax_element,unicode(attribute_name),None)
+        fetch_result_with_error = AXUIElementCopyAttributeValue(ax_element,__get_string_value(attribute_name),None)
         if not (check_error(fetch_result_with_error)):
             fetchResult = fetch_result_with_error[1]
             return fetchResult
         if (is_debug):
             print("Attribute " + new_attribute_name + " is not defined" )
 
+# Sets the accessibility object's attribute to the specified value.
+def set_ax_attribute(ax_element,attribute_name,value):
+    result_code = AXUIElementSetAttributeValue(ax_element,__get_string_value(attribute_name),value)
+    is_success = (result_code == 0)
+    if is_success:
+        return True
+    else:
+        raise AXError(result_code)
+
 def get_list_of_actions(ax_element):
     list_of_options_result_with_error_code = AXUIElementCopyActionNames(ax_element,None)
     if not (check_error(list_of_options_result_with_error_code)):
         list_of_options = list_of_options_result_with_error_code[1]
         return list_of_options
+    else:
+        return []
 
 def perform_action(ax_element,action):
     AXUIElementPerformAction(ax_element,action)
 
-def print_child_tree(ui_element_ref,count = 0):
+def print_child_tree(ui_element_ref, count=0):
     role = get_ax_attribute(ui_element_ref,"AXRole")
     if role is not None:
         print("-"*count + role)
@@ -224,7 +250,7 @@ def filter_list_of_ax_element_by_attr(ui_element_refs_list, attribute_name, attr
                     store.append(element)
 
 def get_desktop():
-    # TODO: implement 
+    # TODO: implement
     pass
 
 def cpu_usage(interval=None):
@@ -241,7 +267,14 @@ def cpu_usage(interval=None):
         except Exception:
             raise ProcessNotFoundError()
 
+def run_loop_and_exit():
+    AppHelper.stopEventLoop()
 
-#print(dir(get_ws_instance()))
+def cache_update():
+    AppHelper.callAfter(run_loop_and_exit)
+    AppHelper.runConsoleEventLoop()
 
 
+def __get_string_value(value):
+    if isinstance(value, six.string_types):
+        return six.text_type(value)

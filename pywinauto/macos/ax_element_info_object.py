@@ -26,4 +26,13 @@ known_control_types = [
     'Table',
     'Row',
     'SystemWide',
+    'Window',
+    'MenuBar',
     ]
+
+known_top_lvl_control_types = [
+    'Window',
+    'MenuBar',
+    'List',
+    'ScrollArea'
+]
