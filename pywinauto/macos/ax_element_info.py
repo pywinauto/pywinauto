@@ -115,7 +115,7 @@ class AxElementInfo(ElementInfo):
         "enabled_only": ("enabled", {True: True, False: None}),
         "top_level_only": ("depth", {True: 1, False: None}),
     }
-
+    
     def __init__(self, ref=None):
         cls = type(self)
         self.is_desktop = ref is None
@@ -194,13 +194,19 @@ class AxElementInfo(ElementInfo):
             children = self._get_ax_attribute_value("AXChildren")
             if children is None:
                 return []
-            return children
+            filtred_res = []
+            for child in children:
+                if process and child.process_id != process:
+                    continue
+                if class_name and child.class_name != class_name:
+                    continue
+                if title and child.name != title:
+                    continue
+                if control_type and child.control_type != control_type:
+                    continue
+                filtred_res.append(child)
+            return filtred_res
         except AXError as exc:
-            # warnings.warn(RuntimeWarning, 'Getting AXChildren attribute caused error (code = {}): "{}"' \
-            #     ''.format(exc.err_code, exc.message))
-            print('Getting AXChildren attribute caused error (code = {}): "{}"' \
-                ''.format(exc.err_code, exc.message))
-            print(type(self.ref))
             return []
 
     def descendants(self, **kwargs):
@@ -238,7 +244,10 @@ class AxElementInfo(ElementInfo):
                 if val:
                     return val
             except Exception:
-                return ''
+                continue
+        # print('Empty name for:{}'.format(self.control_type))
+        # print('available attr list: {}'.format(get_list_of_attributes(self.ref)))
+        return ""
 
     @property
     def parent(self):
@@ -255,7 +264,6 @@ class AxElementInfo(ElementInfo):
                 return parent
         except AXError as err:
             return None
-        return self._get_ax_attribute_value("AXParent")
 
     @property
     def size(self):
@@ -374,6 +382,13 @@ class AxElementInfo(ElementInfo):
             return 'InvalidClassName'
 
     @property
+    def subrole(self):
+        try:
+            return self._get_ax_attribute_value(ax_attributes["Subrole"])
+        except AXError:
+            return ''
+
+    @property
     def visible(self):
         # TODO: Implement
         pass
@@ -408,9 +423,3 @@ class AxElementInfo(ElementInfo):
         return -1
 
 
-def runLoopAndExit():
-    AppHelper.stopEventLoop()
-
-def cache_update():
-    AppHelper.callAfter(runLoopAndExit)
-    AppHelper.runConsoleEventLoop()
