@@ -34,6 +34,8 @@ from __future__ import print_function
 import subprocess
 import six
 
+from .ax_error import AXError
+
 from Quartz import kCGWindowListOptionOnScreenOnly, kCGNullWindowID
 
 from ApplicationServices import AXUIElementSetAttributeValue
@@ -55,8 +57,6 @@ from AppKit import NSWorkspaceLaunchAllowingClassicStartup
 
 from Foundation import NSAppleEventDescriptor
 from PyObjCTools import AppHelper
-
-from pywinauto.macos.ax_error import AXError
 
 is_debug = False
 
