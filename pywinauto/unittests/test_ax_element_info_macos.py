@@ -65,6 +65,20 @@ class AxelementinfoTestCases(unittest.TestCase):
         for children in elem.descendants():
             self.assertTrue(children.control_type in known_control_types)
 
+    def test_child_of_app(self):
+        app_info = AxElementInfo(self.app.ns_app)
+        children = app_info.children()
+        windows = list(filter(lambda x: x.control_type == 'Window', children))
+        menu_bars = list(filter(lambda x: x.control_type == 'MenuBar', children))
+        self.assertTrue(len(windows) == 1)
+        self.assertTrue(len(menu_bars) == 1)
+
+    def test_can_get_sub_role(self):
+        app_info = AxElementInfo(self.app.ns_app)
+        children = app_info.children()
+        window = list(filter(lambda x: x.control_type == 'Window', children))[0]
+        self.assertTrue(window.subrole == 'AXStandardWindow')
+
     def test_can_get_name_application(self):
         self.assertEqual(AxElementInfo(self.app.ns_app).name, "send_keys_test_app")
 
