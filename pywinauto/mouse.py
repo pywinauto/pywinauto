@@ -41,12 +41,22 @@ if sys.platform == 'win32':
     from .timings import Timings
     from . import keyboard
 elif sys.platform == 'darwin':
-    import macos.macos_defines as macos_defines
-    from Quartz import (kCGScrollEventUnitPixel, kCGEventOtherMouseDown,
-        kCGEventLeftMouseDown, kCGEventRightMouseDown, kCGEventOtherMouseUp,
-        kCGEventLeftMouseUp, kCGEventRightMouseUp, kCGEventMouseMoved,
-        kCGMouseButtonLeft, kCGHIDEventTap, CGEventCreateMouseEvent,
-        CGEventCreateScrollWheelEvent, objc, CGEventPost)
+    from .macos.macos_defines import mouse_buttons_map
+
+    from Quartz import kCGScrollEventUnitPixel
+    from Quartz import kCGEventOtherMouseDown
+    from Quartz import kCGEventLeftMouseDown
+    from Quartz import kCGEventRightMouseDown
+    from Quartz import kCGEventOtherMouseUp
+    from Quartz import kCGEventLeftMouseUp
+    from Quartz import kCGEventRightMouseUp
+    from Quartz import kCGEventMouseMoved
+    from Quartz import kCGMouseButtonLeft
+    from Quartz import kCGHIDEventTap
+    from Quartz import CGEventCreateMouseEvent
+    from Quartz import CGEventCreateScrollWheelEvent
+    from Quartz import objc
+    from Quartz import CGEventPost
 else:
     from Xlib.display import Display
     from Xlib import X
@@ -203,7 +213,7 @@ elif sys.platform == 'darwin':
             events.append(scroll_event)
         else:
             if button_down:
-                mouse_button = macos_defines.mouse_buttons_map[button]
+                mouse_button = mouse_buttons_map[button]
                 rcg_event = kCGEventOtherMouseDown
                 if button == 'left':
                     rcg_event = kCGEventLeftMouseDown
@@ -213,7 +223,7 @@ elif sys.platform == 'darwin':
                 time.sleep(pause_value)
                 events.append(click_down)
             if button_up:
-                mouse_button = macos_defines.mouse_buttons_map[button]
+                mouse_button = mouse_buttons_map[button]
                 rcg_event = kCGEventOtherMouseUp
                 if button == 'left':
                     rcg_event = kCGEventLeftMouseUp

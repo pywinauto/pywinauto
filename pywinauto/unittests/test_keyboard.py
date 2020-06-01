@@ -47,12 +47,11 @@ if sys.platform == 'win32':
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
 elif sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(parent_dir)
-    sys.path.append(parent_dir + '/macos')
-    os.path.join
-    import macos_functions
-    from keyboard_helper import send_keys, KeyAction, KeySequenceError
+    
+    from pywinauto.macos.macos_functions import launch_application
+    from pywinauto.macos.macos_functions import get_instance_of_app
+    from pywinauto.macos.macos_functions import read_from_clipboard
+    from pywinauto.macos.keyboard_helper import send_keys, KeyAction, KeySequenceError
 else:
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
@@ -90,8 +89,8 @@ class SendKeysTests(unittest.TestCase):
             self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
         elif sys.platform == 'darwin':
-            macos_functions.launch_application("send_keys_test_app")
-            self.app = macos_functions.get_instance_of_app("send_keys_test_app")
+            launch_application("send_keys_test_app")
+            self.app = get_instance_of_app("send_keys_test_app")
             time.sleep(1.5)
         else:
             self.app.start(_test_app())
@@ -131,7 +130,7 @@ class SendKeysTests(unittest.TestCase):
             # Clear clipboard
             os.system("pbcopy < /dev/null")
             send_keys('{cmd}a{cmd}c', pause=0.2)
-            received = macos_functions.read_from_clipboard()
+            received = read_from_clipboard()
         else:
             time.sleep(0.2)
             send_keys('^a')

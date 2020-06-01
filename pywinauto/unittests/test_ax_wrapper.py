@@ -41,11 +41,7 @@ import os
 import time
 import unittest
 if sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.append(parent_dir)
-    sys.path.append(parent_dir + '/macos')
-    os.path.join
-
+    sys.path.append(".")
     from pywinauto.macos.ax_element_info import AXError, _cf_attr_to_py_object, AxElementInfo
     from pywinauto.macos.ax_element_info_object import known_control_types
     from pywinauto.macos.application import Application

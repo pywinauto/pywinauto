@@ -5,6 +5,7 @@ import copy
 import sys
 import os
 import unittest
+
 if sys.platform == 'win32':
     import win32clipboard
     sys.path.append(".")
@@ -13,14 +14,15 @@ if sys.platform == 'win32':
     from pywinauto import mouse
     from pywinauto.timings import Timings
 elif sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    sys.path.append(parent_dir)
-    import mouse
-    sys.path.append(parent_dir + '/macos')
-    import macos_functions
-    import keyboard_helper
-    from keyboard_helper import send_keys
+    sys.path.append(".")
+    from pywinauto import mouse
     from Quartz import (CGPoint)
+
+    from pywinauto.macos.macos_functions import launch_application
+    from pywinauto.macos.macos_functions import get_instance_of_app
+    from pywinauto.macos.macos_functions import get_screen_frame
+    from pywinauto.macos.macos_functions import read_from_clipboard
+    from pywinauto.macos.keyboard_helper import send_keys
 else:
     import subprocess
     from Xlib.display import Display
@@ -55,8 +57,8 @@ class MouseTests(unittest.TestCase):
             self.app.start(_test_app())
             self.dlg = self.app.mousebuttons
         elif sys.platform == 'darwin':
-            macos_functions.launch_application("mousebuttons")
-            self.app = macos_functions.get_instance_of_app("mousebuttons")
+            launch_application("mousebuttons")
+            self.app = get_instance_of_app("mousebuttons")
             os.system("ps -ax | grep mousebuttons")
         else:
             self.display = Display()
@@ -76,7 +78,7 @@ class MouseTests(unittest.TestCase):
             center = rect.mid_point()
             return center.x + shift, center.y + shift
         elif sys.platform == 'darwin':
-            frame = macos_functions.get_screen_frame()
+            frame = get_screen_frame()
             center = CGPoint(frame.size.width / 2,frame.size.height / 2);
             return (center.x + shift,center.y + shift)
         else:
@@ -95,8 +97,8 @@ class MouseTests(unittest.TestCase):
             data = win32clipboard.GetClipboardData()
             win32clipboard.CloseClipboard()
         elif sys.platform == 'darwin':
-            keyboard_helper.send_keys('{cmd}a{cmd}c',pause=0.2)
-            data = macos_functions.read_from_clipboard()
+            send_keys('{cmd}a{cmd}c',pause=0.2)
+            data = read_from_clipboard()
         else:
             send_keys('^a^c', pause=0.2)
             data = clipboard.get_data()
