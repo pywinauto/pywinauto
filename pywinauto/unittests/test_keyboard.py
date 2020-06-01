@@ -47,7 +47,7 @@ if sys.platform == 'win32':
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
     from pywinauto.application import Application
 elif sys.platform == 'darwin':
-    
+
     from pywinauto.macos.macos_functions import launch_application
     from pywinauto.macos.macos_functions import get_instance_of_app
     from pywinauto.macos.macos_functions import read_from_clipboard

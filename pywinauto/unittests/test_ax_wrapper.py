@@ -42,8 +42,7 @@ import time
 import unittest
 if sys.platform == 'darwin':
     sys.path.append(".")
-    from pywinauto.macos.ax_element_info import AXError, _cf_attr_to_py_object, AxElementInfo
-    from pywinauto.macos.ax_element_info_object import known_control_types
+    from pywinauto.macos.ax_element_info import AxElementInfo
     from pywinauto.macos.application import Application
     from pywinauto.controls.ax_wrapper import AXWrapper
     from pywinauto.macos.macos_structures import AX_POINT
