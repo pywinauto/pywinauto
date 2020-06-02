@@ -8,15 +8,15 @@ language: cpp
 matrix:
   include:
     - os: osx
-      osx_image: xcode8
+      osx_image: xcode11.4
       env: PYVER=2.7
       language: generic
     - os: osx
-      osx_image: xcode8
+      osx_image: xcode11.4
       env: PYVER=3.5
       language: generic
     - os: osx
-      osx_image: xcode8
+      osx_image: xcode11.4
       env: PYVER=3.6
       language: generic
     - os: linux
