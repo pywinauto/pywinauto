@@ -6,6 +6,7 @@ import sys
 import os
 import unittest
 if sys.platform == 'win32':
+    import win32api
     import win32clipboard
     sys.path.append(".")
     from pywinauto.application import Application
@@ -127,7 +128,13 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Press" in data)
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
-
+    
+    if sys.platform == "win32":
+        def test_mouse_move(self):
+            coord = (0, 1)
+            mouse.move(coord)
+            self.assertEqual(coord, win32api.GetCursorPos())
+    
     if sys.platform != 'win32':
         def test_swapped_buttons(self):
             current_map = self.display.get_pointer_mapping()
