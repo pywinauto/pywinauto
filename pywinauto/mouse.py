@@ -238,7 +238,7 @@ def right_click(coords=(0, 0)):
     _perform_click_input(button='right', coords=coords)
 
 
-def move(coords=(0, 0)):
+def move(coords=(0, 0), duration=0):):
     """Move the mouse"""
     minimum_duration = 0.05
     if duration >= minimum_duration:
