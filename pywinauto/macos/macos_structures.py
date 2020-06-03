@@ -56,9 +56,11 @@ class AX_RECT():
             self.top = top
             self.bottom = bottom
 
+    @property
     def height(self):
         return self.bottom - self.top
 
+    @property
     def width(self):
         return self.right - self.left
 
@@ -71,7 +73,7 @@ class AX_RECT():
         return False
 
 
-class AX_POINT(Structure):
+class AX_POINT():
     """Wrap the macos NSRect structure and add extra functionality"""
     def __init__(self, **kwargs):
         x = kwargs.get("x", None)
@@ -84,6 +86,9 @@ class AX_POINT(Structure):
             self.x = x
             self.y = y
 
+    def __repr__(self):
+        return 'AX_POINT[x: {}, y: {}]'.format(self.x,self.y)
+
     """Support of getting x,y by index"""
     def __getitem__(self, key):
         if key == 0:
@@ -92,11 +97,13 @@ class AX_POINT(Structure):
             return self.y
         return None
 
-    def __repr__(self):
-        return 'AX_POINT[x: {}, y: {}]'.format(self.x,self.y)
+    def __eq__(self, other):
+        if isinstance(other, AX_POINT):
+            return self.__dict__ == other.__dict__
+        return False
 
 
-class AX_SIZE(Structure):
+class AX_SIZE():
     """Wrap the macos NSSize structure and add extra functionality"""
     def __init__(self, **kwargs):
         w = kwargs.get("width", None)
