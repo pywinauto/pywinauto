@@ -162,6 +162,7 @@ if sys.platform == 'win32':
             x_coord = int(float(coords[0]) * (65535. / float(x_res - 1)))
             y_coord = int(float(coords[1]) * (65535. / float(y_res - 1)))
             win32api.mouse_event(dw_flags, x_coord, y_coord, dw_data)
+            _set_cursor_pos(coords)
         else:
             for event in events:
                 if event == win32defines.MOUSEEVENTF_MOVE:

@@ -133,7 +133,7 @@ class MouseTests(unittest.TestCase):
         def test_mouse_move(self):
             coord = (0, 1)
             mouse.move(coord)
-            self.assertEqual(coord, self.__get_pos(0))
+            self.assertEqual(coord, win32api.GetCursorPos())
     
     if sys.platform != 'win32':
         def test_swapped_buttons(self):
