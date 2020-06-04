@@ -131,7 +131,7 @@ class MouseTests(unittest.TestCase):
     
     if sys.platform == "win32":
         def test_mouse_move(self):
-            coord = (0, 1)
+            coord = (20, 10)
             mouse.move(coord)
             self.assertEqual(coord, win32api.GetCursorPos())
     
