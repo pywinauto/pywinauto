@@ -33,6 +33,7 @@
 
 import sys
 import time
+from math import ceil
 if sys.platform == 'win32':
     import pywintypes
     from pywinauto.windows import win32defines, win32functions
@@ -159,8 +160,8 @@ if sys.platform == 'win32':
         if button.lower() == 'move':
             x_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
             y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
-            x_coord = int(float(coords[0]) * (65535. / float(x_res - 1)))
-            y_coord = int(float(coords[1]) * (65535. / float(y_res - 1)))
+            x_coord = ceil(coords[0] * 65535 / (x_res - 1))
+            y_coord = ceil(coords[1] * 65535 / (y_res - 1))
             win32api.mouse_event(dw_flags, x_coord, y_coord, dw_data)
         else:
             for event in events:
