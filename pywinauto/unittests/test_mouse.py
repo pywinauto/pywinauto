@@ -140,8 +140,8 @@ class MouseTests(unittest.TestCase):
             mouse.move(coord)
             self.assertEqual(coord, win32api.GetCursorPos())
 
-        def test_mouse_can_move_cursor2(self):
-            coord = (0, 1)
+        def test_mouse_can_move_cursor3(self):
+            coord = (150, 150)
             mouse.move(coord)
             self.assertEqual(coord, win32api.GetCursorPos())
 
