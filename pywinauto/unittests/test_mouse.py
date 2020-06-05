@@ -128,11 +128,32 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Press" in data)
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
-    
+
     if sys.platform == "win32":
-        def test_mouse_move(self):
+        def test_mouse_can_move_cursor1(self):
             coord = (20, 10)
             mouse.move(coord)
+            self.assertEqual(coord, win32api.GetCursorPos())
+
+        def test_mouse_can_move_cursor2(self):
+            coord = (0, 1)
+            mouse.move(coord)
+            self.assertEqual(coord, win32api.GetCursorPos())
+
+        def test_mouse_can_move_cursor2(self):
+            coord = (0, 1)
+            mouse.move(coord)
+            self.assertEqual(coord, win32api.GetCursorPos())
+
+        def test_mouse_tween1(self):
+            coord = (0, 0)
+            mouse.move(coord, duration=0.5)
+            self.assertEqual(coord, win32api.GetCursorPos())
+
+        def test_mouse_tween2(self):
+            coord = (0, 0)
+            mouse.move(coord)
+            mouse.move(coord, duration=0.5)
             self.assertEqual(coord, win32api.GetCursorPos())
     
     if sys.platform != 'win32':
