@@ -146,6 +146,9 @@ class MouseTests(unittest.TestCase):
             mouse.move(coord)
             self.assertEqual(coord, win32api.GetCursorPos())
 
+        def test_mouse_fail_on_int_duration(self):
+            self.assertRaises(TypeError, mouse.move, coord=(0, 0), duration=1)
+
         def test_mouse_tween1(self):
             coord = (100, 150)
             mouse.move(coord, duration=0.5)
