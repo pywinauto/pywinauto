@@ -129,24 +129,26 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
 
-    def test_mouse_can_move_cursor(self):
-        coord = (0, 1)
-        mouse.move(coord)
-        self.assertEqual(coord, mouse._get_cursor_pos())
+    # TODO: make the feature and the tests cross-platform (duration param)
+    if sys.platform == "win32":
+        def test_mouse_can_move_cursor(self):
+            coord = (0, 1)
+            mouse.move(coord)
+            self.assertEqual(coord, mouse._get_cursor_pos())
 
-        mouse.move((-200, -300))
-        self.assertEqual((0, 0), mouse._get_cursor_pos())
+            mouse.move((-200, -300))
+            self.assertEqual((0, 0), mouse._get_cursor_pos())
 
-    def test_mouse_fail_on_int_duration(self):
-        self.assertRaises(TypeError, mouse.move, coord=(0, 0), duration=1)
+        def test_mouse_fail_on_int_duration(self):
+            self.assertRaises(TypeError, mouse.move, coord=(0, 0), duration=1)
 
-    def test_mouse_tween(self):
-        coord = (401, 301)
-        mouse.move(coord, duration=0.5)
-        self.assertEqual(coord, mouse._get_cursor_pos())
+        def test_mouse_tween(self):
+            coord = (401, 301)
+            mouse.move(coord, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
 
-        mouse.move(coord, duration=0.5)
-        self.assertEqual(coord, mouse._get_cursor_pos())
+            mouse.move(coord, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
 
     if sys.platform != 'win32':
         def test_swapped_buttons(self):
