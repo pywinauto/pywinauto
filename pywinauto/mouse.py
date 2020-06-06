@@ -239,8 +239,10 @@ def right_click(coords=(0, 0)):
     _perform_click_input(button='right', coords=coords)
 
 
-def move(coords=(0, 0), duration=0):
+def move(coords=(0, 0), duration=0.0):
     """Move the mouse"""
+    if not isinstance(duration, float):
+        raise TypeError("duration must be float (in seconds)")
     minimum_duration = 0.05
     if duration >= minimum_duration:
         x_start, y_start = win32api.GetCursorPos()
