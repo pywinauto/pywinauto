@@ -198,7 +198,7 @@ else:
     _display = Display()
 
     # TODO: check this method
-    def _get_cursor_pos(coords):
+    def _get_cursor_pos():
         data = _display.screen().root.query_pointer()._data
         return data["root_x"], data["root_y"]
 
