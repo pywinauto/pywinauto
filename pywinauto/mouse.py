@@ -53,6 +53,9 @@ BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
 
 if sys.platform == 'win32':
 
+    def _get_cursor_pos():
+        return win32api.GetCursorPos()
+
     def _set_cursor_pos(coords):
         """Wrapped SetCursorPos that handles non-active desktop case (coords is a tuple)"""
         try:
@@ -190,6 +193,11 @@ if sys.platform == 'win32':
 
 else:
     _display = Display()
+
+    def _get_cursor_pos(coords):
+        data = _display.screen().root.query_pointer()._data
+        return data["root_x"], data["root_y"]
+
     def _perform_click_input(button='left', coords=(0, 0),
                              button_down=True, button_up=True, double=False,
                              wheel_dist=0, pressed="", key_down=True, key_up=True):
@@ -245,7 +253,7 @@ def move(coords=(0, 0), duration=0.0):
         raise TypeError("duration must be float (in seconds)")
     minimum_duration = 0.05
     if duration >= minimum_duration:
-        x_start, y_start = win32api.GetCursorPos()
+        x_start, y_start = _get_cursor_pos()
         delta_x = coords[0] - x_start
         delta_y = coords[1] - y_start
         max_delta = max(abs(delta_x), abs(delta_y))
