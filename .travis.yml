@@ -119,8 +119,11 @@ before_script:
 script:
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py; fi
   - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --include=pywinauto/macos/keyboard_helper.py pywinauto/unittests/test_keyboard.py; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_application_macos.py; fi
-  - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_element_info_macos.py; fi
+  # Application and element info unit test are turned off due to we are not able to provide the accessibility permissions for testing on remote environment
+  # - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_application_macos.py; fi
+  # - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_element_info_macos.py; fi
+  # - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_wrapper.py; fi
+  # - if [[ $TRAVIS_OS_NAME == 'osx' ]]; then coverage run -a --source=pywinauto/macos pywinauto/unittests/test_ax_controls.py; fi
 
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/mouse.py pywinauto/unittests/test_mouse.py; fi
   - if [[ $TRAVIS_OS_NAME == 'linux' ]]; then coverage run -a --include=pywinauto/linux/keyboard.py pywinauto/unittests/test_keyboard.py; fi

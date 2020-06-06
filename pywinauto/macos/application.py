@@ -114,11 +114,10 @@ class Application(BaseApplication):
             # For os x you have to pass just app name
             app = macos_functions.get_app_instance_by_bundle(kwargs['bundle'])
             if app:
-                pid = app[0].processIdentifier()
                 self.ns_app = app[0]
                 self.connected = None
-                self.process = app.processIdentifier()
-                AXUIElementCreateApplication(pid)
+                self.process = self.ns_app.processIdentifier()
+                AXUIElementCreateApplication(self.process)
             else:
                 raise ProcessNotFoundError('bundle = ' + str(kwargs['bundle']))
         return self

@@ -19,16 +19,17 @@ class AxElementInfoDesktopSpecificTestCases(unittest.TestCase):
     def setUp(self):
         self.desktop = AxElementInfo()
 
-    def tearDown(self):
-        pass
-
     def test_can_get_app_top_windows(self):
         top_lvl_windows = self.desktop.children()
+        all_control_types_are_known = True
         for top_lvl_window in top_lvl_windows:
-            self.assertTrue(top_lvl_window.control_type in known_top_lvl_control_types)
+            if not top_lvl_window.control_type in known_top_lvl_control_types:
+                all_control_types_are_known = False
+                break
+        self.assertTrue(all_control_types_are_known)
 
     def test_repr_desktop(self):
-        self.assertEqual(repr(AxElementInfo()),"<pywinauto.macos.ax_element_info.AxElementInfo Desktop 'Desktop'>")
+        self.assertEqual(repr(AxElementInfo()),"<Class:pywinauto.macos.ax_element_info.AxElementInfo Role:Desktop Subrole: Title'Desktop'>")
 
     def test_can_get_name_desktop(self):
         self.assertEqual(self.desktop.name, "Desktop")
@@ -55,22 +56,25 @@ class AxelementinfoTestCases(unittest.TestCase):
     """Unit tests for the application.Application class"""
     def setUp(self):
         self.app = Application()
-        self.app.start(bundle_id = 'pywinauto.testapps.send-keys-test-app')
+        self.app.start(bundle_id = 'pywinauto.testapps.send-keys-test-app',new_instance = False)
 
     def tearDown(self):
         self.app.kill()
 
     def test_can_get_control_type_of_all_app_descendants_app(self):
         elem = AxElementInfo(self.app.ns_app)
+        all_control_types_are_known = True
         for children in elem.descendants():
-            self.assertTrue(children.control_type in known_control_types)
+            if not children.control_type in known_control_types:
+                all_control_types_are_known = False
+                break
+        self.assertTrue(all_control_types_are_known)
 
     def test_child_of_app(self):
         app_info = AxElementInfo(self.app.ns_app)
-        children = app_info.children()
-        windows = list(filter(lambda x: x.control_type == 'Window', children))
-        menu_bars = list(filter(lambda x: x.control_type == 'MenuBar', children))
-        self.assertTrue(len(windows) == 1)
+        windows = app_info.children(control_type='Window')
+        menu_bars = app_info.children(control_type='MenuBar')
+        self.assertTrue(len(windows) >= 1)
         self.assertTrue(len(menu_bars) == 1)
 
     def test_can_get_sub_role(self):

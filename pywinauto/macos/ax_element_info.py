@@ -29,13 +29,12 @@ from ApplicationServices import kAXValueTypeIllegal
 
 from Foundation import * # TODO: eliminate wildcard import
 
-from AppKit import NSScreen
 from AppKit import NSRunningApplication
 from AppKit import NSSizeFromString
 from AppKit import NSRectFromString
 from AppKit import NSRangeFromString
 
-from .macos_functions import check_attribute_valid, get_list_of_attributes
+from .macos_functions import check_attribute_valid, get_list_of_attributes, get_screen_frame
 from .macos_defines import ax_attributes
 from .ax_error import AXError
 from ..element_info import ElementInfo
@@ -338,7 +337,7 @@ class AxElementInfo(ElementInfo):
     @property
     def is_selected(self):
         try:
-            return self._get_ax_attribute_value(ax_attributes["Value"])
+            return self._get_ax_attribute_value(ax_attributes["Selected"])
         except AXError:
             return False
 
@@ -387,8 +386,7 @@ class AxElementInfo(ElementInfo):
 
         invalid_result = AX_RECT(left=-1,right=-1,top=-1,bottom=-1)
         if self.is_desktop:
-            e = NSScreen.mainScreen().frame()
-            return AX_RECT(nsrect=e)
+            return AX_RECT(nsrect=get_screen_frame())
         if self.control_type == "Application":
             # The application object has not frame/position
             # Such properties should be taken from window object
@@ -413,10 +411,10 @@ class AxElementInfo(ElementInfo):
         except AXError:
             return 'InvalidControlType'
 
-        if role.startswith('AX'):
-            return role.replace('AX', '')
         if not role:
             return 'InvalidControlType'
+        if role.startswith('AX'):
+            return role.replace('AX', '')
         return role
 
     @property
