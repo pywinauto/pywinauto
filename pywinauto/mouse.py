@@ -254,7 +254,7 @@ def move(coords=(0, 0), duration=0):
             sleep_amount = minimum_duration
         delta_x /= max(num_steps, 1)
         delta_y /= max(num_steps, 1)
-        for step in range(0, num_steps):
+        for step in range(num_steps):
             _set_cursor_pos((x_start + int(delta_x*step), y_start + int(delta_y*step)))
             time.sleep(sleep_amount)
     _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
