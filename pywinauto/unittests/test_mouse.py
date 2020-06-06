@@ -14,15 +14,19 @@ if sys.platform == 'win32':
     from pywinauto import mouse
     from pywinauto.timings import Timings
 elif sys.platform == 'darwin':
-    sys.path.append(".")
-    from pywinauto import mouse
-    from Quartz import (CGPoint)
+    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sys.path.append(parent_dir)
+    sys.path.append(parent_dir + '/macos')
+    os.path.join
 
+    from pywinauto import mouse
     from pywinauto.macos.macos_functions import launch_application
     from pywinauto.macos.macos_functions import get_instance_of_app
     from pywinauto.macos.macos_functions import get_screen_frame
     from pywinauto.macos.macos_functions import read_from_clipboard
     from pywinauto.macos.keyboard_helper import send_keys
+
+    from Quartz import CGPoint
 else:
     import subprocess
     from Xlib.display import Display
