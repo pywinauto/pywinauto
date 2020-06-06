@@ -76,7 +76,7 @@ if sys.platform == 'win32':
         pressed="",
         key_down=True,
         key_up=True,
-        fast_move=False,
+        fast_move=False
     ):
         """Perform a click action using SendInput
 
@@ -211,8 +211,6 @@ else:
         x = int(coords[0])
         y = int(coords[1])
         fake_input(_display, X.MotionNotify, x=x, y=y)
-        if not fast_move:
-            _display.sync()
 
         if button == 'wheel':
             if wheel_dist == 0:
@@ -272,7 +270,7 @@ def move(coords=(0, 0), duration=0.0):
         delta_y /= max(num_steps, 1)
         for step in range(num_steps):
             _perform_click_input(button='move', coords=(x_start + int(delta_x*step), y_start + int(delta_y*step)),
-                                  button_down=False, button_up=False, fast_move=True)
+                                 button_down=False, button_up=False, fast_move=True)
             time.sleep(sleep_amount)
     _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
 
