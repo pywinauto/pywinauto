@@ -75,7 +75,7 @@ class ButtonWrapper(ax_wrapper.AXWrapper):
 
     def get_toggle_state(self):
         """Get a toggle state of a radio button control"""
-        return self.element_info.is_selected
+        return self.element_info.value
 
     def is_dialog(self):
         """Buttons are never dialogs so return False"""

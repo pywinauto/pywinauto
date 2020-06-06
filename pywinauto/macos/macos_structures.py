@@ -118,3 +118,8 @@ class AX_SIZE():
 
     def __repr__(self):
         return 'AX_SIZE[width: {}, height: {}]'.format(self.width,self.height)
+
+    def __eq__(self, other):
+        if isinstance(other, AX_SIZE):
+            return self.__dict__ == other.__dict__
+        return False

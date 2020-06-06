@@ -37,6 +37,8 @@ import six
 from .ax_error import AXError
 
 from Quartz import kCGWindowListOptionOnScreenOnly, kCGNullWindowID
+from Quartz import CGDisplayBounds
+from Quartz import CGMainDisplayID
 
 from ApplicationServices import AXUIElementSetAttributeValue
 from ApplicationServices import AXIsProcessTrusted
@@ -49,13 +51,12 @@ from ApplicationServices import AXUIElementPerformAction
 from ApplicationServices import CGWindowListCopyWindowInfo
 from ApplicationServices import NSWorkspaceLaunchAllowingClassicStartup
 
-from AppKit import NSScreen
 from AppKit import NSWorkspace
 from AppKit import NSRunningApplication
 from AppKit import NSBundle
 from AppKit import NSWorkspaceLaunchNewInstance
 
-from Foundation import NSAppleEventDescriptor
+from Foundation import NSAppleEventDescriptor, NSRectFromCGRect
 from PyObjCTools import AppHelper
 
 is_debug = False
@@ -137,7 +138,8 @@ def get_app_instance_by_bundle(bundle):
     return NSRunningApplication.runningApplicationsWithBundleIdentifier_(bundle)
 
 def get_screen_frame():
-    return NSScreen.mainScreen().frame()
+    mainMonitor = CGDisplayBounds(CGMainDisplayID())
+    return NSRectFromCGRect(mainMonitor)
 
 def read_from_clipboard():
     return subprocess.check_output('pbpaste', env={'LANG': 'en_US.UTF-8'}).decode('utf-8')
