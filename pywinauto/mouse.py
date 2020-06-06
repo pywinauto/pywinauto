@@ -76,6 +76,7 @@ if sys.platform == 'win32':
         pressed="",
         key_down=True,
         key_up=True,
+        fast_move=False,
     ):
         """Perform a click action using SendInput
 
@@ -138,7 +139,8 @@ if sys.platform == 'win32':
 
         # set the cursor position
         _set_cursor_pos((coords[0], coords[1]))
-        time.sleep(Timings.after_setcursorpos_wait)
+        if not fast_move:
+            time.sleep(Timings.after_setcursorpos_wait)
         if win32api.GetCursorPos() != (coords[0], coords[1]):
             _set_cursor_pos((coords[0], coords[1]))
             time.sleep(Timings.after_setcursorpos_wait)
@@ -181,7 +183,8 @@ if sys.platform == 'win32':
                         event | win32defines.MOUSEEVENTF_ABSOLUTE,
                         coords[0], coords[1], dw_data)
 
-        time.sleep(Timings.after_clickinput_wait)
+        if not fast_move:
+            time.sleep(Timings.after_clickinput_wait)
 
         if ('control' in keyboard_keys) and key_up:
             keyboard.VirtualKeyAction(keyboard.VK_CONTROL, down=False).run()
@@ -200,13 +203,15 @@ else:
 
     def _perform_click_input(button='left', coords=(0, 0),
                              button_down=True, button_up=True, double=False,
-                             wheel_dist=0, pressed="", key_down=True, key_up=True):
+                             wheel_dist=0, pressed="", key_down=True, key_up=True,
+                             fast_move=False):
         """Perform a click action using Python-xlib"""
         #Move mouse
         x = int(coords[0])
         y = int(coords[1])
         fake_input(_display, X.MotionNotify, x=x, y=y)
-        _display.sync()
+        if not fast_move:
+            _display.sync()
 
         if button == 'wheel':
             if wheel_dist == 0:
@@ -265,7 +270,8 @@ def move(coords=(0, 0), duration=0.0):
         delta_x /= max(num_steps, 1)
         delta_y /= max(num_steps, 1)
         for step in range(num_steps):
-            _set_cursor_pos((x_start + int(delta_x*step), y_start + int(delta_y*step)))
+             _perform_click_input(button='move', coords=(x_start + int(delta_x*step), y_start + int(delta_y*step)),
+                                  button_down=False, button_up=False, fast_move=True)
             time.sleep(sleep_amount)
     _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
 
