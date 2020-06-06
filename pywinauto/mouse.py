@@ -272,7 +272,7 @@ def move(coords=(0, 0), duration=0.0):
             _perform_click_input(button='move', coords=(x_start + int(delta_x*step), y_start + int(delta_y*step)),
                                  button_down=False, button_up=False, fast_move=True)
             time.sleep(sleep_amount)
-    _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
+    _perform_click_input(button='move', coords=coords, button_down=False, button_up=False)
 
 
 def press(button='left', coords=(0, 0)):
