@@ -197,6 +197,7 @@ if sys.platform == 'win32':
 else:
     _display = Display()
 
+    # TODO: check this method
     def _get_cursor_pos(coords):
         data = _display.screen().root.query_pointer()._data
         return data["root_x"], data["root_y"]
@@ -270,7 +271,7 @@ def move(coords=(0, 0), duration=0.0):
         delta_x /= max(num_steps, 1)
         delta_y /= max(num_steps, 1)
         for step in range(num_steps):
-             _perform_click_input(button='move', coords=(x_start + int(delta_x*step), y_start + int(delta_y*step)),
+            _perform_click_input(button='move', coords=(x_start + int(delta_x*step), y_start + int(delta_y*step)),
                                   button_down=False, button_up=False, fast_move=True)
             time.sleep(sleep_amount)
     _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
