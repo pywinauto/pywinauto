@@ -243,9 +243,9 @@ def move(coords=(0, 0), duration=0):
     """Move the mouse"""
     minimum_duration = 0.05
     if duration >= minimum_duration:
-        coord_start = win32api.GetCursorPos()
-        delta_x = coords[0] - coord_start[0]
-        delta_y = coords[1] - coord_start[1]
+        x_start, y_start = win32api.GetCursorPos()
+        delta_x = coords[0] - x_start
+        delta_y = coords[1] - y_start
         max_delta = max(abs(delta_x), abs(delta_y))
         num_steps = max_delta
         sleep_amount = duration / max(num_steps, 1)
@@ -255,7 +255,7 @@ def move(coords=(0, 0), duration=0):
         delta_x /= max(num_steps, 1)
         delta_y /= max(num_steps, 1)
         for step in range(0, num_steps):
-            _set_cursor_pos((coord_start[0] + int(delta_x*step), coord_start[1] + int(delta_y*step)))
+            _set_cursor_pos((x_start + int(delta_x*step), y_start + int(delta_y*step)))
             time.sleep(sleep_amount)
     _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
 
