@@ -28,16 +28,19 @@ from ApplicationServices import kAXValueTypeAXError
 from ApplicationServices import kAXValueTypeIllegal
 
 from Foundation import * # TODO: eliminate wildcard import
-import AppKit
+
 from AppKit import NSScreen
 from AppKit import NSRunningApplication
+from AppKit import NSSizeFromString
+from AppKit import NSRectFromString
+from AppKit import NSRangeFromString
 
 from .macos_functions import check_attribute_valid, get_list_of_attributes
 from .macos_defines import ax_attributes
 from .ax_error import AXError
 from ..element_info import ElementInfo
 from .macos_structures import AX_RECT, AX_POINT, AX_SIZE
-from pywinauto.macos.application import Application
+from .application import Application
 
 import re
 
@@ -62,10 +65,10 @@ def _cf_attr_to_py_object(self, attrValue):
 
     def _cg_val_to_py_obj(cg_value):
         ax_type_from_string = {
-            kAXValueTypeCGSize:  AppKit.NSSizeFromString,
-            kAXValueTypeCGPoint: AppKit.NSPointFromString,
-            kAXValueTypeCGRect:  AppKit.NSRectFromString,
-            kAXValueTypeCFRange: AppKit.NSRangeFromString,
+            kAXValueTypeCGSize:  NSSizeFromString,
+            kAXValueTypeCGPoint: NSPointFromString,
+            kAXValueTypeCGRect:  NSRectFromString,
+            kAXValueTypeCFRange: NSRangeFromString,
         }
 
         ax_attr_type = AXValueGetType(attrValue)
@@ -97,14 +100,11 @@ def _cf_attr_to_py_object(self, attrValue):
             raise NotImplementedError("Type conversion for {} and {} is not implemented".format(str(cf_attr_type), str(ax_attr_type)))
 
 class AxElementInfo(ElementInfo):
-    # TODO: Check other string props
-    re_props = ["class_name", "name", "control_type"]
-    exact_only_props = ["pid", "visible", "enabled", "rectangle",
-        "framework_id", "framework_name", "atspi_version", "description"]
-    search_order = ["control_type", "class_name", "pid",
-        "visible", "enabled", "name", "rectangle",
-        "framework_id", "framework_name", "atspi_version", "description"]
-    # "auto_id", "full_control_type"
+
+    re_props = ["class_name", "name", "placeholder", "control_type","subrole"]
+    exact_only_props = ["pid", "visible", "enabled", "rectangle", "description"]
+    search_order = ["control_type", "class_name", "placeholder", "subrole", "pid",
+        "visible", "enabled", "name", "rectangle", "description"]
     assert set(re_props + exact_only_props) == set(search_order)
 
     renamed_props = {
@@ -135,7 +135,8 @@ class AxElementInfo(ElementInfo):
         c = repr(self.__class__).partition('<class \'')[-1].rpartition('\'>')[0]
         title = repr(self.name)
         role = self.control_type
-        return '<{} {} {}>'.format(c, role, title)
+        subrole = self.subrole
+        return '<Class:{} Role:{} Subrole:{} Title{}>'.format(c, role, subrole, title)
 
     def __eq__(self, other):
         """Check if two AxElementInfo objects describe the same element"""
@@ -169,12 +170,33 @@ class AxElementInfo(ElementInfo):
         else:
             return _cf_attr_to_py_object(self, attrValue)
 
+    def _is_minimized(self):
+        """
+        Get the value of the the specified ax attribute
+        Should be called for Windows only
+        """
+        return self._get_ax_attribute_value(ax_attributes['Minimized'])
+
+
+    def _is_hidden(self):
+        """
+        Returns True if AXUIElement is hidden
+        Should be called for Applications only
+        """
+        return self._get_ax_attribute_value(ax_attributes['Hidden'])
+
+    @property
+    def _app_info(self):
+        native_ref = AXUIElementCreateApplication(self.process_id)
+        return AxElementInfo(native_ref)
+
     def children(self, **kwargs):
         """Return children of the element"""
         process = kwargs.get("process", None)
         class_name = kwargs.get("class_name", None)
         title = kwargs.get("title", None)
         control_type = kwargs.get("control_type", None)
+        subrole = kwargs.get("subrole", None)
         if self.is_desktop:
             cls = type(self)
             ws = NSWorkspace.sharedWorkspace()
@@ -191,11 +213,13 @@ class AxElementInfo(ElementInfo):
                 top_level_windows = top_level_windows + top_level_windows_for_app
             return top_level_windows
         try:
-            children = self._get_ax_attribute_value("AXChildren")
+            children = self._get_ax_attribute_value(ax_attributes["Children"])
             if children is None:
                 return []
             filtred_res = []
             for child in children:
+                if child.control_type is None:
+                    continue
                 if process and child.process_id != process:
                     continue
                 if class_name and child.class_name != class_name:
@@ -204,23 +228,46 @@ class AxElementInfo(ElementInfo):
                     continue
                 if control_type and child.control_type != control_type:
                     continue
+                if subrole and child.subrole != subrole:
+                    continue
                 filtred_res.append(child)
             return filtred_res
         except AXError as exc:
             return []
 
     def descendants(self, **kwargs):
+        process = kwargs.get("process", None)
+        class_name = kwargs.get("class_name", None)
+        title = kwargs.get("title", None)
+        control_type = kwargs.get("control_type", None)
+        depth = kwargs.get("depth", None)
+
         liste = self.children()
-        all_desc = liste
-        def _collect_desc(elem):
+        all_desc = list(liste)
+        def _collect_desc(elem,lvl):
+            next_lvl = lvl+1
             children = elem.children()
-            if children is not None:
+            if children is not None and len(children) > 0:
                 for child in children:
                     all_desc.append(child)
-                    _collect_desc(child)
+                    if depth and next_lvl > depth:
+                        continue
+                    else:
+                        _collect_desc(child,next_lvl)
         for child in liste:
-            _collect_desc(child)
-        return all_desc
+            _collect_desc(child,1)
+        filtred_res = []
+        for desc in all_desc:
+            if process and desc.process_id != process:
+                continue
+            if class_name and desc.class_name != class_name:
+                continue
+            if title and desc.name != title:
+                continue
+            if control_type and desc.control_type != control_type:
+                continue
+            filtred_res.append(desc)
+        return filtred_res
 
     @property
     def name(self):
@@ -250,6 +297,13 @@ class AxElementInfo(ElementInfo):
         return ""
 
     @property
+    def description(self):
+        try:
+            return self._get_ax_attribute_value(ax_attributes["Description"])
+        except AXError:
+            return ""
+
+    @property
     def parent(self):
         if self.is_desktop:
             return None
@@ -277,14 +331,14 @@ class AxElementInfo(ElementInfo):
     def position(self):
         try:
             native_obj = self._get_ax_attribute_value(ax_attributes["Position"])
-            return AX_POINT(nspoint = native_obj)
+            return AX_POINT(nspoint=native_obj)
         except AXError as err:
             return AX_POINT(x=-1,y=-1)
 
     @property
     def is_selected(self):
         try:
-            return self._get_ax_attribute_value(ax_attributes["Selected"])
+            return self._get_ax_attribute_value(ax_attributes["Value"])
         except AXError:
             return False
 
@@ -326,10 +380,6 @@ class AxElementInfo(ElementInfo):
 
     @property
     def app(self):
-        # TODO: Should we have such help method as a part of this class?
-        # If yes, what kind of object should be returned? ElementInfo or Application???
-        # SHOULD be reviewed
-        # Mark: use AXUIElementCreateApplication if we must return ElementInfo
         return Application().connect(process=self.process_id);
 
     @property
@@ -390,8 +440,26 @@ class AxElementInfo(ElementInfo):
 
     @property
     def visible(self):
-        # TODO: Implement
-        pass
+        app = self._app_info
+        window = self if self.control_type == 'Window' else self.window
+        is_app_hidden = app._is_hidden()
+        is_minimized = window._is_minimized()
+
+        return not (is_app_hidden or is_minimized)
+
+    @property
+    def value(self):
+        try:
+            return self._get_ax_attribute_value(ax_attributes["Value"])
+        except AXError:
+            return ''
+    
+    @property
+    def placeholder(self):
+        try:
+            return self._get_ax_attribute_value(ax_attributes["Placeholder"])
+        except AXError:
+            return ''
 
     @property
     def process_id(self):
@@ -408,6 +476,13 @@ class AxElementInfo(ElementInfo):
     def rich_text(self):
         """Return the text of the element"""
         return self.name
+
+    @property
+    def is_expanded(self):
+        try:
+            return self._get_ax_attribute_value(ax_attributes["Expanded"])
+        except AXError:
+            return False
 
     def set_cache_strategy(self, cached):
         """Set a cache strategy for frequently used attributes of the element"""

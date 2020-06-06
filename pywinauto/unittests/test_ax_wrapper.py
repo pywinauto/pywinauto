@@ -41,11 +41,14 @@ import os
 import time
 import unittest
 if sys.platform == 'darwin':
-    sys.path.append(".")
+    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    sys.path.append(root_dir)
+    os.path.join
     from pywinauto.macos.ax_element_info import AxElementInfo
     from pywinauto.macos.application import Application
-    from pywinauto.controls.ax_wrapper import AXWrapper
     from pywinauto.macos.macos_structures import AX_POINT
+    from pywinauto.controls.ax_wrapper import AXWrapper
+
 
 class AXWrapperTests(unittest.TestCase):
 
@@ -57,8 +60,8 @@ class AXWrapperTests(unittest.TestCase):
         self.desktop_wrapper = AXWrapper(self.desktop_info)
         self.app = Application()
         self.app.start(name = self.app_name,new_instance = False)
-        self.app_window = self.app.RootWindow.wrapper_object()
-        self.app_window.set_focus()
+        self.window_wrapper = self.app.window(name='RootWindow',control_type='Window').wrapper_object()
+        self.window_wrapper.set_focus()
 
     def tearDown(self):
         self.app.kill()
@@ -71,57 +74,56 @@ class AXWrapperTests(unittest.TestCase):
 
     def test_can_get_rectangle(self):
         rect = self.app.RootWindow.TexturedRoundedButton.wrapper_object().rectangle()
-        self.assertAlmostEqual(rect.height(), 23, delta=2)
+        self.assertAlmostEqual(rect.height, 23, delta=2)
 
     def test_client_to_screen(self):
-        rect = self.app_window.rectangle()
-        self.assertEqual(self.app_window.client_to_screen((0, 0)),
+        rect = self.window_wrapper.rectangle()
+        self.assertEqual(self.window_wrapper.client_to_screen((0, 0)),
                 (rect.left, rect.top))
-        self.assertEqual(self.app_window.client_to_screen(AX_POINT(x=20,y=20)),
+        self.assertEqual(self.window_wrapper.client_to_screen(AX_POINT(x=20,y=20)),
                 (rect.left + 20, rect.top + 20))
 
     def test_can_get_children(self):
-        parent = self.app_window.parent()
+        parent = self.window_wrapper.parent()
         is_success = False
         for child in parent.children():
-            if child == self.app_window:
+            if child == self.window_wrapper:
                 is_success = True
                 break
         self.assertTrue(is_success)
 
     def test_can_get_descendants(self):
-        self.assertTrue(len(self.app_window.descendants()) >= len(self.app_window.children()))
+        self.assertTrue(len(self.window_wrapper.descendants()) >= len(self.window_wrapper.children()))
 
     def test_can_get_control_count(self):
         # Number of controls in test application is not static
         # Zero check is enough
-        self.assertTrue(self.app_window.control_count() > 0)
+        self.assertTrue(self.window_wrapper.control_count() > 0)
 
     def test_can_get_properties(self):
-        props = self.app_window.get_properties()
+        props = self.window_wrapper.get_properties()
         self.assertEqual(props['class_name'], 'Window')
         self.assertEqual(props['friendly_class_name'], 'Window')
         self.assertEqual(props['texts'],['RootWindow'])
         self.assertEqual(props['is_enabled'], False)
-        # TODO: Discuss what should we do with control_id
 
     def test_app_is_child_of_desktop(self):
-        self.assertTrue(self.app_window.is_child(self.desktop_wrapper))
+        self.assertTrue(self.window_wrapper.is_child(self.desktop_wrapper))
 
     def test_can_get_process_id(self):
-        self.assertEqual(self.app_window.process_id(), self.app.process)
+        self.assertEqual(self.window_wrapper.process_id(), self.app.process)
 
     def test_top_level_parent_for_window_return_window(self):
-        self.assertEqual(self.app_window.top_level_parent().element_info.control_type, "Window")
+        self.assertEqual(self.window_wrapper.top_level_parent().element_info.control_type, "Window")
 
     def test_window_text(self):
-        self.assertEqual(self.app_window.window_text(), 'RootWindow')
+        self.assertEqual(self.window_wrapper.window_text(), 'RootWindow')
 
     def test_root_return_desktop(self):
-        self.assertEqual(self.app_window.root(), self.desktop_info)
+        self.assertEqual(self.window_wrapper.root(), self.desktop_info)
 
     def test_class_name_return_element_info_class_name(self):
-        self.assertEqual(self.app_window.class_name(), "Window")
+        self.assertEqual(self.window_wrapper.class_name(), "Window")
 
 if __name__ == "__main__":
     unittest.main()
