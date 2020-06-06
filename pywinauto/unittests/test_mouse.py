@@ -129,6 +129,7 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
 
+    # TODO: make the feature and the tests cross-platform (duration param)
     if sys.platform == "win32":
         def test_mouse_can_move_cursor1(self):
             coord = (20, 10)
