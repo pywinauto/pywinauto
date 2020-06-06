@@ -40,20 +40,20 @@ from Quartz import kCGWindowListOptionOnScreenOnly, kCGNullWindowID
 
 from ApplicationServices import AXUIElementSetAttributeValue
 from ApplicationServices import AXIsProcessTrusted
-from ApplicationServices import AXUIElementCopyAttributeNames
+from ApplicationServices import AXUIElementCopyAttributeNames 
 from ApplicationServices import kAXErrorSuccess
-from ApplicationServices import AXUIElementCopyAttributeValue
+from ApplicationServices import AXUIElementCopyAttributeValue 
 from ApplicationServices import AXUIElementCopyActionNames
+from ApplicationServices import AXUIElementCopyParameterizedAttributeNames
 from ApplicationServices import AXUIElementPerformAction
 from ApplicationServices import CGWindowListCopyWindowInfo
-from ApplicationServices import AXUIElementCreateSystemWide
+from ApplicationServices import NSWorkspaceLaunchAllowingClassicStartup
 
 from AppKit import NSScreen
 from AppKit import NSWorkspace
 from AppKit import NSRunningApplication
 from AppKit import NSBundle
 from AppKit import NSWorkspaceLaunchNewInstance
-from AppKit import NSWorkspaceLaunchAllowingClassicStartup
 
 from Foundation import NSAppleEventDescriptor
 from PyObjCTools import AppHelper
@@ -165,6 +165,14 @@ def get_list_of_attributes(ax_element):
     else:
         return []
 
+def get_list_of_parameterized_attributes(ax_element):
+    list_of_options_result_with_error_code = AXUIElementCopyParameterizedAttributeNames(ax_element,None)
+    if not (check_error(list_of_options_result_with_error_code)):
+        list_of_options = list_of_options_result_with_error_code[1]
+        return list_of_options
+    else:
+        return []
+
 def check_error(obj):
     if obj[0] == kAXErrorSuccess:
         return False
@@ -249,23 +257,6 @@ def filter_list_of_ax_element_by_attr(ui_element_refs_list, attribute_name, attr
                 if (get_ax_attribute(element,attribute_name) == attr_expected_value):
                     store.append(element)
 
-def get_desktop():
-    # TODO: implement
-    pass
-
-def cpu_usage(interval=None):
-        """Return CPU usage percent during specified number of seconds"""
-        # if not self.ns_app and self.connected:
-        #     raise AppNotConnected("Please use start or connect before trying "
-        #                           "anything else")
-        if interval:
-            time.sleep(interval)
-        try:
-            proc_info = subprocess.check_output(["ps", "-p", str(3443), "-o", "%cpu"], universal_newlines=True)
-            proc_info = proc_info.split("\n")
-            return float(proc_info[1])
-        except Exception:
-            raise ProcessNotFoundError()
 
 def run_loop_and_exit():
     AppHelper.stopEventLoop()
