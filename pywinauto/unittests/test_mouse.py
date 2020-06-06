@@ -129,37 +129,25 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
 
-    # TODO: make the feature and the tests cross-platform (duration param)
-    if sys.platform == "win32":
-        def test_mouse_can_move_cursor1(self):
-            coord = (20, 10)
-            mouse.move(coord)
-            self.assertEqual(coord, win32api.GetCursorPos())
+    def test_mouse_can_move_cursor(self):
+        coord = (0, 1)
+        mouse.move(coord)
+        self.assertEqual(coord, mouse._get_cursor_pos())
 
-        def test_mouse_can_move_cursor2(self):
-            coord = (0, 1)
-            mouse.move(coord)
-            self.assertEqual(coord, win32api.GetCursorPos())
+        mouse.move((-200, -300))
+        self.assertEqual((0, 0), mouse._get_cursor_pos())
 
-        def test_mouse_can_move_cursor3(self):
-            coord = (150, 150)
-            mouse.move(coord)
-            self.assertEqual(coord, win32api.GetCursorPos())
+    def test_mouse_fail_on_int_duration(self):
+        self.assertRaises(TypeError, mouse.move, coord=(0, 0), duration=1)
 
-        def test_mouse_fail_on_int_duration(self):
-            self.assertRaises(TypeError, mouse.move, coord=(0, 0), duration=1)
+    def test_mouse_tween(self):
+        coord = (401, 301)
+        mouse.move(coord, duration=0.5)
+        self.assertEqual(coord, mouse._get_cursor_pos())
 
-        def test_mouse_tween1(self):
-            coord = (100, 150)
-            mouse.move(coord, duration=0.5)
-            self.assertEqual(coord, win32api.GetCursorPos())
+        mouse.move(coord, duration=0.5)
+        self.assertEqual(coord, mouse._get_cursor_pos())
 
-        def test_mouse_tween2(self):
-            coord = (0, 0)
-            mouse.move(coord, duration=0.1)
-            mouse.move(coord, duration=0.5)
-            self.assertEqual(coord, win32api.GetCursorPos())
-    
     if sys.platform != 'win32':
         def test_swapped_buttons(self):
             current_map = self.display.get_pointer_mapping()
