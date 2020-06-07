@@ -717,6 +717,8 @@ class BaseWrapper(object):
 
         if not isinstance(duration, float):
             raise TypeError("duration must be float (in seconds)")
+        if not absolute:
+            coords = self.client_to_screen(coords)  # make coords absolute
         minimum_duration = 0.05
         if duration >= minimum_duration:
             x_start, y_start = _get_cursor_pos()
@@ -733,9 +735,9 @@ class BaseWrapper(object):
             for step in range(num_steps):
                 self.click_input(button='move',
                                  coords=(x_start + int(delta_x * step), y_start + int(delta_y * step)),
-                                 absolute=absolute, pressed=pressed, fast_move=True)
+                                 absolute=True, pressed=pressed, fast_move=True)
                 sleep(sleep_amount)
-        self.click_input(button='move', coords=coords, absolute=absolute, pressed=pressed)
+        self.click_input(button='move', coords=coords, absolute=True, pressed=pressed)
 
         self.wait_for_idle()
         return self
