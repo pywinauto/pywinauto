@@ -53,7 +53,7 @@ BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
 
 if sys.platform == 'win32':
 
-    def _get_cursor_pos():
+    def _get_cursor_pos():  # get global coordinates
         return win32api.GetCursorPos()
 
     def _set_cursor_pos(coords):
@@ -198,7 +198,7 @@ else:
     _display = Display()
 
     # TODO: check this method
-    def _get_cursor_pos():
+    def _get_cursor_pos():  # get global coordinate
         data = _display.screen().root.query_pointer()._data
         return data["root_x"], data["root_y"]
 
