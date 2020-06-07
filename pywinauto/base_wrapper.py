@@ -756,7 +756,8 @@ class BaseWrapper(object):
                          src=None,
                          button="left",
                          pressed="",
-                         absolute=True):
+                         absolute=True,
+                         duration=0.0):
         """Click on **src**, drag it and drop on **dst**
 
         * **dst** is a destination wrapper object or just coordinates.
