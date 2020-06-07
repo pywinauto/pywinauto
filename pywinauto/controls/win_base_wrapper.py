@@ -154,7 +154,8 @@ class WinBaseWrapper(BaseWrapper):
         pressed = "",
         absolute = False,
         key_down = True,
-        key_up = True):
+        key_up = True,
+        fast_move = False):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
@@ -212,7 +213,7 @@ class WinBaseWrapper(BaseWrapper):
 
         _perform_click_input(button, coords, double, button_down, button_up,
                              wheel_dist=wheel_dist, pressed=pressed,
-                             key_down=key_down, key_up=key_up)
+                             key_down=key_down, key_up=key_up, fast_move=fast_move)
 
         if message:
             self.actions.log(message)

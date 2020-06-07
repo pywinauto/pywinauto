@@ -6,7 +6,6 @@ import sys
 import os
 import unittest
 if sys.platform == 'win32':
-    import win32api
     import win32clipboard
     sys.path.append(".")
     from pywinauto.application import Application
@@ -139,8 +138,9 @@ class MouseTests(unittest.TestCase):
             mouse.move((-200, -300))
             self.assertEqual((0, 0), mouse._get_cursor_pos())
 
-        def test_mouse_fail_on_int_duration(self):
+        def test_mouse_fail_on_int_duration_and_float_coord(self):
             self.assertRaises(TypeError, mouse.move, coord=(0, 0), duration=1)
+            self.assertRaises(TypeError, mouse.move, coord=(0.0, 0))
 
         def test_mouse_tween(self):
             coord = (401, 301)
@@ -149,6 +149,17 @@ class MouseTests(unittest.TestCase):
 
             mouse.move(coord, duration=0.5)
             self.assertEqual(coord, mouse._get_cursor_pos())
+
+        def test_move_mouse_input_tween(self):
+            coord = (1, 2)
+            self.dlg.move_mouse_input(coords=coord, absolute=True)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+            coord = (501, 401)
+            self.dlg.move_mouse_input(coords=coord, absolute=True, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+            self.dlg.move_mouse_input(coords=coord, absolute=True, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+
 
     if sys.platform != 'win32':
         def test_swapped_buttons(self):

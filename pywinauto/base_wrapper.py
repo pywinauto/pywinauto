@@ -45,8 +45,9 @@ try:
 except ImportError:
     ImageGrab = None
 
+from time import sleep
 from .actionlogger import ActionLogger
-
+from .mouse import _get_cursor_pos
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
@@ -633,7 +634,8 @@ class BaseWrapper(object):
         pressed = "",
         absolute = False,
         key_down = True,
-        key_up = True):
+        key_up = True,
+        fast_move = False):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
@@ -708,11 +710,31 @@ class BaseWrapper(object):
         )
 
     #-----------------------------------------------------------
-    def move_mouse_input(self, coords=(0, 0), pressed="", absolute=True):
+    def move_mouse_input(self, coords=(0, 0), pressed="", absolute=True, duration=0.0):
         """Move the mouse"""
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
 
+        if not isinstance(duration, float):
+            raise TypeError("duration must be float (in seconds)")
+        minimum_duration = 0.05
+        if duration >= minimum_duration:
+            x_start, y_start = _get_cursor_pos()
+            delta_x = coords[0] - x_start
+            delta_y = coords[1] - y_start
+            max_delta = max(abs(delta_x), abs(delta_y))
+            num_steps = max_delta
+            sleep_amount = duration / max(num_steps, 1)
+            if sleep_amount < minimum_duration:
+                num_steps = int(num_steps * sleep_amount / minimum_duration)
+                sleep_amount = minimum_duration
+            delta_x /= max(num_steps, 1)
+            delta_y /= max(num_steps, 1)
+            for step in range(num_steps):
+                self.click_input(button='move',
+                                 coords=(x_start + int(delta_x * step), y_start + int(delta_y * step)),
+                                 absolute=absolute, pressed=pressed, fast_move=True)
+                sleep(sleep_amount)
         self.click_input(button='move', coords=coords, absolute=absolute, pressed=pressed)
 
         self.wait_for_idle()
