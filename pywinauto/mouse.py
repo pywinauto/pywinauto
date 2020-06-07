@@ -211,7 +211,8 @@ else:
         x = int(coords[0])
         y = int(coords[1])
         fake_input(_display, X.MotionNotify, x=x, y=y)
-
+        if not fast_move:
+            _display.sync()
         if button == 'wheel':
             if wheel_dist == 0:
                 return
