@@ -218,7 +218,8 @@ class WinBaseWrapper(BaseWrapper):
                          src=None,
                          button="left",
                          pressed="",
-                         absolute=True):
+                         absolute=True,
+                         duration=0.0):
         """Click on **src**, drag it and drop on **dst**
 
         * **dst** is a destination wrapper object or just coordinates.
@@ -253,16 +254,16 @@ class WinBaseWrapper(BaseWrapper):
 
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)
-        for i in range(5):
-            self.move_mouse_input((press_coords[0] + i, press_coords[1]), pressed=pressed, absolute=absolute) # "left"
-            time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute) # "left"
+
+        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute, duration=duration)
+
+        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute)  # "left"
         time.sleep(Timings.before_drop_wait)
         self.release_mouse_input(button, release_coords, pressed, absolute=absolute)
         time.sleep(Timings.after_drag_n_drop_wait)
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def type_keys(
         self,
         keys,

@@ -160,6 +160,23 @@ class MouseTests(unittest.TestCase):
             self.dlg.move_mouse_input(coords=coord, absolute=True, duration=0.5)
             self.assertEqual(coord, mouse._get_cursor_pos())
 
+        def test_drag_mouse_input_tween(self):
+            rect = self.dlg.rectangle()
+            x0, y0 = rect.left, rect.top
+            x1, y1 = 10, 50
+            x0_curs, y0_curs = (rect.left + rect.right) // 2, rect.top + 10
+            x1_curs, y1_curs = (rect.right - rect.left) // 2 + x1, 10 + y1
+
+            mouse.move((x0_curs, y0_curs))
+            self.assertEqual((x0_curs, y0_curs), mouse._get_cursor_pos())
+
+            self.dlg.drag_mouse_input(src=(x0_curs, y0_curs), dst=(x1_curs, y1_curs), absolute=True)
+            rect = self.dlg.rectangle()
+            self.assertEqual((rect.left, rect.top), (x1, y1))
+
+            self.dlg.drag_mouse_input(src=(x1_curs, y1_curs), dst=(x0_curs, y0_curs), absolute=True, duration=0.5)
+            rect = self.dlg.rectangle()
+            self.assertEqual((rect.left, rect.top), (x0, y0))
 
     if sys.platform != 'win32':
         def test_swapped_buttons(self):
