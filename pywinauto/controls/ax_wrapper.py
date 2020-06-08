@@ -33,7 +33,6 @@
 import six
 
 from ..macos.ax_element_info import AxElementInfo
-from ..macos.ax_element_info import AxElementInfo
 
 from ..macos.macos_functions import set_ax_attribute
 from ..macos.macos_functions import setAppFrontmost

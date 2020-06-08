@@ -32,7 +32,6 @@
 
 """Tests for mac os Controls"""
 
-import os
 import sys
 import unittest
 
