@@ -1,4 +1,5 @@
 import re
+import sys
 
 from CoreFoundation import CFNumberGetValue
 from CoreFoundation import CFStringGetTypeID
@@ -15,17 +16,26 @@ from ApplicationServices import AXUIElementGetTypeID
 from ApplicationServices import AXUIElementCopyAttributeNames
 from ApplicationServices import AXUIElementCopyAttributeValue
 from ApplicationServices import AXUIElementRef
-from ApplicationServices import AXUIElementCreateApplication
 from ApplicationServices import AXUIElementGetPid
 
 from ApplicationServices import kAXErrorSuccess
 from ApplicationServices import kAXErrorNoValue
-from ApplicationServices import kAXValueTypeCGPoint
-from ApplicationServices import kAXValueTypeCGSize
-from ApplicationServices import kAXValueTypeCGRect
-from ApplicationServices import kAXValueTypeCFRange
-from ApplicationServices import kAXValueTypeAXError
-from ApplicationServices import kAXValueTypeIllegal
+# Those constants are supported only in pyobjc 6.2 and later
+# pyobjc 6.2 supports Python 3.6 and later
+if sys.version_info[0] < 3.6:
+    from .macos_defines import kAXValueTypeCGPoint
+    from .macos_defines import kAXValueTypeCGSize
+    from .macos_defines import kAXValueTypeCGRect
+    from .macos_defines import kAXValueTypeCFRange
+    from .macos_defines import kAXValueTypeAXError
+    from .macos_defines import kAXValueTypeIllegal
+else:
+    from ApplicationServices import kAXValueTypeCGPoint
+    from ApplicationServices import kAXValueTypeCGSize
+    from ApplicationServices import kAXValueTypeCGRect
+    from ApplicationServices import kAXValueTypeCFRange
+    from ApplicationServices import kAXValueTypeAXError
+    from ApplicationServices import kAXValueTypeIllegal
 
 from Foundation import * # TODO: eliminate wildcard import
 
@@ -34,14 +44,15 @@ from AppKit import NSSizeFromString
 from AppKit import NSRectFromString
 from AppKit import NSRangeFromString
 
-from .macos_functions import check_attribute_valid, get_list_of_attributes, get_screen_frame
+from .macos_functions import check_attribute_valid
+from .macos_functions import get_list_of_attributes
+from .macos_functions import get_screen_frame
+from .macos_functions import getAXUIElementForApp
+
 from .macos_defines import ax_attributes
 from .ax_error import AXError
-from ..element_info import ElementInfo
 from .macos_structures import AX_RECT, AX_POINT, AX_SIZE
-from .application import Application
-
-import re
+from ..element_info import ElementInfo
 
 def _cf_attr_to_py_object(self, attrValue):
 
@@ -123,7 +134,7 @@ class AxElementInfo(ElementInfo):
             self.ref = ref.ref
         elif self.__is_app:
             pid = ref.processIdentifier()
-            self.ref = AXUIElementCreateApplication(pid)
+            self.ref = getAXUIElementForApp(pid)
         elif isinstance(ref,(AXUIElementRef,type(None))):
             self.ref = ref
         else:
@@ -186,7 +197,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def _app_info(self):
-        native_ref = AXUIElementCreateApplication(self.process_id)
+        native_ref = getAXUIElementForApp(self.process_id)
         return AxElementInfo(native_ref)
 
     def children(self, **kwargs):
@@ -203,7 +214,7 @@ class AxElementInfo(ElementInfo):
             top_level_windows = []
             for app in running_apps:
                 pid = app.processIdentifier()
-                app_ref = cls(AXUIElementCreateApplication(pid))
+                app_ref = cls(getAXUIElementForApp(pid))
                 ax_app = AxElementInfo(app_ref)
                 # We don't care about apps which does not support ax
                 if len(get_list_of_attributes(ax_app.ref)) == 0:
@@ -376,10 +387,6 @@ class AxElementInfo(ElementInfo):
                 return AxElementInfo(window_obj)
         except AXError:
             return None
-
-    @property
-    def app(self):
-        return Application().connect(process=self.process_id);
 
     @property
     def rectangle(self):

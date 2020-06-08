@@ -1,23 +1,20 @@
 import time
-# import os
-# import sys
+import os
+import sys
 import subprocess
 
 from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
 from Foundation import NSAppleEventDescriptor
-from ApplicationServices import AXUIElementCreateApplication
 
 from . import macos_functions
-from . import ax_element_info
-from .. import backend
+
+from .ax_element_info import AxElementInfo
+
 from ..backend import registry
 from ..element_info import ElementInfo
-from ..base_wrapper import BaseWrapper
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
-
 from ..timings import Timings, wait_until
 backend.register('ax', ElementInfo, BaseWrapper)
-
 
 def get_process_ids(cache_update=False):
     if cache_update:
@@ -81,7 +78,7 @@ class Application(BaseApplication):
         def app_idle():
             macos_functions.cache_update()
             pid = self.ns_app.processIdentifier()
-            elem = ax_element_info.AxElementInfo()
+            elem = AxElementInfo()
             for app in elem.children():
                 if app.process_id == pid:
                     return True
@@ -117,7 +114,7 @@ class Application(BaseApplication):
                 self.ns_app = app[0]
                 self.connected = None
                 self.process = self.ns_app.processIdentifier()
-                AXUIElementCreateApplication(self.process)
+                macos_functions.getAXUIElementForApp(self.process)
             else:
                 raise ProcessNotFoundError('bundle = ' + str(kwargs['bundle']))
         return self
@@ -209,7 +206,7 @@ class Application(BaseApplication):
         The application is activated regardless of the currently active app.
         All windows of application will be frontmost
         """
-        self.ns_app.activateWithOptions_(NSApplicationActivateIgnoringOtherApps)
+        macos_functions.setAppFrontmost(self.ns_app)
 
 if __name__ == "__main__":
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))

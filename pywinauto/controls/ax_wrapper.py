@@ -30,11 +30,13 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Basic wrapping of UI Automation elements"""
-from ..macos.ax_element_info import AxElementInfo
 import six
-from pywinauto.macos.macos_functions import set_ax_attribute
-from pywinauto.macos.ax_element_info import AxElementInfo
-from pywinauto.macos.application import Application
+
+from ..macos.ax_element_info import AxElementInfo
+from ..macos.ax_element_info import AxElementInfo
+
+from ..macos.macos_functions import set_ax_attribute
+from ..macos.macos_functions import setAppFrontmost
 
 from .. import backend
 from ..base_wrapper import BaseWrapper
@@ -144,16 +146,9 @@ class AXWrapper(BaseWrapper):
         
         # Focus the window
         if window and window.control_type == 'Window':
-            # TODO: Where should we do such logic?
-            # Possible options:
-            # 1. Create a wrapper for window
-            # 2. Extend AxElementInfo class
-            # Should be replaced in the future
             set_ax_attribute(self.element_info.ref, "AXFocused", True)
             set_ax_attribute(self.element_info.ref, "AXMinimized", False)
-            app = self.element_info.app
-            if app:
-                app.set_frontmost()
+            setAppFrontmost(self.element_info.process_id)
 
     def friendly_class_name(self):
         return self.element_info.control_type

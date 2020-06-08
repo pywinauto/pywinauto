@@ -4,11 +4,7 @@ import time
 import unittest
 
 if sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.append(parent_dir)
-    sys.path.append(parent_dir + '/macos')
-    os.path.join
-
+    sys.path.append(".")
     from pywinauto.macos.ax_element_info import AXError, AxElementInfo
     from pywinauto.macos.ax_element_info_object import known_control_types, known_top_lvl_control_types
     from pywinauto.macos.macos_functions import get_screen_frame
@@ -138,7 +134,6 @@ class AxelementinfoTestCases(unittest.TestCase):
             if 'AXSelected' in attribute:
                 self.assertFalse(child.is_selected)
                 break 
-
 
 if __name__ == "__main__":
     unittest.main()

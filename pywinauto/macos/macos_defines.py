@@ -264,3 +264,11 @@ ax_attributes = {
     "YearField" : "AXYearField",
     "ZoomButton" : "AXZoomButton"
 }
+
+# This constants are not availible in pyobjc < 6.2
+kAXValueTypeIllegal = 0
+kAXValueTypeCGPoint = 1
+kAXValueTypeCGSize  = 2
+kAXValueTypeCGRect  = 3
+kAXValueTypeCFRange = 4
+kAXValueTypeAXError = 5
