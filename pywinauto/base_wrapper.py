@@ -714,11 +714,11 @@ class BaseWrapper(object):
         """Move the mouse"""
         if not absolute:
             self.actions.log('Moving mouse to relative (client) coordinates ' + str(coords).replace('\n', ', '))
+            coords = self.client_to_screen(coords)  # make coords absolute
 
         if not isinstance(duration, float):
             raise TypeError("duration must be float (in seconds)")
-        if not absolute:
-            coords = self.client_to_screen(coords)  # make coords absolute
+
         minimum_duration = 0.05
         if duration >= minimum_duration:
             x_start, y_start = _get_cursor_pos()

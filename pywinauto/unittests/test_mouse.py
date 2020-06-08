@@ -174,7 +174,7 @@ class MouseTests(unittest.TestCase):
             rect = self.dlg.rectangle()
             self.assertEqual((rect.left, rect.top), (x1, y1))
 
-            self.dlg.drag_mouse_input(src=(x1_curs, y1_curs), dst=(x0_curs, y0_curs), absolute=True, duration=0.5)
+            self.dlg.drag_mouse_input(src=(x1_curs, y1_curs), dst=(x0_curs, y0_curs), absolute=True, duration=1.0)
             rect = self.dlg.rectangle()
             self.assertEqual((rect.left, rect.top), (x0, y0))
 
