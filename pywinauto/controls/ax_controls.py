@@ -34,9 +34,9 @@
 import six
 
 from . import ax_wrapper
-from pywinauto.macos.macos_functions import get_list_of_actions
-from pywinauto.macos.macos_functions import perform_action
-from pywinauto.macos.macos_functions import set_ax_attribute
+from ..macos.macos_functions import get_list_of_actions
+from ..macos.macos_functions import perform_action
+from ..macos.macos_functions import set_ax_attribute
 
 class ButtonWrapper(ax_wrapper.AXWrapper):
 
