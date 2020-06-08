@@ -219,7 +219,7 @@ class WinBaseWrapper(BaseWrapper):
                          button="left",
                          pressed="",
                          absolute=True,
-                         duration=0.0):
+                         duration=None):
         """Click on **src**, drag it and drop on **dst**
 
         * **dst** is a destination wrapper object or just coordinates.
@@ -236,6 +236,15 @@ class WinBaseWrapper(BaseWrapper):
 
         if dst == src:
             raise AttributeError("Can't drag-n-drop on itself")
+
+        if not isinstance(duration, float) and duration is not None:
+            raise TypeError("duration must be float (in seconds) or None")
+
+        if isinstance(duration, float):
+            total_pause = 0.5 + Timings.before_drag_wait + Timings.before_drop_wait + Timings.after_drag_n_drop_wait
+            if duration < total_pause:
+                raise ValueError("duration must be >= " + str(total_pause))
+            duration -= total_pause
 
         if isinstance(src, WinBaseWrapper):
             press_coords = src._calc_click_coords()
@@ -255,7 +264,9 @@ class WinBaseWrapper(BaseWrapper):
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)
 
-        if duration < 0.5:
+        if duration is None:
+            duration = 0.0
+            # this is necessary for testDragMouseInput
             for i in range(5):
                 self.move_mouse_input((press_coords[0] + i, press_coords[1]), pressed=pressed, absolute=absolute)
                 time.sleep(Timings.drag_n_drop_move_mouse_wait)
