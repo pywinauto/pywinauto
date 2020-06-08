@@ -8,23 +8,20 @@ language: cpp
 matrix:
   include:
     - os: osx
-      osx_image: xcode11.4
+      osx_image: xcode9.4
       env: PYVER=2.7
       language: generic
     - os: osx
-      osx_image: xcode11.4
+      osx_image: xcode9.4
       env: PYVER=3.5
       language: generic
     - os: osx
-      osx_image: xcode11.4
+      osx_image: xcode9.4
       env: PYVER=3.6
       language: generic
     - os: linux
       language: python
       python: 2.7
-    # - os: linux
-    #   language: python
-    #   python: 3.3
     - os: linux
       language: python
       python: 3.4
