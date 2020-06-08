@@ -3,21 +3,11 @@ import os
 import unittest
 import subprocess
 from subprocess import Popen, PIPE
-# sys.path.append(".")
+
 if sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.append(parent_dir)
-    sys.path.append(parent_dir + '/macos')
-    os.path.join
-    # from pywinauto.macos import macos_functions
+    sys.path.append(".")
     from pywinauto.application import Application
-
-if sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.abspath(__file__))
-    sys.path.append(parent_dir)
-    os.path.join
     from pywinauto.base_application import ProcessNotFoundError, AppNotConnected
-
 
 def _test_app():
     test_folder = os.path.join(os.path.dirname
@@ -26,7 +16,6 @@ def _test_app():
                                  (os.path.abspath(__file__)))),
                                r"apps/SendKeysTester")
     return os.path.join(test_folder, r"send_keys_test_app")
-
 
 sys.path.append(".")
 

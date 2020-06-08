@@ -14,12 +14,9 @@ if sys.platform == 'win32':
     from pywinauto import mouse
     from pywinauto.timings import Timings
 elif sys.platform == 'darwin':
-    parent_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.append(parent_dir)
-    sys.path.append(parent_dir + '/macos')
-    os.path.join
-
+    sys.path.append(".")
     from pywinauto import mouse
+
     from pywinauto.macos.macos_functions import launch_application
     from pywinauto.macos.macos_functions import get_instance_of_app
     from pywinauto.macos.macos_functions import get_screen_frame

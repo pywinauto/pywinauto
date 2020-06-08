@@ -50,16 +50,22 @@ from ApplicationServices import AXUIElementCopyParameterizedAttributeNames
 from ApplicationServices import AXUIElementPerformAction
 from ApplicationServices import CGWindowListCopyWindowInfo
 from ApplicationServices import NSWorkspaceLaunchAllowingClassicStartup
+from ApplicationServices import AXUIElementCreateApplication
 
 from AppKit import NSWorkspace
 from AppKit import NSRunningApplication
 from AppKit import NSBundle
 from AppKit import NSWorkspaceLaunchNewInstance
+from AppKit import NSApplicationActivateIgnoringOtherApps
 
 from Foundation import NSAppleEventDescriptor, NSRectFromCGRect
 from PyObjCTools import AppHelper
 
 is_debug = False
+
+def __get_string_value(value):
+    if isinstance(value, six.string_types):
+        return six.text_type(value)
 
 def launch_application(name):
     # Open application by name(without package name)
@@ -267,7 +273,14 @@ def cache_update():
     AppHelper.callAfter(run_loop_and_exit)
     AppHelper.runConsoleEventLoop()
 
+def getAXUIElementForApp(pid):
+    return AXUIElementCreateApplication(pid)
 
-def __get_string_value(value):
-    if isinstance(value, six.string_types):
-        return six.text_type(value)
+def setAppFrontmost(pid):
+    """
+    The application is activated regardless of the currently active app.
+    All windows of application will be frontmost
+    """
+    runnning_application = get_app_instance_by_pid(pid)
+    runnning_application.activateWithOptions_(NSApplicationActivateIgnoringOtherApps)
+
