@@ -64,6 +64,8 @@ below. The module is also available on Linux.
     {VK_F19}, {VK_EXECUTE}, {VK_PLAY}, {VK_RMENU}, {VK_F13}, {VK_F12}, {LWIN},
     {VK_DOWN}, {VK_F17}, {VK_F16}, {VK_F15}, {VK_F14}
 
+    ~ is a shorter alias for {ENTER}
+
 **Modifiers:**
 
 - ``'+': {VK_SHIFT}``
@@ -96,10 +98,19 @@ Use curly brackers to escape modifiers and type reserved symbols as single keys:
     send_keys('{^}a{^}c{%}') # type string "^a^c%" (Ctrl will not be pressed)
     send_keys('{{}ENTER{}}') # type string "{ENTER}" without pressing Enter key
 
+For Windows only, pywinauto defaults to sending a virtual key packet
+(VK_PACKET) for textual input.  For applications that do not handle VK_PACKET
+appropriately, the ``vk_packet`` option may be set to ``False``.  In this case
+pywinauto will attempt to send the virtual key code of the requested key.  This
+option only affects the behavior of keys matching [-=[]\;',./a-zA-Z0-9 ].  Note
+that upper and lower case are included for a-z.  Both reference the same
+virtual key for convenience.
+
 """
 from __future__ import unicode_literals
 
 import sys
+import string
 
 from . import deprecated
 
@@ -113,23 +124,13 @@ else:
     import six
 
     from . import win32structures
+    from . import win32functions
 
     __all__ = ['KeySequenceError', 'send_keys']
 
     # pylint: disable-msg=R0903
 
     DEBUG = 0
-
-    GetMessageExtraInfo = ctypes.windll.user32.GetMessageExtraInfo
-    MapVirtualKey = ctypes.windll.user32.MapVirtualKeyW
-    SendInput = ctypes.windll.user32.SendInput
-    UINT = ctypes.c_uint
-    SendInput.restype = UINT
-    SendInput.argtypes = [UINT, ctypes.c_void_p, ctypes.c_int]
-
-    VkKeyScan = ctypes.windll.user32.VkKeyScanW
-    VkKeyScan.restype = ctypes.c_short
-    VkKeyScan.argtypes = [ctypes.c_wchar]
 
     INPUT_KEYBOARD = 1
     KEYEVENTF_EXTENDEDKEY = 1
@@ -310,6 +311,29 @@ else:
         '%': VK_MENU,
     }
 
+    # Virtual keys that map to an ASCII character
+    # See https://docs.microsoft.com/en-us/windows/win32/inputdev/virtual-key-codes
+    ascii_vk = {
+        ' ': 0x20,
+        '=': 0xbb,
+        ',': 0xbc,
+        '-': 0xbd,
+        '.': 0xbe,
+        # According to the above reference, the following characters vary per region.
+        # This mapping applies to US keyboards
+        ';': 0xba,
+        '/': 0xbf,
+        '`': 0xc0,
+        '[': 0xdb,
+        '\\': 0xdc,
+        ']': 0xdd,
+        '\'': 0xde,
+    }
+    # [0-9A-Z] map exactly to their ASCII counterparts
+    ascii_vk.update(dict((c, ord(c)) for c in string.ascii_uppercase + string.digits))
+    # map [a-z] to their uppercase ASCII counterparts
+    ascii_vk.update(dict((c, ord(c.upper())) for c in string.ascii_lowercase))
+
 
     class KeySequenceError(Exception):
 
@@ -368,7 +392,7 @@ else:
 
                 # it seems to return 0 every time but it's required by MSDN specification
                 # so call it just in case
-                inp.ki.dwExtraInfo = GetMessageExtraInfo()
+                inp.ki.dwExtraInfo = win32functions.GetMessageExtraInfo()
 
             # if we are releasing - then let it up
             if self.up:
@@ -381,7 +405,7 @@ else:
             inputs = self.GetInput()
 
             # SendInput() supports all Unicode symbols
-            num_inserted_events = SendInput(len(inputs), ctypes.byref(inputs),
+            num_inserted_events = win32functions.SendInput(len(inputs), ctypes.byref(inputs),
                                             ctypes.sizeof(win32structures.INPUT))
             if num_inserted_events != len(inputs):
                 raise RuntimeError('SendInput() inserted only ' + str(num_inserted_events) +
@@ -447,7 +471,7 @@ else:
             # return self.key, 0, 0
 
             # this works for Tic Tac Toe i.e. +{RIGHT} SHIFT + RIGHT
-            return self.key, MapVirtualKey(self.key, 0), flags
+            return self.key, win32functions.MapVirtualKeyW(self.key, 0), flags
 
         def run(self):
             """Execute the action"""
@@ -468,9 +492,9 @@ else:
 
             The vk and scan code are generated differently.
             """
-            vkey_scan = LoByte(VkKeyScan(self.key))
+            vkey_scan = LoByte(win32functions.VkKeyScanW(self.key))
 
-            return (vkey_scan, MapVirtualKey(vkey_scan, 0), 0)
+            return (vkey_scan, win32functions.MapVirtualKeyW(vkey_scan, 0), 0)
 
         def key_description(self):
             """Return a description of the key"""
@@ -500,7 +524,7 @@ else:
         __repr__ = __str__
 
 
-    def handle_code(code):
+    def handle_code(code, vk_packet):
         """Handle a key or sequence of keys in braces"""
         code_keys = []
         # it is a known code (e.g. {DOWN}, {ENTER}, etc)
@@ -509,7 +533,10 @@ else:
 
         # it is an escaped modifier e.g. {%}, {^}, {+}
         elif len(code) == 1:
-            code_keys.append(KeyAction(code))
+            if not vk_packet and code in ascii_vk:
+                code_keys.append(VirtualKeyAction(ascii_vk[code]))
+            else:
+                code_keys.append(KeyAction(code))
 
         # it is a repetition or a pause  {DOWN 5}, {PAUSE 1.3}
         elif ' ' in code:
@@ -535,7 +562,7 @@ else:
                         [VirtualKeyAction(CODES[to_repeat])] * count)
                 # otherwise parse the keys and we get back a KeyAction
                 else:
-                    to_repeat = parse_keys(to_repeat)
+                    to_repeat = parse_keys(to_repeat, vk_packet=vk_packet)
                     if isinstance(to_repeat, list):
                         keys = to_repeat * count
                     else:
@@ -550,7 +577,8 @@ else:
                    with_spaces=False,
                    with_tabs=False,
                    with_newlines=False,
-                   modifiers=None):
+                   modifiers=None,
+                   vk_packet=True):
         """Return the parsed keys"""
         keys = []
         if not modifiers:
@@ -579,8 +607,10 @@ else:
                 end_pos = string.find(")", index)
                 if end_pos == -1:
                     raise KeySequenceError('`)` not found')
-                keys.extend(
-                    parse_keys(string[index:end_pos], modifiers=modifiers))
+                keys.extend(parse_keys(
+                        string[index:end_pos],
+                        modifiers=modifiers,
+                        vk_packet=vk_packet))
                 index = end_pos + 1
 
             # Escape or named key
@@ -597,7 +627,7 @@ else:
                 if any(key_event in code.lower() for key_event in key_events):
                     code, current_key_event = code.split(' ')
                     should_escape_next_keys = True
-                current_keys = handle_code(code)
+                current_keys = handle_code(code, vk_packet)
                 if current_key_event is not None:
                     if isinstance(current_keys[0].key, six.string_types):
                         current_keys[0] = EscapedKeyAction(current_keys[0].key)
@@ -636,6 +666,11 @@ else:
                 elif modifiers or should_escape_next_keys:
                     keys.append(EscapedKeyAction(c))
 
+                # if user disables the vk_packet option, always try to send a
+                # virtual key of the actual keystroke
+                elif not vk_packet and c in ascii_vk:
+                    keys.append(VirtualKeyAction(ascii_vk[c]))
+
                 else:
                     keys.append(KeyAction(c))
 
@@ -667,9 +702,12 @@ else:
                   with_spaces=False,
                   with_tabs=False,
                   with_newlines=False,
-                  turn_off_numlock=True):
+                  turn_off_numlock=True,
+                  vk_packet=True):
         """Parse the keys and type them"""
-        keys = parse_keys(keys, with_spaces, with_tabs, with_newlines)
+        keys = parse_keys(
+                keys, with_spaces, with_tabs, with_newlines,
+                vk_packet=vk_packet)
 
         for k in keys:
             k.run()

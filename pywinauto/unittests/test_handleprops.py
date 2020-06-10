@@ -71,8 +71,8 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure the text method returns correct result"""
         self.assertEqual("Untitled - Notepad", text(self.dlghandle))
         self.assertEqual("", text(self.edit_handle))
-        self.assertEqual(None, text(sys.maxsize))
-        self.assertEqual(None, text(None))
+        self.assertEqual("", text(sys.maxsize))
+        self.assertEqual("", text(None))
 
 
     def test_classname(self):
@@ -84,8 +84,10 @@ class HandlepropsTestCases(unittest.TestCase):
 
     def test_parent(self):
         """Make sure the parent method returns correct result"""
-        self.assertEqual(0, parent(self.dlghandle))
+        self.assertEqual(None, parent(self.dlghandle))
         self.assertEqual(self.dlghandle, parent(self.edit_handle))
+        self.assertEqual(None, parent(sys.maxsize))
+        self.assertEqual(None, parent(None))
 
     def test_style(self):
         """Make sure the style method returns correct result"""
@@ -94,26 +96,36 @@ class HandlepropsTestCases(unittest.TestCase):
         self.assertTrue(
             (0x50200104, 0x50300104).__contains__,
             style(self.edit_handle),)
+        self.assertEqual(0, style(sys.maxsize))
+        self.assertEqual(0, style(None))
 
     def test_exstyle(self):
         """Make sure the exstyle method returns correct result"""
         self.assertEqual(0x110, exstyle(self.dlghandle))
         self.assertEqual(0x200, exstyle(self.edit_handle))
+        self.assertEqual(0, exstyle(sys.maxsize))
+        self.assertEqual(0, exstyle(None))
 
     def test_controlid(self):
         """Make sure the controlid method returns correct result"""
         #self.assertEqual(0, controlid(self.dlghandle))
         self.assertEqual(15, controlid(self.edit_handle))
+        self.assertEqual(0, controlid(sys.maxsize))
+        self.assertEqual(0, controlid(None))
 
     def test_userdata(self):
         """Make sure the userdata method returns correct result"""
         self.assertEqual(0, userdata(self.dlghandle))
         self.assertEqual(0, userdata(self.edit_handle))
+        self.assertEqual(0, userdata(sys.maxsize))
+        self.assertEqual(0, userdata(None))
 
     def test_contexthelpid(self):
         """Make sure the contexthelpid method returns correct result"""
         self.assertEqual(0, contexthelpid(self.dlghandle))
         self.assertEqual(0, contexthelpid(self.edit_handle))
+        self.assertEqual(0, contexthelpid(sys.maxsize))
+        self.assertEqual(0, contexthelpid(None))
 
     def test_iswindow(self):
         """Make sure the iswindow method returns correct result"""
@@ -211,6 +223,8 @@ class HandlepropsTestCases(unittest.TestCase):
         """Make sure processid() function works"""
         self.assertEqual(self.app.process, processid(self.dlghandle))
         self.assertEqual(self.app.process, processid(self.edit_handle))
+        self.assertEqual(0, processid(sys.maxsize))
+        self.assertEqual(0, processid(None))
 
     def test_children(self):
         """Make sure the children method returns correct result"""

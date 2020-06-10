@@ -41,9 +41,9 @@ from .win32defines import LF_FACESIZE
 from . import sysinfo
 
 
-class Structure(Struct):
+class StructureMixIn(object):
 
-    """Override the Structure class from ctypes to add printing and comparison"""
+    """Define printing and comparison behaviors to be used for the Structure class from ctypes"""
 
     #----------------------------------------------------------------
     def __str__(self):
@@ -51,46 +51,58 @@ class Structure(Struct):
 
         fields in exceptList will not be printed"""
         lines = []
-        for f in self._fields_:
-            name = f[0]
-            lines.append("%20s\t%s"% (name, getattr(self, name)))
+        for field_name, _ in getattr(self, "_fields_", []):
+            lines.append("%20s\t%s"% (field_name, getattr(self, field_name)))
 
         return "\n".join(lines)
 
     #----------------------------------------------------------------
-    def __eq__(self, other_struct):
-        """Return True if the two structures have the same coordinates"""
-        if isinstance(other_struct, Struct):
+    def __eq__(self, other):
+        """Return True if the two instances have the same coordinates"""
+        fields = getattr(self, "_fields_", [])
+        if isinstance(other, Struct):
             try:
                 # pretend they are two structures - check that they both
                 # have the same value for all fields
-                are_equal = True
-                for field in self._fields_:
-                    name = field[0]
-                    if getattr(self, name) != getattr(other_struct, name):
-                        are_equal = False
-                        break
-
-                return are_equal
+                if len(fields) != len(getattr(other, "_fields_", [])):
+                    return False
+                for field_name, _ in fields:
+                    if getattr(self, field_name) != getattr(other, field_name):
+                        return False
+                return True
 
             except AttributeError:
                 return False
 
-        if isinstance(other_struct, (list, tuple)):
+        elif isinstance(other, (list, tuple)):
             # Now try to see if we have been passed in a list or tuple
+            if len(fields) != len(other):
+                return False
             try:
-                are_equal = True
-                for i, field in enumerate(self._fields_):
-                    name = field[0]
-                    if getattr(self, name) != other_struct[i]:
-                        are_equal = False
-                        break
-                return are_equal
+                for i, (field_name, _) in enumerate(fields):
+                    if getattr(self, field_name) != other[i]:
+                        return False
+                return True
 
             except Exception:
                 return False
 
         return False
+
+    #----------------------------------------------------------------
+    def __ne__(self, other):
+        """Return False if the two instances have the same coordinates"""
+        return not self.__eq__(other)
+
+    __hash__ = None
+
+
+class Structure(Struct, StructureMixIn):
+
+    """Override the Structure class from ctypes to add printing and comparison"""
+
+    pass
+
 
 ##====================================================================
 #def PrintCtypesStruct(struct, exceptList = []):
@@ -144,7 +156,7 @@ else:
 
 HINSTANCE = LONG_PTR #LONG
 HMENU = LONG_PTR #LONG
-HBRUSH = LONG_PTR #LONG
+HBRUSH = wintypes.HBRUSH  # LONG_PTR #LONG
 HTREEITEM = LONG_PTR #LONG
 HWND = wintypes.HWND
 
@@ -153,13 +165,9 @@ LPARAM = wintypes.LPARAM
 WPARAM = wintypes.WPARAM
 
 
-class POINT(Structure):
-    _pack_ = 4
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 307
-        ('x', LONG),
-        ('y', LONG),
-    ]
+class POINT(wintypes.POINT, StructureMixIn):
+
+    """Wrap the POINT structure and add extra functionality"""
 
     def __iter__(self):
         """Allow iteration through coordinates"""
@@ -175,25 +183,18 @@ class POINT(Structure):
         else:
             raise IndexError("Illegal index")
 
+
 assert sizeof(POINT) == 8, sizeof(POINT)
 assert alignment(POINT) == 4, alignment(POINT)
 
 
 # ====================================================================
-class RECT(Structure):
+class RECT(wintypes.RECT, StructureMixIn):
 
     """Wrap the RECT structure and add extra functionality"""
 
-    _fields_ = [
-        # C:/PROGRA~1/MIAF9D~1/VC98/Include/windef.h 287
-        ('left', LONG),
-        ('top', LONG),
-        ('right', LONG),
-        ('bottom', LONG),
-    ]
-
     # ----------------------------------------------------------------
-    def __init__(self, otherRect_or_left = 0, top = 0, right = 0, bottom = 0):
+    def __init__(self, otherRect_or_left=0, top=0, right=0, bottom=0):
         """Provide a constructor for RECT structures
 
         A RECT can be constructed by:
@@ -216,20 +217,6 @@ class RECT(Structure):
             self.right = long_int(right)
             self.top = long_int(top)
             self.bottom = long_int(bottom)
-
-
-#    # ----------------------------------------------------------------
-#    def __eq__(self, otherRect):
-#        "return true if the two rectangles have the same coordinates"
-#
-#        try:
-#            return \
-#                self.left == otherRect.left and \
-#                self.top == otherRect.top and \
-#                self.right == otherRect.right and \
-#                self.bottom == otherRect.bottom
-#        except AttributeError:
-#            return False
 
     # ----------------------------------------------------------------
     def __str__(self):
@@ -283,17 +270,16 @@ class RECT(Structure):
     def mid_point(self):
         """Return a POINT structure representing the mid point"""
         pt = POINT()
-        pt.x = self.left + int(float(self.width())/2.)
-        pt.y = self.top + int(float(self.height())/2.)
+        pt.x = self.left + int(float(self.width()) / 2.)
+        pt.y = self.top + int(float(self.height()) / 2.)
         return pt
 
-    #def __hash__(self):
-    #	return hash (self.left, self.top, self.right, self.bottom)
+    __reduce__ = _reduce
 
-RECT.__reduce__ = _reduce
 
 assert sizeof(RECT) == 16, sizeof(RECT)
 assert alignment(RECT) == 4, alignment(RECT)
+
 
 class SETTEXTEX(Structure):
     _pack_ = 1

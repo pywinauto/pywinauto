@@ -38,7 +38,6 @@ import ctypes
 import locale
 import re
 import time
-import win32process
 import win32gui
 import win32con
 import win32api
@@ -925,7 +924,8 @@ class BaseWrapper(object):
         with_tabs = False,
         with_newlines = False,
         turn_off_numlock = True,
-        set_foreground = True):
+        set_foreground = True,
+        vk_packet = True):
         """
         Type keys to the element using keyboard.send_keys
 
@@ -945,7 +945,7 @@ class BaseWrapper(object):
 
         # attach the Python process with the process that self is in
         if self.element_info.handle:
-            window_thread_id, _ = win32process.GetWindowThreadProcessId(int(self.handle))
+            window_thread_id = win32functions.GetWindowThreadProcessId(self.handle, None)
             win32functions.AttachThreadInput(win32functions.GetCurrentThreadId(), window_thread_id, win32defines.TRUE)
             # TODO: check return value of AttachThreadInput properly
         else:
@@ -967,7 +967,8 @@ class BaseWrapper(object):
             with_spaces,
             with_tabs,
             with_newlines,
-            turn_off_numlock)
+            turn_off_numlock,
+            vk_packet)
 
         # detach the python process from the window's process
         if self.element_info.handle:
