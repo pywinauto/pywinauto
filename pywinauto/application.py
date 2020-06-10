@@ -40,7 +40,7 @@ Once you have an Application instance you can access dialogs in that
 application either by using one of the methods below. ::
 
    dlg = app.YourDialogTitle
-   dlg = app.child_window(title="your title", classname="your class", ...)
+   dlg = app.window(title="your title", classname="your class", ...)
    dlg = app['Your Dialog Title']
 
 Similarly once you have a dialog you can get a control from that dialog
