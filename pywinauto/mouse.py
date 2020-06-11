@@ -33,6 +33,7 @@
 
 import sys
 import time
+from math import ceil
 if sys.platform == 'win32':
     import pywintypes
     import win32api
@@ -51,6 +52,9 @@ BUTTON_MAPPING = {'left': 0, 'middle': 1, 'right': 2, 'up_scroll': 3,
 
 
 if sys.platform == 'win32':
+
+    def _get_cursor_pos():  # get global coordinates
+        return win32api.GetCursorPos()
 
     def _set_cursor_pos(coords):
         """Wrapped SetCursorPos that handles non-active desktop case (coords is a tuple)"""
@@ -72,6 +76,7 @@ if sys.platform == 'win32':
         pressed="",
         key_down=True,
         key_up=True,
+        fast_move=False
     ):
         """Perform a click action using SendInput
 
@@ -134,7 +139,8 @@ if sys.platform == 'win32':
 
         # set the cursor position
         _set_cursor_pos((coords[0], coords[1]))
-        time.sleep(Timings.after_setcursorpos_wait)
+        if not fast_move:
+            time.sleep(Timings.after_setcursorpos_wait)
         if win32api.GetCursorPos() != (coords[0], coords[1]):
             _set_cursor_pos((coords[0], coords[1]))
             time.sleep(Timings.after_setcursorpos_wait)
@@ -159,16 +165,16 @@ if sys.platform == 'win32':
         if button.lower() == 'move':
             x_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
             y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
-            x_coord = int(float(coords[0]) * (65535. / float(x_res - 1)))
-            y_coord = int(float(coords[1]) * (65535. / float(y_res - 1)))
+            x_coord = int(ceil(coords[0] * 65535 / (x_res - 1.)))  # in Python 2.7 return float val
+            y_coord = int(ceil(coords[1] * 65535 / (y_res - 1.)))  # in Python 2.7 return float val
             win32api.mouse_event(dw_flags, x_coord, y_coord, dw_data)
         else:
             for event in events:
                 if event == win32defines.MOUSEEVENTF_MOVE:
                     x_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
                     y_res = win32functions.GetSystemMetrics(win32defines.SM_CYSCREEN)
-                    x_coord = int(float(coords[0]) * (65535. / float(x_res - 1)))
-                    y_coord = int(float(coords[1]) * (65535. / float(y_res - 1)))
+                    x_coord = int(ceil(coords[0] * 65535 / (x_res - 1.)))  # in Python 2.7 return float val
+                    y_coord = int(ceil(coords[1] * 65535 / (y_res - 1.)))  # in Python 2.7 return float val
                     win32api.mouse_event(
                         win32defines.MOUSEEVENTF_MOVE | win32defines.MOUSEEVENTF_ABSOLUTE,
                         x_coord, y_coord, dw_data)
@@ -177,7 +183,8 @@ if sys.platform == 'win32':
                         event | win32defines.MOUSEEVENTF_ABSOLUTE,
                         coords[0], coords[1], dw_data)
 
-        time.sleep(Timings.after_clickinput_wait)
+        if not fast_move:
+            time.sleep(Timings.after_clickinput_wait)
 
         if ('control' in keyboard_keys) and key_up:
             keyboard.VirtualKeyAction(keyboard.VK_CONTROL, down=False).run()
@@ -189,16 +196,23 @@ if sys.platform == 'win32':
 
 else:
     _display = Display()
+
+    # TODO: check this method
+    def _get_cursor_pos():  # get global coordinate
+        data = _display.screen().root.query_pointer()._data
+        return data["root_x"], data["root_y"]
+
     def _perform_click_input(button='left', coords=(0, 0),
                              button_down=True, button_up=True, double=False,
-                             wheel_dist=0, pressed="", key_down=True, key_up=True):
+                             wheel_dist=0, pressed="", key_down=True, key_up=True,
+                             fast_move=False):
         """Perform a click action using Python-xlib"""
         #Move mouse
         x = int(coords[0])
         y = int(coords[1])
         fake_input(_display, X.MotionNotify, x=x, y=y)
-        _display.sync()
-
+        if not fast_move:
+            _display.sync()
         if button == 'wheel':
             if wheel_dist == 0:
                 return
@@ -238,9 +252,28 @@ def right_click(coords=(0, 0)):
     _perform_click_input(button='right', coords=coords)
 
 
-def move(coords=(0, 0)):
+def move(coords=(0, 0), duration=0.0):
     """Move the mouse"""
-    _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
+    if not isinstance(duration, float):
+        raise TypeError("duration must be float (in seconds)")
+    minimum_duration = 0.05
+    if duration >= minimum_duration:
+        x_start, y_start = _get_cursor_pos()
+        delta_x = coords[0] - x_start
+        delta_y = coords[1] - y_start
+        max_delta = max(abs(delta_x), abs(delta_y))
+        num_steps = max_delta
+        sleep_amount = duration / max(num_steps, 1)
+        if sleep_amount < minimum_duration:
+            num_steps = int(num_steps * sleep_amount / minimum_duration)
+            sleep_amount = minimum_duration
+        delta_x /= max(num_steps, 1)
+        delta_y /= max(num_steps, 1)
+        for step in range(num_steps):
+            _perform_click_input(button='move', coords=(x_start + int(delta_x*step), y_start + int(delta_y*step)),
+                                 button_down=False, button_up=False, fast_move=True)
+            time.sleep(sleep_amount)
+    _perform_click_input(button='move', coords=coords, button_down=False, button_up=False)
 
 
 def press(button='left', coords=(0, 0)):
