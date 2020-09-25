@@ -42,7 +42,11 @@ try:
     log = logging.getLogger('comtypes')
     log.setLevel('WARNING')
     import comtypes  # noqa: E402
+    import comtypes.client
+    comtypes.client.GetModule('UIAutomationCore.dll')
     UIA_support = True
+except OSError:
+    UIA_support = False
 except ImportError:
     UIA_support = False
 
