@@ -295,7 +295,9 @@ class ApplicationTestCases(unittest.TestCase):
         with self.assertRaises(NotImplementedError):
             for i, a in enumerate(app):
                 if i > 2:
+                    app.kill()
                     self.fail('Application object appears to be iterable unexpectedly!')
+                    break
         app.kill()
 
     def test_not_connected(self):
