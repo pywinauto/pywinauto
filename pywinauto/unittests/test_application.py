@@ -293,8 +293,9 @@ class ApplicationTestCases(unittest.TestCase):
         app = Application()
         app.start(_notepad_exe())
         with self.assertRaises(NotImplementedError):
-            for a in app:
-                pass
+            for i, a in enumerate(app):
+                if i > 2:
+                    self.fail('Application object appears to be iterable unexpectedly!')
         app.kill()
 
     def test_not_connected(self):
