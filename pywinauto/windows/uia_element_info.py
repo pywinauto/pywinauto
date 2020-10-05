@@ -295,9 +295,9 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        cache_enable = kwargs.pop('cache_enable', False)
-        cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
+
+        elements = [elem for elem in self.iter_children(**kwargs)]
+        return elements
 
     def iter_children(self, **kwargs):
         """Return a generator of only immediate children of the element
@@ -305,11 +305,12 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
+        cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
         tree_walker = IUIA().iuia.CreateTreeWalker(cond)
         element = tree_walker.GetFirstChildElement(self._element)
         while element:
-            yield UIAElementInfo(element)
+            yield UIAElementInfo(element, cache_enable)
             element = tree_walker.GetNextSiblingElement(element)
 
     def descendants(self, **kwargs):
