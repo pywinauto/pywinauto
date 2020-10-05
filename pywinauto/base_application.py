@@ -630,12 +630,12 @@ class WindowSpecification(object):
         for name, index in name_ctrl_id_map.items():
             ctrl_id_name_map.setdefault(index, []).append(name)
 
-        def print_identifiers(ctrls, current_depth=1, log_func=print):
+        def print_identifiers(ctrls, current_depth=0, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
 
-            indent = (current_depth - 1) * u"   | "
+            indent = current_depth * u"   | "
             for ctrl in ctrls:
                 try:
                     ctrl_id = all_ctrls.index(ctrl)
