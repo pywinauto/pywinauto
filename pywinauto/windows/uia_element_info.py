@@ -326,7 +326,9 @@ class UIAElementInfo(ElementInfo):
         """
         cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop('depth', None)
-
+        if not isinstance(depth, (int, type(None))) or isinstance(depth, int) and depth <= 0:
+            raise Exception("Depth must be natural number")
+            
         tree_walker = IUIA().iuia.CreateTreeWalker(IUIA().true_condition)
         elements = []
 
