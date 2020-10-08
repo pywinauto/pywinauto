@@ -285,7 +285,8 @@ class UIAElementInfo(ElementInfo):
         try:
             ptrs_array = self._element.FindAll(tree_scope, cond)
             return elements_from_uia_array(ptrs_array, cache_enable)
-        except(COMError, ValueError):
+        except(COMError, ValueError) as e:
+            print(e)
             ActionLogger().log("COM error: can't get elements")
             return []
 
@@ -308,10 +309,14 @@ class UIAElementInfo(ElementInfo):
         cache_enable = kwargs.pop('cache_enable', False)
         cond = IUIA().build_condition(**kwargs)
         tree_walker = IUIA().iuia.CreateTreeWalker(cond)
-        element = tree_walker.GetFirstChildElement(self._element)
-        while element:
-            yield UIAElementInfo(element, cache_enable)
-            element = tree_walker.GetNextSiblingElement(element)
+        try:
+            element = tree_walker.GetFirstChildElement(self._element)
+            while element:
+                yield UIAElementInfo(element, cache_enable)
+                element = tree_walker.GetNextSiblingElement(element)
+        except COMError as e:
+            print(e)
+            print(self._element.CurrentLocalizedControlType, self._element.CurrentName)
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
@@ -322,10 +327,23 @@ class UIAElementInfo(ElementInfo):
         cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop('depth', None)
         cond = IUIA().build_condition(**kwargs)
-        elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+        tree_walker = IUIA().iuia.CreateTreeWalker(cond)
+        elements = []
 
-        elements = ElementInfo.filter_with_depth(elements, self, depth)
+        def traverse(current_root_element, current_depth=1):
+            if depth is not None and current_depth > depth:
+                return
+            try:
+                element = tree_walker.GetFirstChildElement(current_root_element)
+                while element:
+                    elements.append(UIAElementInfo(element, cache_enable))
+                    traverse(element, current_depth+1)
+                    element = tree_walker.GetNextSiblingElement(element)
+            except COMError as e:
+                print(e)
+                print(current_root_element.CurrentLocalizedControlType, current_root_element.CurrentName)
 
+        traverse(self._element)
         return elements
 
     @property
