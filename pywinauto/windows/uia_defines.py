@@ -79,6 +79,26 @@ class IUIA(object):
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
 
+    def is_element_satisfies_criterias(self, element, process=None, class_name=None, name=None, control_type=None,
+                                       content_only=None):
+        is_appropriate_control_type = True
+        if control_type:
+            if isinstance(control_type, six.string_types):
+                is_appropriate_control_type = element.CurrentControlType == self.known_control_types[control_type]
+            elif not isinstance(control_type, int):
+                raise TypeError('control_type must be string or integer')
+            else:
+                is_appropriate_control_type = element.CurrentControlType == control_type
+
+        def check_condition(criteria, prop):
+            return criteria is None or criteria and prop == criteria
+
+        return check_condition(process, element.CurrentProcessId) \
+            and check_condition(class_name, element.CurrentClassName) \
+            and check_condition(name, element.CurrentName) \
+            and is_appropriate_control_type \
+            and (content_only is None or isinstance(content_only, bool) and element.CurrentIsContentElement == content_only)
+
     def build_condition(self, process=None, class_name=None, name=None, control_type=None,
                         content_only=None):
         """Build UIA filtering conditions"""

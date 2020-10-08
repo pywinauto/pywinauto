@@ -307,12 +307,12 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
-        cond = IUIA().build_condition(**kwargs)
-        tree_walker = IUIA().iuia.CreateTreeWalker(cond)
+        tree_walker = IUIA().iuia.CreateTreeWalker(IUIA().true_condition)
         try:
             element = tree_walker.GetFirstChildElement(self._element)
             while element:
-                yield UIAElementInfo(element, cache_enable)
+                if IUIA().is_element_satisfies_criterias(element, **kwargs):
+                    yield UIAElementInfo(element, cache_enable)
                 element = tree_walker.GetNextSiblingElement(element)
         except COMError as e:
             print(e)
@@ -326,8 +326,8 @@ class UIAElementInfo(ElementInfo):
         """
         cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop('depth', None)
-        cond = IUIA().build_condition(**kwargs)
-        tree_walker = IUIA().iuia.CreateTreeWalker(cond)
+
+        tree_walker = IUIA().iuia.CreateTreeWalker(IUIA().true_condition)
         elements = []
 
         def traverse(current_root_element, current_depth=1):
@@ -336,7 +336,8 @@ class UIAElementInfo(ElementInfo):
             try:
                 element = tree_walker.GetFirstChildElement(current_root_element)
                 while element:
-                    elements.append(UIAElementInfo(element, cache_enable))
+                    if IUIA().is_element_satisfies_criterias(element, **kwargs):
+                        elements.append(UIAElementInfo(element, cache_enable))
                     traverse(element, current_depth+1)
                     element = tree_walker.GetNextSiblingElement(element)
             except COMError as e:
