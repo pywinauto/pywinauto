@@ -31,6 +31,7 @@
 
 """Interface for classes which should deal with different backend elements"""
 
+from six import integer_types
 
 class ElementInfo(object):
 
@@ -138,7 +139,7 @@ class ElementInfo(object):
     def filter_with_depth(elements, root, depth):
         """Return filtered elements with particular depth level relative to the root"""
         if depth is not None:
-                if isinstance(depth, int) and depth > 0:
+                if isinstance(depth, integer_types) and depth > 0:
                     return [element for element in elements if element.has_depth(root, depth)]
                 else:
                     raise Exception("Depth must be natural number")
