@@ -1613,7 +1613,7 @@ if UIA_support:
             """Test selecting a WPF menu item by index"""
             path = "#0->#1->#1"  # "File->Close->Later"
             self.dlg.menu_select(path)
-            label = self.dlg.MenuLaterClickLabel.wrapper_object()
+            label = self.dlg.MenuLaterClickStatic.wrapper_object()
             self.assertEqual(label.window_text(), u"MenuLaterClick")
 
             # Non-existing paths
@@ -1626,7 +1626,7 @@ if UIA_support:
             """Test selecting a WPF menu item by exact text match"""
             path = "File->Close->Later"
             self.dlg.menu_select(path, True)
-            label = self.dlg.MenuLaterClickLabel.wrapper_object()
+            label = self.dlg.MenuLaterClickStatic.wrapper_object()
             self.assertEqual(label.window_text(), u"MenuLaterClick")
 
             # A non-exact menu name
@@ -1637,14 +1637,14 @@ if UIA_support:
             """Test selecting a WPF menu item by best match text"""
             path = "file-> close -> later"
             self.dlg.menu_select(path, False)
-            label = self.dlg.MenuLaterClickLabel.wrapper_object()
+            label = self.dlg.MenuLaterClickStatic.wrapper_object()
             self.assertEqual(label.window_text(), u"MenuLaterClick")
 
         def test_menu_by_mixed_match(self):
             """Test selecting a WPF menu item by a path with mixed specifiers"""
             path = "file-> #1 -> later"
             self.dlg.menu_select(path, False)
-            label = self.dlg.MenuLaterClickLabel.wrapper_object()
+            label = self.dlg.MenuLaterClickStatic.wrapper_object()
             self.assertEqual(label.window_text(), u"MenuLaterClick")
 
             # Bad specifiers
