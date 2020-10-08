@@ -613,7 +613,7 @@ class WindowSpecification(object):
         this_ctrl = self.__resolve_control(self.criteria)[-1]
 
         # Create a list of this control and all its descendants
-        all_ctrls = [this_ctrl, ] + this_ctrl.descendants()
+        all_ctrls = [this_ctrl, ] + this_ctrl.descendants(depth=depth)
 
         # Create a list of all visible text controls
         txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
