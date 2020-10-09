@@ -62,6 +62,7 @@ class IUIA(object):
                 'subtree': self.UIA_dll.TreeScope_Subtree,
                 }
         self.root = self.iuia.GetRootElement()
+        self.raw_tree_walker = self.iuia.CreateTreeWalker(self.true_condition)
 
         self.get_focused_element = self.iuia.GetFocusedElement
 
@@ -80,7 +81,7 @@ class IUIA(object):
             self.known_control_type_ids[type_id] = ctrl_type
 
     def is_element_satisfies_criterias(self, element, process=None, class_name=None, name=None, control_type=None,
-                                       content_only=None):
+                                       content_only=None, **kwargs):
         is_appropriate_control_type = True
         if control_type:
             if isinstance(control_type, six.string_types):

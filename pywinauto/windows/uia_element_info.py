@@ -280,25 +280,15 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
-        """Find all elements according to the given tree scope and conditions"""
+    def _iter_children_raw(self):
+        """Return a generator of only immediate children of the element"""
         try:
-            ptrs_array = self._element.FindAll(tree_scope, cond)
-            return elements_from_uia_array(ptrs_array, cache_enable)
-        except(COMError, ValueError) as e:
-            print(e)
+            element = IUIA().raw_tree_walker.GetFirstChildElement(self._element)
+            while element:
+                yield element
+                element = IUIA().raw_tree_walker.GetNextSiblingElement(element)
+        except (COMError, ValueError):
             ActionLogger().log("COM error: can't get elements")
-            return []
-
-    def children(self, **kwargs):
-        """Return a list of only immediate children of the element
-
-         * **kwargs** is a criteria to reduce a list by process,
-           class_name, control_type, content_only and/or title.
-        """
-
-        elements = [elem for elem in self.iter_children(**kwargs)]
-        return elements
 
     def iter_children(self, **kwargs):
         """Return a generator of only immediate children of the element
@@ -307,16 +297,37 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
-        tree_walker = IUIA().iuia.CreateTreeWalker(IUIA().true_condition)
-        try:
-            element = tree_walker.GetFirstChildElement(self._element)
-            while element:
-                if IUIA().is_element_satisfies_criterias(element, **kwargs):
-                    yield UIAElementInfo(element, cache_enable)
-                element = tree_walker.GetNextSiblingElement(element)
-        except COMError as e:
-            print(e)
-            print(self._element.CurrentLocalizedControlType, self._element.CurrentName)
+        for element in self._iter_children_raw():
+            if IUIA().is_element_satisfies_criterias(element, **kwargs):
+                yield UIAElementInfo(element, cache_enable)
+
+    def iter_descendants(self, **kwargs):
+        """Iterate over descendants of the element"""
+        cache_enable = kwargs.pop('cache_enable', False)
+        depth = kwargs.pop("depth", None)
+        if not isinstance(depth, (int, type(None))) or isinstance(depth, int) and depth < 0:
+            raise Exception("Depth must be natural number")
+
+        if depth == 0:
+            return
+        for child in self._iter_children_raw():
+            if IUIA().is_element_satisfies_criterias(child, **kwargs):
+                yield UIAElementInfo(child, cache_enable)
+            if depth is not None:
+                kwargs["depth"] = depth - 1
+            for c in UIAElementInfo(child, cache_enable).iter_descendants(**kwargs):
+                if IUIA().is_element_satisfies_criterias(c._element, **kwargs):
+                    yield c
+
+    def children(self, **kwargs):
+        """Return a list of only immediate children of the element
+
+         * **kwargs** is a criteria to reduce a list by process,
+           class_name, control_type, content_only and/or title.
+        """
+
+        elements = list(self.iter_children(**kwargs))
+        return elements
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
@@ -324,29 +335,7 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        cache_enable = kwargs.pop('cache_enable', False)
-        depth = kwargs.pop('depth', None)
-        if not isinstance(depth, (int, type(None))) or isinstance(depth, int) and depth <= 0:
-            raise Exception("Depth must be natural number")
-            
-        tree_walker = IUIA().iuia.CreateTreeWalker(IUIA().true_condition)
-        elements = []
-
-        def traverse(current_root_element, current_depth=1):
-            if depth is not None and current_depth > depth:
-                return
-            try:
-                element = tree_walker.GetFirstChildElement(current_root_element)
-                while element:
-                    if IUIA().is_element_satisfies_criterias(element, **kwargs):
-                        elements.append(UIAElementInfo(element, cache_enable))
-                    traverse(element, current_depth+1)
-                    element = tree_walker.GetNextSiblingElement(element)
-            except COMError as e:
-                print(e)
-                print(current_root_element.CurrentLocalizedControlType, current_root_element.CurrentName)
-
-        traverse(self._element)
+        elements = list(self.iter_descendants(**kwargs))
         return elements
 
     @property

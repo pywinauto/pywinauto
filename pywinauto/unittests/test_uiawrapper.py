@@ -73,15 +73,17 @@ if UIA_support:
         def test_issue_296(self):
             """Test handling of disappered descendants"""
             wrp = self.dlg.wrapper_object()
-            orig = wrp.element_info._element.FindAll
-            wrp.element_info._element.FindAll = mock.Mock(side_effect=ValueError("Mocked value error"),
-                                                          return_value=[])  # empty list
+            orig = uia_defs.IUIA().raw_tree_walker.GetFirstChildElement
+            uia_defs.IUIA().raw_tree_walker.GetFirstChildElement = mock.Mock(
+                side_effect=ValueError("Mocked value error"),
+                return_value=[])  # empty list
             self.assertEqual([], wrp.descendants())
             exception_err = comtypes.COMError(-2147220991, "Mocked COM error", ())
-            wrp.element_info._element.FindAll = mock.Mock(side_effect=exception_err,
-                                                          return_value=[])  # empty list
+            uia_defs.IUIA().raw_tree_walker.GetFirstChildElement = mock.Mock(
+                side_effect=exception_err,
+                return_value=[])  # empty list
             self.assertEqual([], wrp.descendants())
-            wrp.element_info._element.FindAll = orig  # restore the original method
+            uia_defs.IUIA().raw_tree_walker.GetFirstChildElement = orig  # restore the original method
 
         def test_issue_278(self):
             """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
