@@ -206,7 +206,7 @@ class Application(BaseApplication):
         The application is activated regardless of the currently active app.
         All windows of application will be frontmost
         """
-        macos_functions.setAppFrontmost(self.ns_app)
+        macos_functions.setAppFrontmost(self.process_id)
 
 if __name__ == "__main__":
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
