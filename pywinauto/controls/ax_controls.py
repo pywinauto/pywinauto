@@ -48,6 +48,8 @@ class ButtonWrapper(ax_wrapper.AXWrapper):
 		'PopUpButton',
 		'RadioButton',
         'CheckBox',
+        'MenuButton',
+        'MenuItem'
     ]
 
     def __init__(self, elem):
