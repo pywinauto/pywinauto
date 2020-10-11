@@ -280,6 +280,16 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
+    def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
+        """Find all elements according to the given tree scope and conditions"""
+        try:
+            ptrs_array = self._element.FindAll(tree_scope, cond)
+            return elements_from_uia_array(ptrs_array, cache_enable)
+        except(COMError, ValueError) as e:
+            print(e)
+            ActionLogger().log("COM error: can't get elements")
+            return []
+
     def _iter_children_raw(self):
         """Return a generator of only immediate children of the element"""
         try:
