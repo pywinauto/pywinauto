@@ -37,7 +37,7 @@ else:
     from ApplicationServices import kAXValueTypeAXError
     from ApplicationServices import kAXValueTypeIllegal
 
-from Foundation import * # TODO: eliminate wildcard import
+from Foundation import * 
 
 from AppKit import NSRunningApplication
 from AppKit import NSSizeFromString
@@ -299,7 +299,7 @@ class AxElementInfo(ElementInfo):
             try:
                 val = self._get_ax_attribute_value(attr)
                 if val:
-                    return val
+                    return str(val)
             except Exception:
                 continue
         # print('Empty name for:{}'.format(self.control_type))
@@ -310,6 +310,13 @@ class AxElementInfo(ElementInfo):
     def description(self):
         try:
             return self._get_ax_attribute_value(ax_attributes["Description"])
+        except AXError:
+            return ""
+
+    @property
+    def label(self):
+        try:
+            return self._get_ax_attribute_value("AXLabel")
         except AXError:
             return ""
 
@@ -380,7 +387,6 @@ class AxElementInfo(ElementInfo):
 
     @property
     def window(self):
-        #TODO: What should we return when element is Window object? Should we return self?
         try:
             window_obj = self._get_ax_attribute_value(ax_attributes["Window"])
             if window_obj:
@@ -474,7 +480,7 @@ class AxElementInfo(ElementInfo):
         if err != kAXErrorSuccess:
             raise AXError(err)
         return pid
-    # TODO: Is there any better way? To have pid or process id in whole code.s
+
     pid = process_id
 
     @property
