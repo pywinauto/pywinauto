@@ -1169,6 +1169,19 @@ class WindowSpecificationTestCases(unittest.TestCase):
             len(self.app['Font'].descendants(depth=1)),
             len(self.app['Font'].descendants(depth=2)))
 
+    if UIA_support:
+        def test_child_window_depth(self):
+            """Test that child_window() with depth works correctly"""
+            # TODO fix same elements at different tree levels on win32 backend and switch test back to win32
+            _app = Application(backend="uia").start("Notepad")
+            _dlgspec = _app.UntitledNotepad
+            _dlgspec.menu_select("Format -> Font")
+            font = _dlgspec.child_window(name="Font")
+
+            with self.assertRaises(findbestmatch.MatchError):
+                font.child_window(best_match="ListBox0", depth=1).wrapper_object()
+            font.child_window(best_match="ListBox0", depth=2).wrapper_object()
+
     def test_print_control_identifiers(self):
         """Make sure print_control_identifiers() doesn't crash"""
         self.dlgspec.print_control_identifiers()
