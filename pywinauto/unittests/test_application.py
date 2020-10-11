@@ -1169,19 +1169,6 @@ class WindowSpecificationTestCases(unittest.TestCase):
             len(self.app['Font'].descendants(depth=1)),
             len(self.app['Font'].descendants(depth=2)))
 
-    if UIA_support:
-        def test_child_window_depth(self):
-            """Test that child_window() with depth works correctly"""
-            # TODO fix same elements at different tree levels on win32 backend and switch test back to win32
-            _app = Application(backend="uia").start("Notepad")
-            _dlgspec = _app.UntitledNotepad
-            _dlgspec.menu_select("Format -> Font")
-            font = _dlgspec.child_window(name="Font")
-
-            with self.assertRaises(findbestmatch.MatchError):
-                font.child_window(best_match="ListBox0", depth=1).wrapper_object()
-            font.child_window(best_match="ListBox0", depth=2).wrapper_object()
-
     def test_print_control_identifiers(self):
         """Make sure print_control_identifiers() doesn't crash"""
         self.dlgspec.print_control_identifiers()
@@ -1216,6 +1203,30 @@ class WindowSpecificationTestCases(unittest.TestCase):
         windows = findwindows.find_elements(name_re="Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
 
+
+if UIA_support:
+    class UIAWindowSpecificationTestCases(unittest.TestCase):
+        """Unit tests for the application.Application class with UIA backend"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.defaults()
+            self.app = Application(backend="uia").start("Notepad")
+            self.dlgspec = self.app.UntitledNotepad
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
+        def test_child_window_depth(self):
+            """Test that child_window() with depth works correctly"""
+            # TODO fix same elements at different tree levels on win32 backend
+            self.dlgspec.menu_select("Format -> Font")
+            font = self.dlgspec.child_window(name="Font")
+
+            with self.assertRaises(findbestmatch.MatchError):
+                font.child_window(best_match="ListBox0", depth=1).wrapper_object()
+            font.child_window(best_match="ListBox0", depth=2).wrapper_object()
 
 class WaitUntilDecoratorTests(unittest.TestCase):
     """Unit tests for always_wait_until and always_wait_until_passes decorators"""
