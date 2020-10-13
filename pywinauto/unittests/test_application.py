@@ -1211,7 +1211,7 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.defaults()
-            self.app = Application(backend="uia").start("Notepad")
+            self.app = Application(backend="uia").start(_notepad_exe())
             self.dlgspec = self.app.UntitledNotepad
 
         def tearDown(self):
