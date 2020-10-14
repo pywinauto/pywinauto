@@ -1204,6 +1204,30 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertTrue(len(windows) >= 1)
 
 
+if UIA_support:
+    class UIAWindowSpecificationTestCases(unittest.TestCase):
+        """Unit tests for the application.Application class with UIA backend"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.defaults()
+            self.app = Application(backend="uia").start(_notepad_exe())
+            self.dlgspec = self.app.UntitledNotepad
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
+        def test_child_window_depth(self):
+            """Test that child_window() with depth works correctly"""
+            # TODO fix same elements at different tree levels on win32 backend
+            self.dlgspec.menu_select("Format -> Font")
+            font = self.dlgspec.child_window(name="Font")
+
+            with self.assertRaises(findbestmatch.MatchError):
+                font.child_window(best_match="ListBox0", depth=1).wrapper_object()
+            font.child_window(best_match="ListBox0", depth=2).wrapper_object()
+
 class WaitUntilDecoratorTests(unittest.TestCase):
     """Unit tests for always_wait_until and always_wait_until_passes decorators"""
 

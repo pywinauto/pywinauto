@@ -630,12 +630,12 @@ class WindowSpecification(object):
         for name, index in name_ctrl_id_map.items():
             ctrl_id_name_map.setdefault(index, []).append(name)
 
-        def print_identifiers(ctrls, current_depth=1, log_func=print):
+        def print_identifiers(ctrls, current_depth=0, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if len(ctrls) == 0 or current_depth > depth:
                 return
 
-            indent = (current_depth - 1) * u"   | "
+            indent = current_depth * u"   | "
             for ctrl in ctrls:
                 try:
                     ctrl_id = all_ctrls.index(ctrl)
@@ -653,7 +653,6 @@ class WindowSpecification(object):
                               rect=ctrl.rectangle())
                 output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
 
-                title = ctrl_text
                 class_name = ctrl.class_name()
                 auto_id = None
                 control_type = None
@@ -666,15 +665,15 @@ class WindowSpecification(object):
                     else:
                         control_type = None  # if control_type is empty, still use class_name instead
                 criteria_texts = []
-                if title:
-                    criteria_texts.append(u'title="{}"'.format(title))
+                if ctrl_text:
+                    criteria_texts.append(u'name="{}"'.format(ctrl_text))
                 if class_name:
                     criteria_texts.append(u'class_name="{}"'.format(class_name))
                 if auto_id:
                     criteria_texts.append(u'auto_id="{}"'.format(auto_id))
                 if control_type:
                     criteria_texts.append(u'control_type="{}"'.format(control_type))
-                if title or class_name or auto_id:
+                if ctrl_text or class_name or auto_id:
                     output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
 
                 if six.PY3:
