@@ -32,8 +32,9 @@
 """Implementation of the class to deal with an UI element (based on UI Automation API)"""
 
 from comtypes import COMError
-from six import integer_types, text_type
+from six import integer_types, text_type, string_types
 from ctypes.wintypes import tagPOINT
+import warnings
 
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
@@ -53,6 +54,28 @@ def elements_from_uia_array(ptrs, cache_enable=False):
         except COMError:
             continue
     return elements
+
+
+def is_element_satisfies_criteria(element, process=None, class_name=None, name=None, control_type=None,
+                                  content_only=None, **kwargs):
+    """Check if element satisfy filter criteria"""
+    is_appropriate_control_type = True
+    if control_type:
+        if isinstance(control_type, string_types):
+            is_appropriate_control_type = element.CurrentControlType == IUIA().known_control_types[control_type]
+        elif not isinstance(control_type, int):
+            raise TypeError('control_type must be string or integer')
+        else:
+            is_appropriate_control_type = element.CurrentControlType == control_type
+
+    def is_none_or_equals(criteria, prop):
+        return criteria is None or prop == criteria
+
+    return is_none_or_equals(process, element.CurrentProcessId) \
+        and is_none_or_equals(class_name, element.CurrentClassName) \
+        and is_none_or_equals(name, element.CurrentName) \
+        and is_appropriate_control_type \
+        and (content_only is None or isinstance(content_only, bool) and element.CurrentIsContentElement == content_only)
 
 
 class UIAElementInfo(ElementInfo):
@@ -280,15 +303,15 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
-        """Find all elements according to the given tree scope and conditions"""
-        try:
-            ptrs_array = self._element.FindAll(tree_scope, cond)
-            return elements_from_uia_array(ptrs_array, cache_enable)
-        except(COMError, ValueError) as e:
-            print(e)
-            ActionLogger().log("COM error: can't get elements")
-            return []
+    # def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
+    #     """Find all elements according to the given tree scope and conditions"""
+    #     try:
+    #         ptrs_array = self._element.FindAll(tree_scope, cond)
+    #         return elements_from_uia_array(ptrs_array, cache_enable)
+    #     except(COMError, ValueError) as e:
+    #         print(e)
+    #         ActionLogger().log("COM error: can't get elements")
+    #         return []
 
     def _iter_children_raw(self):
         """Return a generator of only immediate children of the element"""
@@ -297,8 +320,8 @@ class UIAElementInfo(ElementInfo):
             while element:
                 yield element
                 element = IUIA().raw_tree_walker.GetNextSiblingElement(element)
-        except (COMError, ValueError):
-            ActionLogger().log("COM error: can't get elements")
+        except (COMError, ValueError) as e:
+            warnings.warn("Can't get descendant elements due to error: {}".format(e), RuntimeWarning)
 
     def iter_children(self, **kwargs):
         """Return a generator of only immediate children of the element
@@ -308,7 +331,7 @@ class UIAElementInfo(ElementInfo):
         """
         cache_enable = kwargs.pop('cache_enable', False)
         for element in self._iter_children_raw():
-            if IUIA().is_element_satisfies_criterias(element, **kwargs):
+            if is_element_satisfies_criteria(element, **kwargs):
                 yield UIAElementInfo(element, cache_enable)
 
     def iter_descendants(self, **kwargs):
@@ -321,12 +344,12 @@ class UIAElementInfo(ElementInfo):
         if depth == 0:
             return
         for child in self._iter_children_raw():
-            if IUIA().is_element_satisfies_criterias(child, **kwargs):
+            if is_element_satisfies_criteria(child, **kwargs):
                 yield UIAElementInfo(child, cache_enable)
             if depth is not None:
                 kwargs["depth"] = depth - 1
             for c in UIAElementInfo(child, cache_enable).iter_descendants(**kwargs):
-                if IUIA().is_element_satisfies_criterias(c._element, **kwargs):
+                if is_element_satisfies_criteria(c._element, **kwargs):
                     yield c
 
     def children(self, **kwargs):
@@ -335,9 +358,7 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-
-        elements = list(self.iter_children(**kwargs))
-        return elements
+        return list(self.iter_children(**kwargs))
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
@@ -345,8 +366,7 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        elements = list(self.iter_descendants(**kwargs))
-        return elements
+        return list(self.iter_descendants(**kwargs))
 
     @property
     def visible(self):
