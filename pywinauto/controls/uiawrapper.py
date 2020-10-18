@@ -43,6 +43,7 @@ from .. import backend
 from .. import WindowNotFoundError  # noqa #E402
 from ..timings import Timings
 from .win_base_wrapper import WinBaseWrapper
+from .hwndwrapper import HwndWrapper
 from ..base_wrapper import BaseMeta
 
 from ..windows.uia_defines import IUIA
@@ -408,9 +409,23 @@ class UIAWrapper(WinBaseWrapper):
             pass
         try:
             self.element_info.element.SetFocus()
+            if self.element_info != UIAElementInfo.get_active():
+                if self.handle:
+                    warnings.warn("Failed to set focus on element, trying win32 backend", RuntimeWarning)
+                    HwndWrapper(self.element_info).set_focus()
+                else:
+                    warnings.warn("The window has not been focused because UIA SetFocus() failed "
+                                  "and we can't use win32 backend instead because "
+                                  "the window doesn't have native handle", RuntimeWarning)
         except comtypes.COMError as exc:
-            warnings.warn('The window has not been focused due to ' \
-                'COMError: {}'.format(exc), RuntimeWarning)
+            if self.handle:
+                warnings.warn("Failed to set focus on element due to COMError: {}, "
+                              "trying win32 backend".format(exc), RuntimeWarning)
+                HwndWrapper(self.element_info).set_focus()
+            else:
+                warnings.warn("The window has not been focused due to COMError: {} "
+                              "and we can't use win32 backend instead because "
+                              "the window doesn't have native handle".format(exc), RuntimeWarning)
 
         return self
 
