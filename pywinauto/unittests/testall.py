@@ -36,8 +36,15 @@ import unittest
 
 import coverage
 
-testfolder = os.path.abspath(os.path.dirname(__file__))
+if sys.platform == 'Darwin':
+	testfolder = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'darwin')
+elif sys.platform == 'linux':
+	testfolder = os.path.join(os.path.abspath(os.path.dirname(__file__)),'linux')
+else: 
+	testfolder = os.path.abspath(os.path.dirname(__file__))
+
 package_root = os.path.abspath(os.path.join(testfolder, r"..\.."))
+
 sys.path.append(package_root)
 
 # needs to be called before importing the modules
