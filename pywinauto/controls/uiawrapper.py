@@ -414,18 +414,18 @@ class UIAWrapper(WinBaseWrapper):
                     warnings.warn("Failed to set focus on element, trying win32 backend", RuntimeWarning)
                     HwndWrapper(self.element_info).set_focus()
                 else:
-                    warnings.warn("The window has not been focused because UIA SetFocus() failed "
+                    warnings.warn("The element has not been focused because UIA SetFocus() failed "
                                   "and we can't use win32 backend instead because "
-                                  "the window doesn't have native handle", RuntimeWarning)
+                                  "the element doesn't have native handle", RuntimeWarning)
         except comtypes.COMError as exc:
             if self.handle:
                 warnings.warn("Failed to set focus on element due to COMError: {}, "
                               "trying win32 backend".format(exc), RuntimeWarning)
                 HwndWrapper(self.element_info).set_focus()
             else:
-                warnings.warn("The window has not been focused due to COMError: {} "
+                warnings.warn("The element has not been focused due to COMError: {}, "
                               "and we can't use win32 backend instead because "
-                              "the window doesn't have native handle".format(exc), RuntimeWarning)
+                              "the element doesn't have native handle".format(exc), RuntimeWarning)
 
         return self
 
