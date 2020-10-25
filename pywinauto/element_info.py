@@ -115,6 +115,26 @@ class ElementInfo(object):
         """Return the parent of the element"""
         raise NotImplementedError()
 
+    @property
+    def top_level_parent(self):
+        """
+        Return the top level window of this element
+
+        The TopLevel parent is different from the parent in that the parent
+        is the element that owns this element - but it may not be a dialog/main
+        window. For example most Comboboxes have an Edit. The ComboBox is the
+        parent of the Edit control.
+
+        This will always return a valid window element (if the control has
+        no top level parent then the control itself is returned - as it is
+        a top level window already!)
+        """
+        parent = self.parent
+        if parent and parent != self.__class__():
+            return parent.top_level_parent
+        else:
+            return self
+
     def children(self, **kwargs):
         """Return children of the element"""
         raise NotImplementedError()
