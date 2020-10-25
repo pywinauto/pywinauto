@@ -409,7 +409,10 @@ class UIAWrapper(WinBaseWrapper):
             pass
         try:
             self.element_info.element.SetFocus()
-            if self.element_info != UIAElementInfo.get_active():
+
+            # SetFocus() can return S_OK even if the element isn't focused actually
+            active_element = UIAElementInfo.get_active()
+            if self.element_info != active_element and self.element_info != active_element.top_level_parent:
                 if self.handle:
                     warnings.warn("Failed to set focus on element, trying win32 backend", RuntimeWarning)
                     HwndWrapper(self.element_info).set_focus()
