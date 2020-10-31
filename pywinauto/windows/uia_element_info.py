@@ -42,7 +42,6 @@ from .uia_defines import get_elem_interface
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from pywinauto.actionlogger import ActionLogger
 
 
 def elements_from_uia_array(ptrs, cache_enable=False):
@@ -56,14 +55,14 @@ def elements_from_uia_array(ptrs, cache_enable=False):
     return elements
 
 
-def is_element_satisfies_criteria(element, process=None, class_name=None, name=None, control_type=None,
-                                  content_only=None, **kwargs):
-    """Check if element satisfy filter criteria"""
+def is_element_satisfying_criteria(element, process=None, class_name=None, name=None, control_type=None,
+                                   content_only=None, **kwargs):
+    """Check if element satisfies filter criteria"""
     is_appropriate_control_type = True
     if control_type:
         if isinstance(control_type, string_types):
             is_appropriate_control_type = element.CurrentControlType == IUIA().known_control_types[control_type]
-        elif not isinstance(control_type, int):
+        elif not isinstance(control_type, integer_types):
             raise TypeError('control_type must be string or integer')
         else:
             is_appropriate_control_type = element.CurrentControlType == control_type
@@ -303,16 +302,6 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    # def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
-    #     """Find all elements according to the given tree scope and conditions"""
-    #     try:
-    #         ptrs_array = self._element.FindAll(tree_scope, cond)
-    #         return elements_from_uia_array(ptrs_array, cache_enable)
-    #     except(COMError, ValueError) as e:
-    #         print(e)
-    #         ActionLogger().log("COM error: can't get elements")
-    #         return []
-
     def _iter_children_raw(self):
         """Return a generator of only immediate children of the element"""
         try:
@@ -331,25 +320,25 @@ class UIAElementInfo(ElementInfo):
         """
         cache_enable = kwargs.pop('cache_enable', False)
         for element in self._iter_children_raw():
-            if is_element_satisfies_criteria(element, **kwargs):
+            if is_element_satisfying_criteria(element, **kwargs):
                 yield UIAElementInfo(element, cache_enable)
 
     def iter_descendants(self, **kwargs):
         """Iterate over descendants of the element"""
         cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop("depth", None)
-        if not isinstance(depth, (int, type(None))) or isinstance(depth, int) and depth < 0:
-            raise Exception("Depth must be natural number")
+        if not isinstance(depth, (integer_types, type(None))) or isinstance(depth, integer_types) and depth < 0:
+            raise Exception("Depth must be integer")
 
         if depth == 0:
             return
         for child in self._iter_children_raw():
-            if is_element_satisfies_criteria(child, **kwargs):
+            if is_element_satisfying_criteria(child, **kwargs):
                 yield UIAElementInfo(child, cache_enable)
             if depth is not None:
                 kwargs["depth"] = depth - 1
             for c in UIAElementInfo(child, cache_enable).iter_descendants(**kwargs):
-                if is_element_satisfies_criteria(c._element, **kwargs):
+                if is_element_satisfying_criteria(c._element, **kwargs):
                     yield c
 
     def children(self, **kwargs):
