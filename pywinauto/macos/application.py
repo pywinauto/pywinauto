@@ -34,6 +34,8 @@ class Application(BaseApplication):
         self.allow_magic_lookup = allow_magic_lookup
 
     def start(self, name=None, bundle_id=None, new_instance=True):
+        if name == None and bundle_id == None and new_instance == True:
+            raise AttributeError('Cannot start application without its name or bundle_id. Please use name=name_of_application or bundle_id=bundle_id_of_application.')
         self.process = None
         pids_before = get_process_ids(cache_update=False)
 
@@ -67,7 +69,7 @@ class Application(BaseApplication):
                     NSAppleEventDescriptor.nullDescriptor(),
                     None)
             if not r[0]:
-                    raise AppStartError('Could not launch application by bundle id "{}". Error code: {}'.format(bundle_id, r))
+                    raise AppStartError('Could not launch application by bundle id "{}". Verify you use correct bundle_id of application. Verify the application with this bundle_id is installed. Error code: {}'.format(bundle_id, r))
 
             ns_app_array = macos_functions.get_app_instance_by_bundle(bundle_id)
             self.ns_app = ns_app_array[0]
