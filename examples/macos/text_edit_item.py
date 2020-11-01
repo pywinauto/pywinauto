@@ -32,10 +32,13 @@
 """Run some automations to test things"""
 from __future__ import unicode_literals
 from __future__ import print_function
+import sys
+sys.path.append('/Users/daria/pywinauto')
 
 from pywinauto import application
-
+from pywinauto import macos 
 
 app = application.Application()
 app.start('TextEdit')
+app.kill()
 
