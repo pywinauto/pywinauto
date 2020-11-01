@@ -302,6 +302,17 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
+    # TODO add parameter to use FindAll instead of RawTreeWalker and uncomment
+    # def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
+    #     """Find all elements according to the given tree scope and conditions"""
+    #     try:
+    #         ptrs_array = self._element.FindAll(tree_scope, cond)
+    #         return elements_from_uia_array(ptrs_array, cache_enable)
+    #     except(COMError, ValueError) as e:
+    #         print(e)
+    #         ActionLogger().log("COM error: can't get elements")
+    #         return []
+
     def _iter_children_raw(self):
         """Return a generator of only immediate children of the element"""
         try:
@@ -328,7 +339,7 @@ class UIAElementInfo(ElementInfo):
         cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop("depth", None)
         if not isinstance(depth, (integer_types, type(None))) or isinstance(depth, integer_types) and depth < 0:
-            raise Exception("Depth must be integer")
+            raise Exception("Depth must be an integer")
 
         if depth == 0:
             return
