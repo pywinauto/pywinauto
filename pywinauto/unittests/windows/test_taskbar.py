@@ -35,7 +35,8 @@ import unittest
 import sys
 import os
 
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto import taskbar  # noqa: E402
 from pywinauto import findwindows  # noqa: E402
 from pywinauto.windows.application import Application  # noqa: E402

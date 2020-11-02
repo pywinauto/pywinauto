@@ -4,7 +4,8 @@ import os
 import sys
 import unittest
 
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto.windows import win32defines, win32structures
 from pywinauto.windows.application import Application  # noqa E402
 from pywinauto.sysinfo import is_x64_Python  # noqa E402

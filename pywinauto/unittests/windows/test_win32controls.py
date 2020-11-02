@@ -37,7 +37,8 @@ from __future__ import unicode_literals
 import os, sys
 import codecs
 import unittest
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto import xml_helpers
 from pywinauto.windows import win32defines
 from pywinauto.sysinfo import is_x64_Python

@@ -12,7 +12,8 @@ import win32con
 from ctypes import windll
 from threading import Timer
 
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 import pywinauto.actionlogger
 from pywinauto.windows import win32structures
 from pywinauto.windows import win32functions
