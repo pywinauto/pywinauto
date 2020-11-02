@@ -47,7 +47,8 @@ import ctypes
 import mock
 import six
 
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto import Desktop
 from pywinauto.windows import application, win32defines
 from pywinauto.controls import hwndwrapper

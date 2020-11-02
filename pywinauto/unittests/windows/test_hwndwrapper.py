@@ -45,7 +45,8 @@ import locale
 import sys
 import os
 import unittest
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 
 import mock
 from pywinauto.application import Application  # noqa E402

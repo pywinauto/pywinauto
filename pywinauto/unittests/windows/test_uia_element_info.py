@@ -2,7 +2,8 @@ import unittest
 import os
 import sys
 
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.handleprops import processid  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402

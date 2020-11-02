@@ -37,7 +37,8 @@ import os.path
 test_path = os.path.split(__file__)[0]
 
 import sys
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto import findbestmatch
 from pywinauto.windows import win32structures
 

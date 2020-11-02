@@ -42,7 +42,8 @@ import os
 import win32api
 import six
 
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.windows.win32structures import RECT  # noqa: E402
 from pywinauto.windows import win32defines
