@@ -38,7 +38,8 @@ import sys
 import logging
 import mock
 from six.moves import reload_module
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto import actionlogger  # noqa: E402
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402

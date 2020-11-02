@@ -36,7 +36,8 @@ import six
 import os
 import sys
 import warnings
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 
 from pywinauto.windows import win32structures
 from pywinauto.handleprops import children, classname, clientrect, contexthelpid, \

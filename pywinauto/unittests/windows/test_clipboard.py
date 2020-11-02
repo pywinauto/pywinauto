@@ -35,7 +35,8 @@ import unittest
 
 import sys
 import time
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto.clipboard import GetClipboardFormats, GetData, GetFormatName, EmptyClipboard  # noqa E402
 from pywinauto.windows.application import Application  # noqa E402
 from pywinauto.windows.win32structures import RECT  # noqa E402

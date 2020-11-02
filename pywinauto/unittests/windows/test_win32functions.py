@@ -35,7 +35,8 @@ import unittest
 
 import sys
 import ctypes
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto.windows.win32structures import Structure  # noqa: E402
 from pywinauto.windows.win32structures import POINT  # noqa: E402
 from pywinauto.windows.win32structures import RECT  # noqa: E402

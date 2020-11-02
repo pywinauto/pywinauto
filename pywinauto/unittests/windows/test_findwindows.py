@@ -35,7 +35,8 @@ from __future__ import print_function
 import unittest
 
 import sys, os
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.findwindows import find_window, find_windows

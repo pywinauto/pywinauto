@@ -35,7 +35,8 @@ import os
 import sys
 import unittest
 import six
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 
 from pywinauto.xml_helpers import WriteDialogToFile
 from pywinauto.xml_helpers import ReadPropertiesFromFile

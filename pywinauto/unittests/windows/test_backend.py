@@ -36,7 +36,8 @@ import unittest
 import mock
 import pythoncom
 import sys
-sys.path.append(".")
+#sys.path.append(".")
+sys.path.append("..")
 from pywinauto import backend  # noqa: E402
 from pywinauto import _get_com_threading_mode  # noqa: E402
 from pywinauto.windows.win32_element_info import HwndElementInfo  # noqa: E402
