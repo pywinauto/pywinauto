@@ -62,6 +62,7 @@ class IUIA(object):
                 'subtree': self.UIA_dll.TreeScope_Subtree,
                 }
         self.root = self.iuia.GetRootElement()
+        self.raw_tree_walker = self.iuia.RawViewWalker
 
         self.get_focused_element = self.iuia.GetFocusedElement
 
@@ -79,38 +80,39 @@ class IUIA(object):
             self.known_control_types[ctrl_type] = type_id
             self.known_control_type_ids[type_id] = ctrl_type
 
-    def build_condition(self, process=None, class_name=None, name=None, control_type=None,
-                        content_only=None):
-        """Build UIA filtering conditions"""
-        conditions = []
-        if process:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ProcessIdPropertyId, process))
-
-        if class_name:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ClassNamePropertyId, class_name))
-
-        if control_type:
-            if isinstance(control_type, six.string_types):
-                control_type = self.known_control_types[control_type]
-            elif not isinstance(control_type, int):
-                raise TypeError('control_type must be string or integer')
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
-
-        if name:
-            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, name))
-
-        if isinstance(content_only, bool):
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,
-                                                                content_only))
-
-        if len(conditions) > 1:
-            return self.iuia.CreateAndConditionFromArray(conditions)
-
-        if len(conditions) == 1:
-            return conditions[0]
-
-        return self.true_condition
+    # TODO add parameter to use FindAll instead of RawTreeWalker and uncomment
+    # def build_condition(self, process=None, class_name=None, name=None, control_type=None,
+    #                     content_only=None):
+    #     """Build UIA filtering conditions"""
+    #     conditions = []
+    #     if process:
+    #         conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ProcessIdPropertyId, process))
+    #
+    #     if class_name:
+    #         conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ClassNamePropertyId, class_name))
+    #
+    #     if control_type:
+    #         if isinstance(control_type, six.string_types):
+    #             control_type = self.known_control_types[control_type]
+    #         elif not isinstance(control_type, int):
+    #             raise TypeError('control_type must be string or integer')
+    #         conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
+    #
+    #     if name:
+    #         # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
+    #         conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, name))
+    #
+    #     if isinstance(content_only, bool):
+    #         conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,
+    #                                                             content_only))
+    #
+    #     if len(conditions) > 1:
+    #         return self.iuia.CreateAndConditionFromArray(conditions)
+    #
+    #     if len(conditions) == 1:
+    #         return conditions[0]
+    #
+    #     return self.true_condition
 
 # Build a list of named constants that identify Microsoft UI Automation
 # control patterns and their appropriate comtypes classes
