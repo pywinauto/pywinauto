@@ -410,16 +410,7 @@ class BaseWrapper(object):
         a top level window already!)
         """
         if not ("top_level_parent" in self._cache.keys()):
-            parent = self.parent()
-
-            if parent:
-                if self.parent() == self.root():
-                    self._cache["top_level_parent"] = self
-                else:
-                    return self.parent().top_level_parent()
-            else:
-                self._cache["top_level_parent"] = self
-
+            self._cache["top_level_parent"] = self.backend.generic_wrapper_class(self.element_info.top_level_parent)
         return self._cache["top_level_parent"]
 
     #-----------------------------------------------------------
