@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import mock
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
@@ -104,6 +105,32 @@ if UIA_support:
             """Test whether descendant generator iterates over correct elements"""
             descendants = [desc for desc in self.ctrl.iter_descendants(depth=3)]
             self.assertSequenceEqual(self.ctrl.descendants(depth=3), descendants)
+
+        def test_use_findall_children(self):
+            """Test use FindAll option for children method"""
+            with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
+                self.assertEqual(UIAElementInfo.use_findall, False)
+
+                UIAElementInfo.use_findall = True
+                self.assertEqual(len(self.ctrl.children()), 5)
+                self.assertEqual(mock_findall.call_count, 1)
+
+                UIAElementInfo.use_findall = False
+                self.assertEqual(len(self.ctrl.children()), 5)
+                self.assertEqual(mock_findall.call_count, 1)
+
+        def test_use_findall_descendants(self):
+            """Test use FindAll option for descendants method"""
+            with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
+                self.assertEqual(UIAElementInfo.use_findall, False)
+
+                UIAElementInfo.use_findall = True
+                self.assertEqual(len(self.ctrl.descendants(depth=1)), 5)
+                self.assertEqual(mock_findall.call_count, 1)
+
+                UIAElementInfo.use_findall = False
+                self.assertEqual(len(self.ctrl.descendants(depth=1)), 5)
+                self.assertEqual(mock_findall.call_count, 1)
 
 if __name__ == "__main__":
     if UIA_support:
