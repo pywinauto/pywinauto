@@ -160,10 +160,11 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     def check(self):
         """Check a checkbox"""
         self._ensure_enough_privileges('BM_SETCHECK')
+        self.wait_for_idle()
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_CHECKED)
 
-        win32functions.WaitGuiThreadIdle(self.handle)
+        self.wait_for_idle()
         time.sleep(Timings.after_buttoncheck_wait)
 
         # return this control so that actions can be chained.
@@ -175,10 +176,11 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     def uncheck(self):
         """Uncheck a checkbox"""
         self._ensure_enough_privileges('BM_SETCHECK')
+        self.wait_for_idle()
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_UNCHECKED)
 
-        win32functions.WaitGuiThreadIdle(self.handle)
+        self.wait_for_idle()
         time.sleep(Timings.after_buttoncheck_wait)
 
         # return this control so that actions can be chained.
@@ -190,10 +192,11 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
     def set_check_indeterminate(self):
         """Set the checkbox to indeterminate"""
         self._ensure_enough_privileges('BM_SETCHECK')
+        self.wait_for_idle()
         self.send_message_timeout(win32defines.BM_SETCHECK,
                                   win32defines.BST_INDETERMINATE)
 
-        win32functions.WaitGuiThreadIdle(self.handle)
+        self.wait_for_idle()
         time.sleep(Timings.after_buttoncheck_wait)
 
         # return this control so that actions can be chained.
@@ -427,8 +430,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
             # Notify the parent that the drop down has closed
             self.notify_parent(win32defines.CBN_CLOSEUP)
 
-
-        win32functions.WaitGuiThreadIdle(self.handle)
+        self.wait_for_idle()
         time.sleep(Timings.after_comboboxselect_wait)
 
         # return this control so that actions can be chained.
@@ -622,7 +624,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         # Notify the parent that we have changed
         self.notify_parent(win32defines.LBN_SELCHANGE)
 
-        win32functions.WaitGuiThreadIdle(self.handle)
+        self.wait_for_idle()
         time.sleep(Timings.after_listboxselect_wait)
 
         return self
@@ -634,6 +636,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         """Set the ListBox focus to the item at index"""
         index = self._get_item_index(item)
 
+        self.wait_for_idle()
         # if it is a multiple selection dialog
         if self.has_style(win32defines.LBS_EXTENDEDSEL) or \
             self.has_style(win32defines.LBS_MULTIPLESEL):
@@ -641,7 +644,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
         else:
             self.send_message_timeout(win32defines.LB_SETCURSEL, index)
 
-        win32functions.WaitGuiThreadIdle(self.handle)
+        self.wait_for_idle()
         time.sleep(Timings.after_listboxfocuschange_wait)
 
         # return this control so that actions can be chained.
@@ -866,7 +869,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         self.send_message(win32defines.EM_SETSEL, start, end)
 
         # give the control a chance to catch up before continuing
-        win32functions.WaitGuiThreadIdle(self.handle)
+        self.wait_for_idle()
 
         time.sleep(Timings.after_editselect_wait)
 
