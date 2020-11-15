@@ -1,5 +1,5 @@
 # GUI Application automation and testing library
-# Copyright (C) 2006-2018 Mark Mc Mahon and Contributors
+# Copyright (C) 2006-2019 Mark Mc Mahon and Contributors
 # https://github.com/pywinauto/pywinauto/graphs/contributors
 # http://pywinauto.readthedocs.io/en/latest/credits.html
 # All rights reserved.
@@ -178,13 +178,20 @@ def is64bitprocess(process_id):
     Return False if it is only a 32-bit process running under Wow64.
     Always return False for x86.
     """
+    from .base_application import ProcessNotFoundError
     from .sysinfo import is_x64_OS
     is32 = True
     if is_x64_OS():
-        phndl = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
-        if phndl:
-            is32 = win32process.IsWow64Process(phndl)
-            #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
+        try:
+            phndl = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, process_id)
+            if phndl:
+                is32 = win32process.IsWow64Process(phndl)
+                #print("is64bitprocess, is32: %d, procid: %d" % (is32, process_id))
+        except win32gui.error as e:
+            if e.winerror == win32defines.ERROR_INVALID_PARAMETER:
+                raise ProcessNotFoundError
+            else:
+                raise e
 
     return (not is32)
 
