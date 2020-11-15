@@ -662,9 +662,9 @@ def parse_keys(string,
 
 def send_keys(keys,
               pause=0.05,
-              with_spaces=False,
-              with_tabs=False,
-              with_newlines=False,
+              with_spaces=True,
+              with_tabs=True,
+              with_newlines=True,
               turn_off_numlock=True):
     """Parse the keys and type them"""
     keys = parse_keys(keys, with_spaces, with_tabs, with_newlines,flag=None)
