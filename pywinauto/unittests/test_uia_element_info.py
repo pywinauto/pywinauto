@@ -12,6 +12,7 @@ from pywinauto.timings import Timings  # noqa: E402
 
 if UIA_support:
     from pywinauto.windows.uia_element_info import UIAElementInfo
+    from pywinauto.windows.uia_defines import IUIA
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -106,31 +107,57 @@ if UIA_support:
             descendants = [desc for desc in self.ctrl.iter_descendants(depth=3)]
             self.assertSequenceEqual(self.ctrl.descendants(depth=3), descendants)
 
-        def test_use_findall_children(self):
-            """Test use FindAll option for children method"""
+        def test_use_property_conditions_children(self):
+            """Test use CondTreeWalker option for children method"""
             with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
-                self.assertEqual(UIAElementInfo.use_findall, False)
+                self.assertEqual(UIAElementInfo.use_property_conditions, False)
 
-                UIAElementInfo.use_findall = True
+                UIAElementInfo.use_property_conditions = True
                 self.assertEqual(len(self.ctrl.children()), 5)
                 self.assertEqual(mock_findall.call_count, 1)
 
-                UIAElementInfo.use_findall = False
+                UIAElementInfo.use_property_conditions = False
                 self.assertEqual(len(self.ctrl.children()), 5)
                 self.assertEqual(mock_findall.call_count, 1)
 
-        def test_use_findall_descendants(self):
-            """Test use FindAll option for descendants method"""
+        def test_use_property_conditions_descendants(self):
+            """Test use CondTreeWalker option for descendants method"""
             with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
-                self.assertEqual(UIAElementInfo.use_findall, False)
+                self.assertEqual(UIAElementInfo.use_property_conditions, False)
 
-                UIAElementInfo.use_findall = True
+                UIAElementInfo.use_property_conditions = True
                 self.assertEqual(len(self.ctrl.descendants(depth=1)), 5)
                 self.assertEqual(mock_findall.call_count, 1)
 
-                UIAElementInfo.use_findall = False
+                UIAElementInfo.use_property_conditions = False
                 self.assertEqual(len(self.ctrl.descendants(depth=1)), 5)
                 self.assertEqual(mock_findall.call_count, 1)
+
+        def test_use_property_conditions_iter_children(self):
+            """Test use CondTreeWalker option for iter_children method"""
+            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_walker:
+                self.assertEqual(UIAElementInfo.use_property_conditions, False)
+
+                UIAElementInfo.use_property_conditions = True
+                self.assertSequenceEqual(self.ctrl.children(), list(self.ctrl.iter_children()))
+                self.assertEqual(mock_walker.call_count, 1)
+
+                UIAElementInfo.use_property_conditions = False
+                self.assertSequenceEqual(self.ctrl.children(), list(self.ctrl.iter_children()))
+                self.assertEqual(mock_walker.call_count, 1)
+
+        def test_use_property_conditions_iter_descendants(self):
+            """Test use CondTreeWalker option for descendants method"""
+            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_walker:
+                self.assertEqual(UIAElementInfo.use_property_conditions, False)
+
+                UIAElementInfo.use_property_conditions = True
+                self.assertSequenceEqual(self.ctrl.descendants(), list(self.ctrl.iter_descendants()))
+                self.assertEqual(mock_walker.call_count, 1)
+
+                UIAElementInfo.use_property_conditions = False
+                self.assertSequenceEqual(self.ctrl.descendants(), list(self.ctrl.iter_descendants()))
+                self.assertEqual(mock_walker.call_count, 1)
 
 if __name__ == "__main__":
     if UIA_support:
