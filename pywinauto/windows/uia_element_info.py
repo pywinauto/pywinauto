@@ -389,12 +389,13 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         if UIAElementInfo.use_property_conditions:
-            cache_enable = kwargs.pop('cache_enable', False)
             depth = kwargs.pop('depth', None)
-            cond = IUIA().build_condition(**kwargs)
-            elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
-            elements = ElementInfo.filter_with_depth(elements, self, depth)
-            return elements
+            if depth is None:
+                cache_enable = kwargs.pop('cache_enable', False)
+                cond = IUIA().build_condition(**kwargs)
+                return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+            else:
+                return ElementInfo.get_descendants_with_depth(self, depth=depth, **kwargs)
         else:
             return list(self.iter_descendants(**kwargs))
 
