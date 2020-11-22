@@ -1,9 +1,7 @@
 import win32api
 import win32con
 from threading import Timer
-from pywinauto.windows.win32_hooks import Hook
-from pywinauto.windows.win32_hooks import KeyboardEvent
-from pywinauto.windows.win32_hooks import MouseEvent
+from pywinauto.win32_hooks import Hook, KeyboardEvent, MouseEvent
 
 
 def on_timer():
@@ -30,10 +28,11 @@ def on_event(args):
 
     if isinstance(args, MouseEvent):
         if args.current_key == 'RButton' and args.event_type == 'key down':
-            print ("Right button pressed")
+            print("Right button pressed")
 
         if args.current_key == 'WheelButton' and args.event_type == 'key down':
             print("Wheel button pressed")
+
 
 hk = Hook()
 hk.handler = on_event
