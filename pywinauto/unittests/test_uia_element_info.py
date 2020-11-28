@@ -108,59 +108,62 @@ if UIA_support:
             self.assertSequenceEqual(self.ctrl.descendants(depth=3), descendants)
 
 
-    class UIAElementInfoUsePropertyConditionsTests(UIAElementInfoTests):
+    class UIAElementInfoRawViewWalkerTests(UIAElementInfoTests):
+
+        """Unit tests for the UIAElementInfo class with enabled RawViewWalker implementation"""
+
         def setUp(self):
-            self.assertEqual(UIAElementInfo.use_property_conditions, False)
-            UIAElementInfo.use_property_conditions = True
-            super(UIAElementInfoUsePropertyConditionsTests, self).setUp()
+            self.assertEqual(UIAElementInfo.use_raw_view_walker, False)
+            UIAElementInfo.use_raw_view_walker = True
+            super(UIAElementInfoRawViewWalkerTests, self).setUp()
 
         def tearDown(self):
-            UIAElementInfo.use_property_conditions = False
-            super(UIAElementInfoUsePropertyConditionsTests, self).tearDown()
+            UIAElementInfo.use_raw_view_walker = False
+            super(UIAElementInfoRawViewWalkerTests, self).tearDown()
 
-        def test_use_property_conditions_children(self):
-            """Test use FindAll option for children method"""
+        def test_use_findall_children(self):
+            """Test use FindAll inside children method"""
             with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
-                UIAElementInfo.use_property_conditions = True
+                UIAElementInfo.use_raw_view_walker = False
                 self.ctrl.children()
                 self.assertEqual(mock_findall.call_count, 1)
 
-                UIAElementInfo.use_property_conditions = False
+                UIAElementInfo.use_raw_view_walker = True
                 self.ctrl.children()
                 self.assertEqual(mock_findall.call_count, 1)
 
-        def test_use_property_conditions_descendants(self):
-            """Test use FindAll option for descendants method"""
+        def test_use_findall_descendants(self):
+            """Test use FindAll inside descendants method"""
             with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
-                UIAElementInfo.use_property_conditions = True
+                UIAElementInfo.use_raw_view_walker = False
                 self.ctrl.descendants(depth=1)
                 self.assertEqual(mock_findall.call_count, 1)
 
-                UIAElementInfo.use_property_conditions = False
+                UIAElementInfo.use_raw_view_walker = True
                 self.ctrl.descendants(depth=1)
                 self.assertEqual(mock_findall.call_count, 1)
 
-        def test_use_property_conditions_iter_children(self):
-            """Test use CreateTreeWalker option for iter_children method"""
-            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_walker:
-                UIAElementInfo.use_property_conditions = True
+        def test_use_create_tree_walker_iter_children(self):
+            """Test use CreateTreeWalker inside iter_children method"""
+            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_create:
+                UIAElementInfo.use_raw_view_walker = False
                 next(self.ctrl.iter_children())
-                self.assertEqual(mock_walker.call_count, 1)
+                self.assertEqual(mock_create.call_count, 1)
 
-                UIAElementInfo.use_property_conditions = False
+                UIAElementInfo.use_raw_view_walker = True
                 next(self.ctrl.iter_children())
-                self.assertEqual(mock_walker.call_count, 1)
+                self.assertEqual(mock_create.call_count, 1)
 
-        def test_use_property_conditions_iter_descendants(self):
-            """Test use CreateTreeWalker option for iter_descendants method"""
-            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_walker:
-                UIAElementInfo.use_property_conditions = True
+        def test_use_create_tree_walker_iter_descendants(self):
+            """Test use CreateTreeWalker inside iter_descendants method"""
+            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_create:
+                UIAElementInfo.use_raw_view_walker = False
                 next(self.ctrl.iter_descendants(depth=3))
-                self.assertEqual(mock_walker.call_count, 1)
+                self.assertEqual(mock_create.call_count, 1)
 
-                UIAElementInfo.use_property_conditions = False
+                UIAElementInfo.use_raw_view_walker = True
                 next(self.ctrl.iter_descendants(depth=3))
-                self.assertEqual(mock_walker.call_count, 1)
+                self.assertEqual(mock_create.call_count, 1)
 
 if __name__ == "__main__":
     if UIA_support:

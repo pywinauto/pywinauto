@@ -96,7 +96,7 @@ class UIAElementInfo(ElementInfo):
         "top_level_only": ("depth", {True: 1, False: None}),
     }
 
-    use_property_conditions = False
+    use_raw_view_walker = False
 
     def __init__(self, handle_or_elem=None, cache_enable=False):
         """
@@ -331,17 +331,17 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
-        if UIAElementInfo.use_property_conditions:
+        if UIAElementInfo.use_raw_view_walker:
+            for element in self._iter_children_raw():
+                if is_element_satisfying_criteria(element, **kwargs):
+                    yield UIAElementInfo(element, cache_enable)
+        else:
             cond = IUIA().build_condition(**kwargs)
             tree_walker = IUIA().iuia.CreateTreeWalker(cond)
             element = tree_walker.GetFirstChildElement(self._element)
             while element:
                 yield UIAElementInfo(element)
                 element = tree_walker.GetNextSiblingElement(element)
-        else:
-            for element in self._iter_children_raw():
-                if is_element_satisfying_criteria(element, **kwargs):
-                    yield UIAElementInfo(element, cache_enable)
 
     def iter_descendants(self, **kwargs):
         """Iterate over descendants of the element"""
@@ -352,14 +352,7 @@ class UIAElementInfo(ElementInfo):
 
         if depth == 0:
             return
-        if UIAElementInfo.use_property_conditions:
-            for child in self.iter_children(**kwargs):
-                yield child
-                if depth is not None:
-                    kwargs["depth"] = depth - 1
-                for c in child.iter_descendants(**kwargs):
-                    yield c
-        else:
+        if UIAElementInfo.use_raw_view_walker:
             for child in self._iter_children_raw():
                 if is_element_satisfying_criteria(child, **kwargs):
                     yield UIAElementInfo(child, cache_enable)
@@ -368,6 +361,13 @@ class UIAElementInfo(ElementInfo):
                 for c in UIAElementInfo(child, cache_enable).iter_descendants(**kwargs):
                     if is_element_satisfying_criteria(c._element, **kwargs):
                         yield c
+        else:
+            for child in self.iter_children(**kwargs):
+                yield child
+                if depth is not None:
+                    kwargs["depth"] = depth - 1
+                for c in child.iter_descendants(**kwargs):
+                    yield c
 
     def children(self, **kwargs):
         """Return a list of only immediate children of the element
@@ -375,12 +375,12 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        if UIAElementInfo.use_property_conditions:
+        if UIAElementInfo.use_raw_view_walker:
+            return list(self.iter_children(**kwargs))
+        else:
             cache_enable = kwargs.pop('cache_enable', False)
             cond = IUIA().build_condition(**kwargs)
             return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
-        else:
-            return list(self.iter_children(**kwargs))
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
@@ -388,7 +388,9 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        if UIAElementInfo.use_property_conditions:
+        if UIAElementInfo.use_raw_view_walker:
+            return list(self.iter_descendants(**kwargs))
+        else:
             depth = kwargs.pop('depth', None)
             if depth is None:
                 cache_enable = kwargs.pop('cache_enable', False)
@@ -396,8 +398,6 @@ class UIAElementInfo(ElementInfo):
                 return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
             else:
                 return ElementInfo.get_descendants_with_depth(self, depth=depth, **kwargs)
-        else:
-            return list(self.iter_descendants(**kwargs))
 
     @property
     def visible(self):
