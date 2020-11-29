@@ -2115,6 +2115,7 @@ if UIA_support:
         def test_issue_443(self):
             """Test .set_focus() for window that is not keyboard focusable"""
             self.dlg.minimize()
+            time.sleep(0.2)
             self.assertEqual(self.dlg.is_minimized(), True)
             self.dlg.set_focus()
             self.assertEqual(self.dlg.is_minimized(), False)
