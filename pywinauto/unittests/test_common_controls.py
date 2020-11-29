@@ -765,6 +765,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
         birds.click_input(where='button')
         self.assertEqual(birds.is_expanded(), True)
+        time.sleep(1.0)
         birds.click_input(double=True, where='icon')
         self.assertEqual(birds.is_expanded(), False)
 
