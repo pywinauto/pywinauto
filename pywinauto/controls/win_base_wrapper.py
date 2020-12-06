@@ -43,6 +43,8 @@ import win32api
 import win32con
 import six
 
+from ..windows.win32structures import RECT
+
 try:
     from PIL import ImageGrab, Image
 except ImportError:
@@ -389,6 +391,8 @@ class WinBaseWrapper(BaseWrapper):
             return None
 
         if rect:
+            if not isinstance(rect, RECT):
+                raise TypeError("Unexpected type: {} instead {}".format(type(rect), type(RECT())))
             control_rectangle = rect
 
         # get the control rectangle in a way that PIL likes it
