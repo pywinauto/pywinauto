@@ -40,6 +40,7 @@ from datetime import datetime
 #import pdb
 import os
 import win32api
+import win32gui
 import six
 
 sys.path.append(".")
@@ -769,6 +770,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.click_input(where='button')
         self.assertEqual(birds.is_expanded(), True)
         self.dlg.set_focus()
+        time.sleep(win32gui.GetDoubleClickTime() * 2.0 / 1000)
         birds.click_input(double=True, where='icon')
         self.assertEqual(birds.is_expanded(), False)
 
