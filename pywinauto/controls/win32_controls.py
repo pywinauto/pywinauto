@@ -142,6 +142,7 @@ class ButtonWrapper(hwndwrapper.HwndWrapper):
         BST_INDETERMINATE = 2
         """
         self._ensure_enough_privileges('BM_GETCHECK')
+        self.wait_for_idle()
         return self.send_message(win32defines.BM_GETCHECK)
     # Non PEP-8 alias
     GetCheckState = deprecated(get_check_state)
