@@ -185,7 +185,7 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
         if self.backend == 'win32':
             self.app.window(name='About RowList').wait('visible')
         elif self.backend == 'uia':
-            self.app.RowListSampleApplication.child_window(name='About RowList').wait('visible')
+            self.app.RowListSampleApplication.by(name='About RowList').wait('visible')
         else:
             raise NotImplementedError('test_kill_soft_with_modal_subdialog: ' \
                 'backend "{}" is not supported'.format(self.backend))
@@ -779,7 +779,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         window = app_no_magic.window(best_match="UntitledNotepad")
 
-        dlg = window.child_window(best_match="Edit")
+        dlg = window.by(best_match="Edit")
         dlg.draw_outline()
 
         with self.assertRaises(AttributeError):
@@ -854,7 +854,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
     def test_window(self):
         """test specifying a sub window of an existing specification"""
-        sub_spec = self.dlgspec.child_window(class_name = "Edit")
+        sub_spec = self.dlgspec.by(class_name ="Edit")
         sub_spec_legacy = self.dlgspec.window(class_name = "Edit")
 
         self.assertEqual(True, isinstance(sub_spec, WindowSpecification))
@@ -887,7 +887,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             self.dlgspec.class_name())
 
         # Check handling 'parent' as a WindowSpecification
-        spec = self.ctrlspec.child_window(parent=self.dlgspec, visible=True, found_index=0)
+        spec = self.ctrlspec.by(parent=self.dlgspec, visible=True, found_index=0)
         self.assertEqual(spec.class_name(), "Edit")
 
     def test_non_magic_getattr(self):
@@ -896,7 +896,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         ws_no_magic = WindowSpecification(dict(best_match="Notepad"), allow_magic_lookup=False)
         self.assertEqual(ws_no_magic.allow_magic_lookup, False)
 
-        dlg = ws_no_magic.child_window(best_match="Edit")
+        dlg = ws_no_magic.by(best_match="Edit")
         has_focus = dlg.has_keyboard_focus()
         self.assertIn(has_focus, (True, False))
 
@@ -1002,7 +1002,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             status_bar_menu.select()
 
         # check that existing invisible control is still found with 'exists' criterion
-        status_bar_spec = self.app.UntitledNotepad.child_window(class_name="msctls_statusbar32", visible=None)
+        status_bar_spec = self.app.UntitledNotepad.by(class_name="msctls_statusbar32", visible=None)
         self.assertEqual('StatusBar', status_bar_spec.wait('exists').friendly_class_name())
 
         start = timestamp()
@@ -1222,11 +1222,11 @@ if UIA_support:
             """Test that child_window() with depth works correctly"""
             # TODO fix same elements at different tree levels on win32 backend
             self.dlgspec.menu_select("Format -> Font")
-            font = self.dlgspec.child_window(name="Font")
+            font = self.dlgspec.by(name="Font")
 
             with self.assertRaises(findbestmatch.MatchError):
-                font.child_window(best_match="ListBox0", depth=1).find()
-            font.child_window(best_match="ListBox0", depth=2).find()
+                font.by(best_match="ListBox0", depth=1).find()
+            font.by(best_match="ListBox0", depth=2).find()
 
 class WaitUntilDecoratorTests(unittest.TestCase):
     """Unit tests for always_wait_until and always_wait_until_passes decorators"""
@@ -1373,7 +1373,7 @@ if UIA_support:
             window = self.desktop_no_magic.window(name="MFC_samples")
             self.assertEqual(window.allow_magic_lookup, False)
 
-            dlg = window.child_window(class_name="ShellTabWindowClass").find()
+            dlg = window.by(class_name="ShellTabWindowClass").find()
             self.assertIsInstance(dlg, UIAWrapper)
 
             has_focus = dlg.has_keyboard_focus()
@@ -1461,7 +1461,7 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         window = self.desktop_no_magic.window(name=self.window_title, pid=self.app.process)
         self.assertEqual(window.allow_magic_lookup, False)
 
-        dlg = window.child_window(class_name="msctls_trackbar32").find()
+        dlg = window.by(class_name="msctls_trackbar32").find()
         self.assertIsInstance(dlg, TrackbarWrapper)
 
         pos = dlg.get_position()
