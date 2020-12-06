@@ -18,7 +18,7 @@ if pywinauto.sysinfo.is_x64_Python():
 app = pywinauto.Application().start(os.path.join(mfc_samples_folder,
                                                  u"CmnCtrl1.exe"))
 
-tree = app.Common_Controls_Sample.TreeView.WrapperObject()
+tree = app.Common_Controls_Sample.TreeView.by()
 
 birds = tree.get_item(r'\Birds')
 dogs = tree.get_item(r'\Dogs')
