@@ -163,7 +163,8 @@ class WindowSpecification(object):
 
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
-            self.WrapperObject = deprecated(self.wrapper_object)
+            self.WrapperObject = deprecated(self.find, deprecated_name='WrapperObject')
+            self.wrapper_object = deprecated(self.find, deprecated_name='wrapper_object')
             self.ChildWindow = deprecated(self.child_window)
             self.Exists = deprecated(self.exists)
             self.Wait = deprecated(self.wait)
@@ -214,7 +215,7 @@ class WindowSpecification(object):
                     ctrl_criteria["parent"] = previous_parent
 
                 if isinstance(ctrl_criteria["parent"], WindowSpecification):
-                    ctrl_criteria["parent"] = ctrl_criteria["parent"].wrapper_object()
+                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find()
 
                 # resolve the control and return it
                 if 'backend' not in ctrl_criteria:
@@ -262,7 +263,7 @@ class WindowSpecification(object):
 
         return ctrl
 
-    def wrapper_object(self):
+    def find(self):
         """Allow the calling code to get the HwndWrapper object"""
         ctrls = self.__resolve_control(self.criteria)
         return ctrls[-1]
@@ -352,7 +353,7 @@ class WindowSpecification(object):
             try:
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
-                wrapper_object = self.wrapper_object()
+                wrapper_object = self.find()
                 try:
                     return getattr(wrapper_object, attr_name)
                 except AttributeError:
@@ -530,7 +531,7 @@ class WindowSpecification(object):
                    lambda: self.__check_all_conditions(check_method_names, retry_interval))
 
         # Return the wrapped control
-        return self.wrapper_object()
+        return self.find()
 
     def wait_not(self, wait_for_not, timeout=None, retry_interval=None):
         """
