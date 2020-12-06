@@ -100,7 +100,7 @@ class ListViewTestCases32(unittest.TestCase):
 
         self.app = app
         self.dlg = app.RowListSampleApplication
-        self.ctrl = app.RowListSampleApplication.ListView.wrapper_object()
+        self.ctrl = app.RowListSampleApplication.ListView.find()
         self.dlg.Toolbar.button(0).click()  # switch to icon view
         self.dlg.Toolbar.button(6).click()  # switch off states
 
@@ -486,7 +486,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         app.start(self.path)
 
         self.dlg = app.ListViewEx
-        self.ctrl = self.dlg.ListView.wrapper_object()
+        self.ctrl = self.dlg.ListView.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -585,7 +585,7 @@ class TreeViewTestCases32(unittest.TestCase):
         self.app = Application()
         self.app.start(self.path)
         self.dlg = self.app.MicrosoftControlSpy
-        self.ctrl = self.app.MicrosoftControlSpy.TreeView.wrapper_object()
+        self.ctrl = self.app.MicrosoftControlSpy.TreeView.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -706,7 +706,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.dlg = self.app.CommonControlsSample
-        self.ctrl = self.app.CommonControlsSample.TreeView.wrapper_object()
+        self.ctrl = self.app.CommonControlsSample.TreeView.find()
         self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
 
     def tearDown(self):
@@ -826,7 +826,7 @@ class HeaderTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.RowListSampleApplication
-        self.ctrl = app.RowListSampleApplication.Header.wrapper_object()
+        self.ctrl = app.RowListSampleApplication.Header.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -901,7 +901,7 @@ class StatusBarTestCases(unittest.TestCase):
             RECT(92, 2, 261, 22)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.StatusBar.wrapper_object()
+        self.ctrl = app.MicrosoftControlSpy.StatusBar.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1007,7 +1007,7 @@ class TabControlTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.CommonControlsSample
-        self.ctrl = app.CommonControlsSample.TabControl.wrapper_object()
+        self.ctrl = app.CommonControlsSample.TabControl.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1139,8 +1139,8 @@ class ToolbarTestCases(unittest.TestCase):
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
         # The second control goes as Toolbar2
-        self.ctrl = app.CommonControlsSample.ToolbarNew.wrapper_object()
-        self.ctrl2 = app.CommonControlsSample.ToolbarErase.wrapper_object()
+        self.ctrl = app.CommonControlsSample.ToolbarNew.find()
+        self.ctrl2 = app.CommonControlsSample.ToolbarErase.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1270,7 +1270,7 @@ class RebarTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.RebarTest_RebarTest
         self.dlg.wait('ready', 20)
-        self.ctrl = app.RebarTest_RebarTest.Rebar.wrapper_object()
+        self.ctrl = app.RebarTest_RebarTest.Rebar.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1340,7 +1340,7 @@ class DatetimeTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.CommonControlsSample
         self.dlg.wait('ready', 20)
-        tab = app.CommonControlsSample.TabControl.wrapper_object()
+        tab = app.CommonControlsSample.TabControl.find()
         tab.select(3)
         self.ctrl = self.dlg.DateTimePicker
 
@@ -1480,7 +1480,7 @@ class UpDownTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.UpDown2.wrapper_object()
+        self.ctrl = app.MicrosoftControlSpy.UpDown2.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1567,7 +1567,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         dlg = app.top_window()
         dlg.TabControl.select(1)
 
-        ctrl = dlg.Trackbar.wrapper_object()
+        ctrl = dlg.Trackbar.find()
         self.app = app
         self.dlg = dlg
         self.ctrl = ctrl

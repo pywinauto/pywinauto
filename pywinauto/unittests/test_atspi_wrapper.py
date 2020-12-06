@@ -77,7 +77,7 @@ if sys.platform.startswith("linux"):
             self.desktop_wrapper = AtspiWrapper(self.desktop_info)
             self.app = Application()
             self.app.start(_test_app())
-            self.app_wrapper = self.app.gtk_example.wrapper_object()
+            self.app_wrapper = self.app.gtk_example.find()
             self.app_frame = self.app.gtk_example.Frame
 
         def tearDown(self):
@@ -109,7 +109,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.control_id(), IATSPI().known_control_types["Application"])
 
         def test_image(self):
-            img_wrp = self.app_frame.Icon.wrapper_object()
+            img_wrp = self.app_frame.Icon.find()
             self.assertEqual(img_wrp.description(), u'')
             self.assertEqual(img_wrp.class_name(), u"Icon")
             self.assertEqual(img_wrp.locale(), u'')
