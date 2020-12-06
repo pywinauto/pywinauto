@@ -384,7 +384,8 @@ class WinBaseWrapper(BaseWrapper):
 
         if rect:
             if not isinstance(rect, RECT):
-                raise TypeError("Unexpected type: {} instead {}".format(type(rect), type(RECT())))
+                raise TypeError("capture_as_image() takes rect of type {} while incorrect type {} is given"
+                                .format(RECT, type(rect)))
             control_rectangle = rect
 
         # get the control rectangle in a way that PIL likes it
