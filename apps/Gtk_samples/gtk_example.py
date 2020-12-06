@@ -37,7 +37,7 @@ def _add_image_widget():
     img.set_tooltip_text("orange image")
     return img
 
-class TestApplicationMainWindow(Gtk.Window):
+class TestApplicationMainWindow(Gtk.by):
 
     def _add_combobox(self):
         country_store = Gtk.ListStore(str)
@@ -100,7 +100,7 @@ class TestApplicationMainWindow(Gtk.Window):
         return scrolledwindow
 
     def __init__(self):
-        Gtk.Window.__init__(self, title="MainWindow")
+        Gtk.by.__init__(self, title="MainWindow")
         self.set_default_size(600, 200)
         self.set_border_width(0)
 
