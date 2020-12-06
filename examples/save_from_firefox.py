@@ -101,7 +101,7 @@ app.SaveAs.Save.close_click()
 
 try:
     # if asked to overwrite say yes
-    if app.SaveAs.Yes.Exists():
+    if app.SaveAs.Yes.exists():
         app.SaveAs.Yes.close_click()
 except WindowAmbiguousError as e:
     for w in e.windows:

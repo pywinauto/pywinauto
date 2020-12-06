@@ -975,7 +975,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertEqual(self.dlgspec.find(), self.dlgspec.wait("actIve "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
+        self.assertRaises(SyntaxError, self.dlgspec.wait, "Invalid_criteria")
 
     def test_wait_non_existing(self):
         """test timing of the wait method for non-existing element"""

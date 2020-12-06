@@ -96,7 +96,7 @@ from .backend import registry
 
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes
-from . import deprecated, removed
+from . import deprecated
 
 
 class AppStartError(Exception):
@@ -161,19 +161,9 @@ class WindowSpecification(object):
         self.backend = registry.backends[search_criteria['backend']]
 
         # Non PEP-8 aliases for partial backward compatibility
-        self.WrapperObject = removed(self.find, removed_name='WrapperObject')
         self.wrapper_object = deprecated(self.find, deprecated_name='wrapper_object')
-        self.ChildWindow = removed(self.by, removed_name='ChildWindow')
         self.child_window = deprecated(self.by, deprecated_name="child_window")
-        self.Exists = deprecated(self.exists)
-        self.Wait = deprecated(self.wait)
-        self.WaitNot = deprecated(self.wait_not)
-        self.PrintControlIdentifiers = deprecated(self.print_control_identifiers)
-
         self.window = deprecated(self.by, deprecated_name='window')
-        self.Window = removed(self.by, removed_name='Window')
-        self.Window_ = removed(self.by, removed_name='Window_')
-        self.window_ = removed(self.by, removed_name='window_')
 
     def __call__(self, *args, **kwargs):
         """No __call__ so return a usefull error"""
