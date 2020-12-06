@@ -249,12 +249,12 @@ class HwndWrapperTests(unittest.TestCase):
     def testTexts(self):
         self.assertEqual(self.dlg.texts(), ['Common Controls Sample'])
         self.assertEqual(HwndWrapper(self.dlg.Show.handle).texts(), [u'Show'])
-        self.assertEqual(self.dlg.child_window(class_name='Button', found_index=2).texts(), [u'Elevation Icon'])
+        self.assertEqual(self.dlg.by(class_name='Button', found_index=2).texts(), [u'Elevation Icon'])
 
     def testFoundIndex(self):
         """Test an access to a control by found_index"""
 
-        ctl = self.dlg.child_window(class_name='Button', found_index=3)
+        ctl = self.dlg.by(class_name='Button', found_index=3)
         self.assertEqual(ctl.texts(), [u'Show'])
         ctl.draw_outline('blue')  # visualize
 
@@ -264,7 +264,7 @@ class HwndWrapperTests(unittest.TestCase):
         # The exception is raised later when we try to find the window.
         # For this reason we can't use an assertRaises statement here because
         # the exception is raised before actual call to DrawOutline
-        ctl = self.dlg.child_window(class_name='Button', found_index=3333)
+        ctl = self.dlg.by(class_name='Button', found_index=3333)
         self.assertRaises(ElementNotFoundError, ctl.find)
 
     def testSearchWithPredicateFunc(self):
@@ -280,7 +280,7 @@ class HwndWrapperTests(unittest.TestCase):
                     res = True
             return res
 
-        ctl = self.dlg.child_window(predicate_func=is_checkbox)
+        ctl = self.dlg.by(predicate_func=is_checkbox)
         self.assertEqual(ctl.texts(), [u'Show'])
         ctl.draw_outline('red')  # visualize
 

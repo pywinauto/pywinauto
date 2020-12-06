@@ -527,23 +527,23 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         self.assertTrue('In-place-edit control "Edit"' in str(context.exception))
 
     def test_automation_id_by_win32(self):
-        list_view = self.dlg.child_window(auto_id="listViewEx1").wait('visible')
+        list_view = self.dlg.by(auto_id="listViewEx1").wait('visible')
         self.assertEqual(list_view.automation_id(), "listViewEx1")
 
-        check_box = self.dlg.child_window(auto_id="checkBoxDoubleClickActivation").wait('visible')
+        check_box = self.dlg.by(auto_id="checkBoxDoubleClickActivation").wait('visible')
         self.assertEqual(check_box.automation_id(), "checkBoxDoubleClickActivation")
 
         check_box = self.dlg.checkBoxDoubleClickActivation.wait('visible')
         self.assertEqual(check_box.automation_id(), "checkBoxDoubleClickActivation")
 
     def test_win32_control_type(self):
-        list_view = self.dlg.child_window(control_type="ListViewEx.ListViewEx").wait('visible')
+        list_view = self.dlg.by(control_type="ListViewEx.ListViewEx").wait('visible')
         self.assertEqual(list_view.control_type(), "ListViewEx.ListViewEx")
         self.assertEqual(list_view.full_control_type(),
                          "ListViewEx.ListViewEx, ListViewEx, Version=1.0.6520.42612, " \
                          "Culture=neutral, PublicKeyToken=null")
 
-        check_box = self.dlg.child_window(control_type="System.Windows.Forms.CheckBox").wait('visible')
+        check_box = self.dlg.by(control_type="System.Windows.Forms.CheckBox").wait('visible')
         self.assertEqual(check_box.control_type(), "System.Windows.Forms.CheckBox")
         self.assertEqual(check_box.full_control_type(),
                          "System.Windows.Forms.CheckBox, System.Windows.Forms, " \

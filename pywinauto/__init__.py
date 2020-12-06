@@ -52,6 +52,13 @@ def deprecated(method, deprecated_name=None):
     return wrap
 
 
+def removed(method, removed_name=None):
+    """Decorator for removed methods"""
+    if removed_name is None:
+        removed_name = ''.join([subname.capitalize() for subname in method.__name__.split('_')])
+    raise Exception("Method .{}() was removed, use .{}() instead.".format(removed_name, method.__name__))
+
+
 if sys.platform == 'win32':
     # Importing only pythoncom can fail with the errors like:
     #     ImportError: No system module 'pywintypes' (pywintypes27.dll)

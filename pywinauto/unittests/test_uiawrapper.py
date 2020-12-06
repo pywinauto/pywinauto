@@ -117,8 +117,8 @@ if UIA_support:
 
         def test_class(self):
             """Test getting the classname of the dialog"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.class_name(), "Button")
 
         def test_window_text(self):
@@ -129,14 +129,14 @@ if UIA_support:
 
         def test_control_id(self):
             """Test getting control ID"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.control_id(), None)
 
         def test_runtime_id(self):
             """Test getting runtime ID"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertNotEqual(button.__hash__(), 0)
 
             orig = button.element_info._element.GetRuntimeId
@@ -147,34 +147,34 @@ if UIA_support:
 
         def test_automation_id(self):
             """Test getting automation ID"""
-            alpha_toolbar = self.dlg.child_window(name="Alpha", control_type="ToolBar")
-            button = alpha_toolbar.child_window(control_type="Button",
-                                                auto_id="OverflowButton").find()
+            alpha_toolbar = self.dlg.by(name="Alpha", control_type="ToolBar")
+            button = alpha_toolbar.by(control_type="Button",
+                                      auto_id="OverflowButton").find()
             self.assertEqual(button.automation_id(), "OverflowButton")
 
         def test_is_visible(self):
             """Test is_visible method of a control"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.is_visible(), True)
 
         def test_is_enabled(self):
             """Test is_enabled method of a control"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.is_enabled(), True)
 
         def test_process_id(self):
             """Test process_id method of a control"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.process_id(), self.dlg.process_id())
             self.assertNotEqual(button.process_id(), 0)
 
         def test_is_dialog(self):
             """Test is_dialog method of a control"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.is_dialog(), False)
             self.assertEqual(self.dlg.is_dialog(), True)
 
@@ -187,7 +187,7 @@ if UIA_support:
             self.assertEqual(prevRect, self.dlg.rectangle())
 
             # move_window call for a not supported control
-            button = self.dlg.child_window(class_name="Button", name="OK")
+            button = self.dlg.by(class_name="Button", name="OK")
             self.assertRaises(AttributeError, button.move_window)
 
             # Make RECT stub to avoid import win32structures
@@ -240,8 +240,8 @@ if UIA_support:
 
         def test_top_level_parent(self):
             """Test getting a top-level parent of a control"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.top_level_parent(), self.dlg.find())
 
         def test_texts(self):
@@ -250,26 +250,26 @@ if UIA_support:
 
         def test_children(self):
             """Test getting children of a control"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(len(button.children()), 1)
             self.assertEqual(button.children()[0].class_name(), "TextBlock")
 
         def test_children_generator(self):
             """Test iterating children of a control"""
-            button = self.dlg.child_window(class_name="Button", name="OK").find()
+            button = self.dlg.by(class_name="Button", name="OK").find()
             children = [child for child in button.iter_children()]
             self.assertEqual(len(children), 1)
             self.assertEqual(children[0].class_name(), "TextBlock")
 
         def test_descendants(self):
             """Test iterating descendants of a control"""
-            toolbar = self.dlg.child_window(name="Alpha", control_type="ToolBar").find()
+            toolbar = self.dlg.by(name="Alpha", control_type="ToolBar").find()
             descendants = toolbar.descendants()
             self.assertEqual(len(descendants), 7)
 
         def test_descendants_generator(self):
-            toolbar = self.dlg.child_window(name="Alpha", control_type="ToolBar").find()
+            toolbar = self.dlg.by(name="Alpha", control_type="ToolBar").find()
             descendants = [desc for desc in toolbar.iter_descendants()]
             self.assertSequenceEqual(toolbar.descendants(), descendants)
 
@@ -280,8 +280,8 @@ if UIA_support:
 
         def test_equals(self):
             """Test controls comparisons"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertNotEqual(button, self.dlg.find())
             self.assertEqual(button, button.element_info)
             self.assertEqual(button, button)
@@ -290,8 +290,8 @@ if UIA_support:
         def test_scroll(self):
             """Test scroll"""
             # Check an exception on a non-scrollable control
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             six.assertRaisesRegex(self, AttributeError, "not scrollable",
                                   button.scroll, "left", "page")
 
@@ -337,8 +337,8 @@ if UIA_support:
             """Test is_keyboard focusable method of several controls"""
             edit = self.dlg.TestLabelEdit.find()
             label = self.dlg.TestLabel.find()
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             self.assertEqual(button.is_keyboard_focusable(), True)
             self.assertEqual(edit.is_keyboard_focusable(), True)
             self.assertEqual(label.is_keyboard_focusable(), False)
@@ -367,8 +367,8 @@ if UIA_support:
 
         def test_no_pattern_interface_error(self):
             """Test a query interface exception handling"""
-            button = self.dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            button = self.dlg.by(class_name="Button",
+                                 name="OK").find()
             elem = button.element_info.element
             self.assertRaises(
                 uia_defs.NoPatternInterfaceError,
@@ -437,8 +437,8 @@ if UIA_support:
                                    'KeyboardShortcut': '',
                                    'State': 1048576,
                                    'Role': 43}
-            button_wrp = self.dlg.child_window(class_name="Button",
-                                               name="OK").find()
+            button_wrp = self.dlg.by(class_name="Button",
+                                     name="OK").find()
 
             actual_properties = button_wrp.legacy_properties()
 
@@ -465,10 +465,10 @@ if UIA_support:
             self.app = self.app.start(wpf_app_1)
 
             dlg = self.app.WPFSampleApplication
-            self.button = dlg.child_window(class_name="Button",
-                                           name="OK").find()
+            self.button = dlg.by(class_name="Button",
+                                 name="OK").find()
 
-            self.label = dlg.child_window(class_name="Text", name="TestLabel").find()
+            self.label = dlg.by(class_name="Text", name="TestLabel").find()
             self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1.0)
 
         def tearDown(self):
@@ -535,7 +535,7 @@ if UIA_support:
             assert_regex(wrp.__str__(), "^uia_controls\.ButtonWrapper - 'CheckBox', CheckBox$", )
             assert_regex(wrp.__repr__(), "^<uia_controls\.ButtonWrapper - 'CheckBox', CheckBox, [0-9-]+>$", )
 
-            wrp = self.dlg.child_window(class_name="TextBox").find()
+            wrp = self.dlg.by(class_name="TextBox").find()
             assert_regex(wrp.__str__(), "^uia_controls\.EditWrapper - '', Edit$")
             assert_regex(wrp.__repr__(), "^<uia_controls\.EditWrapper - '', Edit, [0-9-]+>$")
             assert_regex(wrp.element_info.__str__(), "^uia_element_info.UIAElementInfo - '', TextBox$")
@@ -612,7 +612,7 @@ if UIA_support:
             friendly_name = self.dlg.TabControl.friendly_class_name()
             self.assertEqual(friendly_name, "TabControl")
 
-            edit = self.dlg.child_window(class_name="TextBox").find()
+            edit = self.dlg.by(class_name="TextBox").find()
             self.assertEqual(edit.friendly_class_name(), "Edit")
 
             slider = self.dlg.Slider.find()
@@ -667,8 +667,8 @@ if UIA_support:
 
         def test_button_click(self):
             """Test the click method for the Button control"""
-            label = self.dlg.child_window(class_name="Text",
-                                          name="TestLabel").find()
+            label = self.dlg.by(class_name="Text",
+                                name="TestLabel").find()
             self.dlg.Apply.click()
             self.assertEqual(label.window_text(), "ApplyClick")
 
@@ -772,7 +772,7 @@ if UIA_support:
             dlg = app.WPFSampleApplication
 
             self.app = app
-            self.ctrl = dlg.child_window(class_name="TabControl").find()
+            self.ctrl = dlg.by(class_name="TabControl").find()
             self.texts = [u"General", u"Tree and List Views", u"ListBox and Grid"]
 
         def tearDown(self):
@@ -812,7 +812,7 @@ if UIA_support:
             self.app = app
             self.dlg = app.WPFSampleApplication
 
-            self.edit = self.dlg.child_window(class_name="TextBox").find()
+            self.edit = self.dlg.by(class_name="TextBox").find()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -902,7 +902,7 @@ if UIA_support:
             self.app = app
             self.dlg = app.WPFSampleApplication
 
-            self.slider = self.dlg.child_window(class_name="Slider").find()
+            self.slider = self.dlg.by(class_name="Slider").find()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -1406,9 +1406,9 @@ if UIA_support:
             self.app = app.start(winfoms_app_grid)
             self.dlg = dlg = app.Form1
 
-            self.combo_editable = dlg.child_window(auto_id="comboRowType", control_type="ComboBox").find()
-            self.combo_fixed = dlg.child_window(auto_id="comboBoxReadOnly", control_type="ComboBox").find()
-            self.combo_simple = dlg.child_window(auto_id="comboBoxSimple", control_type="ComboBox").find()
+            self.combo_editable = dlg.by(auto_id="comboRowType", control_type="ComboBox").find()
+            self.combo_fixed = dlg.by(auto_id="comboBoxReadOnly", control_type="ComboBox").find()
+            self.combo_simple = dlg.by(auto_id="comboBoxSimple", control_type="ComboBox").find()
 
         def tearDown(self):
             """Close the application after tests"""

@@ -95,7 +95,7 @@ from .backend import registry
 
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes
-from . import deprecated
+from . import deprecated, removed
 
 
 class AppStartError(Exception):
@@ -163,17 +163,18 @@ class WindowSpecification(object):
 
         if self.backend.name == 'win32':
             # Non PEP-8 aliases for partial backward compatibility
-            self.WrapperObject = deprecated(self.find, deprecated_name='WrapperObject')
+            self.WrapperObject = removed(self.find, removed_name='WrapperObject')
             self.wrapper_object = deprecated(self.find, deprecated_name='wrapper_object')
-            self.ChildWindow = deprecated(self.child_window)
+            self.ChildWindow = removed(self.by, removed_name='ChildWindow')
+            self.child_window = deprecated(self.by, deprecated_name="child_window")
             self.Exists = deprecated(self.exists)
             self.Wait = deprecated(self.wait)
             self.WaitNot = deprecated(self.wait_not)
             self.PrintControlIdentifiers = deprecated(self.print_control_identifiers)
 
-            self.Window = deprecated(self.child_window, deprecated_name='Window')
-            self.Window_ = deprecated(self.child_window, deprecated_name='Window_')
-            self.window_ = deprecated(self.child_window, deprecated_name='window_')
+            self.Window = removed(self.by, removed_name='Window')
+            self.Window_ = removed(self.by, removed_name='Window_')
+            self.window_ = removed(self.by, removed_name='window_')
 
     def __call__(self, *args, **kwargs):
         """No __call__ so return a useful error"""
@@ -268,7 +269,7 @@ class WindowSpecification(object):
         ctrls = self.__resolve_control(self.criteria)
         return ctrls[-1]
 
-    def child_window(self, **criteria):
+    def by(self, **criteria):
         """
         Add criteria for a control
 
@@ -293,7 +294,7 @@ class WindowSpecification(object):
             "WindowSpecification.window() and WindowSpecification.window_() "
             "are deprecated, please switch to WindowSpecification.child_window()",
             DeprecationWarning)
-        return self.child_window(**criteria)
+        return self.by(**criteria)
 
     def __getitem__(self, key):
         """
@@ -382,7 +383,7 @@ class WindowSpecification(object):
             try:
                 return getattr(ctrls[-1], attr_name)
             except AttributeError:
-                return self.child_window(best_match=attr_name)
+                return self.by(best_match=attr_name)
         else:
             # FIXME - I don't get this part at all, why is it win32-specific and why not keep the same logic as above?
             # if we have been asked for an attribute of the dialog
