@@ -310,8 +310,9 @@ class UIAElementInfo(ElementInfo):
         try:
             ptrs_array = self._element.FindAll(tree_scope, cond)
             return elements_from_uia_array(ptrs_array, cache_enable)
-        except(COMError, ValueError):
-            ActionLogger().log("COM error: can't get elements")
+        except(COMError, ValueError) as e:
+            warnings.warn("Can't get elements due to COM error: {}. "
+                          "Try to set pywinauto.windows.uia_element_info.UIAElementInfo.use_raw_view_walker = True".format(e), RuntimeWarning)
             return []
 
     def _iter_children_raw(self):
