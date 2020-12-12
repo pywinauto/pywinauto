@@ -169,16 +169,17 @@ class ElementInfo(object):
     @staticmethod
     def get_descendants_with_depth(elem, depth=None, **kwargs):
         """Return a list of all descendant children of the element with the specified depth"""
-        def traverse_tree(root, output_list, depth, **kwargs):
+        descendants = []
+
+        def walk_the_tree(root, depth, **kwargs):
             if depth == 0:
                 return
             for child in root.children(**kwargs):
-                output_list.append(child)
+                descendants.append(child)
                 next_depth = None if depth is None else depth - 1
-                traverse_tree(child, output_list, next_depth, **kwargs)
+                walk_the_tree(child, next_depth, **kwargs)
 
-        descendants = []
-        traverse_tree(elem, descendants, depth, **kwargs)
+        walk_the_tree(elem, depth, **kwargs)
         return descendants
 
     def descendants(self, **kwargs):

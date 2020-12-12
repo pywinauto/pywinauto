@@ -113,12 +113,12 @@ if UIA_support:
         """Unit tests for the UIAElementInfo class with enabled RawViewWalker implementation"""
 
         def setUp(self):
-            self.assertEqual(UIAElementInfo.use_raw_view_walker, False)
+            self.default_use_raw_view_walker = UIAElementInfo.use_raw_view_walker
             UIAElementInfo.use_raw_view_walker = True
             super(UIAElementInfoRawViewWalkerTests, self).setUp()
 
         def tearDown(self):
-            UIAElementInfo.use_raw_view_walker = False
+            UIAElementInfo.use_raw_view_walker = self.default_use_raw_view_walker
             super(UIAElementInfoRawViewWalkerTests, self).tearDown()
 
         def test_use_findall_children(self):

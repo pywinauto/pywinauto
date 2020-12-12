@@ -398,7 +398,7 @@ class UIAElementInfo(ElementInfo):
                 cond = IUIA().build_condition(**kwargs)
                 return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
             else:
-                return ElementInfo.get_descendants_with_depth(self, depth=depth, **kwargs)
+                return self.get_descendants_with_depth(self, depth=depth, **kwargs)
 
     @property
     def visible(self):
