@@ -42,7 +42,6 @@ from .uia_defines import get_elem_interface
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from pywinauto.actionlogger import ActionLogger
 
 
 def elements_from_uia_array(ptrs, cache_enable=False):
