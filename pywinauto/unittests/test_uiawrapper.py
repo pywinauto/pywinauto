@@ -72,7 +72,7 @@ if UIA_support:
             self.app.kill()
 
         def test_issue_296(self):
-            """Test handling of disappered descendants"""
+            """Test handling of disappeared descendants"""
             wrp = self.dlg.wrapper_object()
             with mock.patch.object(wrp.element_info._element, 'FindAll') as mock_findall:
                 mock_findall.side_effect = ValueError("Mocked value error")
@@ -459,16 +459,16 @@ if UIA_support:
         """Unit tests for the UIAWrapper class with enabled RawViewWalker"""
 
         def setUp(self):
-            self.assertEqual(UIAElementInfo.use_raw_view_walker, False)
+            self.default_use_raw_view_walker = UIAElementInfo.use_raw_view_walker
             UIAElementInfo.use_raw_view_walker = True
             super(UIAWrapperRawViewWalkerTests, self).setUp()
 
         def tearDown(self):
-            UIAElementInfo.use_raw_view_walker = False
+            UIAElementInfo.use_raw_view_walker = self.default_use_raw_view_walker
             super(UIAWrapperRawViewWalkerTests, self).tearDown()
 
         def test_issue_296(self):
-            """Test handling of disappered descendants"""
+            """Test handling of disappeared descendants"""
             wrp = self.dlg.wrapper_object()
             with mock.patch.object(uia_defs.IUIA().raw_tree_walker, 'GetFirstChildElement') as mock_get_first_child:
                 mock_get_first_child.side_effect = ValueError("Mocked value error")
