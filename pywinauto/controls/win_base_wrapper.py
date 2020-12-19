@@ -420,6 +420,9 @@ class WinBaseWrapper(BaseWrapper):
                                                'BGRX',
                                                0,
                                                1)
+                win32gui.DeleteObject(bmp.GetHandle())
+                memdc.DeleteDC()
+                win32gui.ReleaseDC(hwin, hwindc)
         else:
             # grab the image and get raw data as a string
             pil_img_obj = ImageGrab.grab(box)
