@@ -14,7 +14,7 @@ sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.base_application import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
-from pywinauto.timings import Timings  # noqa: E402
+from pywinauto.timings import Timings, wait_until  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
 from pywinauto import Desktop
 from pywinauto import mouse  # noqa: E402
@@ -2115,9 +2115,9 @@ if UIA_support:
         def test_issue_443(self):
             """Test .set_focus() for window that is not keyboard focusable"""
             self.dlg.minimize()
-            self.assertEqual(self.dlg.is_minimized(), True)
+            wait_until(1, 0.2, self.dlg.is_minimized)
             self.dlg.set_focus()
-            self.assertEqual(self.dlg.is_minimized(), False)
+            wait_until(1, 0.2, self.dlg.is_minimized, value=False)
             self.assertEqual(self.dlg.is_normal(), True)
 
             # run another app instance (in focus now)
