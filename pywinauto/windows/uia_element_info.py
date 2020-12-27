@@ -96,6 +96,7 @@ class UIAElementInfo(ElementInfo):
     }
 
     use_raw_view_walker = False
+    """Enable/disable RawViewWalker-based implementation (can find more elements in some cases, but slow)"""
 
     def __init__(self, handle_or_elem=None, cache_enable=False):
         """
