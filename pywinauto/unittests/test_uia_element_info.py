@@ -1,6 +1,7 @@
 import unittest
 import os
 import sys
+import mock
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
@@ -11,6 +12,7 @@ from pywinauto.timings import Timings  # noqa: E402
 
 if UIA_support:
     from pywinauto.windows.uia_element_info import UIAElementInfo
+    from pywinauto.windows.uia_defines import IUIA
 
 mfc_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -104,6 +106,64 @@ if UIA_support:
             """Test whether descendant generator iterates over correct elements"""
             descendants = [desc for desc in self.ctrl.iter_descendants(depth=3)]
             self.assertSequenceEqual(self.ctrl.descendants(depth=3), descendants)
+
+
+    class UIAElementInfoRawViewWalkerTests(UIAElementInfoTests):
+
+        """Unit tests for the UIAElementInfo class with enabled RawViewWalker implementation"""
+
+        def setUp(self):
+            self.default_use_raw_view_walker = UIAElementInfo.use_raw_view_walker
+            UIAElementInfo.use_raw_view_walker = True
+            super(UIAElementInfoRawViewWalkerTests, self).setUp()
+
+        def tearDown(self):
+            UIAElementInfo.use_raw_view_walker = self.default_use_raw_view_walker
+            super(UIAElementInfoRawViewWalkerTests, self).tearDown()
+
+        def test_use_findall_children(self):
+            """Test use FindAll inside children method"""
+            with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
+                UIAElementInfo.use_raw_view_walker = False
+                self.ctrl.children()
+                self.assertEqual(mock_findall.call_count, 1)
+
+                UIAElementInfo.use_raw_view_walker = True
+                self.ctrl.children()
+                self.assertEqual(mock_findall.call_count, 1)
+
+        def test_use_findall_descendants(self):
+            """Test use FindAll inside descendants method"""
+            with mock.patch.object(self.ctrl._element, 'FindAll', wraps=self.ctrl._element.FindAll) as mock_findall:
+                UIAElementInfo.use_raw_view_walker = False
+                self.ctrl.descendants(depth=1)
+                self.assertEqual(mock_findall.call_count, 1)
+
+                UIAElementInfo.use_raw_view_walker = True
+                self.ctrl.descendants(depth=1)
+                self.assertEqual(mock_findall.call_count, 1)
+
+        def test_use_create_tree_walker_iter_children(self):
+            """Test use CreateTreeWalker inside iter_children method"""
+            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_create:
+                UIAElementInfo.use_raw_view_walker = False
+                next(self.ctrl.iter_children())
+                self.assertEqual(mock_create.call_count, 1)
+
+                UIAElementInfo.use_raw_view_walker = True
+                next(self.ctrl.iter_children())
+                self.assertEqual(mock_create.call_count, 1)
+
+        def test_use_create_tree_walker_iter_descendants(self):
+            """Test use CreateTreeWalker inside iter_descendants method"""
+            with mock.patch.object(IUIA().iuia, 'CreateTreeWalker', wraps=IUIA().iuia.CreateTreeWalker) as mock_create:
+                UIAElementInfo.use_raw_view_walker = False
+                next(self.ctrl.iter_descendants(depth=3))
+                self.assertEqual(mock_create.call_count, 1)
+
+                UIAElementInfo.use_raw_view_walker = True
+                next(self.ctrl.iter_descendants(depth=3))
+                self.assertEqual(mock_create.call_count, 1)
 
 if __name__ == "__main__":
     if UIA_support:

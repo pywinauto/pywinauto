@@ -24,6 +24,7 @@ if UIA_support:
     import pywinauto.windows.uia_defines as uia_defs
     import pywinauto.controls.uia_controls as uia_ctls
     from pywinauto.controls.uiawrapper import UIAWrapper
+    from pywinauto.windows.uia_element_info import UIAElementInfo
 
 wpf_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -71,12 +72,12 @@ if UIA_support:
             self.app.kill()
 
         def test_issue_296(self):
-            """Test handling of disappered descendants"""
+            """Test handling of disappeared descendants"""
             wrp = self.dlg.wrapper_object()
-            with mock.patch.object(uia_defs.IUIA().raw_tree_walker, 'GetFirstChildElement') as mock_get_first_child:
-                mock_get_first_child.side_effect = ValueError("Mocked value error")
+            with mock.patch.object(wrp.element_info._element, 'FindAll') as mock_findall:
+                mock_findall.side_effect = ValueError("Mocked value error")
                 self.assertEqual([], wrp.descendants())
-                mock_get_first_child.side_effect = comtypes.COMError(-2147220991, "Mocked COM error", ())
+                mock_findall.side_effect = comtypes.COMError(-2147220991, "Mocked COM error", ())
                 self.assertEqual([], wrp.descendants())
 
         def test_issue_278(self):
@@ -451,6 +452,29 @@ if UIA_support:
                 expected = (rect.width(), rect.height())
                 result = self.dlg.capture_as_image().size
                 self.assertEqual(expected, result)
+
+
+    class UIAWrapperRawViewWalkerTests(UIAWrapperTests):
+
+        """Unit tests for the UIAWrapper class with enabled RawViewWalker"""
+
+        def setUp(self):
+            self.default_use_raw_view_walker = UIAElementInfo.use_raw_view_walker
+            UIAElementInfo.use_raw_view_walker = True
+            super(UIAWrapperRawViewWalkerTests, self).setUp()
+
+        def tearDown(self):
+            UIAElementInfo.use_raw_view_walker = self.default_use_raw_view_walker
+            super(UIAWrapperRawViewWalkerTests, self).tearDown()
+
+        def test_issue_296(self):
+            """Test handling of disappeared descendants"""
+            wrp = self.dlg.wrapper_object()
+            with mock.patch.object(uia_defs.IUIA().raw_tree_walker, 'GetFirstChildElement') as mock_get_first_child:
+                mock_get_first_child.side_effect = ValueError("Mocked value error")
+                self.assertEqual([], wrp.descendants())
+                mock_get_first_child.side_effect = comtypes.COMError(-2147220991, "Mocked COM error", ())
+                self.assertEqual([], wrp.descendants())
 
 
     class UIAWrapperMouseTests(unittest.TestCase):
