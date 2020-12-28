@@ -1623,7 +1623,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         self.assert_channel_rect(self.ctrl.get_channel_rect(), system_rect)
 
     def assert_channel_rect(self, first_rect, second_rect):
-        """Compare two rect strucrures"""
+        """Compare two rect structures"""
         self.assertEqual(first_rect.height(), second_rect.height())
         self.assertEqual(first_rect.width(), second_rect.width())
 
