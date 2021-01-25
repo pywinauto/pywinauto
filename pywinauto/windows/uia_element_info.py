@@ -95,6 +95,9 @@ class UIAElementInfo(ElementInfo):
         "top_level_only": ("depth", {True: 1, False: None}),
     }
 
+    use_raw_view_walker = False
+    """Enable/disable RawViewWalker-based implementation (can find more elements in some cases, but slow)"""
+
     def __init__(self, handle_or_elem=None, cache_enable=False):
         """
         Create an instance of UIAElementInfo from a handle (int or long)
@@ -302,16 +305,15 @@ class UIAElementInfo(ElementInfo):
         else:
             return None
 
-    # TODO add parameter to use FindAll instead of RawTreeWalker and uncomment
-    # def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
-    #     """Find all elements according to the given tree scope and conditions"""
-    #     try:
-    #         ptrs_array = self._element.FindAll(tree_scope, cond)
-    #         return elements_from_uia_array(ptrs_array, cache_enable)
-    #     except(COMError, ValueError) as e:
-    #         print(e)
-    #         ActionLogger().log("COM error: can't get elements")
-    #         return []
+    def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
+        """Find all elements according to the given tree scope and conditions"""
+        try:
+            ptrs_array = self._element.FindAll(tree_scope, cond)
+            return elements_from_uia_array(ptrs_array, cache_enable)
+        except(COMError, ValueError) as e:
+            warnings.warn("Can't get elements due to COM error: {}. "
+                          "Try to set pywinauto.windows.uia_element_info.UIAElementInfo.use_raw_view_walker = True".format(e), RuntimeWarning)
+            return []
 
     def _iter_children_raw(self):
         """Return a generator of only immediate children of the element"""
@@ -330,9 +332,17 @@ class UIAElementInfo(ElementInfo):
            class_name, control_type, content_only and/or title.
         """
         cache_enable = kwargs.pop('cache_enable', False)
-        for element in self._iter_children_raw():
-            if is_element_satisfying_criteria(element, **kwargs):
-                yield UIAElementInfo(element, cache_enable)
+        if UIAElementInfo.use_raw_view_walker:
+            for element in self._iter_children_raw():
+                if is_element_satisfying_criteria(element, **kwargs):
+                    yield UIAElementInfo(element, cache_enable)
+        else:
+            cond = IUIA().build_condition(**kwargs)
+            tree_walker = IUIA().iuia.CreateTreeWalker(cond)
+            element = tree_walker.GetFirstChildElement(self._element)
+            while element:
+                yield UIAElementInfo(element)
+                element = tree_walker.GetNextSiblingElement(element)
 
     def iter_descendants(self, **kwargs):
         """Iterate over descendants of the element"""
@@ -343,13 +353,21 @@ class UIAElementInfo(ElementInfo):
 
         if depth == 0:
             return
-        for child in self._iter_children_raw():
-            if is_element_satisfying_criteria(child, **kwargs):
-                yield UIAElementInfo(child, cache_enable)
-            if depth is not None:
-                kwargs["depth"] = depth - 1
-            for c in UIAElementInfo(child, cache_enable).iter_descendants(**kwargs):
-                if is_element_satisfying_criteria(c._element, **kwargs):
+        if UIAElementInfo.use_raw_view_walker:
+            for child in self._iter_children_raw():
+                if is_element_satisfying_criteria(child, **kwargs):
+                    yield UIAElementInfo(child, cache_enable)
+                if depth is not None:
+                    kwargs["depth"] = depth - 1
+                for c in UIAElementInfo(child, cache_enable).iter_descendants(**kwargs):
+                    if is_element_satisfying_criteria(c._element, **kwargs):
+                        yield c
+        else:
+            for child in self.iter_children(**kwargs):
+                yield child
+                if depth is not None:
+                    kwargs["depth"] = depth - 1
+                for c in child.iter_descendants(**kwargs):
                     yield c
 
     def children(self, **kwargs):
@@ -358,7 +376,12 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        return list(self.iter_children(**kwargs))
+        if UIAElementInfo.use_raw_view_walker:
+            return list(self.iter_children(**kwargs))
+        else:
+            cache_enable = kwargs.pop('cache_enable', False)
+            cond = IUIA().build_condition(**kwargs)
+            return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
@@ -366,7 +389,16 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        return list(self.iter_descendants(**kwargs))
+        if UIAElementInfo.use_raw_view_walker:
+            return list(self.iter_descendants(**kwargs))
+        else:
+            depth = kwargs.pop('depth', None)
+            if depth is None:
+                cache_enable = kwargs.pop('cache_enable', False)
+                cond = IUIA().build_condition(**kwargs)
+                return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+            else:
+                return self.get_descendants_with_depth(depth=depth, **kwargs)
 
     @property
     def visible(self):

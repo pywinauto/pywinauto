@@ -40,6 +40,7 @@ from datetime import datetime
 #import pdb
 import os
 import win32api
+import win32gui
 import six
 
 sys.path.append(".")
@@ -765,6 +766,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
         birds.click_input(where='button')
         self.assertEqual(birds.is_expanded(), True)
+        time.sleep(win32gui.GetDoubleClickTime() * 2.0 / 1000)
         birds.click_input(double=True, where='icon')
         self.assertEqual(birds.is_expanded(), False)
 
@@ -1614,7 +1616,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         self.assert_channel_rect(self.ctrl.get_channel_rect(), system_rect)
 
     def assert_channel_rect(self, first_rect, second_rect):
-        """Compare two rect strucrures"""
+        """Compare two rect structures"""
         self.assertEqual(first_rect.height(), second_rect.height())
         self.assertEqual(first_rect.width(), second_rect.width())
 
