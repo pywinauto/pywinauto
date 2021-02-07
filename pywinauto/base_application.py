@@ -83,6 +83,7 @@ import time
 import warnings
 import locale
 import codecs
+import collections
 
 import six
 
@@ -612,8 +613,27 @@ class WindowSpecification(object):
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
 
+        descendants = []
+        ElementTreeNode = collections.namedtuple('element_tree_node', ['elem', 'id', 'children'])
+        current_id = [0]
+
+        def create_element_tree(elem, parent_elem, depth, **kwargs):
+            if depth == 0:
+                return
+            for child_elem in elem.children(**kwargs):
+                descendants.append(child_elem)
+                current_id[0] += 1
+                elem_node = ElementTreeNode(child_elem, current_id[0], [])
+                parent_elem.children.append(elem_node)
+
+                next_depth = None if depth is None else depth - 1
+                create_element_tree(child_elem, elem_node, next_depth, **kwargs)
+
+        elements_tree = ElementTreeNode(this_ctrl, 0, [])
+        create_element_tree(this_ctrl, elements_tree, depth)
+
         # Create a list of this control and all its descendants
-        all_ctrls = [this_ctrl, ] + this_ctrl.descendants(depth=depth)
+        all_ctrls = [this_ctrl, ] + descendants
 
         # Create a list of all visible text controls
         txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
@@ -630,69 +650,66 @@ class WindowSpecification(object):
         for name, index in name_ctrl_id_map.items():
             ctrl_id_name_map.setdefault(index, []).append(name)
 
-        def print_identifiers(ctrls, current_depth=0, log_func=print):
+        def print_identifiers(element_node, current_depth=0, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
-            if len(ctrls) == 0 or current_depth > depth:
-                return
-
             indent = current_depth * u"   | "
-            for ctrl in ctrls:
-                try:
-                    ctrl_id = all_ctrls.index(ctrl)
-                except ValueError:
-                    continue
-                ctrl_text = ctrl.window_text()
-                if ctrl_text:
-                    # transform multi-line text to one liner
-                    ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
 
-                output = indent + u'\n'
-                output += indent + u"{class_name} - '{text}'    {rect}\n"\
-                    "".format(class_name=ctrl.friendly_class_name(),
-                              text=ctrl_text,
-                              rect=ctrl.rectangle())
-                output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
+            ctrl_id = element_node.id
+            ctrl = element_node.elem
+            ctrl_text = ctrl.window_text()
+            if ctrl_text:
+                # transform multi-line text to one liner
+                ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
 
-                class_name = ctrl.class_name()
-                auto_id = None
-                control_type = None
-                if hasattr(ctrl.element_info, 'automation_id'):
-                    auto_id = ctrl.element_info.automation_id
-                if hasattr(ctrl.element_info, 'control_type'):
-                    control_type = ctrl.element_info.control_type
-                    if control_type:
-                        class_name = None  # no need for class_name if control_type exists
-                    else:
-                        control_type = None  # if control_type is empty, still use class_name instead
-                criteria_texts = []
-                if ctrl_text:
-                    criteria_texts.append(u'name="{}"'.format(ctrl_text))
-                if class_name:
-                    criteria_texts.append(u'class_name="{}"'.format(class_name))
-                if auto_id:
-                    criteria_texts.append(u'auto_id="{}"'.format(auto_id))
+            output = indent + u'\n'
+            output += indent + u"{class_name} - '{text}'    {rect}\n"\
+                "".format(class_name=ctrl.friendly_class_name(),
+                          text=ctrl_text,
+                          rect=ctrl.rectangle())
+            output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
+
+            class_name = ctrl.class_name()
+            auto_id = None
+            control_type = None
+            if hasattr(ctrl.element_info, 'automation_id'):
+                auto_id = ctrl.element_info.automation_id
+            if hasattr(ctrl.element_info, 'control_type'):
+                control_type = ctrl.element_info.control_type
                 if control_type:
-                    criteria_texts.append(u'control_type="{}"'.format(control_type))
-                if ctrl_text or class_name or auto_id:
-                    output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
-
-                if six.PY3:
-                    log_func(output)
+                    class_name = None  # no need for class_name if control_type exists
                 else:
-                    log_func(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
+                    control_type = None  # if control_type is empty, still use class_name instead
+            criteria_texts = []
+            if ctrl_text:
+                criteria_texts.append(u'name="{}"'.format(ctrl_text))
+            if class_name:
+                criteria_texts.append(u'class_name="{}"'.format(class_name))
+            if auto_id:
+                criteria_texts.append(u'auto_id="{}"'.format(auto_id))
+            if control_type:
+                criteria_texts.append(u'control_type="{}"'.format(control_type))
+            if ctrl_text or class_name or auto_id:
+                output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
 
-                print_identifiers(ctrl.children(), current_depth + 1, log_func)
+            if six.PY3:
+                log_func(output)
+            else:
+                log_func(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
+
+            if len(element_node.children) > 0 or current_depth == depth:
+                for child_elem in element_node.children:
+                    print_identifiers(child_elem, current_depth + 1, log_func)
 
         if filename is None:
             print("Control Identifiers:")
-            print_identifiers([this_ctrl, ])
+            print_identifiers(elements_tree)
         else:
             log_file = codecs.open(filename, "w", locale.getpreferredencoding())
 
             def log_func(msg):
                 log_file.write(str(msg) + os.linesep)
             log_func("Control Identifiers:")
-            print_identifiers([this_ctrl, ], log_func=log_func)
+            print_identifiers(elements_tree, log_func=log_func)
             log_file.close()
 
     print_ctrl_ids = print_control_identifiers
