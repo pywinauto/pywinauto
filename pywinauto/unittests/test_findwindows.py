@@ -71,7 +71,7 @@ class FindWindowsTestCases(unittest.TestCase):
 
     def test_find_window(self):
         """Test if function find_window() works as expected including raising the exceptions"""
-        ctrl = self.dlg.OK.wrapper_object()
+        ctrl = self.dlg.OK.find()
         handle = find_window(pid=self.app.process, best_match='OK', top_level_only=False)
 
         self.assertEqual(handle, ctrl.handle)

@@ -20,16 +20,16 @@ while not app.Windows_():
     time.sleep(.5)
 
 # if the trial nag dialog pops up
-if app.window(title = "Forte Agent Trial").Exists():
+if app.window(title = "Forte Agent Trial").exists():
     #app.ForteAgentTrial.IdLikeToContinueUsingAgentfor7moredays.click()
     app.ForteAgentTrial.IdliketouseFreeAgent.check()
     app.ForteAgentTrial.OK.click()
 
-if app.window(title = "Free Agent Registration").Exists():
+if app.window(title = "Free Agent Registration").exists():
     app.FreeAgentRegistration.ImreallybusyRemindmein30.click()
     app.FreeAgentRegistration.OK.close_click()
 
-if app.window(title = "What's New Reminder").Exists():
+if app.window(title = "What's New Reminder").exists():
     app.WhatsNewReminder.ImreallybusyRemindmein90.click()
     app.WhatsNewReminder.OK.close_click()
 
@@ -39,7 +39,7 @@ if app.window(title = "What's New Reminder").Exists():
 app.FreeAgent.wait("ready")
 
 # if we get the Agent Setup wizard pops up close it
-if app.AgentSetupWizard.Cancel.Exists(1):
+if app.AgentSetupWizard.Cancel.exists(1):
     app.AgentSetupWizard.Cancel.click()
     app.AgentSetupWizard2.Yes.click()
 
@@ -73,7 +73,7 @@ app.ExportAddresses.Cancel.click()
 
 # pick something other then a file menu item
 app.FreeAgent.menu_select("Tools->ApplyFiltersToFolder")
-if app.ToolsApplyFilters.OK.Exists():
+if app.ToolsApplyFilters.OK.exists():
     app.ToolsApplyFilters.OK.click()
 
 #app.AgentTip.OK.click()

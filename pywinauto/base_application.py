@@ -80,7 +80,6 @@ from __future__ import print_function
 import sys
 import os.path
 import time
-import warnings
 import locale
 import codecs
 
@@ -161,18 +160,10 @@ class WindowSpecification(object):
         self.backend = registry.backends[search_criteria['backend']]
         self.allow_magic_lookup = allow_magic_lookup
 
-        if self.backend.name == 'win32':
-            # Non PEP-8 aliases for partial backward compatibility
-            self.WrapperObject = deprecated(self.wrapper_object)
-            self.ChildWindow = deprecated(self.child_window)
-            self.Exists = deprecated(self.exists)
-            self.Wait = deprecated(self.wait)
-            self.WaitNot = deprecated(self.wait_not)
-            self.PrintControlIdentifiers = deprecated(self.print_control_identifiers)
-
-            self.Window = deprecated(self.child_window, deprecated_name='Window')
-            self.Window_ = deprecated(self.child_window, deprecated_name='Window_')
-            self.window_ = deprecated(self.child_window, deprecated_name='window_')
+        # Non PEP-8 aliases for partial backward compatibility
+        self.wrapper_object = deprecated(self.find, deprecated_name='wrapper_object')
+        self.child_window = deprecated(self.by, deprecated_name="child_window")
+        self.window = deprecated(self.by, deprecated_name='window')
 
     def __call__(self, *args, **kwargs):
         """No __call__ so return a useful error"""
@@ -214,7 +205,7 @@ class WindowSpecification(object):
                     ctrl_criteria["parent"] = previous_parent
 
                 if isinstance(ctrl_criteria["parent"], WindowSpecification):
-                    ctrl_criteria["parent"] = ctrl_criteria["parent"].wrapper_object()
+                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find()
 
                 # resolve the control and return it
                 if 'backend' not in ctrl_criteria:
@@ -262,12 +253,12 @@ class WindowSpecification(object):
 
         return ctrl
 
-    def wrapper_object(self):
+    def find(self):
         """Allow the calling code to get the HwndWrapper object"""
         ctrls = self.__resolve_control(self.criteria)
         return ctrls[-1]
 
-    def child_window(self, **criteria):
+    def by(self, **criteria):
         """
         Add criteria for a control
 
@@ -284,15 +275,6 @@ class WindowSpecification(object):
         new_item.criteria.append(criteria)
 
         return new_item
-
-    def window(self, **criteria):
-        """Deprecated alias of child_window()"""
-        warnings.warn(
-            "WindowSpecification.Window() WindowSpecification.Window_(), "
-            "WindowSpecification.window() and WindowSpecification.window_() "
-            "are deprecated, please switch to WindowSpecification.child_window()",
-            DeprecationWarning)
-        return self.child_window(**criteria)
 
     def __getitem__(self, key):
         """
@@ -352,7 +334,7 @@ class WindowSpecification(object):
             try:
                 return object.__getattribute__(self, attr_name)
             except AttributeError:
-                wrapper_object = self.wrapper_object()
+                wrapper_object = self.find()
                 try:
                     return getattr(wrapper_object, attr_name)
                 except AttributeError:
@@ -381,7 +363,7 @@ class WindowSpecification(object):
             try:
                 return getattr(ctrls[-1], attr_name)
             except AttributeError:
-                return self.child_window(best_match=attr_name)
+                return self.by(best_match=attr_name)
         else:
             # FIXME - I don't get this part at all, why is it win32-specific and why not keep the same logic as above?
             # if we have been asked for an attribute of the dialog
@@ -530,7 +512,7 @@ class WindowSpecification(object):
                    lambda: self.__check_all_conditions(check_method_names, retry_interval))
 
         # Return the wrapped control
-        return self.wrapper_object()
+        return self.find()
 
     def wait_not(self, wait_for_not, timeout=None, retry_interval=None):
         """

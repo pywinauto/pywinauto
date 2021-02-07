@@ -139,7 +139,7 @@ if sys.platform.startswith('linux'):
             self.assertEqual(self.app.NonExistingDialog.app, self.app)
             self.assertEqual(self.app.Application.Panel.exists(), True)
             self.assertEqual(self.app.Application.Panel.app, self.app)
-            self.assertIsInstance(self.app.Application.wrapper_object(), atspiwrapper.AtspiWrapper)
+            self.assertIsInstance(self.app.Application.find(), atspiwrapper.AtspiWrapper)
 
             wspec = WindowSpecification(dict(name=u"blah", app=self.app))
             self.assertEqual(wspec.app, self.app)

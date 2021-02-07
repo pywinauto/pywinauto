@@ -107,7 +107,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def test_close_not_found(self):
         """Test dialog close handle non existing window"""
-        wrp = self.dlg.wrapper_object()
+        wrp = self.dlg.find()
         with mock.patch.object(timings, 'wait_until') as mock_wait_until:
             mock_wait_until.side_effect = timings.TimeoutError
             self.assertRaises(WindowNotFoundError, wrp.close)
@@ -249,12 +249,12 @@ class HwndWrapperTests(unittest.TestCase):
     def testTexts(self):
         self.assertEqual(self.dlg.texts(), ['Common Controls Sample'])
         self.assertEqual(HwndWrapper(self.dlg.Show.handle).texts(), [u'Show'])
-        self.assertEqual(self.dlg.child_window(class_name='Button', found_index=2).texts(), [u'Elevation Icon'])
+        self.assertEqual(self.dlg.by(class_name='Button', found_index=2).texts(), [u'Elevation Icon'])
 
     def testFoundIndex(self):
         """Test an access to a control by found_index"""
 
-        ctl = self.dlg.child_window(class_name='Button', found_index=3)
+        ctl = self.dlg.by(class_name='Button', found_index=3)
         self.assertEqual(ctl.texts(), [u'Show'])
         ctl.draw_outline('blue')  # visualize
 
@@ -264,8 +264,8 @@ class HwndWrapperTests(unittest.TestCase):
         # The exception is raised later when we try to find the window.
         # For this reason we can't use an assertRaises statement here because
         # the exception is raised before actual call to DrawOutline
-        ctl = self.dlg.child_window(class_name='Button', found_index=3333)
-        self.assertRaises(ElementNotFoundError, ctl.wrapper_object)
+        ctl = self.dlg.by(class_name='Button', found_index=3333)
+        self.assertRaises(ElementNotFoundError, ctl.find)
 
     def testSearchWithPredicateFunc(self):
         """Test an access to a control by filtering with a predicate function"""
@@ -280,7 +280,7 @@ class HwndWrapperTests(unittest.TestCase):
                     res = True
             return res
 
-        ctl = self.dlg.child_window(predicate_func=is_checkbox)
+        ctl = self.dlg.by(predicate_func=is_checkbox)
         self.assertEqual(ctl.texts(), [u'Show'])
         ctl.draw_outline('red')  # visualize
 
@@ -297,7 +297,7 @@ class HwndWrapperTests(unittest.TestCase):
         self.assertNotEqual(self.dlg.children(), [])
 
     def testIsChild(self):
-        self.assertEqual(self.ctrl.is_child(self.dlg.wrapper_object()), True)
+        self.assertEqual(self.ctrl.is_child(self.dlg.find()), True)
         self.assertEqual(self.dlg.is_child(self.ctrl), False)
 
     def testSendMessage(self):
@@ -544,7 +544,7 @@ class HwndWrapperTests(unittest.TestCase):
         else:
             assert_regex = self.assertRegexpMatches
 
-        wrp = self.dlg.wrapper_object()
+        wrp = self.dlg.find()
         assert_regex(wrp.__str__(), "^hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog$")
         assert_regex(wrp.__repr__(), "^<hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog, [0-9-]+>$")
 
@@ -552,12 +552,12 @@ class HwndWrapperTests(unittest.TestCase):
         assert_regex(wrp.__str__(), "^win32_controls.ButtonWrapper - 'Command button here', Button$")
         assert_regex(wrp.__repr__(), "^<win32_controls.ButtonWrapper - 'Command button here', Button, [0-9-]+>$")
 
-        wrp = self.dlg.TabControl.wrapper_object()
+        wrp = self.dlg.TabControl.find()
         assert_regex(wrp.__str__(), "^common_controls.TabControlWrapper - '', TabControl$")
         assert_regex(wrp.__repr__(), "^<common_controls.TabControlWrapper - '', TabControl, [0-9-]+>$")
 
     def test_children_generator(self):
-        dlg = self.dlg.wrapper_object()
+        dlg = self.dlg.find()
         children = [child for child in dlg.iter_children()]
         self.assertSequenceEqual(dlg.children(), children)
 
@@ -608,7 +608,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
 
         self.dlg = self.app.RowListSampleApplication
-        self.ctrl = self.app.RowListSampleApplication.ListView.wrapper_object()
+        self.ctrl = self.app.RowListSampleApplication.ListView.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -646,7 +646,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
             #self.assertRaises(ElementNotFoundError,
             #                  self.app.window(name='About RowList', class_name='#32770').wrapper_object())
             # vvryabov: TimeoutError is caught by assertRaises, so the second raise is not caught correctly
-            self.app.window(name='About RowList', class_name='#32770').wrapper_object()
+            self.app.window(name='About RowList', class_name='#32770').find()
         except ElementNotFoundError:
             print('ElementNotFoundError exception is raised as expected. OK.')
 
@@ -784,14 +784,14 @@ class NonActiveWindowFocusTests(unittest.TestCase):
         """Check HwndWrapper.set_focus for a desktop without a focused window"""
         ws = self.app.Common_Controls_Sample
         ws.TabControl.select('CButton (Command Link)')
-        dlg1 = ws.wrapper_object()
-        dlg2 = self.app2.Notepad.wrapper_object()
+        dlg1 = ws.find()
+        dlg2 = self.app2.Notepad.find()
         dlg2.click(coords=(2, 2))
         dlg2.minimize()
         # here is the trick: the window is restored but it isn't activated
         dlg2.restore()
         dlg1.set_focus()
-        self.assertEqual(ws.get_focus(), ws.Edit.wrapper_object())
+        self.assertEqual(ws.get_focus(), ws.Edit.find())
 
 
 class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
@@ -906,7 +906,7 @@ class ControlStateTests(unittest.TestCase):
 
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.select(4)
-        self.ctrl = self.dlg.EditBox.wrapper_object()
+        self.ctrl = self.dlg.EditBox.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -934,7 +934,7 @@ class DragAndDropTests(unittest.TestCase):
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.ctrl = self.dlg.TreeView.wrapper_object()
+        self.ctrl = self.dlg.TreeView.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1048,7 +1048,7 @@ class RemoteMemoryBlockTests(unittest.TestCase):
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.ctrl = self.dlg.TreeView.wrapper_object()
+        self.ctrl = self.dlg.TreeView.find()
 
     def tearDown(self):
         """Close the application after tests"""
