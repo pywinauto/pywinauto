@@ -80,7 +80,6 @@ from __future__ import print_function
 import sys
 import os.path
 import time
-import warnings
 import locale
 import codecs
 import collections
