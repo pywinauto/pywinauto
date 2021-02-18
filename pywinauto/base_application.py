@@ -642,10 +642,6 @@ class WindowSpecification(object):
                     auto_id = ctrl.element_info.automation_id
                 if hasattr(ctrl.element_info, 'control_type'):
                     control_type = ctrl.element_info.control_type
-                    if control_type:
-                        class_name = None  # no need for class_name if control_type exists
-                    else:
-                        control_type = None  # if control_type is empty, still use class_name instead
                 criteria_texts = []
                 if ctrl_text:
                     criteria_texts.append(u'name="{}"'.format(ctrl_text))
