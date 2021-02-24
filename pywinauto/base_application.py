@@ -577,7 +577,7 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth=None, filename=None):
+    def print_control_identifiers(self, depth=None, filename=None, print_max_depth=3, print_max_width=5):
         """
         Prints the 'identifiers'
 
@@ -595,27 +595,32 @@ class WindowSpecification(object):
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
 
-        descendants = []
-        ElementTreeNode = collections.namedtuple('element_tree_node', ['elem', 'id', 'children'])
-        current_id = [0]
+        ElementTreeNode = collections.namedtuple('ElementTreeNode', ['elem', 'id', 'children'])
 
-        def create_element_tree(elem, parent_elem, depth, **kwargs):
-            if depth == 0:
-                return
-            for child_elem in elem.children(**kwargs):
-                descendants.append(child_elem)
-                current_id[0] += 1
-                elem_node = ElementTreeNode(child_elem, current_id[0], [])
-                parent_elem.children.append(elem_node)
+        def create_element_tree(element_list):
+            current_id = 0
+            ElementStackItem = collections.namedtuple('ElementStackItem', ['elem', 'parent_elem_children', 'depth'])
+            elem_stack = collections.deque([ElementStackItem(this_ctrl, None, 0)])
+            root_node = ElementTreeNode(this_ctrl, current_id, [])
+            while elem_stack:
+                current_elem, current_elem_parent_children, current_node_depth = elem_stack.pop()
+                if current_node_depth <= depth:
+                    if current_elem_parent_children is not None:
+                        current_id += 1
+                        elem_node = ElementTreeNode(current_elem, current_id, [])
+                        current_elem_parent_children.append(elem_node)
+                        element_list.append(current_elem)
+                    else:
+                        elem_node = root_node
+                    for child_elem in reversed(current_elem.children()):
+                        elem_stack.append(ElementStackItem(child_elem, elem_node.children, current_node_depth+1))
+            return root_node
 
-                next_depth = None if depth is None else depth - 1
-                create_element_tree(child_elem, elem_node, next_depth, **kwargs)
+        # Create a list of this control, all its descendants
+        all_ctrls = [this_ctrl]
 
-        elements_tree = ElementTreeNode(this_ctrl, 0, [])
-        create_element_tree(this_ctrl, elements_tree, depth)
-
-        # Create a list of this control and all its descendants
-        all_ctrls = [this_ctrl, ] + descendants
+        # Build element tree
+        elements_tree = create_element_tree(all_ctrls)
 
         # Create a list of all visible text controls
         txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
