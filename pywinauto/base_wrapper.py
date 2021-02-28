@@ -265,6 +265,12 @@ class BaseWrapper(object):
         return self.backend.generic_wrapper_class(top_element_info)
 
     #------------------------------------------------------------
+    def get_active(self):
+        """Get wrapper object for active element"""
+        element_info = self.backend.element_info_class.get_active()
+        return self.backend.generic_wrapper_class(element_info)
+
+    #------------------------------------------------------------
     def friendly_class_name(self):
         """
         Return the friendly class name for the control

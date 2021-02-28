@@ -67,6 +67,11 @@ if UIA_support:
 
             self.dlg = self.app.WPFSampleApplication
 
+        def test_issue_760_uia(self):
+            focused_element = self.dlg.get_active()
+            if not isinstance(focused_element, UIAWrapper):
+                raise Exception("Received object is not an instance of UIAWrapper")
+
         def tearDown(self):
             """Close the application after tests"""
             self.app.kill()

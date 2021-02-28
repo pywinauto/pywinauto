@@ -47,6 +47,9 @@ import ctypes
 import mock
 import six
 
+from pywinauto.controls.hwndwrapper import HwndWrapper
+from pywinauto.controls.uiawrapper import UIAWrapper
+
 sys.path.append(".")
 from pywinauto import Desktop
 from pywinauto.windows import application, win32defines
@@ -1375,6 +1378,11 @@ if UIA_support:
                               u'CtrlTest.exe', u'mfc100u.dll', u'NewControls.exe', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
 
+        def test_issue_760_desktop_uia(self):
+            focused_element = self.desktop.get_active()
+            if not isinstance(focused_element, UIAWrapper):
+                raise Exception("Received object is not an instance of UIAWrapper")
+
         def test_set_backend_to_window_uia(self):
             """Set backend to method window(), except exception ValueError"""
             with self.assertRaises(ValueError):
@@ -1469,6 +1477,11 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         self.assertTrue(len(dlgs) > 1)
         window_titles = [win_obj.window_text() for win_obj in dlgs]
         self.assertTrue(self.window_title in window_titles)
+
+    def test_issue_760_desktop_win32(self):
+        focused_element = self.desktop.get_active()
+        if not isinstance(focused_element, HwndWrapper):
+            raise Exception("Received object is not an instance of HwndWrapper")
 
     def test_set_backend_to_windows_win32(self):
         """Set backend to method windows, except exception ValueError"""
