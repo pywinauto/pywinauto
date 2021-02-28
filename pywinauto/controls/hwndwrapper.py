@@ -1239,13 +1239,8 @@ class HwndWrapper(WinBaseWrapper):
         return self.get_show_state() == win32defines.SW_SHOWNORMAL
 
     # -----------------------------------------------------------
-    def get_active(self):
-        """Return a handle to the active window within the process"""
-        active_elem = HwndElementInfo.get_active()
-
-        return HwndWrapper(active_elem) if active_elem is not None else None
     # Non PEP-8 alias
-    GetActive = deprecated(get_active)
+    #GetActive = deprecated(get_active)
 
     # -----------------------------------------------------------
     def get_focus(self):
