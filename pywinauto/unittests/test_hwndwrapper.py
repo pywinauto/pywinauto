@@ -99,6 +99,11 @@ class HwndWrapperTests(unittest.TestCase):
         #self.dlg.menu_select('View->Scientific\tAlt+2')
         #self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
 
+    def test_issue_760_win32(self):
+        focused_element = self.dlg.wrapper_object().get_active()
+        if not isinstance(focused_element, HwndWrapper):
+            raise Exception("Received object is not an instance of HwndWrapper")
+
     def tearDown(self):
         """Close the application after tests"""
         #self.dlg.type_keys("%{F4}")
