@@ -8,3 +8,4 @@ rst2pdf
 Sphinx
 mock==2.0.0
 codacy-coverage
+PyQt5

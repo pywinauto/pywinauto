@@ -301,29 +301,30 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             self._select(item)
         except (IndexError, NoPatternInterfaceError):
             # Try to access the underlying ListBox explicitly
-            children_lst = self.children(control_type='List')
-            if len(children_lst) > 0:
-                children_lst[0]._select(item)
-                # do health check and apply workaround for Qt5 combo box if necessary
-                if isinstance(item, six.string_types):
-                    item = children_lst[0].children(name=item)[0]
-                    if self.selected_text() != item:
-                        # workaround for WinForms combo box
-                        item.invoke()
-                        if self.selected_text() != item:
-                            # workaround for Qt5 combo box
-                            item.click_input()
-                            if self.selected_text() != item:
-                                item.click_input()
-                elif self.selected_index() != item:
-                    items = children_lst[0].children(control_type='ListItem')
-                    if item < len(items):
-                        items[item].invoke()
-                    else:
-                        raise IndexError('Item number #{} is out of range ' \
-                            '({} items in total)'.format(item, len(items)))
-            else:
-                raise IndexError("item '{0}' not found or can't be accessed".format(item))
+            children_list = self.children(control_type="List")
+            if children_list and children_list[0].is_visible():
+                if len(children_list) > 0:
+                    list_view = children_list[0]
+                    if isinstance(item, six.string_types):
+                        list_item = list_view.children(name=item)[0]
+                        list_item_value = list_item.texts()[0]
+                        if self.element_info.framework_id == 'Win32':
+                            if self.selected_text() != list_item_value:
+                                list_view._select(item)
+                                list_item.click_input()
+                        if self.element_info.framework_id == 'Qt':
+                            list_view._select(item)
+                            if list_view.is_active():
+                                list_item.click_input()
+                    elif self.selected_index() != item:
+                        items = children_list[0].children(control_type='ListItem')
+                        if item < len(items):
+                            items[item].invoke()
+                        else:
+                            raise IndexError('Item number #{} is out of range ' \
+                                             '({} items in total)'.format(item, len(items)))
+                else:
+                    raise IndexError("item '{0}' not found or can't be accessed".format(item))
         finally:
             # Make sure we collapse back in any case
             self.collapse()
