@@ -584,6 +584,12 @@ class WindowSpecification(object):
         Prints identifiers for the control and for its descendants to
         a depth of **depth** (the whole subtree if **None**).
 
+        :param depth: Max depth level of an element tree to print (sNone - infinite).
+
+        :param max_width: Max amount of children elements of each node to print (None - infinite)
+
+        :param filename: Save tree to a specified file (None - print to console output)
+
         .. note:: The identifiers printed by this method have been made
                unique. So if you have 2 edit boxes, they won't both have "Edit"
                listed in their identifiers. In fact the first one can be
@@ -597,88 +603,87 @@ class WindowSpecification(object):
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
 
-        ElementTreeNode = collections.namedtuple('ElementTreeNode', ['elem', 'id', 'children', 'placeholder_message'])
+        ElementTreeNode = collections.namedtuple('ElementTreeNode', ['elem', 'id', 'children'])
 
         def create_element_tree(element_list):
+            """Build elements tree and create list with pre-order tree traversal"""
+            can_get_best_match_names = True
             depth_limit_reached = False
             current_id = 0
-            elem_stack = collections.deque([(this_ctrl, None, 0, None)])
-            root_node = ElementTreeNode(this_ctrl, current_id, [], None)
+            elem_stack = collections.deque([(this_ctrl, None, 0)])
+            root_node = ElementTreeNode(this_ctrl, current_id, [])
             while elem_stack:
-                current_elem, current_elem_parent_children, current_node_depth, placeholder_msg = elem_stack.pop()
+                current_elem, current_elem_parent_children, current_node_depth = elem_stack.pop()
                 if current_elem is None:
-                    elem_node = ElementTreeNode(None, current_id, [], placeholder_msg)
+                    elem_node = ElementTreeNode(None, current_id, [])
                     current_elem_parent_children.append(elem_node)
                 else:
                     if current_node_depth <= depth:
                         if current_elem_parent_children is not None:
                             current_id += 1
-                            elem_node = ElementTreeNode(current_elem, current_id, [], None)
+                            elem_node = ElementTreeNode(current_elem, current_id, [])
                             current_elem_parent_children.append(elem_node)
                             element_list.append(current_elem)
                         else:
                             elem_node = root_node
                         child_elements = current_elem.children()
                         if len(child_elements) > max_width:
-                            placeholder_message = 'Max children output limit ({}) has been reached. ' \
-                                                  'Set a larger max_width value or use max_width=None ' \
-                                                  'to see all children.'.format(max_width)
-                            elem_stack.append((None, elem_node.children,
-                                               current_node_depth + 1, placeholder_message))
+                            elem_stack.append((None, elem_node.children, current_node_depth + 1))
+                            can_get_best_match_names = False
                         for i in range(min(len(child_elements) - 1, max_width - 1), -1, -1):
-                            elem_stack.append((child_elements[i], elem_node.children, current_node_depth + 1, None))
+                            elem_stack.append((child_elements[i], elem_node.children, current_node_depth + 1))
                     else:
                         depth_limit_reached = True
 
             if depth_limit_reached:
+                can_get_best_match_names = False
                 print('Warning: tree elements were printed up {} depth level only. '
                       'You can set a larger depth value or use depth=None to print a full tree '
                       '(may freeze in case of very large number of elements)'.format(depth))
 
-            return root_node
+            return root_node, can_get_best_match_names
 
         # Create a list of this control, all its descendants
         all_ctrls = [this_ctrl]
 
         # Build element tree
-        elements_tree = create_element_tree(all_ctrls)
+        elements_tree, show_best_match_names = create_element_tree(all_ctrls)
 
-        # Create a list of all visible text controls
-        txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
+        if show_best_match_names:
+            # Create a list of all visible text controls
+            txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
 
-        # Build a dictionary of disambiguated list of control names
-        name_ctrl_id_map = findbestmatch.UniqueDict()
-        for index, ctrl in enumerate(all_ctrls):
-            ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
-            for name in ctrl_names:
-                name_ctrl_id_map[name] = index
+            # Build a dictionary of disambiguated list of control names
+            name_ctrl_id_map = findbestmatch.UniqueDict()
+            for index, ctrl in enumerate(all_ctrls):
+                ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
+                for name in ctrl_names:
+                    name_ctrl_id_map[name] = index
 
-        # Swap it around so that we are mapped off the control indices
-        ctrl_id_name_map = {}
-        for name, index in name_ctrl_id_map.items():
-            ctrl_id_name_map.setdefault(index, []).append(name)
+            # Swap it around so that we are mapped off the control indices
+            ctrl_id_name_map = {}
+            for name, index in name_ctrl_id_map.items():
+                ctrl_id_name_map.setdefault(index, []).append(name)
 
         def print_identifiers(element_node, current_depth=0, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             indent = current_depth * u"   | "
             output = indent + u'\n'
-            if element_node.placeholder_message:
-                output += indent + u'**********\n'
-                output += indent + u'{}\n'.format(element_node.placeholder_message)
-                output += indent + u'**********'
-            else:
-                ctrl_id = element_node.id
-                ctrl = element_node.elem
 
+            ctrl = element_node.elem
+            if ctrl is not None:
+                ctrl_id = element_node.id
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
                     # transform multi-line text to one liner
                     ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
-                output += indent + u"{class_name} - '{text}'    {rect}\n" \
+                output += indent + u"{class_name} - '{text}'    {rect}" \
                                    "".format(class_name=ctrl.friendly_class_name(),
                                              text=ctrl_text,
                                              rect=ctrl.rectangle())
-                output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
+
+                if show_best_match_names:
+                    output += u'\n' + indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
 
                 class_name = ctrl.class_name()
                 auto_id = None
@@ -702,6 +707,12 @@ class WindowSpecification(object):
                     criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if ctrl_text or class_name or auto_id:
                     output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
+            else:
+                output += indent + u'**********\n'
+                output += indent + u'Max children output limit ({}) has been reached. ' \
+                                   u'Set a larger max_width value or use max_width=None ' \
+                                   u'to see all children.\n'.format(max_width)
+                output += indent + u'**********'
 
             if six.PY3:
                 log_func(output)
@@ -712,6 +723,9 @@ class WindowSpecification(object):
                 for child_elem in element_node.children:
                     print_identifiers(child_elem, current_depth + 1, log_func)
 
+        if not show_best_match_names:
+            print('Warning: determining best_match names for an element requires full tree traversal. '
+                  'Set depth and max_width parameters to None to print them.')
         if filename is None:
             print("Control Identifiers:")
             print_identifiers(elements_tree)
