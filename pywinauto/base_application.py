@@ -577,7 +577,7 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth=30, max_width=5, filename=None):
+    def print_control_identifiers(self, depth=10, max_width=10, filename=None):
         """
         Prints the 'identifiers'
 
