@@ -584,11 +584,11 @@ class WindowSpecification(object):
         Dump identifiers for the control and for its descendants to
         a depth of **depth** (the whole subtree if **None**).
 
-        :param depth: Max depth level of an element tree to dump (None: infinite).
+        :param depth: Max depth level of an element tree to dump (None: unlimited).
 
-        :param max_width: Max number of children of each element to dump (None: infinite)
+        :param max_width: Max number of children of each element to dump (None: unlimited).
 
-        :param filename: Save tree to a specified file (None: print to stdout)
+        :param filename: Save tree to a specified file (None: print to stdout).
 
         .. note:: The identifiers dumped by this method have been made
                unique. So if you have 2 edit boxes, they won't both have "Edit"
@@ -663,12 +663,12 @@ class WindowSpecification(object):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
             if current_depth == 0:
                 if depth_limit_reached:
-                    log_func('Warning: tree elements were printed up {} depth level only. '
-                             'You can set larger depth value or use depth=None to print full tree '
-                             '(may freeze in case of very large number of elements)'.format(depth))
+                    log_func('Warning: the whole hierarchy does not fit into depth={}. '
+                             'Increase depth parameter value or set it to None (unlimited, '
+                             'may freeze in case of very large number of elements).'.format(depth))
                 if self.allow_magic_lookup and not show_best_match_names:
-                    log_func('Warning: determining best_match names for an element requires full tree traversal. '
-                             'Set depth and max_width parameters to None to print them.')
+                    log_func('If the whole hierarchy fits into depth and max_width values, '
+                             'best_match names are dumped.')
                 log_func("Control Identifiers:")
 
             indent = current_depth * u"   | "
