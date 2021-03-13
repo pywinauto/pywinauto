@@ -642,7 +642,7 @@ class WindowSpecification(object):
         # Build element tree
         elements_tree, depth_limit_reached, width_limit_reached = create_element_tree(all_ctrls)
 
-        show_best_match_names = not (depth_limit_reached or width_limit_reached)
+        show_best_match_names = self.allow_magic_lookup and not (depth_limit_reached or width_limit_reached)
         if show_best_match_names:
             # Create a list of all visible text controls
             txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
@@ -664,9 +664,9 @@ class WindowSpecification(object):
             if current_depth == 0:
                 if depth_limit_reached:
                     log_func('Warning: tree elements were printed up {} depth level only. '
-                             'You can set a larger depth value or use depth=None to print a full tree '
+                             'You can set larger depth value or use depth=None to print full tree '
                              '(may freeze in case of very large number of elements)'.format(depth))
-                if not show_best_match_names:
+                if self.allow_magic_lookup and not show_best_match_names:
                     log_func('Warning: determining best_match names for an element requires full tree traversal. '
                              'Set depth and max_width parameters to None to print them.')
                 log_func("Control Identifiers:")
