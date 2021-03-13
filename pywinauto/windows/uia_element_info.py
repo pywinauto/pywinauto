@@ -416,12 +416,15 @@ class UIAElementInfo(ElementInfo):
     @property
     def rectangle(self):
         """Return rectangle of the element"""
-        bound_rect = self._element.CurrentBoundingRectangle
         rect = RECT()
-        rect.left = bound_rect.left
-        rect.top = bound_rect.top
-        rect.right = bound_rect.right
-        rect.bottom = bound_rect.bottom
+        try:
+            bound_rect = self._element.CurrentBoundingRectangle
+            rect.left = bound_rect.left
+            rect.top = bound_rect.top
+            rect.right = bound_rect.right
+            rect.bottom = bound_rect.bottom
+        except COMError:
+            pass
         return rect
 
     def dump_window(self):
