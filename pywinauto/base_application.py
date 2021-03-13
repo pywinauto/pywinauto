@@ -652,20 +652,14 @@ class WindowSpecification(object):
                             elem_stack.append((child_elements[i], elem_node.children, current_node_depth + 1))
                     else:
                         depth_limit_reached = True
-
-            if depth_limit_reached:
-                can_get_best_match_names = False
-                print('Warning: tree elements were printed up {} depth level only. '
-                      'You can set a larger depth value or use depth=None to print a full tree '
-                      '(may freeze in case of very large number of elements)'.format(depth))
-
-            return root_node, can_get_best_match_names
+                        can_get_best_match_names = False
+            return root_node, can_get_best_match_names, depth_limit_reached
 
         # Create a list of this control, all its descendants
         all_ctrls = [this_ctrl]
 
         # Build element tree
-        elements_tree, show_best_match_names = create_element_tree(all_ctrls)
+        elements_tree, show_best_match_names, depth_limit_reached = create_element_tree(all_ctrls)
 
         if show_best_match_names:
             # Create a list of all visible text controls
@@ -685,6 +679,16 @@ class WindowSpecification(object):
 
         def print_identifiers(element_node, current_depth=0, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
+            if current_depth == 0:
+                if depth_limit_reached:
+                    log_func('Warning: tree elements were printed up {} depth level only. '
+                             'You can set a larger depth value or use depth=None to print a full tree '
+                             '(may freeze in case of very large number of elements)'.format(depth))
+                if not show_best_match_names:
+                    log_func('Warning: determining best_match names for an element requires full tree traversal. '
+                             'Set depth and max_width parameters to None to print them.')
+                log_func("Control Identifiers:")
+
             indent = current_depth * u"   | "
             output = indent + u'\n'
 
@@ -741,21 +745,13 @@ class WindowSpecification(object):
                 for child_elem in element_node.children:
                     print_identifiers(child_elem, current_depth + 1, log_func)
 
-        if not show_best_match_names:
-            print('Warning: determining best_match names for an element requires full tree traversal. '
-                  'Set depth and max_width parameters to None to print them.')
         if filename is None:
-            print("Control Identifiers:")
             print_identifiers(elements_tree)
         else:
-            log_file = codecs.open(filename, "w", locale.getpreferredencoding())
-
-            def log_func(msg):
-                log_file.write(str(msg) + os.linesep)
-
-            log_func("Control Identifiers:")
-            print_identifiers(elements_tree, log_func=log_func)
-            log_file.close()
+            with codecs.open(filename, "w", locale.getpreferredencoding()) as log_file:
+                def log_func(msg):
+                    log_file.write(str(msg) + os.linesep)
+                print_identifiers(elements_tree, log_func=log_func)
 
     print_ctrl_ids = print_control_identifiers
     dump_tree = print_control_identifiers
