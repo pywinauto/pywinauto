@@ -462,9 +462,9 @@ class EditTestCases(unittest.TestCase):
         finally:
             self.app.kill()
 
-    def test_print_control_identifiers(self):
-        """Test that print_control_identifiers() doesn't crash with the non-English characters"""
-        self.dlg.print_control_identifiers()
+    def test_dump_tree(self):
+        """Test that dump_tree() doesn't crash with the non-English characters"""
+        self.dlg.dump_tree()
 
     def test_set_text(self):
         """Test setting the text of the edit control"""

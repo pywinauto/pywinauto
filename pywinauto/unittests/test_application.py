@@ -1169,15 +1169,15 @@ class WindowSpecificationTestCases(unittest.TestCase):
             len(self.app['Font'].descendants(depth=1)),
             len(self.app['Font'].descendants(depth=2)))
 
-    def test_print_control_identifiers(self):
-        """Make sure print_control_identifiers() doesn't crash"""
-        self.dlgspec.print_control_identifiers()
-        self.ctrlspec.print_control_identifiers()
+    def test_dump_tree(self):
+        """Make sure dump_tree() doesn't crash"""
+        self.dlgspec.dump_tree()
+        self.ctrlspec.dump_tree()
 
-    def test_print_control_identifiers_file_output(self):
-        """Make sure print_control_identifiers() creates correct file"""
-        output_filename = "test_print_control_identifiers.txt"
-        self.dlgspec.print_ctrl_ids(filename=output_filename)
+    def test_dump_tree_file_output(self):
+        """Make sure dump_tree() creates correct file"""
+        output_filename = "test_dump_tree.txt"
+        self.dlgspec.dump_tree(filename=output_filename)
         if os.path.isfile(output_filename):
             with open(output_filename, "r") as test_log_file:
                 content = str(test_log_file.readlines())
@@ -1186,7 +1186,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 self.assertTrue("child_window(class_name=\"msctls_statusbar32\"" in content)
             os.remove(output_filename)
         else:
-            self.fail("print_control_identifiers can't create a file")
+            self.fail("dump_tree can't create a file")
 
         self.ctrlspec.dump_tree(filename=output_filename)
         if os.path.isfile(output_filename):
@@ -1195,7 +1195,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 self.assertTrue("child_window(class_name=\"Edit\")" in content)
             os.remove(output_filename)
         else:
-            self.fail("print_control_identifiers can't create a file")
+            self.fail("dump_tree can't create a file")
 
     def test_find_elements_re(self):
         """Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"""
