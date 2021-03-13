@@ -175,7 +175,7 @@ def run_notepad():
 
     # for some reason my current printer driver
     # window does not close cleanly :(
-    if doc_props.Cancel.Exists():
+    if doc_props.Cancel.exists():
         doc_props.OK.close_click()
 
     # ----- 2nd Page Setup Dialog again ----

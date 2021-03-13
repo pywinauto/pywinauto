@@ -83,7 +83,7 @@ app.SaveWebPage.Edit.set_edit_text(os.path.join(r"c:\.temp", outputfilename))
 app.SaveWebPage.Save.close_click()
 
 # if asked to overwrite say yes
-if app.SaveWebPage.Yes.Exists():
+if app.SaveWebPage.Yes.exists():
     app.SaveWebPage.Yes.close_click()
 
 print("saved:", outputfilename)

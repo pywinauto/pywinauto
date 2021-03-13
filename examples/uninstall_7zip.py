@@ -30,16 +30,16 @@ try:
     explorer.PopupMenu.menu_item('Uninstall').click()
 
     Confirmation = explorer.window(name='Programs and Features', class_name='#32770', active_only=True)
-    if Confirmation.Exists():
+    if Confirmation.exists():
         Confirmation.Yes.click_input()
         Confirmation.wait_not('visible')
 
     WindowsInstaller = explorer.window(name='Windows Installer', class_name='#32770', active_only=True)
-    if WindowsInstaller.Exists():
+    if WindowsInstaller.exists():
         WindowsInstaller.wait_not('visible', timeout=20)
 
     SevenZipInstaller = explorer.window(name='7-Zip 9.20 (x64 edition)', class_name='#32770', active_only=True)
-    if SevenZipInstaller.Exists():
+    if SevenZipInstaller.exists():
         SevenZipInstaller.wait_not('visible', timeout=20)
 
     if '7-Zip 9.20 (x64 edition)' not in ProgramsAndFeatures.FolderView.texts():
