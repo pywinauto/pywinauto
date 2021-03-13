@@ -1324,7 +1324,7 @@ if UIA_support:
             files_list = self.desktop.MFC_samplesDialog.Shell_Folder_View.Items_View.find()
             self.assertEqual([item.window_text() for item in files_list.get_items()],
                              [u'x64', u'BCDialogMenu.exe', u'CmnCtrl1.exe', u'CmnCtrl2.exe', u'CmnCtrl3.exe',
-                              u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
+                              u'CtrlTest.exe', u'mfc100u.dll', u'NewControls.exe', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
 
         def test_set_backend_to_window_uia(self):

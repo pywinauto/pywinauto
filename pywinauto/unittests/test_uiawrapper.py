@@ -204,9 +204,9 @@ if UIA_support:
             )
             time.sleep(0.1)
             logger = ActionLogger()
-            logger.log("prev_rect = ", prev_rect)
-            logger.log("new_rect = ", new_rect)
-            logger.log("self.dlg.rectangle() = ", self.dlg.rectangle())
+            logger.log("prev_rect = %s", prev_rect)
+            logger.log("new_rect = %s", new_rect)
+            logger.log("self.dlg.rectangle() = %s", self.dlg.rectangle())
             self.assertEqual(self.dlg.rectangle(), new_rect)
 
             self.dlg.move_window(prev_rect)
