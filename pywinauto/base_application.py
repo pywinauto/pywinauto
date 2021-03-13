@@ -577,20 +577,20 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth=10, max_width=10, filename=None):
+    def dump_tree(self, depth=10, max_width=10, filename=None):
         """
-        Prints the 'identifiers'
+        Dump the 'identifiers' to console or a file
 
-        Prints identifiers for the control and for its descendants to
+        Dump identifiers for the control and for its descendants to
         a depth of **depth** (the whole subtree if **None**).
 
-        :param depth: Max depth level of an element tree to print (sNone - infinite).
+        :param depth: Max depth level of an element tree to dump (None: infinite).
 
-        :param max_width: Max amount of children elements of each node to print (None - infinite)
+        :param max_width: Max number of children of each element to dump (None: infinite)
 
-        :param filename: Save tree to a specified file (None - print to console output)
+        :param filename: Save tree to a specified file (None: print to stdout)
 
-        .. note:: The identifiers printed by this method have been made
+        .. note:: The identifiers dumped by this method have been made
                unique. So if you have 2 edit boxes, they won't both have "Edit"
                listed in their identifiers. In fact the first one can be
                referred to as "Edit", "Edit0", "Edit1" and the 2nd should be
@@ -607,8 +607,8 @@ class WindowSpecification(object):
 
         def create_element_tree(element_list):
             """Build elements tree and create list with pre-order tree traversal"""
-            can_get_best_match_names = True
             depth_limit_reached = False
+            width_limit_reached = False
             current_id = 0
             elem_stack = collections.deque([(this_ctrl, None, 0)])
             root_node = ElementTreeNode(this_ctrl, current_id, [])
@@ -629,20 +629,20 @@ class WindowSpecification(object):
                         child_elements = current_elem.children()
                         if len(child_elements) > max_width:
                             elem_stack.append((None, elem_node.children, current_node_depth + 1))
-                            can_get_best_match_names = False
+                            width_limit_reached = True
                         for i in range(min(len(child_elements) - 1, max_width - 1), -1, -1):
                             elem_stack.append((child_elements[i], elem_node.children, current_node_depth + 1))
                     else:
                         depth_limit_reached = True
-                        can_get_best_match_names = False
-            return root_node, can_get_best_match_names, depth_limit_reached
+            return root_node, depth_limit_reached, width_limit_reached
 
         # Create a list of this control, all its descendants
         all_ctrls = [this_ctrl]
 
         # Build element tree
-        elements_tree, show_best_match_names, depth_limit_reached = create_element_tree(all_ctrls)
+        elements_tree, depth_limit_reached, width_limit_reached = create_element_tree(all_ctrls)
 
+        show_best_match_names = not (depth_limit_reached or width_limit_reached)
         if show_best_match_names:
             # Create a list of all visible text controls
             txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
@@ -735,8 +735,8 @@ class WindowSpecification(object):
                     log_file.write(str(msg) + os.linesep)
                 print_identifiers(elements_tree, log_func=log_func)
 
-    print_ctrl_ids = print_control_identifiers
-    dump_tree = print_control_identifiers
+    print_control_identifiers = deprecated(dump_tree)
+    print_ctrl_ids = deprecated(dump_tree)
 
 
 #=========================================================================
