@@ -645,7 +645,7 @@ class WindowSpecification(object):
                         else:
                             elem_node = root_node
                         child_elements = current_elem.children()
-                        if len(child_elements) > max_width:
+                        if len(child_elements) > max_width and current_node_depth < depth:
                             elem_stack.append((None, elem_node.children, current_node_depth + 1))
                             width_limit_reached = True
                         for i in range(min(len(child_elements) - 1, max_width - 1), -1, -1):
@@ -753,8 +753,8 @@ class WindowSpecification(object):
                     log_file.write(str(msg) + os.linesep)
                 print_identifiers(elements_tree, log_func=log_func)
 
-    print_control_identifiers = deprecated(dump_tree)
-    print_ctrl_ids = deprecated(dump_tree)
+    print_control_identifiers = deprecated(dump_tree, deprecated_name='print_control_identifiers')
+    print_ctrl_ids = deprecated(dump_tree, deprecated_name='print_ctrl_ids')
 
 
 #=========================================================================
