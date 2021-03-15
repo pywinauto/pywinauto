@@ -82,6 +82,7 @@ import os.path
 import time
 import locale
 import codecs
+import collections
 
 import six
 
@@ -576,14 +577,20 @@ class WindowSpecification(object):
 
         return control_name_map
 
-    def print_control_identifiers(self, depth=None, filename=None):
+    def dump_tree(self, depth=10, max_width=10, filename=None):
         """
-        Prints the 'identifiers'
+        Dump the 'identifiers' to console or a file
 
-        Prints identifiers for the control and for its descendants to
+        Dump identifiers for the control and for its descendants to
         a depth of **depth** (the whole subtree if **None**).
 
-        .. note:: The identifiers printed by this method have been made
+        :param depth: Max depth level of an element tree to dump (None: unlimited).
+
+        :param max_width: Max number of children of each element to dump (None: unlimited).
+
+        :param filename: Save tree to a specified file (None: print to stdout).
+
+        .. note:: The identifiers dumped by this method have been made
                unique. So if you have 2 edit boxes, they won't both have "Edit"
                listed in their identifiers. In fact the first one can be
                referred to as "Edit", "Edit0", "Edit1" and the 2nd should be
@@ -591,49 +598,96 @@ class WindowSpecification(object):
         """
         if depth is None:
             depth = sys.maxsize
+        if max_width is None:
+            max_width = sys.maxsize
         # Wrap this control
         this_ctrl = self.__resolve_control(self.criteria)[-1]
 
-        # Create a list of this control and all its descendants
-        all_ctrls = [this_ctrl, ] + this_ctrl.descendants(depth=depth)
+        ElementTreeNode = collections.namedtuple('ElementTreeNode', ['elem', 'id', 'children'])
 
-        # Create a list of all visible text controls
-        txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
+        def create_element_tree(element_list):
+            """Build elements tree and create list with pre-order tree traversal"""
+            depth_limit_reached = False
+            width_limit_reached = False
+            current_id = 0
+            elem_stack = collections.deque([(this_ctrl, None, 0)])
+            root_node = ElementTreeNode(this_ctrl, current_id, [])
+            while elem_stack:
+                current_elem, current_elem_parent_children, current_node_depth = elem_stack.pop()
+                if current_elem is None:
+                    elem_node = ElementTreeNode(None, current_id, [])
+                    current_elem_parent_children.append(elem_node)
+                else:
+                    if current_node_depth <= depth:
+                        if current_elem_parent_children is not None:
+                            current_id += 1
+                            elem_node = ElementTreeNode(current_elem, current_id, [])
+                            current_elem_parent_children.append(elem_node)
+                            element_list.append(current_elem)
+                        else:
+                            elem_node = root_node
+                        child_elements = current_elem.children()
+                        if len(child_elements) > max_width and current_node_depth < depth:
+                            elem_stack.append((None, elem_node.children, current_node_depth + 1))
+                            width_limit_reached = True
+                        for i in range(min(len(child_elements) - 1, max_width - 1), -1, -1):
+                            elem_stack.append((child_elements[i], elem_node.children, current_node_depth + 1))
+                    else:
+                        depth_limit_reached = True
+            return root_node, depth_limit_reached, width_limit_reached
 
-        # Build a dictionary of disambiguated list of control names
-        name_ctrl_id_map = findbestmatch.UniqueDict()
-        for index, ctrl in enumerate(all_ctrls):
-            ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
-            for name in ctrl_names:
-                name_ctrl_id_map[name] = index
+        # Create a list of this control, all its descendants
+        all_ctrls = [this_ctrl]
 
-        # Swap it around so that we are mapped off the control indices
-        ctrl_id_name_map = {}
-        for name, index in name_ctrl_id_map.items():
-            ctrl_id_name_map.setdefault(index, []).append(name)
+        # Build element tree
+        elements_tree, depth_limit_reached, width_limit_reached = create_element_tree(all_ctrls)
 
-        def print_identifiers(ctrls, current_depth=0, log_func=print):
+        show_best_match_names = self.allow_magic_lookup and not (depth_limit_reached or width_limit_reached)
+        if show_best_match_names:
+            # Create a list of all visible text controls
+            txt_ctrls = [ctrl for ctrl in all_ctrls if ctrl.can_be_label and ctrl.is_visible() and ctrl.window_text()]
+
+            # Build a dictionary of disambiguated list of control names
+            name_ctrl_id_map = findbestmatch.UniqueDict()
+            for index, ctrl in enumerate(all_ctrls):
+                ctrl_names = findbestmatch.get_control_names(ctrl, all_ctrls, txt_ctrls)
+                for name in ctrl_names:
+                    name_ctrl_id_map[name] = index
+
+            # Swap it around so that we are mapped off the control indices
+            ctrl_id_name_map = {}
+            for name, index in name_ctrl_id_map.items():
+                ctrl_id_name_map.setdefault(index, []).append(name)
+
+        def print_identifiers(element_node, current_depth=0, log_func=print):
             """Recursively print ids for ctrls and their descendants in a tree-like format"""
-            if len(ctrls) == 0 or current_depth > depth:
-                return
+            if current_depth == 0:
+                if depth_limit_reached:
+                    log_func('Warning: the whole hierarchy does not fit into depth={}. '
+                             'Increase depth parameter value or set it to None (unlimited, '
+                             'may freeze in case of very large number of elements).'.format(depth))
+                if self.allow_magic_lookup and not show_best_match_names:
+                    log_func('If the whole hierarchy fits into depth and max_width values, '
+                             'best_match names are dumped.')
+                log_func("Control Identifiers:")
 
             indent = current_depth * u"   | "
-            for ctrl in ctrls:
-                try:
-                    ctrl_id = all_ctrls.index(ctrl)
-                except ValueError:
-                    continue
+            output = indent + u'\n'
+
+            ctrl = element_node.elem
+            if ctrl is not None:
+                ctrl_id = element_node.id
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
                     # transform multi-line text to one liner
                     ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
+                output += indent + u"{class_name} - '{text}'    {rect}" \
+                                   "".format(class_name=ctrl.friendly_class_name(),
+                                             text=ctrl_text,
+                                             rect=ctrl.rectangle())
 
-                output = indent + u'\n'
-                output += indent + u"{class_name} - '{text}'    {rect}\n"\
-                    "".format(class_name=ctrl.friendly_class_name(),
-                              text=ctrl_text,
-                              rect=ctrl.rectangle())
-                output += indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
+                if show_best_match_names:
+                    output += u'\n' + indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
 
                 class_name = ctrl.class_name()
                 auto_id = None
@@ -653,28 +707,32 @@ class WindowSpecification(object):
                     criteria_texts.append(u'control_type="{}"'.format(control_type))
                 if ctrl_text or class_name or auto_id:
                     output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
+            else:
+                output += indent + u'**********\n'
+                output += indent + u'Max children output limit ({}) has been reached. ' \
+                                   u'Set a larger max_width value or use max_width=None ' \
+                                   u'to see all children.\n'.format(max_width)
+                output += indent + u'**********'
 
-                if six.PY3:
-                    log_func(output)
-                else:
-                    log_func(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
+            if six.PY3:
+                log_func(output)
+            else:
+                log_func(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
 
-                print_identifiers(ctrl.children(), current_depth + 1, log_func)
+            if current_depth <= depth:
+                for child_elem in element_node.children:
+                    print_identifiers(child_elem, current_depth + 1, log_func)
 
         if filename is None:
-            print("Control Identifiers:")
-            print_identifiers([this_ctrl, ])
+            print_identifiers(elements_tree)
         else:
-            log_file = codecs.open(filename, "w", locale.getpreferredencoding())
+            with codecs.open(filename, "w", locale.getpreferredencoding()) as log_file:
+                def log_func(msg):
+                    log_file.write(str(msg) + os.linesep)
+                print_identifiers(elements_tree, log_func=log_func)
 
-            def log_func(msg):
-                log_file.write(str(msg) + os.linesep)
-            log_func("Control Identifiers:")
-            print_identifiers([this_ctrl, ], log_func=log_func)
-            log_file.close()
-
-    print_ctrl_ids = print_control_identifiers
-    dump_tree = print_control_identifiers
+    print_control_identifiers = deprecated(dump_tree, deprecated_name='print_control_identifiers')
+    print_ctrl_ids = deprecated(dump_tree, deprecated_name='print_ctrl_ids')
 
 
 #=========================================================================
