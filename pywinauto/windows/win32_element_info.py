@@ -290,6 +290,22 @@ class HwndElementInfo(ElementInfo):
         return current_elem
 
     @classmethod
+    def from_focused(cls):
+        """Return current active element"""
+        gui_info = win32structures.GUITHREADINFO()
+        gui_info.cbSize = ctypes.sizeof(gui_info)
+
+        # get all the active elements (not just the specified process)
+        ret = win32functions.GetGUIThreadInfo(0, ctypes.byref(gui_info))
+
+        if not ret:
+            raise ctypes.WinError()
+
+        hwndFocus = gui_info.hwndFocus
+
+        return cls(hwndFocus) if hwndFocus is not None else None
+
+    @classmethod
     def get_active(cls):
         """Return current active element"""
         gui_info = win32structures.GUITHREADINFO()
