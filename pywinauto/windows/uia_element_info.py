@@ -446,6 +446,11 @@ class UIAElementInfo(ElementInfo):
             current_parent = current_elem.parent
         return current_elem
 
+    @classmethod
+    def from_focused(cls):
+        """Return current active element"""
+        return cls(IUIA().iuia.GetFocusedElement())
+
     @property
     def rich_text(self):
         """Return rich_text of the element"""
