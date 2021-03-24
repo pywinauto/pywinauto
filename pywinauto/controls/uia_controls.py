@@ -301,30 +301,41 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             self._select(item)
         except (IndexError, NoPatternInterfaceError):
             # Try to access the underlying ListBox explicitly
-            children_list = self.children(control_type="List")
-            if children_list and children_list[0].is_visible():
-                if len(children_list) > 0:
-                    list_view = children_list[0]
-                    if isinstance(item, six.string_types):
-                        list_item = list_view.children(name=item)[0]
-                        list_item_value = list_item.texts()[0]
-                        if self.element_info.framework_id == 'Win32':
-                            if self.selected_text() != list_item_value:
-                                list_view._select(item)
-                                list_item.click_input()
-                        if self.element_info.framework_id == 'Qt':
-                            list_view._select(item)
-                            if list_view.is_active():
-                                list_item.click_input()
-                    elif self.selected_index() != item:
-                        items = children_list[0].children(control_type='ListItem')
-                        if item < len(items):
-                            items[item].invoke()
-                        else:
-                            raise IndexError('Item number #{} is out of range ' \
-                                             '({} items in total)'.format(item, len(items)))
-                else:
-                    raise IndexError("item '{0}' not found or can't be accessed".format(item))
+            children_lst = self.children(control_type='List')
+            if len(children_lst) > 0:
+                list_view = children_lst[0]
+                list_view.get_item(item).select()
+                # do health check and apply workaround for Qt5 combo box if necessary
+                if isinstance(item, six.string_types):
+                    item = list_view.children(name=item)[0]
+                    item_value = item.window_text()
+                    if self.element_info.framework_id == 'Win32':
+                        if self.selected_text() != item_value:
+                            item.invoke()
+                            if self.selected_text() != item_value:
+                                item.click_input()
+                    elif self.element_info.framework_id == 'Qt':
+                        list_view._select(item)
+                        if list_view.is_active():
+                            item.click_input()
+                    else:
+                        if self.selected_text() != item_value:
+                            # workaround for WinForms combo box
+                            item.invoke()
+                            if self.selected_text() != item_value:
+                                # workaround for Qt5 combo box
+                                item.click_input()
+                                if self.selected_text() != item_value:
+                                    item.click_input()
+                elif self.selected_index() != item:
+                    items = children_lst[0].children(control_type='ListItem')
+                    if item < len(items):
+                        items[item].invoke()
+                    else:
+                        raise IndexError('Item number #{} is out of range ' \
+                                         '({} items in total)'.format(item, len(items)))
+            else:
+                raise IndexError("item '{0}' not found or can't be accessed".format(item))
         finally:
             # Make sure we collapse back in any case
             self.collapse()
@@ -357,7 +368,16 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             return self.selected_item_index()
         except NoPatternInterfaceError:
             # workaround for Qt5 and WinForms
-            return self.texts().index(self.selected_text())
+            try:
+                children_list_element = self.children(control_type='List')[0]
+                children_list_element_values = children_list_element.texts()
+                if type(children_list_element_values[0]) is list:
+                    return children_list_element_values.index(self.selected_text().splitlines())
+                else:
+                    return children_list_element_values.index(self.selected_text())
+            except IndexError:
+                return self.texts().index(self.selected_text())
+
 
     # -----------------------------------------------------------
     def item_count(self):
