@@ -67,10 +67,9 @@ if UIA_support:
 
             self.dlg = self.app.WPFSampleApplication
 
-        def test_issue_760_uia(self):
+        def test_get_active_uia(self):
             focused_element = self.dlg.get_active()
-            if not isinstance(focused_element, UIAWrapper):
-                raise Exception("Received object is not an instance of UIAWrapper")
+            self.assertTrue(type(focused_element) is UIAWrapper or issubclass(type(focused_element), UIAWrapper))
 
         def tearDown(self):
             """Close the application after tests"""
@@ -354,6 +353,10 @@ if UIA_support:
             edit = self.dlg.TestLabelEdit.find()
             edit.set_focus()
             self.assertEqual(edit.has_keyboard_focus(), True)
+
+        def test_get_active_desktop_uia(self):
+            focused_element = Desktop(backend="uia").get_active()
+            self.assertTrue(type(focused_element) is UIAWrapper or issubclass(type(focused_element), UIAWrapper))
 
         def test_type_keys(self):
             """Test sending key types to a control"""
@@ -1527,7 +1530,7 @@ if UIA_support:
             """Test errors in method .select() for WinForms combo box"""
             self.dlg.set_focus()
             for combo in [self.combo_editable, self.combo_fixed, self.combo_simple]:
-                self.assertRaises(IndexError, combo.select, u'FFFF')
+                self.assertRaises(ValueError, combo.select, u'FFFF')
                 self.assertRaises(IndexError, combo.select, 50)
 
         def test_item_count(self):
@@ -1740,7 +1743,7 @@ if UIA_support:
             combo_box = self.app.top_window().Font.ScriptComboBox.find()
             combo_box.select('Greek')
             self.assertEqual(combo_box.selected_text(), 'Greek')
-            self.assertRaises(IndexError, combo_box.select, 'NonExistingScript')
+            self.assertRaises(ValueError, combo_box.select, 'NonExistingScript')
 
         def test_menu_by_exact_text(self):
             """Test selecting a menu item by exact text match"""
