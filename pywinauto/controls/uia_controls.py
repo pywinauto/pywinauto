@@ -1160,7 +1160,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         """Initialize the control"""
         super(ToolbarWrapper, self).__init__(elem)
         self.win32_wrapper = None
-        if not self.children() and self.element_info.handle is not None:
+        if len(self.children()) <= 1 and self.element_info.handle is not None:
             self.win32_wrapper = common_controls.ToolbarWrapper(self.element_info.handle)
 
     @property
@@ -1179,7 +1179,10 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
         if self.win32_wrapper is not None:
-            return self.win32_wrapper.button_count()
+            btn_count = self.win32_wrapper.button_count()
+            if btn_count:
+                return btn_count
+            return len(self.win32_wrapper.children())
         else:
             return len(self.children())
 
@@ -1187,13 +1190,19 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def buttons(self):
         """Return all available buttons"""
         if self.win32_wrapper is not None:
-            btn_count = self.win32_wrapper.button_count()
             cc = []
-            for btn_num in range(btn_count):
-                relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
-                button_coord_x, button_coord_y = self.client_to_screen(relative_point)
-                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
-                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+            btn_count = self.win32_wrapper.button_count()
+            if btn_count:
+                # MFC toolbar replies on TB_BUTTONCOUNT window message
+                for btn_num in range(btn_count):
+                    relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
+                    button_coord_x, button_coord_y = self.client_to_screen(relative_point)
+                    btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                    cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+            else:
+                # Qt5 toolbar doesn't reply on TB_BUTTONCOUNT window message
+                for btn in self.win32_wrapper.children():
+                    cc.append(uiawrapper.UIAWrapper(UIAElementInfo(btn.handle)))
         else:
             cc = self.children()
         return cc
