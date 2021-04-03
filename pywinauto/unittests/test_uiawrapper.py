@@ -1809,7 +1809,7 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill()
 
-        def test_button_access(self):
+        def test_button_access_wpf(self):
             """Test getting access to buttons on Toolbar of WPF demo"""
             # Read a second toolbar with buttons: "button1, button2"
             tb = self.dlg.Toolbar2.find()
@@ -1912,7 +1912,7 @@ if UIA_support:
             self.menu_bar.move_mouse_input(coords=self.window_edge_point, absolute=False)
             self.app.kill()
 
-        def test_button_access(self):
+        def test_button_access_mfc(self):
             """Test getting access to buttons on Toolbar for MFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
             self.assertEqual(self.menu_bar.button_count(), 4)
