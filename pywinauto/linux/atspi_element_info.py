@@ -161,7 +161,7 @@ class AtspiElementInfo(ElementInfo):
         """Return children of the element"""
         process = kwargs.get("process", None)
         class_name = kwargs.get("class_name", None)
-        title = kwargs.get("title", None)
+        name = kwargs.get("name", None)
         control_type = kwargs.get("control_type", None)
 
         cnt = self.atspi_accessible.get_child_count(self._handle, None)
@@ -170,7 +170,7 @@ class AtspiElementInfo(ElementInfo):
             child = AtspiElementInfo(self.atspi_accessible.get_child_at_index(self._handle, i, None))
             if class_name is not None and class_name != child.class_name:
                 continue
-            if title is not None and title != child.rich_text:
+            if name is not None and name != child.rich_text:
                 continue
             if control_type is not None and control_type != child.control_type:
                 continue

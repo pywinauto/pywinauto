@@ -136,7 +136,7 @@ class HwndElementInfo(ElementInfo):
     def children(self, **kwargs):
         """Return a list of immediate children of the window"""
         class_name = kwargs.get('class_name', None)
-        title = kwargs.get('name', None)
+        name = kwargs.get('name', None)
         control_type = kwargs.get('control_type', None)
         process = kwargs.get('process', None)
         # TODO: 'cache_enable' and 'depth' are ignored so far
@@ -153,7 +153,7 @@ class HwndElementInfo(ElementInfo):
                 return True
             if class_name is not None and class_name != element.class_name:
                 return True
-            if title is not None and title != element.rich_text:
+            if name is not None and name != element.rich_text:
                 return True
             if control_type is not None and control_type != element.control_type:
                 return True
