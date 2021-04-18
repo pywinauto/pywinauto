@@ -799,7 +799,7 @@ class BaseApplication(object):
         if windows[0].handle:
             criteria['handle'] = windows[0].handle
         else:
-            criteria['title'] = windows[0].name
+            criteria['name'] = windows[0].name
 
         return WindowSpecification(criteria)
 
@@ -823,7 +823,7 @@ class BaseApplication(object):
         if windows[0].handle:
             criteria['handle'] = windows[0].handle
         else:
-            criteria['title'] = windows[0].name
+            criteria['name'] = windows[0].name
 
         return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)
 

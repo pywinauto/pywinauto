@@ -119,7 +119,7 @@ def _resolve_from_appdata(
 
     # Remove any attributes from the current search that are
     # completely language dependent
-    for unloc_attrib in ['title_re', 'title', 'best_match']:
+    for unloc_attrib in ['title_re', 'title', 'name', 'name_re', 'best_match']:
         for c in criteria:
             if unloc_attrib in c.keys():
                 del c[unloc_attrib]
