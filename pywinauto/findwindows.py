@@ -177,7 +177,9 @@ def find_elements(**kwargs):
     elif isinstance(parent, six.integer_types):
         # check if parent is a handle of element (in case of searching native controls)
         parent = backend_obj.element_info_class(parent)
-
+    elif parent and not isinstance(parent, backend_obj.element_info_class):
+        raise TypeError('Parent must be {}, {}, integer or None'.format(backend_obj.generic_wrapper_class,
+                                                                        backend_obj.element_info_class))
 
     # create initial list of all elements
     if top_level_only:

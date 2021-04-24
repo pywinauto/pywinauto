@@ -91,7 +91,7 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 
-from .backend import registry
+from . import backend
 
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes
@@ -149,7 +149,7 @@ class WindowSpecification(object):
         """
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
-            search_criteria['backend'] = registry.active_backend.name
+            search_criteria['backend'] = backend.registry.active_backend.name
         if 'pid' in search_criteria and 'app' in search_criteria:
             raise KeyError('Keywords "pid" and "app" cannot be combined (ambiguous). ' \
                 'Use one option at a time: Application object with keyword "app" or ' \
@@ -157,7 +157,7 @@ class WindowSpecification(object):
         self.app = search_criteria.get('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
-        self.backend = registry.backends[search_criteria['backend']]
+        self.backend = backend.registry.backends[search_criteria['backend']]
 
         # Non PEP-8 aliases for partial backward compatibility
         self.wrapper_object = deprecated(self.find, deprecated_name='wrapper_object')
@@ -264,7 +264,7 @@ class WindowSpecification(object):
         When this window specification is resolved it will be used
         to match against a control.
         """
-        # default to non top level windows because we are usualy
+        # default to non top level windows because we are usually
         # looking for a control
         if 'top_level_only' not in criteria:
             criteria['top_level_only'] = False
