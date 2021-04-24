@@ -533,32 +533,6 @@ class WindowSpecification(object):
         # None return value, since we are waiting for a `negative` state of the control.
         # Expect that you will have nothing to do with the window closed, disabled, etc.
 
-    def _ctrl_identifiers(self):
-
-        ctrls = self.__resolve_control(self.criteria)
-
-        if ctrls[-1].is_dialog():
-            # dialog controls are all the control on the dialog
-            dialog_controls = ctrls[-1].children()
-
-            ctrls_to_print = dialog_controls[:]
-            # filter out hidden controls
-            ctrls_to_print = [
-                ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
-        else:
-            dialog_controls = ctrls[-1].top_level_parent().children()
-            ctrls_to_print = [ctrls[-1]]
-
-        # build the list of disambiguated list of control names
-        name_control_map = findbestmatch.build_unique_dict(dialog_controls)
-
-        # swap it around so that we are mapped off the controls
-        control_name_map = {}
-        for name, ctrl in name_control_map.items():
-            control_name_map.setdefault(ctrl, []).append(name)
-
-        return control_name_map
-
     def dump_tree(self, depth=10, max_width=10, filename=None):
         """
         Dump the 'identifiers' to console or a file
