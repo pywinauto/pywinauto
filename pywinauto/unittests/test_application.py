@@ -1204,6 +1204,54 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.assertTrue(len(windows) >= 1)
 
 
+class ChildWindowSpecificationFromWrapperTests(unittest.TestCase):
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.defaults()
+        self.app = Application().start("Notepad")
+        self.ctrlspec = self.app.window(found_index=0).find().by(class_name='Edit')
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+        
+    def test_wrapper_object(self):
+        """Test that we can get a control"""
+        self.assertEqual(True, isinstance(self.ctrlspec, WindowSpecification))
+
+        self.assertEqual(
+            True,
+            isinstance(self.ctrlspec.find(), hwndwrapper.HwndWrapper)
+            )
+
+    def test_parent(self):
+        """Test recreating specification from parent dialog wrapper"""
+        dlg = self.ctrlspec.parent()
+        sub_spec = dlg.by(class_name ="Edit")
+
+        self.assertEqual(True, isinstance(sub_spec, WindowSpecification))
+        self.assertEqual(sub_spec.class_name(), "Edit")
+        self.assertEqual(self.ctrlspec.handle, sub_spec.handle)
+
+    def test_dump_tree_file_output(self):
+        """Make sure dump_tree() creates correct file"""
+        output_filename = "test_dump_tree.txt"
+
+        self.ctrlspec.dump_tree(filename=output_filename)
+        if os.path.isfile(output_filename):
+            with open(output_filename, "r") as test_log_file:
+                content = str(test_log_file.readlines())
+                self.assertTrue("child_window(class_name=\"Edit\")" in content)
+            os.remove(output_filename)
+        else:
+            self.fail("dump_tree can't create a file")
+
+    def test_properties(self):
+        """Check control properties"""
+        self.assertEqual(self.ctrlspec.class_name(), "Edit")
+        self.assertEqual(True, self.ctrlspec.exists())
+
+
 if UIA_support:
     class UIAWindowSpecificationTestCases(unittest.TestCase):
         """Unit tests for the application.Application class with UIA backend"""
