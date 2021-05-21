@@ -69,7 +69,7 @@ app = application.Application().start(
 # some pages are slow to open - so wait some seconds
 time.sleep(10)
 
-ie =  app.window(title_re = ".*Windows Internet Explorer.*")
+ie =  app.window(name_re = ".*Windows Internet Explorer.*")
 
 # ie doesn't define it's menus as Menu's but actually as a toolbar!
 print("No Menu's in IE:", ie.menu_items())
@@ -83,7 +83,7 @@ app.SaveWebPage.Edit.set_edit_text(os.path.join(r"c:\.temp", outputfilename))
 app.SaveWebPage.Save.close_click()
 
 # if asked to overwrite say yes
-if app.SaveWebPage.Yes.Exists():
+if app.SaveWebPage.Yes.exists():
     app.SaveWebPage.Yes.close_click()
 
 print("saved:", outputfilename)

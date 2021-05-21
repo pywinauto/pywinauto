@@ -43,6 +43,7 @@ from .. import backend
 from .. import WindowNotFoundError  # noqa #E402
 from ..timings import Timings
 from .win_base_wrapper import WinBaseWrapper
+from .hwndwrapper import HwndWrapper
 from ..base_wrapper import BaseMeta
 
 from ..windows.uia_defines import IUIA
@@ -127,12 +128,13 @@ class UiaMeta(BaseMeta):
     @staticmethod
     def find_wrapper(element):
         """Find the correct wrapper for this UIA element"""
-        # Set a general wrapper by default
-        wrapper_match = UIAWrapper
 
         # Check for a more specific wrapper in the registry
-        if element.control_type in UiaMeta.control_type_to_cls:
+        try:
             wrapper_match = UiaMeta.control_type_to_cls[element.control_type]
+        except KeyError:
+            # Set a general wrapper by default
+            wrapper_match = UIAWrapper
 
         return wrapper_match
 
@@ -307,7 +309,7 @@ class UIAWrapper(WinBaseWrapper):
 
     # ------------------------------------------------------------
     @lazy_property
-    def iface_legacy_accessible(self):
+    def iface_legacy_iaccessible(self):
         """Get the element's LegacyIAccessible interface pattern"""
         elem = self.element_info.element
         return uia_defs.get_elem_interface(elem, "LegacyIAccessible")
@@ -384,9 +386,26 @@ class UIAWrapper(WinBaseWrapper):
             pass
         try:
             self.element_info.element.SetFocus()
+
+            # SetFocus() can return S_OK even if the element isn't focused actually
+            active_element = UIAElementInfo.get_active()
+            if self.element_info != active_element and self.element_info != active_element.top_level_parent:
+                if self.handle:
+                    warnings.warn("Failed to set focus on element, trying win32 backend", RuntimeWarning)
+                    HwndWrapper(self.element_info).set_focus()
+                else:
+                    warnings.warn("The element has not been focused because UIA SetFocus() failed "
+                                  "and we can't use win32 backend instead because "
+                                  "the element doesn't have native handle", RuntimeWarning)
         except comtypes.COMError as exc:
-            warnings.warn('The window has not been focused due to ' \
-                'COMError: {}'.format(exc), RuntimeWarning)
+            if self.handle:
+                warnings.warn("Failed to set focus on element due to COMError: {}, "
+                              "trying win32 backend".format(exc), RuntimeWarning)
+                HwndWrapper(self.element_info).set_focus()
+            else:
+                warnings.warn("The element has not been focused due to COMError: {}, "
+                              "and we can't use win32 backend instead because "
+                              "the element doesn't have native handle".format(exc), RuntimeWarning)
 
         return self
 
@@ -583,6 +602,9 @@ class UIAWrapper(WinBaseWrapper):
         or a list item.
         """
         self.iface_selection_item.Select()
+        if not self.is_selected():
+            warnings.warn("SelectionItem.Select failed, trying LegacyIAccessible.DoDefaultAction", RuntimeWarning)
+            self.iface_legacy_iaccessible.DoDefaultAction()
 
         name = self.element_info.name
         control_type = self.element_info.control_type
@@ -654,6 +676,9 @@ class UIAWrapper(WinBaseWrapper):
         if item_index < len(list_):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()
+            if not wrp.is_selected():
+                warnings.warn("SelectionItem.Select failed, trying LegacyIAccessible.DoDefaultAction", RuntimeWarning)
+                wrp.iface_legacy_iaccessible.DoDefaultAction()
         else:
             raise IndexError("item '{0}' not found".format(item))
 
@@ -775,6 +800,24 @@ class UIAWrapper(WinBaseWrapper):
         except (uia_defs.NoPatternInterfaceError):
             pass
         return texts
+
+    # -----------------------------------------------------------
+    def move_window(self, x=None, y=None, width=None, height=None):
+        """Move the window to the new coordinates
+        The method should be implemented explicitly by controls that
+        support this action. The most obvious is the Window control.
+        Otherwise the method throws AttributeError
+
+        * **x** Specifies the new left position of the window.
+          Defaults to the current left position of the window.
+        * **y** Specifies the new top position of the window.
+          Defaults to the current top position of the window.
+        * **width** Specifies the new width of the window. Defaults to the
+          current width of the window.
+        * **height** Specifies the new height of the window. Default to the
+          current height of the window.
+        """
+        raise AttributeError("This method is not supported for {0}".format(self))
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)

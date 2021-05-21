@@ -61,6 +61,7 @@ class IUIA(object):
             'subtree': self.UIA_dll.TreeScope_Subtree,
         }
         self.root = self.iuia.getRootElement()
+        self.raw_tree_walker = self.iuia.RawViewWalker
 
         self.get_focused_element = self.iuia.GetFocusedElement
 

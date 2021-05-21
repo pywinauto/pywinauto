@@ -31,6 +31,7 @@
 
 """Wrap various UIA windows controls. To be used with 'uia' backend."""
 import locale
+import time
 import comtypes
 import six
 
@@ -46,6 +47,69 @@ from ..windows.uia_defines import toggle_state_on
 from ..windows.uia_defines import get_elem_interface
 from ..windows.uia_element_info import UIAElementInfo
 from ..windows.uia_element_info import elements_from_uia_array
+
+
+# ====================================================================
+class WindowWrapper(uiawrapper.UIAWrapper):
+
+    """Wrap a UIA-compatible Window control"""
+
+    _control_types = ['Window']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(WindowWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def move_window(self, x=None, y=None, width=None, height=None):
+        """Move the window to the new coordinates
+
+        * **x** Specifies the new left position of the window.
+                Defaults to the current left position of the window.
+        * **y** Specifies the new top position of the window.
+                Defaults to the current top position of the window.
+        * **width** Specifies the new width of the window.
+                Defaults to the current width of the window.
+        * **height** Specifies the new height of the window.
+                Defaults to the current height of the window.
+        """
+        cur_rect = self.rectangle()
+
+        # if no X is specified - so use current coordinate
+        if x is None:
+            x = cur_rect.left
+        else:
+            try:
+                y = x.top
+                width = x.width()
+                height = x.height()
+                x = x.left
+            except AttributeError:
+                pass
+
+        # if no Y is specified - so use current coordinate
+        if y is None:
+            y = cur_rect.top
+
+        # if no width is specified - so use current width
+        if width is None:
+            width = cur_rect.width()
+
+        # if no height is specified - so use current height
+        if height is None:
+            height = cur_rect.height()
+
+        # ask for the window to be moved
+        self.iface_transform.Move(x, y)
+        self.iface_transform.Resize(width, height)
+
+        time.sleep(timings.Timings.after_movewindow_wait)
+
+    # -----------------------------------------------------------
+    def is_dialog(self):
+        """Window is always a dialog so return True"""
+        return True
 
 
 # ====================================================================
@@ -1098,7 +1162,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         """Initialize the control"""
         super(ToolbarWrapper, self).__init__(elem)
         self.win32_wrapper = None
-        if not self.children() and self.element_info.handle is not None:
+        if len(self.children()) <= 1 and self.element_info.handle is not None:
             self.win32_wrapper = common_controls.ToolbarWrapper(self.element_info.handle)
 
     @property
@@ -1117,7 +1181,10 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
         if self.win32_wrapper is not None:
-            return self.win32_wrapper.button_count()
+            btn_count = self.win32_wrapper.button_count()
+            if btn_count:
+                return btn_count
+            return len(self.win32_wrapper.children())
         else:
             return len(self.children())
 
@@ -1125,13 +1192,19 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def buttons(self):
         """Return all available buttons"""
         if self.win32_wrapper is not None:
-            btn_count = self.win32_wrapper.button_count()
             cc = []
-            for btn_num in range(btn_count):
-                relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
-                button_coord_x, button_coord_y = self.client_to_screen(relative_point)
-                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
-                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+            btn_count = self.win32_wrapper.button_count()
+            if btn_count:
+                # MFC toolbar replies on TB_BUTTONCOUNT window message
+                for btn_num in range(btn_count):
+                    relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
+                    button_coord_x, button_coord_y = self.client_to_screen(relative_point)
+                    btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                    cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+            else:
+                # Qt5 toolbar doesn't reply on TB_BUTTONCOUNT window message
+                for btn in self.win32_wrapper.children():
+                    cc.append(uiawrapper.UIAWrapper(UIAElementInfo(btn.handle)))
         else:
             cc = self.children()
         return cc

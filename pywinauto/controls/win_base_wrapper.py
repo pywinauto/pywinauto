@@ -43,6 +43,8 @@ import win32api
 import win32con
 import six
 
+from ..windows.win32structures import RECT
+
 try:
     from PIL import ImageGrab, Image
 except ImportError:
@@ -154,7 +156,8 @@ class WinBaseWrapper(BaseWrapper):
         pressed = "",
         absolute = False,
         key_down = True,
-        key_up = True):
+        key_up = True,
+        fast_move = False):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
@@ -212,7 +215,7 @@ class WinBaseWrapper(BaseWrapper):
 
         _perform_click_input(button, coords, double, button_down, button_up,
                              wheel_dist=wheel_dist, pressed=pressed,
-                             key_down=key_down, key_up=key_up)
+                             key_down=key_down, key_up=key_up, fast_move=fast_move)
 
         if message:
             self.actions.log(message)
@@ -223,7 +226,8 @@ class WinBaseWrapper(BaseWrapper):
                          src=None,
                          button="left",
                          pressed="",
-                         absolute=True):
+                         absolute=True,
+                         duration=None):
         """Click on **src**, drag it and drop on **dst**
 
         * **dst** is a destination wrapper object or just coordinates.
@@ -240,6 +244,15 @@ class WinBaseWrapper(BaseWrapper):
 
         if dst == src:
             raise AttributeError("Can't drag-n-drop on itself")
+
+        if not isinstance(duration, float) and duration is not None:
+            raise TypeError("duration must be float (in seconds) or None")
+
+        if isinstance(duration, float):
+            total_pause = 0.5 + Timings.before_drag_wait + Timings.before_drop_wait + Timings.after_drag_n_drop_wait
+            if duration < total_pause:
+                raise ValueError("duration must be >= " + str(total_pause))
+            duration -= total_pause
 
         if isinstance(src, WinBaseWrapper):
             press_coords = src._calc_click_coords()
@@ -258,16 +271,24 @@ class WinBaseWrapper(BaseWrapper):
 
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)
-        for i in range(5):
-            self.move_mouse_input((press_coords[0] + i, press_coords[1]), pressed=pressed, absolute=absolute) # "left"
-            time.sleep(Timings.drag_n_drop_move_mouse_wait)
-        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute) # "left"
+
+        if duration is None:
+            duration = 0.0
+            # this is necessary for testDragMouseInput
+            for i in range(5):
+                self.move_mouse_input((press_coords[0] + i, press_coords[1]), pressed=pressed, absolute=absolute)
+                time.sleep(Timings.drag_n_drop_move_mouse_wait)
+
+        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute, duration=duration)
+
+        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute)  # "left"
         time.sleep(Timings.before_drop_wait)
+
         self.release_mouse_input(button, release_coords, pressed, absolute=absolute)
         time.sleep(Timings.after_drag_n_drop_wait)
         return self
 
-    #-----------------------------------------------------------
+    # -----------------------------------------------------------
     def type_keys(
         self,
         keys,
@@ -370,6 +391,9 @@ class WinBaseWrapper(BaseWrapper):
             return None
 
         if rect:
+            if not isinstance(rect, RECT):
+                raise TypeError("capture_as_image() takes rect of type {} while incorrect type {} is given"
+                                .format(RECT, type(rect)))
             control_rectangle = rect
 
         # get the control rectangle in a way that PIL likes it
@@ -401,6 +425,9 @@ class WinBaseWrapper(BaseWrapper):
                                                'BGRX',
                                                0,
                                                1)
+                win32gui.DeleteObject(bmp.GetHandle())
+                memdc.DeleteDC()
+                win32gui.ReleaseDC(hwin, hwindc)
         else:
             # grab the image and get raw data as a string
             pil_img_obj = ImageGrab.grab(box)

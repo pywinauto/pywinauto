@@ -77,7 +77,7 @@ if sys.platform.startswith("linux"):
             self.desktop_wrapper = AtspiWrapper(self.desktop_info)
             self.app = Application()
             self.app.start(_test_app())
-            self.app_wrapper = self.app.gtk_example.wrapper_object()
+            self.app_wrapper = self.app.gtk_example.find()
             self.app_frame = self.app.gtk_example.Frame
 
         def tearDown(self):
@@ -109,19 +109,19 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_wrapper.control_id(), IATSPI().known_control_types["Application"])
 
         def test_image(self):
-            img_wrp = self.app_frame.Icon.wrapper_object()
+            img_wrp = self.app_frame.Icon.find()
             self.assertEqual(img_wrp.description(), u'')
             self.assertEqual(img_wrp.class_name(), u"Icon")
             self.assertEqual(img_wrp.locale(), u'')
             self.assertEqual(img_wrp.size(), (48, 24))
             pos = img_wrp.position()
-            self.assertEqual(pos.x, 422)
-            self.assertAlmostEqual(pos.y, 31, delta=2)
+            self.assertAlmostEqual(pos.x, 408, delta=2)
+            self.assertAlmostEqual(pos.y, 29, delta=2)
             bb = img_wrp.bounding_box()
             self.assertEqual(bb.left, pos.x)
             self.assertEqual(bb.top, pos.y)
-            self.assertEqual(bb.right, 470)
-            self.assertAlmostEqual(bb.bottom, 55, delta=2)
+            self.assertAlmostEqual(bb.right, 456, delta=2)
+            self.assertAlmostEqual(bb.bottom, 53, delta=2)
 
         def test_can_get_rectangle(self):
             rect = self.app_frame.Panel.rectangle()

@@ -31,6 +31,7 @@
 
 """Interface for classes which should deal with different backend elements"""
 
+from six import integer_types
 
 class ElementInfo(object):
 
@@ -115,6 +116,26 @@ class ElementInfo(object):
         """Return the parent of the element"""
         raise NotImplementedError()
 
+    @property
+    def top_level_parent(self):
+        """
+        Return the top level window of this element
+
+        The TopLevel parent is different from the parent in that the parent
+        is the element that owns this element - but it may not be a dialog/main
+        window. For example most Comboboxes have an Edit. The ComboBox is the
+        parent of the Edit control.
+
+        This will always return a valid window element (if the control has
+        no top level parent then the control itself is returned - as it is
+        a top level window already!)
+        """
+        parent = self.parent
+        if parent and parent != self.__class__():
+            return parent.top_level_parent
+        else:
+            return self
+
     def children(self, **kwargs):
         """Return children of the element"""
         raise NotImplementedError()
@@ -138,12 +159,27 @@ class ElementInfo(object):
     def filter_with_depth(elements, root, depth):
         """Return filtered elements with particular depth level relative to the root"""
         if depth is not None:
-                if isinstance(depth, int) and depth > 0:
+                if isinstance(depth, integer_types) and depth > 0:
                     return [element for element in elements if element.has_depth(root, depth)]
                 else:
                     raise Exception("Depth must be natural number")
         else:
             return elements
+
+    def get_descendants_with_depth(self, depth=None, **kwargs):
+        """Return a list of all descendant children of the element with the specified depth"""
+        descendants = []
+
+        def walk_the_tree(root, depth, **kwargs):
+            if depth == 0:
+                return
+            for child in root.children(**kwargs):
+                descendants.append(child)
+                next_depth = None if depth is None else depth - 1
+                walk_the_tree(child, next_depth, **kwargs)
+
+        walk_the_tree(self, depth, **kwargs)
+        return descendants
 
     def descendants(self, **kwargs):
         """Return descendants of the element"""

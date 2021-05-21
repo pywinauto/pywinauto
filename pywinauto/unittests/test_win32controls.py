@@ -159,7 +159,7 @@ class CheckBoxTests(unittest.TestCase):
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
-        self.tree = self.dlg.TreeView.wrapper_object()
+        self.tree = self.dlg.TreeView.find()
 
     def tearDown(self):
         "Close the application after tests"
@@ -245,7 +245,7 @@ class ComboBoxTestCases(unittest.TestCase):
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
         self.app.Common_Controls_Sample.TabControl.select("CSpinButtonCtrl")
 
-        self.ctrl = self.app.Common_Controls_Sample.AlignmentComboBox.wrapper_object()
+        self.ctrl = self.app.Common_Controls_Sample.AlignmentComboBox.find()
 
     def tearDown(self):
         "Close the application after tests"
@@ -345,7 +345,7 @@ class ListBoxTestCases(unittest.TestCase):
         self.dlg.TypeYourTextEdit.type_keys('third item', with_spaces=True)
         self.dlg.Add.click()
 
-        self.ctrl = self.dlg.ListBox.wrapper_object()
+        self.ctrl = self.dlg.ListBox.find()
 
     def tearDown(self):
         "Close the application after tests"
@@ -432,7 +432,7 @@ class EditTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.UntitledNotepad
-        self.ctrl = self.dlg.Edit.wrapper_object()
+        self.ctrl = self.dlg.Edit.find()
 
         self.old_pos = self.dlg.rectangle
 
@@ -462,9 +462,9 @@ class EditTestCases(unittest.TestCase):
         finally:
             self.app.kill()
 
-    def test_print_control_identifiers(self):
-        """Test that print_control_identifiers() doesn't crash with the non-English characters"""
-        self.dlg.print_control_identifiers()
+    def test_dump_tree(self):
+        """Test that dump_tree() doesn't crash with the non-English characters"""
+        self.dlg.dump_tree()
 
     def test_set_text(self):
         """Test setting the text of the edit control"""
@@ -557,7 +557,7 @@ class UnicodeEditTestCases(unittest.TestCase):
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.select("CAnimateCtrl")
 
-        self.ctrl = self.dlg.AnimationFileEdit.wrapper_object()
+        self.ctrl = self.dlg.AnimationFileEdit.find()
 
     def tearDown(self):
         "Close the application after tests"
@@ -703,7 +703,7 @@ class PopupMenuTestCases(unittest.TestCase):
 
         self.app.start("notepad.exe")
         self.app.Notepad.Edit.right_click()
-        self.popup = self.app.PopupMenu.wrapper_object()
+        self.popup = self.app.PopupMenu.find()
 
     def tearDown(self):
         "Close the application after tests"

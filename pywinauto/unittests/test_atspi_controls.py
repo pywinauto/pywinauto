@@ -98,9 +98,9 @@ if sys.platform.startswith("linux"):
             self.app.start(_test_app())
             time.sleep(1)
             self.app_window = self.app.gtk_example
-            self.button_wrapper = self.app_window.Frame.Panel.Click.wrapper_object()
+            self.button_wrapper = self.app_window.Frame.Panel.Click.find()
             self.button_info = self.app_window.Frame.Panel.Click.element_info
-            self.text_area = self.app_window.Frame.Panel.ScrollPane.Text.wrapper_object()
+            self.text_area = self.app_window.Frame.Panel.ScrollPane.Text.find()
 
         def tearDown(self):
             self.app.kill()

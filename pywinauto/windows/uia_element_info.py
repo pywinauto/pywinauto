@@ -32,8 +32,9 @@
 """Implementation of the class to deal with an UI element (based on UI Automation API)"""
 
 from comtypes import COMError
-from six import integer_types, text_type
+from six import integer_types, text_type, string_types
 from ctypes.wintypes import tagPOINT
+import warnings
 
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface
@@ -41,7 +42,6 @@ from .uia_defines import get_elem_interface
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from pywinauto.actionlogger import ActionLogger
 
 
 def elements_from_uia_array(ptrs, cache_enable=False):
@@ -53,6 +53,28 @@ def elements_from_uia_array(ptrs, cache_enable=False):
         except COMError:
             continue
     return elements
+
+
+def is_element_satisfying_criteria(element, process=None, class_name=None, name=None, control_type=None,
+                                   content_only=None, **kwargs):
+    """Check if element satisfies filter criteria"""
+    is_appropriate_control_type = True
+    if control_type:
+        if isinstance(control_type, string_types):
+            is_appropriate_control_type = element.CurrentControlType == IUIA().known_control_types[control_type]
+        elif not isinstance(control_type, integer_types):
+            raise TypeError('control_type must be string or integer')
+        else:
+            is_appropriate_control_type = element.CurrentControlType == control_type
+
+    def is_none_or_equals(criteria, prop):
+        return criteria is None or prop == criteria
+
+    return is_none_or_equals(process, element.CurrentProcessId) \
+        and is_none_or_equals(class_name, element.CurrentClassName) \
+        and is_none_or_equals(name, element.CurrentName) \
+        and is_appropriate_control_type \
+        and (content_only is None or isinstance(content_only, bool) and element.CurrentIsContentElement == content_only)
 
 
 class UIAElementInfo(ElementInfo):
@@ -72,6 +94,9 @@ class UIAElementInfo(ElementInfo):
         "enabled_only": ("enabled", {True: True, False: None}),
         "top_level_only": ("depth", {True: 1, False: None}),
     }
+
+    use_raw_view_walker = False
+    """Enable/disable RawViewWalker-based implementation (can find more elements in some cases, but slow)"""
 
     def __init__(self, handle_or_elem=None, cache_enable=False):
         """
@@ -285,19 +310,20 @@ class UIAElementInfo(ElementInfo):
         try:
             ptrs_array = self._element.FindAll(tree_scope, cond)
             return elements_from_uia_array(ptrs_array, cache_enable)
-        except(COMError, ValueError):
-            ActionLogger().log("COM error: can't get elements")
+        except(COMError, ValueError) as e:
+            warnings.warn("Can't get elements due to COM error: {}. "
+                          "Try to set pywinauto.windows.uia_element_info.UIAElementInfo.use_raw_view_walker = True".format(e), RuntimeWarning)
             return []
 
-    def children(self, **kwargs):
-        """Return a list of only immediate children of the element
-
-         * **kwargs** is a criteria to reduce a list by process,
-           class_name, control_type, content_only and/or title.
-        """
-        cache_enable = kwargs.pop('cache_enable', False)
-        cond = IUIA().build_condition(**kwargs)
-        return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
+    def _iter_children_raw(self):
+        """Return a generator of only immediate children of the element"""
+        try:
+            element = IUIA().raw_tree_walker.GetFirstChildElement(self._element)
+            while element:
+                yield element
+                element = IUIA().raw_tree_walker.GetNextSiblingElement(element)
+        except (COMError, ValueError) as e:
+            warnings.warn("Can't get descendant elements due to error: {}".format(e), RuntimeWarning)
 
     def iter_children(self, **kwargs):
         """Return a generator of only immediate children of the element
@@ -305,12 +331,57 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        cond = IUIA().build_condition(**kwargs)
-        tree_walker = IUIA().iuia.CreateTreeWalker(cond)
-        element = tree_walker.GetFirstChildElement(self._element)
-        while element:
-            yield UIAElementInfo(element)
-            element = tree_walker.GetNextSiblingElement(element)
+        cache_enable = kwargs.pop('cache_enable', False)
+        if UIAElementInfo.use_raw_view_walker:
+            for element in self._iter_children_raw():
+                if is_element_satisfying_criteria(element, **kwargs):
+                    yield UIAElementInfo(element, cache_enable)
+        else:
+            cond = IUIA().build_condition(**kwargs)
+            tree_walker = IUIA().iuia.CreateTreeWalker(cond)
+            element = tree_walker.GetFirstChildElement(self._element)
+            while element:
+                yield UIAElementInfo(element)
+                element = tree_walker.GetNextSiblingElement(element)
+
+    def iter_descendants(self, **kwargs):
+        """Iterate over descendants of the element"""
+        cache_enable = kwargs.pop('cache_enable', False)
+        depth = kwargs.pop("depth", None)
+        if not isinstance(depth, (integer_types, type(None))) or isinstance(depth, integer_types) and depth < 0:
+            raise Exception("Depth must be an integer")
+
+        if depth == 0:
+            return
+        if UIAElementInfo.use_raw_view_walker:
+            for child in self._iter_children_raw():
+                if is_element_satisfying_criteria(child, **kwargs):
+                    yield UIAElementInfo(child, cache_enable)
+                if depth is not None:
+                    kwargs["depth"] = depth - 1
+                for c in UIAElementInfo(child, cache_enable).iter_descendants(**kwargs):
+                    if is_element_satisfying_criteria(c._element, **kwargs):
+                        yield c
+        else:
+            for child in self.iter_children(**kwargs):
+                yield child
+                if depth is not None:
+                    kwargs["depth"] = depth - 1
+                for c in child.iter_descendants(**kwargs):
+                    yield c
+
+    def children(self, **kwargs):
+        """Return a list of only immediate children of the element
+
+         * **kwargs** is a criteria to reduce a list by process,
+           class_name, control_type, content_only and/or title.
+        """
+        if UIAElementInfo.use_raw_view_walker:
+            return list(self.iter_children(**kwargs))
+        else:
+            cache_enable = kwargs.pop('cache_enable', False)
+            cond = IUIA().build_condition(**kwargs)
+            return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
         """Return a list of all descendant children of the element
@@ -318,14 +389,16 @@ class UIAElementInfo(ElementInfo):
          * **kwargs** is a criteria to reduce a list by process,
            class_name, control_type, content_only and/or title.
         """
-        cache_enable = kwargs.pop('cache_enable', False)
-        depth = kwargs.pop('depth', None)
-        cond = IUIA().build_condition(**kwargs)
-        elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
-
-        elements = ElementInfo.filter_with_depth(elements, self, depth)
-
-        return elements
+        if UIAElementInfo.use_raw_view_walker:
+            return list(self.iter_descendants(**kwargs))
+        else:
+            depth = kwargs.pop('depth', None)
+            if depth is None:
+                cache_enable = kwargs.pop('cache_enable', False)
+                cond = IUIA().build_condition(**kwargs)
+                return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+            else:
+                return self.get_descendants_with_depth(depth=depth, **kwargs)
 
     @property
     def visible(self):
@@ -343,8 +416,15 @@ class UIAElementInfo(ElementInfo):
     @property
     def rectangle(self):
         """Return rectangle of the element"""
-        bound_rect = self._element.CurrentBoundingRectangle
-        rect = RECT(bound_rect.left, bound_rect.top, bound_rect.right, bound_rect.bottom)
+        rect = RECT()
+        try:
+            bound_rect = self._element.CurrentBoundingRectangle
+            rect.left = bound_rect.left
+            rect.top = bound_rect.top
+            rect.right = bound_rect.right
+            rect.bottom = bound_rect.bottom
+        except COMError:
+            pass
         return rect
 
     def dump_window(self):
