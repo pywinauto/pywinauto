@@ -46,7 +46,7 @@ for root, dirs, files in os.walk(pywin_folder):
         # the path
         modulename = 'pywinauto' + py_filepath.rsplit("pywinauto", 1)[1]
         modulename = os.path.splitext(modulename)[0]
-        modulename = modulename.replace('\\', '.')
+        modulename = modulename.replace(os.path.sep, '.')
 
         # the final doc name is the modulename + .txt
         doc_source_filename = os.path.join(output_folder, modulename + ".txt")
