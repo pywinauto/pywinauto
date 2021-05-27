@@ -2,17 +2,20 @@
 Remote Execution Guide
 ============================================================
 
-Desktop GUI tests usually require active desktop to move mouse cursor 
-and type some keys into a focused window. That completely blocks local 
+Desktop GUI tests usually require active desktop to move mouse cursor
+and type some keys into a focused window. That completely blocks local
 machine from normal usage.
 
-But running tests on a remote machine is a challenge. This guide collected 
+But running tests on a remote machine is a challenge. This guide collected
 known issues and solutions to control a remote machine with GUI tests.
+
+
+.. _windows-remote-desktop-features-label:
 
 Windows Remote Desktop features
 -------------------------------
 
-Remote Desktop (RDP) provides virtual active desktop to remote machine with Windows OS. 
+Remote Desktop (RDP) provides virtual active desktop to remote machine with Windows OS.
 There are 2 potential issues:
 
   * If RDP window is minimized, there is no active desktop on remote PC by default.
@@ -24,41 +27,48 @@ The workarounds are well described in TestComplete documetation:
   * `Running Tests in Minimized Remote Desktop Windows`_
   * `Disconnecting From Remote Desktop While Running Automated Tests`_
 
+`Running a GUI program in a Docker image`_ is **not** an option since
+``mcr.microsoft.com/windows/servercore:1709`` so currently the test machine needs to be either
+physical or virtual.
+
+
 .. _`Running Tests in Minimized Remote Desktop Windows`: https://support.smartbear.com/testcomplete/docs/testing-with/running/via-rdp/in-minimized-window.html
 .. _`Disconnecting From Remote Desktop While Running Automated Tests`: https://support.smartbear.com/testcomplete/docs/testing-with/running/via-rdp/keeping-computer-unlocked.html
+.. _`Running a GUI program in a Docker image`: https://withinrafael.com/2018/03/09/using-remote-desktop-services-in-containers/
 
 
 VNC Server software
 -------------------
 
-There is more simple way to avoid above issues: using VNC server software 
-(for example, Tight VNC). It works as a pair of client and server. VNC server 
+There is more simple way to avoid above issues: using VNC server software
+(for example, Tight VNC). It works as a pair of client and server. VNC server
 also provides active desktop on a remote machine.
 
   * This is a non-virtual desktop so working with native screen resolution
     on a remote PC may require updating video drivers.
   * Minimizing or disconnecting VNC client doesn't destroy active desktop (by default!).
-  * This is a cross-platform solution (VNC server is a native part of macOS 
+  * This is a cross-platform solution (VNC server is a native part of macOS
     and available on Linux).
 
 The only problem you may face with:
 
-  * Using Remote Desktop (RDP) may break VNC server benefits and you have 
+  * Using Remote Desktop (RDP) may break VNC server benefits and you have
     to restart remote PC or apply RDP workarounds described above.
 
 
 Other remote access software
 ----------------------------
 
-If anyone tried to run GUI tests/automation remotely using Team Viewer, 
-PowerBI desktop or any other virtual desktop software, feel free to add 
+If anyone tried to run GUI tests/automation remotely using Team Viewer,
+PowerBI desktop or any other virtual desktop software, feel free to add
 more details into this guide.
+
 
 Tricks to run automation on a locked machine
 --------------------------------------------
 
-For some applications it's possible to run GUI automation on a locked 
-machine, but it requires using special methods. First it's worth listing 
+For some applications it's possible to run GUI automation on a locked
+machine, but it requires using special methods. First it's worth listing
 methods that don't work on a locked machine:
 
   * `click_input`_ and all other mouse click and press methods ending with ``_input``.
@@ -72,7 +82,7 @@ methods that don't work on a locked machine:
 .. _`mouse`: code/pywinauto.mouse.html
 .. _`keyboard`: code/pywinauto.keyboard.html
 
-Some other methods may not work also, but it depends on application. 
+Some other methods may not work also, but it depends on application.
 There are few methods for silent text input in ``backend="win32"``:
 
   * `send_chars`_ (symbols only; special key combinations do not work)
@@ -93,18 +103,66 @@ There is another useful method to enter string at once (available for both backe
 Start remote script using agent based CI
 ----------------------------------------
 
-When your script is ready and you can run it on a remote machine manually, 
-it's time to automate the last step: trigger running the script from local 
+When your script is ready and you can run it on a remote machine manually,
+it's time to automate the last step: trigger running the script from local
 machine or from CI server.
 
-If you have internal hosted CI (for example, Jenkins), probably target 
-machine is already connected to Jenkins master using an agent. There are 
+If you have internal hosted CI (for example, `Jenkins`_), probably target
+machine is already connected to Jenkins master using an agent. There are
 three ways to connect agent:
 
-  * Run agent as a service: GUI tests won't work in this case because 
-    GUI can't be even created when running as a service.
+  * Run agent as a service: GUI tests won't work in this case because
+    GUI can't be even created when running as a service. Even if the service is allowed to
+    *interact with the desktop* the interactive `Station`_ and `Desktop`_ objects availability
+    is not guaranteed.
   * Run agent through SSH: GUI tests won't work.
   * Run agent as a normal application. This is the only working case!
+
+
+.. _`Station`: https://docs.microsoft.com/en-us/windows/win32/winstation/window-stations
+.. _`Desktop`: https://docs.microsoft.com/en-us/windows/win32/winstation/desktops
+
+
+Integration with Jenkins
+^^^^^^^^^^^^^^^^^^^^^^^^
+`Jenkins`_ is an open source automation server. Application testing with pywinauto
+can be embedded in a `Jenkins Pipeline`_ running on a Windows node.
+
+Jenkins master and nodes configuration is beyond the scope of this document so we
+assume that a Jenkins master is running on some OS and drives a Jenkins node running
+whatever Windows flavour you want to test on.
+
+To run GUI tests the application under test needs to be connected to a `Desktop`_; thìs
+in turn means that an interactive `Station`_ must be available.
+
+The simplest solution is to setup a dedicated machine and configure windows to
+autologin and create a scheduled task to run the Jenkins slave agent upon login.
+
+More details can be found i.e. `on stackoverflow`_.
+
+The scheduled task should be a batch file like the following example
+
+  ::
+
+    java -jar slave.jar -jnlpUrl https://<JENKINS_HOST>/computer/<NODE_NAME>/slave-agent.jnlp -workDir <WORKDIR> -secret <SECRET>
+
+
+Where:
+
+- ``<JENKINS_HOST>`` is Jenkins master host:port
+- ``<WORKDIR>`` is the Jenkins slave root on filesystem
+- ``<SECRET>`` is the node secret that can be found in ``slave-agent.jnlp``. Note that
+  the file can be downloaded only from the node itself. If Jenkins is configured
+  without security this option won't be required
+
+Once the Jenkins slave is online GUI programs can be run and tested with pywinauto.
+RDP connections create and destroy desktops so they might interfere with the
+test process and should be avoided, see :ref:`windows-remote-desktop-features-label`.
+
+
+.. _Jenkins: https://www.jenkins.io
+.. _Jenkins Pipeline: https://www.jenkins.io/doc/book/pipeline
+.. _`on stackoverflow`: https://stackoverflow.com/questions/19441324/how-to-run-gui-tests-on-a-jenkins-windows-slave-without-remote-desktop-connectio
 
 
 Start remote script directly
@@ -119,11 +177,11 @@ First option is PsExec. Thanks to `this post on StackExchange`_.
 
  1. Download `PsTools`_.
  2. Get process ID of RDP session using ``tasklist`` command. PowerShell script:
- 
+
   ::
- 
+
      $session = tasklist /fo CSV | findstr RDP ; $session = $session.Split(",")[3] ; $session.Split('"')[1]
- 
+
  3. Start process: ``PsExec.exe -s -i 123 python my_script.py``.
 
 .. _`this post on StackExchange`: https://serverfault.com/a/852877/368634
@@ -141,7 +199,7 @@ First option is PsExec. Thanks to `this post on StackExchange`_.
       hosts: *****
       tasks:
         - name: run GUI automation
-          win_psexec: 
+          win_psexec:
             command: python pywinauto_example.py
             executable: C:\Windows\PSTools\psexec.exe
             interactive: yes
