@@ -510,5 +510,4 @@ class AxElementInfo(ElementInfo):
         return -1
 
     def get_avaliable_actions(self):
-        actions = get_list_of_actions(self)
-        print(actions)
+        return get_list_of_attributes(self)

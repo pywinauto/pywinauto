@@ -37,9 +37,15 @@ from ..macos.ax_element_info import AxElementInfo
 from ..macos.macos_functions import set_ax_attribute
 from ..macos.macos_functions import setAppFrontmost
 
+from ..macos.macos_structures import AX_RECT, AX_POINT
+
 from .. import backend
+from .. import keyboard
+
+from ..timings import Timings
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
+from ..mouse import _perform_click_input
 
 
 # ====================================================================
@@ -152,6 +158,180 @@ class AXWrapper(BaseWrapper):
     def friendly_class_name(self):
         return self.element_info.control_type
 
+    # ------------------------------------------------------------
+
+    def type_keys(
+        self,
+        keys,
+        pause = None,
+        with_spaces = True,
+        with_tabs = True,
+        with_newlines = True,
+        turn_off_numlock = False,
+        set_foreground = True,
+        vk_packet = True):
+
+        friendly_class_name = self.friendly_class_name()
+
+        if pause is None:
+            pause = Timings.after_sendkeys_key_wait
+
+        if set_foreground:
+            self.set_focus()
+
+        if isinstance(keys, six.text_type):
+            aligned_keys = keys
+        elif isinstance(keys, six.binary_type):
+            aligned_keys = keys.decode(locale.getpreferredencoding())
+        else:
+            # convert a non-string input
+            aligned_keys = six.text_type(keys)
+
+        keyboard.send_keys(
+            aligned_keys,
+            pause,
+            with_spaces,
+            with_tabs,
+            with_newlines,
+            vk_packet
+        )
+
+        self.wait_for_idle()
+
+        self.actions.log('Typed text to the ' + friendly_class_name + ': ' + aligned_keys)
+        return  self
+
+# -----------------------------------------------------------
+    def drag_mouse_input(self,
+                         dst=(0, 0),
+                         src=None,
+                         button="left",
+                         pressed="",
+                         absolute=True):
+        """Click on **src**, drag it and drop on **dst**
+
+        * **dst** is a destination wrapper object or just coordinates.
+        * **src** is a source wrapper object or coordinates.
+          If **src** is None the self is used as a source object.
+        * **button** is a mouse button to hold during the drag.
+          It can be "left", "right", "middle" or "x"
+        * **pressed** is a key on the keyboard to press during the drag.
+        * **absolute** specifies whether to use absolute coordinates
+          for the mouse pointer locations
+        """
+        if not src:
+            src = self
+
+        if dst == src:
+            raise AttributeError("Can't drag-n-drop on itself")
+
+        if isinstance(src, AXWrapper):
+            press_coords = src._calc_click_coords()
+        elif isinstance(src, AX_POINT):
+            press_coords = (src.x, src.y)
+        else:
+            press_coords = src
+
+        if isinstance(dst, AXWrapper):
+            release_coords = dst._calc_click_coords()
+        elif isinstance(dst, AX_POINT):
+            release_coords = (dst.x, dst.y)
+        else:
+            release_coords = dst
+        self.actions.log('Drag mouse from coordinates {0} to {1}'.format(press_coords, release_coords))
+
+        self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
+        time.sleep(Timings.before_drag_wait)
+        for i in range(5):
+            self.move_mouse_input((press_coords[0] + i, press_coords[1]), pressed=pressed, absolute=absolute) # "left"
+            time.sleep(Timings.drag_n_drop_move_mouse_wait)
+        self.move_mouse_input(release_coords, pressed=pressed, absolute=absolute) # "left"
+        time.sleep(Timings.before_drop_wait)
+        self.release_mouse_input(button, release_coords, pressed, absolute=absolute)
+        time.sleep(Timings.after_drag_n_drop_wait)
+        return self
+
+    #-----------------------------------------------------------
+    def click_input(
+        self,
+        button = "left",
+        coords = (None, None),
+        button_down = True,
+        button_up = True,
+        double = False,
+        wheel_dist = 0,
+        use_log = True,
+        pressed = "",
+        absolute = False,
+        key_down = True,
+        key_up = True):
+        """Click at the specified coordinates
+
+        * **button** The mouse button to click. One of 'left', 'right',
+          'middle' or 'x' (Default: 'left', 'move' is a special case)
+        * **coords** The coordinates to click at.(Default: the center of the control)
+        * **double** Whether to perform a double click or not (Default: False)
+        * **wheel_dist** The distance to move the mouse wheel (default: 0)
+
+        NOTES:
+           This is different from click method in that it requires the control
+           to be visible on the screen but performs a more realistic 'click'
+           simulation.
+
+           This method is also vulnerable if the mouse is moved by the user
+           as that could easily move the mouse off the control before the
+           click_input has finished.
+        """
+        if self.is_dialog():
+            self.set_focus()
+        #if self.backend.name == "win32":
+        #    self._ensure_enough_privileges('win32api.SetCursorPos(x, y)')
+        # TODO: check it in more general way for both backends
+
+        if isinstance(coords, AX_RECT):
+            coords = coords.mid_point()
+        # allow points objects to be passed as the coords
+        elif isinstance(coords, AX_POINT):
+            coords = [coords.x, coords.y]
+        else:
+            coords = list(coords)
+
+        # set the default coordinates
+        if coords[0] is None:
+            coords[0] = int(self.rectangle().width / 2)
+        if coords[1] is None:
+            coords[1] = int(self.rectangle().height / 2)
+
+        if not absolute:
+            coords = self.client_to_screen(coords)
+
+        message = None
+        if use_log:
+            ctrl_text = self.window_text()
+            if ctrl_text is None:
+                ctrl_text = six.text_type(ctrl_text)
+            if button.lower() == 'move':
+                message = 'Moved mouse over ' + self.friendly_class_name() + \
+                          ' "' + ctrl_text + '" to screen point ('
+            else:
+                message = 'Clicked ' + self.friendly_class_name() + ' "' + ctrl_text + \
+                          '" by ' + str(button) + ' button mouse click at '
+                if double:
+                    message = 'Double-c' + message[1:]
+            message += str(tuple(coords))
+
+        _perform_click_input(button, coords, double, button_down, button_up,
+                             wheel_dist=wheel_dist, pressed=pressed,
+                             key_down=key_down, key_up=key_up)
+
+        if message:
+            self.actions.log(message)
+
+    def minimize(self):
+        set_ax_attribute(self.element_info.ref, 'AXMinimized', True)
+
+    def maximize(self):
+        set_ax_attribute(self.element_info.ref, 'AXMaximized', True)
 
 backend.register('ax', AxElementInfo, AXWrapper)
 backend.activate('ax')  # default for macOS
