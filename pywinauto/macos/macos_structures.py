@@ -33,7 +33,7 @@
 """Low-level interface to mac OS"""
 
 from Foundation import NSRect, NSPoint, NSSize
-from ..base_types import Structure
+from ..base_types import Structure, PointIteratorMixin, RectExtMixin
 from ctypes import c_int
 
 class AX_RECT():
@@ -63,6 +63,14 @@ class AX_RECT():
     @property
     def width(self):
         return self.right - self.left
+
+    @property
+    def mid_point(self):
+        """Return a POINT structure representing the mid point"""
+        pt = AX_POINT()
+        pt.x = self.left + int(float(self.width()) / 2.)
+        pt.y = self.top + int(float(self.height()) / 2.)
+        return pt
 
     def __repr__(self):
         return 'AX_RECT[left: {}, right: {}, top: {}, bottom: {}]'.format(self.left,self.right,self.top,self.bottom)
