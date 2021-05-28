@@ -173,9 +173,10 @@ This chapter is inspired by `issue #401`_ (special thanks to `yangliang003`_).
 .. _`issue #401`: https://github.com/pywinauto/pywinauto/issues/401
 .. _`yangliang003`: https://github.com/yangliang003
 
-First option is PsExec. Thanks to `this post on StackExchange`_.
+First option is `PsExec`_ (does *not* work with Jenkins) or `PAExec`_ (fully compatible opensource).
+Thanks to `this post on StackExchange`_.
 
- 1. Download `PsTools`_.
+ 1. Download `PsTools`_ or `PAExec`_
  2. Get process ID of RDP session using ``tasklist`` command. PowerShell script:
 
   ::
@@ -186,6 +187,8 @@ First option is PsExec. Thanks to `this post on StackExchange`_.
 
 .. _`this post on StackExchange`: https://serverfault.com/a/852877/368634
 .. _`PsTools`: https://docs.microsoft.com/en-us/sysinternals/downloads/psexec
+.. _`PsExec`: https://docs.microsoft.com/en-us/sysinternals/downloads/psexec
+.. _`PAExec`: https://www.poweradmin.com/paexec/
 
 
 `Ansible`_ has PsExec plugin that simplifies it. Playbook example:
