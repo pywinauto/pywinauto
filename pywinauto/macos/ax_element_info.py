@@ -47,6 +47,7 @@ from AppKit import NSRangeFromString
 from .macos_functions import check_attribute_valid
 from .macos_functions import get_list_of_attributes
 from .macos_functions import get_screen_frame
+from .macos_functions import get_list_of_actions
 from .macos_functions import getAXUIElementForApp
 
 from .macos_defines import ax_attributes
@@ -508,4 +509,6 @@ class AxElementInfo(ElementInfo):
         # TODO: Discuss, is it a good idea to use hash as a control id?
         return -1
 
-
+    def get_avaliable_actions(self):
+        actions = get_list_of_actions(self)
+        print(actions)
