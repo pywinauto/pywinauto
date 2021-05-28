@@ -94,6 +94,7 @@ class ImageWrapperTests(unittest.TestCase):
         self.app_window = self.app.RootWindow.wrapper_object()
         self.app_window.set_focus()
         self.image = self.app.RootWindow.Image.wrapper_object()
+        self.checkbox = self.app.RootWindow.Check.wrapper_object()
 
     def tearDown(self):
         self.app.kill()
@@ -108,14 +109,19 @@ class ImageWrapperTests(unittest.TestCase):
 
     def test_bounding_box(self):
         """Get image bounding box"""
-        expected = AX_RECT(left=242.0,right=302.0, top=418.0, bottom=478.0)
-        self.assertEqual(self.image.bounding_box,expected)
+        textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
+        textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
+        textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
+        self.assertEqual(textfield1 + 30,textfield2)
+        self.assertEqual(textfield2 + 30, textfield3)
 
     def test_position(self):
         """Get image position coordinates"""
-        expected = AX_POINT(x=242.0,y=418.0)
-        self.assertEqual(self.image.position,expected)
-
+        textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
+        textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
+        textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
+        self.assertEqual(textfield1 + 30,textfield2)
+        self.assertEqual(textfield2 + 30, textfield3)
 
 class ComboboxWrapperTests(unittest.TestCase):
 
