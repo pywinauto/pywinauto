@@ -58,5 +58,6 @@ time.sleep(5)
 dlg.Search.type_keys('michael jackson')
 
 dlg.Radio.click()
+dlg.Music.click()
 
 app.close()
