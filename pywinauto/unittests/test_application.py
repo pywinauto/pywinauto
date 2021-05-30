@@ -798,7 +798,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
-        self.app = Application().start("Notepad")
+        self.app = Application(backend="win32").start(_notepad_exe())
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit
 
@@ -1208,7 +1208,7 @@ class ChildWindowSpecificationFromWrapperTests(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
-        self.app = Application().start("Notepad")
+        self.app = Application(backend="win32").start(_notepad_exe())
         self.ctrlspec = self.app.window(found_index=0).find().by(class_name='Edit')
 
     def tearDown(self):
@@ -1249,7 +1249,7 @@ class ChildWindowSpecificationFromWrapperTests(unittest.TestCase):
     def test_properties(self):
         """Check control properties"""
         self.assertEqual(self.ctrlspec.class_name(), "Edit")
-        self.assertEqual(True, self.ctrlspec.exists())
+        self.assertTrue(self.ctrlspec.exists())
 
 
 if UIA_support:
