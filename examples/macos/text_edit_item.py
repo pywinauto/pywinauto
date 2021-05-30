@@ -32,13 +32,22 @@
 """Run some automations to test things"""
 from __future__ import unicode_literals
 from __future__ import print_function
+
 import sys
-sys.path.append('/Users/daria/pywinauto')
 
-from pywinauto import application
-from pywinauto import macos 
+sys.path.append(".")
 
-app = application.Application()
+from pywinauto.macos.application import Application
+
+app = Application()
 app.start('TextEdit')
-app.kill()
+text_edit = app.Window_().TextEdit
+text_edit_wrapper = text_edit.wrapper_object().set_focus()
 
+text_edit.type_keys("\t This simple example shows how keyboard module works\n")
+text_edit.type_keys("You can disable space using\n", with_spaces=False)
+text_edit.type_keys("You can disable \tTAB using\n", with_tabs=False)
+text_edit.type_keys("Now \t TABs \t are enable.    \n", with_newlines=False)
+text_edit.type_keys("previous string with disabled newlines")
+
+app.close()
