@@ -210,6 +210,9 @@ class Application(BaseApplication):
         """
         macos_functions.setAppFrontmost(self.process_id)
 
+    def close(self):
+        self.kill(soft=True)
+
 if __name__ == "__main__":
     sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     parent_dir = os.path.dirname(os.path.abspath(__file__))
