@@ -715,6 +715,9 @@ class HwndWrapper(WinBaseWrapper):
         if controlID is None:
             controlID = self.control_id()
 
+        if controlID is None:
+            # probably parent doesn't exist any more, no need to notify
+            return win32defines.TRUE
         return self.parent().post_message(
             win32defines.WM_COMMAND,
             win32functions.MakeLong(message, controlID),
