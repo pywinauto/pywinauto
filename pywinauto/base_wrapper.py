@@ -527,10 +527,13 @@ class BaseWrapper(object):
             control_rectangle = rect
 
         # get the control rectangle in a way that PIL likes it
-        left = control_rectangle.left
-        right = control_rectangle.right
-        top = control_rectangle.top
-        bottom = control_rectangle.bottom
+        # Static modifiers have been added inorder to correct the unwanted pixels being captured.
+        # TODO: fix code dynamically.
+        
+        left = control_rectangle.left - 8
+        right = control_rectangle.right - 8
+        top = control_rectangle.top - 1 
+        bottom = control_rectangle.bottom - 8
         box = (left, top, right, bottom)
 
         # TODO: maybe check the number of monitors on Linux
