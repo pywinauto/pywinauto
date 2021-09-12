@@ -665,7 +665,10 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def value(self):
         """Get a current position of slider's thumb"""
-        return self.iface_range_value.CurrentValue
+        try:
+            return self.iface_range_value.CurrentValue
+        except NoPatternInterfaceError:
+            return self.iface_value.CurrentValue
 
     # -----------------------------------------------------------
     def set_value(self, value):
@@ -679,13 +682,15 @@ class SliderWrapper(uiawrapper.UIAWrapper):
         else:
             raise ValueError("value should be either string or number")
 
-        min_value = self.min_value()
-        max_value = self.max_value()
-        if not (min_value <= value_to_set <= max_value):
-            raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
+        try:
+            min_value = self.min_value()
+            max_value = self.max_value()
+            if not (min_value <= value_to_set <= max_value):
+                raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
-        self.iface_range_value.SetValue(value_to_set)
-
+            self.iface_range_value.SetValue(value_to_set)
+        except NoPatternInterfaceError:
+            self.iface_value.SetValue(str(value))
 
 # ====================================================================
 class HeaderWrapper(uiawrapper.UIAWrapper):
