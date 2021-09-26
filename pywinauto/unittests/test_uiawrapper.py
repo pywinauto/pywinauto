@@ -461,6 +461,13 @@ if UIA_support:
                 result = self.dlg.capture_as_image().size
                 self.assertEqual(expected, result)
 
+        def test_set_value(self):
+            """Test for UIAWrapper.set_value"""
+            edit = self.dlg.by(control_type='Edit', auto_id='edit1').find()
+            self.assertEqual(edit.get_value(), '')
+            edit.set_value('test')
+            self.assertEqual(edit.get_value(), 'test')
+
 
     class UIAWrapperRawViewWalkerTests(UIAWrapperTests):
 
