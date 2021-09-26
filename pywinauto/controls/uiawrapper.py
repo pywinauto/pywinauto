@@ -442,6 +442,12 @@ class UIAWrapper(WinBaseWrapper):
     # TODO: figure out how to implement .has_focus() method (if no handle available)
 
     # -----------------------------------------------------------
+    def set_value(self, value):
+        """An interface to the SetValue method of the Value control pattern"""
+        self.iface_value.SetValue(value)
+        return self
+
+    # -----------------------------------------------------------
     def close(self):
         """
         Close the window
