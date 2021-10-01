@@ -155,10 +155,6 @@ def get_windows_list_info():
     if list_info is not None:
         return list_info
 
-def print_list_of_atrributes(ax_element): # TODO: remove debug function
-    for attr in dir(ax_element):
-        print (attr)
-
 def check_is_process_trusted():
     if not (AXIsProcessTrusted()):
         if (is_debug):
@@ -205,7 +201,7 @@ def get_ax_attribute(ax_element,attribute_name):
             fetchResult = fetch_result_with_error[1]
             return fetchResult
         if (is_debug):
-            print("Attribute " + new_attribute_name + " is not defined" )
+            print("Attribute " + attribute_name + " is not defined" )
 
 # Sets the accessibility object's attribute to the specified value.
 def set_ax_attribute(ax_element,attribute_name,value):
@@ -238,13 +234,14 @@ def print_child_tree(ui_element_ref, count=0):
                 continue
             print_child_tree(item,count + 1)
 
-def get_descendants(root, descendants):
-    childrens = get_ax_attribute(ui_element_ref, "AXChildren")
-    if childrens is not None:
-        for child in childrens:
-            if child is not None:
-                descendants.append(child)
-            get_descendants(child, descendants)
+# not used
+# def get_descendants(root, descendants):
+#    childrens = get_ax_attribute(ui_element_ref, "AXChildren")
+#    if childrens is not None:
+#        for child in childrens:
+#            if child is not None:
+#                descendants.append(child)
+#            get_descendants(child, descendants)
 
 def get_all_ax_elements_of_a_particular_type_from_app(ui_element_ref, input_type, store):
     if ( isinstance(store, list) and isinstance(input_type,str) ):
