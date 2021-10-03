@@ -305,26 +305,26 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
                 list_view.get_item(item).select()
                 # do health check and apply workaround for Qt5 combo box if necessary
                 if isinstance(item, six.string_types):
-                    item = list_view.children(name=item)[0]
-                    item_value = item.window_text()
+                    item_wrapper = list_view.children(name=item)[0]
+                    item_value = item_wrapper.window_text()
                     if self.element_info.framework_id == 'Win32':
                         if self.selected_text() != item_value:
-                            item.invoke()
+                            item_wrapper.invoke()
                             if self.selected_text() != item_value:
-                                item.click_input()
+                                item_wrapper.click_input()
                     elif self.element_info.framework_id == 'Qt':
                         list_view._select(item)
                         if list_view.is_active():
-                            item.click_input()
+                            item_wrapper.click_input()
                     else:
                         if self.selected_text() != item_value:
                             # workaround for WinForms combo box
-                            item.invoke()
+                            item_wrapper.invoke()
                             if self.selected_text() != item_value:
                                 # workaround for Qt5 combo box
-                                item.click_input()
+                                item_wrapper.click_input()
                                 if self.selected_text() != item_value:
-                                    item.click_input()
+                                    item_wrapper.click_input()
                 elif self.selected_index() != item:
                     items = children_lst[0].children(control_type='ListItem')
                     if item < len(items):
