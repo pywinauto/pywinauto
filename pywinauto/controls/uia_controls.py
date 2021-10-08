@@ -330,7 +330,12 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
                 elif self.selected_index() != item:
                     items = children_lst[0].children(control_type='ListItem')
                     if item < len(items):
-                        items[item].invoke()
+                        if self.element_info.framework_id == 'Qt':
+                            list_view._select(item)
+                            if list_view.is_active():
+                                items[item].click_input()
+                        else:
+                            items[item].invoke()
                     else:
                         raise IndexError('Item number #{} is out of range ' \
                                          '({} items in total)'.format(item, len(items)))
