@@ -44,6 +44,11 @@ if is_x64_Python():
     winforms_folder = os.path.join(winforms_folder, 'x64')
 winfoms_app_grid = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
 
+if sys.version_info[:2] >= (3, 6):
+    qt_python_folder = os.path.join(
+        os.path.dirname(__file__), r"..\..\apps\Qt_Python_samples")
+    qt_py_combobox_app = sys.executable + ' ' + os.path.join(qt_python_folder, u"qt5_combobox.py")
+
 if UIA_support:
 
     def _set_timings():
@@ -1559,6 +1564,45 @@ if UIA_support:
 
             dlg2_from_point = Desktop(backend="uia").top_from_point(x, y)
             self.assertEqual(dlg2_from_point, dlg_wrapper)
+
+    if sys.version_info[:2] >= (3, 6):
+
+        class ComboBoxTestsQt(unittest.TestCase):
+
+            """Unit tests for the ComboBoxWrapper class with PyQt5 app"""
+
+            def setUp(self):
+                """Set some data and ensure the application is in the state we want"""
+                _set_timings()
+
+                # start the application
+                app = Application(backend='uia').start(qt_py_combobox_app, wait_for_idle=False)
+                self.app = Application(backend='uia').connect(pid=app.process)
+                self.dlg = dlg = self.app.window(name='QTRV')
+
+                self.combo1 = dlg.by(name="Q1", control_type="ComboBox").find()
+                self.combo2 = dlg.by(name="Q2", control_type="ComboBox").find()
+
+            def tearDown(self):
+                """Close the application after tests"""
+                self.app.kill()
+
+            def test_select(self):
+                """Test method .select() for Qt combo box"""
+                self.dlg.set_focus()
+                self.combo1.select(u'Image on right')
+                self.assertEqual(self.combo1.selected_text(), u'Image on right')
+                self.assertEqual(self.combo1.selected_index(), 1)
+                self.combo1.select(2)
+                self.assertEqual(self.combo1.selected_text(), u'Image on top')
+                self.assertEqual(self.combo1.selected_index(), 2)
+
+                self.combo2.select(u'Image and Text')
+                self.assertEqual(self.combo2.selected_text(), u'Image and Text')
+                self.assertEqual(self.combo2.selected_index(), 2)
+                self.combo2.select(0)
+                self.assertEqual(self.combo2.selected_text(), u'Image')
+                self.assertEqual(self.combo2.selected_index(), 0)
 
 
     class ListItemWrapperTests(unittest.TestCase):
