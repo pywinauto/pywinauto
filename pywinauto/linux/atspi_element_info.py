@@ -33,7 +33,7 @@
 """Linux AtspiElementInfo class"""
 
 from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiValue, \
-    IATSPI
+    IATSPI, RECT
 from ..element_info import ElementInfo
 
 
@@ -248,7 +248,11 @@ class AtspiElementInfo(ElementInfo):
     def enabled(self):
         states = self.get_state_set()
         if self.control_type == "Application":
-            states = self.children()[0].get_state_set()
+            children = self.children()
+            if children:
+                states = children[0].get_state_set()
+            else:
+                return False
         return "STATE_ENABLED" in states
 
     @property
@@ -257,5 +261,11 @@ class AtspiElementInfo(ElementInfo):
         if self.control_type == "Application":
             # Application object have`t rectangle. It`s just a fake container which contain base application
             # info such as process ID, window name etc. Will return application frame rectangle
-            return self.children()[0].rectangle
+            children = self.children()
+            if children:
+                return self.children()[0].rectangle
+            else:
+                return RECT()
+        elif self.control_type == "Invalid":
+            return RECT()
         return self.component.get_rectangle(coord_type="screen")
