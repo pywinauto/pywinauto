@@ -162,6 +162,51 @@ if UIA_support:
                                       auto_id="OverflowButton").find()
             self.assertEqual(button.automation_id(), "OverflowButton")
 
+        def test_access_key(self):
+            """Test find element by access key"""
+            file_menu = self.dlg.by(access_key="Alt+F").find()
+            self.assertEqual("MenuItem", file_menu.element_info.control_type)
+            self.assertEqual("File", file_menu.element_info.name)
+
+        def test_legacy_shortcut(self):
+            """Test find element by keyboard shortcut value from legacy pattern"""
+            file_menu = self.dlg.by(legacy_shortcut="Alt+F").find()
+            self.assertEqual("MenuItem", file_menu.element_info.control_type)
+            self.assertEqual("File", file_menu.element_info.name)
+
+        def test_value(self):
+            """Test find element by value"""
+            edit = self.dlg.by(auto_id="edit1").find()
+            edit.set_edit_text("Test string")
+
+            edit_by_value = self.dlg.by(value="Test string").find()
+            self.assertEqual("edit1", edit_by_value.element_info.auto_id)
+
+        def test_legacy_value(self):
+            """Test find element by value from legacy pattern"""
+            edit = self.dlg.by(auto_id="edit1").find()
+            edit.set_edit_text("Test string")
+
+            edit_by_value = self.dlg.by(legacy_value="Test string").find()
+            self.assertEqual("edit1", edit_by_value.element_info.auto_id)
+
+        def test_legacy_action(self):
+            """Test find element by default action name from legacy pattern"""
+            combobox = self.dlg.by(legacy_action="Expand").find()
+            self.assertEqual("ComboBox", combobox.element_info.control_type)
+            self.assertEqual(2, combobox.item_count())
+
+        def test_legacy_descr(self):
+            """Test find element by description from legacy pattern"""
+            close_button = self.dlg.by(legacy_descr="Closes the window").find()
+            self.assertEqual("Button", close_button.element_info.control_type)
+            self.assertEqual("Close", close_button.element_info.legacy_name)
+
+        def test_legacy_help_not_available(self):
+            """Test return empty string if LegacyIAccessible.Help value is not available"""
+            close_button = self.dlg.by(control_type="TitleBar").find()
+            self.assertEqual("", close_button.element_info.legacy_help)
+
         def test_is_visible(self):
             """Test is_visible method of a control"""
             button = self.dlg.by(class_name="Button",

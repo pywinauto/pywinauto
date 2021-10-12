@@ -37,7 +37,7 @@ from ctypes.wintypes import tagPOINT
 import warnings
 
 from .uia_defines import IUIA
-from .uia_defines import get_elem_interface
+from .uia_defines import get_elem_interface, NoPatternInterfaceError
 
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
@@ -80,10 +80,14 @@ def is_element_satisfying_criteria(element, process=None, class_name=None, name=
 class UIAElementInfo(ElementInfo):
     """UI element wrapper for IUIAutomation API"""
 
-    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type"]
+    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type", "access_key", "accelerator",
+                "value", "legacy_action", "legacy_descr", "legacy_help", "legacy_name", "legacy_shortcut",
+                "legacy_value"]
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle", "framework_id", "runtime_id"]
-    search_order = ["handle", "control_type", "class_name", "pid", "control_id", "visible", "enabled",
-        "name", "auto_id", "full_control_type", "rectangle", "framework_id", "runtime_id"]
+    search_order = ["handle", "control_type", "class_name", "pid", "control_id", "visible", "enabled", "name",
+                    "access_key", "accelerator", "auto_id", "full_control_type", "rectangle", "framework_id",
+                    "runtime_id", "value", "legacy_action", "legacy_descr", "legacy_help", "legacy_name",
+                    "legacy_shortcut", "legacy_value"]
     assert set(re_props + exact_only_props) == set(search_order)
 
     renamed_props = {
@@ -295,6 +299,90 @@ class UIAElementInfo(ElementInfo):
     def handle(self):
         """Return handle of the element"""
         return self._get_handle()
+
+    @property
+    def access_key(self):
+        """Return access key for the element. Most preferred way to get keyboard shortcut"""
+        try:
+            val = self._element.CurrentAccessKey
+            return text_type('') if val is None else val
+        except COMError:
+            # probably element already doesn't exist
+            return text_type('')
+
+    @property
+    def accelerator(self):
+        """Return accelerator key for the element (try to use access_key property in case of empty value) """
+        try:
+            val = self._element.CurrentAcceleratorKey
+            return text_type('') if val is None else val
+        except COMError:
+            # probably element already doesn't exist
+            return text_type('')
+
+    @property
+    def value(self):
+        """Return value of the element from ValuePattern (in order to search elements by this property)"""
+        try:
+            val = get_elem_interface(self._element, "Value").CurrentValue
+            return text_type('') if val is None else val
+        except (NoPatternInterfaceError, COMError):
+            # COMError also can be raised in case of attempt to get value of password EditBox
+            return text_type('')
+
+    @property
+    def legacy_action(self):
+        """Return DefaultAction value of the element from LegacyIAccessible pattern"""
+        try:
+            val = get_elem_interface(self._element, "LegacyIAccessible").CurrentDefaultAction
+            return text_type('') if val is None else val
+        except (NoPatternInterfaceError, COMError):
+            return text_type('')
+
+    @property
+    def legacy_descr(self):
+        """Return description of the element from LegacyIAccessible pattern"""
+        try:
+            val = get_elem_interface(self._element, "LegacyIAccessible").CurrentDescription
+            return text_type('') if val is None else val
+        except (NoPatternInterfaceError, COMError):
+            return text_type('')
+
+    @property
+    def legacy_help(self):
+        """Return help string of the element from LegacyIAccessible pattern"""
+        try:
+            val = get_elem_interface(self._element, "LegacyIAccessible").CurrentHelp
+            return text_type('') if val is None else val
+        except (NoPatternInterfaceError, COMError):
+            return text_type('')
+
+    @property
+    def legacy_name(self):
+        """Return name of the element from LegacyIAccessible pattern"""
+        try:
+            val = get_elem_interface(self._element, "LegacyIAccessible").CurrentName
+            return text_type('') if val is None else val
+        except (NoPatternInterfaceError, COMError):
+            return text_type('')
+
+    @property
+    def legacy_shortcut(self):
+        """Return keyboard shortcut of the element from LegacyIAccessible pattern"""
+        try:
+            val = get_elem_interface(self._element, "LegacyIAccessible").CurrentKeyboardShortcut
+            return text_type('') if val is None else val
+        except (NoPatternInterfaceError, COMError):
+            return text_type('')
+
+    @property
+    def legacy_value(self):
+        """Return value of the element from LegacyIAccessible pattern"""
+        try:
+            val = get_elem_interface(self._element, "LegacyIAccessible").CurrentValue
+            return text_type('') if val is None else val
+        except (NoPatternInterfaceError, COMError):
+            return text_type('')
 
     @property
     def parent(self):
