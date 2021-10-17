@@ -11,11 +11,6 @@ shallow_clone: true                 # default is "false"
 environment:
 
   matrix:
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7"
@@ -27,24 +22,12 @@ environment:
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "NO"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
-
-    - PYTHON: "C:\\Python35-x64"
-      PYTHON_VERSION: "3.5"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "NO"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python36-x64"
@@ -64,6 +47,16 @@ environment:
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "NO"
+
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
 
     - PYTHON: "C:\\Python312-x64"
       PYTHON_VERSION: "3.12"
