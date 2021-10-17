@@ -506,7 +506,14 @@ class Application(BaseApplication):
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
-        h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
+
+        try:
+            h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
+        except win32api.error as e:
+            if e.winerror == win32defines.ERROR_INVALID_PARAMETER:
+                raise ProcessNotFoundError('Process does not exist')
+            else:
+                raise e
 
         times_dict = win32process.GetProcessTimes(h_process)
         UserTime_start, KernelTime_start = times_dict['UserTime'], times_dict['KernelTime']
