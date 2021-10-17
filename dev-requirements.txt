@@ -1,4 +1,5 @@
-pywin32
+pywin32==301 ; python_version == '3.6'
+pywin32 ; python_version != '3.6'
 six
 pillow>=6.2.0
 coverage
