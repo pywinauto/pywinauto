@@ -188,7 +188,7 @@ def find_elements(**kwargs):
         elements = element.children(class_name=kwargs.get('class_name'),
                                     control_type=kwargs.get('control_type'),
                                     process=kwargs.get('pid'),
-                                    cache_enable=True)
+                                    cache_enable=False)
 
         # if we have been given a parent
         if parent:
@@ -205,7 +205,7 @@ def find_elements(**kwargs):
         elements = parent.descendants(class_name=kwargs.get('class_name'),
                                       control_type=kwargs.get('control_type'),
                                       process=kwargs.get('pid'),
-                                      cache_enable=True,
+                                      cache_enable=False,
                                       depth=depth)
 
     # early stop
