@@ -511,9 +511,8 @@ class Application(BaseApplication):
             h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
         except win32api.error as e:
             if e.winerror == win32defines.ERROR_INVALID_PARAMETER:
-                raise ProcessNotFoundError('Process does not exist')
-            else:
-                raise e
+                raise ProcessNotFoundError('Process with PID {} does not exist'.format(self.process))
+            raise e
 
         times_dict = win32process.GetProcessTimes(h_process)
         UserTime_start, KernelTime_start = times_dict['UserTime'], times_dict['KernelTime']
