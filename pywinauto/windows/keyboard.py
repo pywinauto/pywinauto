@@ -45,6 +45,7 @@ from ctypes import pointer
 import atexit
 import sys
 import time
+import string
 
 import win32con
 import win32api
