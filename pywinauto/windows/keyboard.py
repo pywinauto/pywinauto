@@ -646,36 +646,6 @@ class KeyboardHook(object):
 
         return res
 
-        """Execute when a mouse low level event has been triggerred"""
-        try:
-            # The next hook in chain must be always called
-            res = windll.user32.CallNextHookEx(self.mouse_id, code, event_code, mouse_data_ptr)
-            if not self.handler:
-                return res
-
-            current_key = None
-            event_code_word = 0xFFFFFFFF & event_code
-            if event_code_word in self.MOUSE_ID_TO_KEY:
-                current_key = self.MOUSE_ID_TO_KEY[event_code_word]
-
-            event_type = None
-            if current_key != 'Move':
-                if event_code in self.MOUSE_ID_TO_EVENT_TYPE:
-                    event_type = self.MOUSE_ID_TO_EVENT_TYPE[event_code]
-
-                # Get the mouse position: x and y
-                ms = MSLLHOOKSTRUCT.from_address(mouse_data_ptr)
-                event = MouseEvent(current_key, event_type, ms.pt.x, ms.pt.y)
-                self.handler(event)
-
-        except Exception:
-            al = ActionLogger()
-            al.log("_mouse_ll_hdl, {0}".format(sys.exc_info()[0]))
-            al.log("_mouse_ll_hdl, code {0}, event_code {1}".format(code, event_code))
-            raise
-
-        return res
-
     def hook(self, is_hook=True):
         """Hook mouse and/or keyboard events"""
         if not (is_hook):
