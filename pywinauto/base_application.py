@@ -654,8 +654,8 @@ class WindowSpecification(object):
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
                     # transform multi-line text to one liner
-                    ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
-                output += indent + u"{class_name} - '{text}'    {rect}" \
+                    ctrl_text = repr(ctrl_text)
+                output += indent + u"{class_name} - {text}    {rect}" \
                                    "".format(class_name=ctrl.friendly_class_name(),
                                              text=ctrl_text,
                                              rect=ctrl.rectangle())
@@ -672,15 +672,15 @@ class WindowSpecification(object):
                     control_type = ctrl.element_info.control_type
                 criteria_texts = []
                 if ctrl_text:
-                    criteria_texts.append(u'name="{}"'.format(ctrl_text))
+                    criteria_texts.append(u'name={}'.format(ctrl_text))
                 if class_name:
-                    criteria_texts.append(u'class_name="{}"'.format(class_name))
+                    criteria_texts.append(u"class_name='{}'".format(class_name))
                 if auto_id:
-                    criteria_texts.append(u'auto_id="{}"'.format(auto_id))
+                    criteria_texts.append(u"auto_id='{}'".format(auto_id))
                 if control_type:
-                    criteria_texts.append(u'control_type="{}"'.format(control_type))
+                    criteria_texts.append(u"control_type='{}'".format(control_type))
                 if ctrl_text or class_name or auto_id:
-                    output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
+                    output += u'\n' + indent + u'.by(' + u', '.join(criteria_texts) + u')'
             else:
                 output += indent + u'**********\n'
                 output += indent + u'Max children output limit ({}) has been reached. ' \
