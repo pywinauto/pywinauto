@@ -1,5 +1,5 @@
 docutils<0.18
-pywin32<=227; python_version <= '3.6'
+pywin32<=227; python_version <= '3.6' and platform_system == 'Windows'
 pywin32>=300; python_version > '3.6' and platform_system == 'Windows'
 six
 Pillow==6.2.0; python_version <= '3.9'

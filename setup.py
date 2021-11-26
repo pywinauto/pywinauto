@@ -60,8 +60,12 @@ install_requires = ['six']
 
 if sys.platform == 'win32':
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
+elif sys.platform.startswith('linux'):
+    packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
+elif sys.platform == 'darwin':
+    packages = ["pywinauto", "pywinauto.controls"]
 else:
-    packages = ["pywinauto", "pywinauto.linux"]
+    packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
 
 setup(name='pywinauto',
     version = '0.6.9',
