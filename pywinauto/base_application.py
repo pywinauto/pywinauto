@@ -698,11 +698,20 @@ class WindowSpecification(object):
                     print_identifiers(child_elem, current_depth + 1, log_func)
 
         if filename is None:
+            if six.PY3:
+                try:
+                    encoding = sys.stdout.encoding
+                except AttributeError:
+                    encoding = sys.getdefaultencoding()
+            else:
+                encoding = locale.getpreferredencoding()
+            print(u'# -*- coding: {} -*-'.format(encoding))
             print_identifiers(elements_tree)
         else:
-            with codecs.open(filename, "w", locale.getpreferredencoding()) as log_file:
+            with codecs.open(filename, "w", locale.getpreferredencoding(), errors="backslashreplace") as log_file:
                 def log_func(msg):
                     log_file.write(str(msg) + os.linesep)
+                log_func(u'# -*- coding: {} -*-'.format(locale.getpreferredencoding()))
                 print_identifiers(elements_tree, log_func=log_func)
 
     print_control_identifiers = deprecated(dump_tree, deprecated_name='print_control_identifiers')
