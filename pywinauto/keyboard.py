@@ -115,6 +115,8 @@ import string
 if sys.platform == 'win32':
     from .windows.keyboard import KeySequenceError, KeyboardEvent, KeyboardHook, KeyAction, VirtualKeyAction, EscapedKeyAction, PauseAction
     from .windows.keyboard import handle_code, parse_keys, send_keys, LoByte, HiByte
+    from .windows.keyboard import VK_MENU, KEYEVENTF_UNICODE
 else:
     from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
     from .linux.keyboard import handle_code, parse_keys, send_keys
+    from .linux.keyboard import VK_MENU, KEYEVENTF_UNICODE
