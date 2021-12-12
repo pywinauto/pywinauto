@@ -110,7 +110,6 @@ virtual key for convenience.
 from __future__ import unicode_literals
 
 import sys
-import string
 
 if sys.platform == 'win32':
     from .windows.keyboard import KeySequenceError, KeyboardEvent, KeyboardHook, KeyAction, VirtualKeyAction, EscapedKeyAction, PauseAction
