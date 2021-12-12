@@ -42,7 +42,6 @@ from Xlib.ext.xtest import fake_input
 import Xlib.XK
 import time
 import six
-import string
 
 _display = Display()
 
