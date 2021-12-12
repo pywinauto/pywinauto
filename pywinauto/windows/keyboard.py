@@ -34,7 +34,6 @@
 
 """
 import six
-import ctypes
 
 from ctypes import wintypes
 from ctypes import windll
@@ -42,6 +41,7 @@ from ctypes import CFUNCTYPE
 from ctypes import c_int
 from ctypes import byref
 from ctypes import pointer
+from ctypes import sizeof
 import atexit
 import sys
 import time
@@ -530,7 +530,7 @@ class KeyboardHook(object):
                  220: 'Oem_5',
                  221: 'Oem_6',
                  222: 'Oem_7',
-                 223: 'Oem_8',  # not defined in win32cona
+                 223: 'Oem_8',  # not defined in win32con
                  224: 'Reserved29',
                  225: 'OemSpecific15',
                  226: 'Oem_102',
@@ -538,7 +538,7 @@ class KeyboardHook(object):
                  228: 'OemSpecific17',
                  229: 'ProcessKey',  # win32con.VK_PROCESSKEY
                  230: 'OemSpecific18',
-                 231: 'VkPacket',  # win32con.VK_PACKET. It has a special processing in kbd_ll !
+                 231: 'VkPacket',  # win32con.VK_PACKET. It has a special processing in KeyboardHook._process_data !
                  232: 'Unassigned12',
                  233: 'OemSpecific19',
                  234: 'OemSpecific20',
@@ -765,8 +765,8 @@ class KeyAction(object):
         inputs = self.GetInput()
 
         # SendInput() supports all Unicode symbols
-        num_inserted_events = win32functions.SendInput(len(inputs), ctypes.byref(inputs),
-                                        ctypes.sizeof(win32structures.INPUT))
+        num_inserted_events = win32functions.SendInput(len(inputs), byref(inputs),
+                                        sizeof(win32structures.INPUT))
         if num_inserted_events != len(inputs):
             raise RuntimeError('SendInput() inserted only ' + str(num_inserted_events) +
                                ' out of ' + str(len(inputs)) + ' keyboard events')

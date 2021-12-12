@@ -34,7 +34,6 @@
 
 """
 
-import six
 from ctypes import wintypes
 from ctypes import windll
 from ctypes import CFUNCTYPE
@@ -53,7 +52,6 @@ import win32gui
 from math import ceil
 from . import win32functions
 from . import win32defines
-from .win32defines import VK_PACKET
 from ..actionlogger import ActionLogger
 from .win32structures import MSLLHOOKSTRUCT
 from .win32structures import LRESULT
