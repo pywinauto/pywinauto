@@ -179,7 +179,7 @@ class WindowSpecification(object):
 
         raise AttributeError(message)
 
-    def __get_ctrl(self, criteria_):
+    def __get_ctrl(self, criteria_, mode='first'):
         """Get a control based on the various criteria"""
         # make a copy of the criteria
         criteria = [crit.copy() for crit in criteria_]
@@ -209,12 +209,20 @@ class WindowSpecification(object):
                 # resolve the control and return it
                 if 'backend' not in ctrl_criteria:
                     ctrl_criteria['backend'] = self.backend.name
-                ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
-                previous_parent = ctrl.element_info
-                ctrls.append(ctrl)
+                all_ctrls = findwindows.find_elements(**ctrl_criteria)
+                for ctrl in all_ctrls:
+                    curr_ctrl = self.backend.generic_wrapper_class(ctrl)
+                    previous_parent = curr_ctrl.element_info
+                    ctrls.append([curr_ctrl])
 
         if ctrls:
-            return (dialog, ) + tuple(ctrls)
+            if mode == 'first':
+                return (dialog, ) + tuple(ctrls[0]) if ctrls[0] else (dialog, )
+            if mode == 'all':
+                result_ctrls = []
+                for ctrl in ctrls:
+                    result_ctrls.append((dialog, ) + tuple(ctrl) if ctrl else (dialog, ))
+                return result_ctrls
         else:
             return (dialog, )
 
@@ -252,10 +260,59 @@ class WindowSpecification(object):
 
         return ctrl
 
-    def find(self):
-        """Allow the calling code to get the HwndWrapper object"""
-        ctrls = self.__resolve_control(self.criteria)
+    def __wait_base(self, wait_for, timeout=None, retry_interval=None):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+        try:
+            ctrls = self.__resolve_control(self.criteria, timeout, retry_interval)
+            for name in wait_for:
+                check = getattr(ctrls[-1], name)
+                if not check():
+                    return None
+        except (findwindows.ElementNotFoundError,
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle,
+                controls.InvalidElement) as e:
+            raise e.original_exception
+
         return ctrls[-1]
+
+    def wait(self, wait_for, timeout=None, retry_interval=None):
+        import warnings
+        warnings.warn()
+        pass
+
+    def wait_exists(self, timeout=None, retry_interval=None):
+        return self.__wait_base(('exists',), timeout, retry_interval)
+
+    def wait_visible(self, timeout=None, retry_interval=None):
+        return self.__wait_base(('is_visible',), timeout, retry_interval)
+
+    def wait_active(self, timeout=None, retry_interval=None):
+        return self.__wait_base(('is_active',), timeout, retry_interval)
+
+    def wait_enabled(self, timeout=None, retry_interval=None):
+        return self.__wait_base(('is_enabled',), timeout, retry_interval)
+
+    def wait_ready(self, timeout=None, retry_interval=None):
+        return self.__wait_base(('is_visible', 'is_enabled'), timeout, retry_interval)
+
+    def find(self, timeout=None, retry_interval=None):
+        """Allow the calling code to get the HwndWrapper object"""
+
+        try:
+            ctrl = self.__get_ctrl(self.criteria)[-1]
+        except (findwindows.ElementNotFoundError,
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle,
+                controls.InvalidElement) as e:
+            ctrl = self.wait_exists(timeout, retry_interval)
+        return ctrl
+
+    def find_all(self, min_count=1, max_count=None):
+        pass
 
     def by(self, **criteria):
         """
@@ -398,140 +455,31 @@ class WindowSpecification(object):
                 controls.InvalidElement):
             return False
 
-    @classmethod
-    def __parse_wait_args(cls, wait_conditions, timeout, retry_interval):
-        """Both methods wait & wait_not have the same args handling"""
-        # set the current timings -couldn't set as defaults as they are
-        # evaluated at import time - and timings may be changed at any time
-        if timeout is None:
-            timeout = Timings.window_find_timeout
-        if retry_interval is None:
-            retry_interval = Timings.window_find_retry
+    def _ctrl_identifiers(self):
 
-        # allow for case mixups - just to make it easier to use
-        wait_for = wait_conditions.lower()
+        ctrls = self.__resolve_control(self.criteria)
 
-        # get checking methods from the map by wait_conditions string
-        # To avoid needless checks - use a set to filter duplicates
-        unique_check_names = set()
-        wait_criteria_names = wait_for.split()
-        for criteria_name in wait_criteria_names:
-            try:
-                check_methods = cls.WAIT_CRITERIA_MAP[criteria_name]
-            except KeyError:
-                # Invalid check name in the wait_for
-                raise SyntaxError('Unexpected criteria - %s' % criteria_name)
-            else:
-                unique_check_names.update(check_methods)
+        if ctrls[-1].is_dialog():
+            # dialog controls are all the control on the dialog
+            dialog_controls = ctrls[-1].children()
 
-        # unique_check_names = set(['is_enabled', 'is_active', 'is_visible', 'Exists'])
-        return unique_check_names, timeout, retry_interval
+            ctrls_to_print = dialog_controls[:]
+            # filter out hidden controls
+            ctrls_to_print = [
+                ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
+        else:
+            dialog_controls = ctrls[-1].top_level_parent().children()
+            ctrls_to_print = [ctrls[-1]]
 
-    def __check_all_conditions(self, check_names, retry_interval):
-        """
-        Checks for all conditions
+        # build the list of disambiguated list of control names
+        name_control_map = findbestmatch.build_unique_dict(dialog_controls)
 
-        If any check's result != True return False immediately, do not matter others check results.
-        True will be returned when all checks passed and all of them equal True.
-        """
-        for check_name in check_names:
-            # timeout = retry_interval because the timeout is handled at higher level
-            if check_name == 'exists':
-                check = getattr(self, check_name)
-                if not check(retry_interval, float(retry_interval) // 2):
-                    return False
-                else:
-                    continue
-            try:
-                # resolve control explicitly to pass correct timing params
-                ctrls = self.__resolve_control(self.criteria, retry_interval, float(retry_interval) // 2)
-                check = getattr(ctrls[-1], check_name)
-            except (findwindows.ElementNotFoundError,
-                    findbestmatch.MatchError,
-                    controls.InvalidWindowHandle,
-                    controls.InvalidElement):
-                # The control does not exist
-                return False
-            else:
-                if not check():
-                    # At least one check not passed
-                    return False
+        # swap it around so that we are mapped off the controls
+        control_name_map = {}
+        for name, ctrl in name_control_map.items():
+            control_name_map.setdefault(ctrl, []).append(name)
 
-        # All the checks have been done
-        return True
-
-    def wait(self, wait_for, timeout=None, retry_interval=None):
-        """
-        Wait for the window to be in a particular state/states.
-
-        :param wait_for: The state to wait for the window to be in. It can
-            be any of the following states, also you may combine the states by space key.
-
-             * 'exists' means that the window is a valid handle
-             * 'visible' means that the window is not hidden
-             * 'enabled' means that the window is not disabled
-             * 'ready' means that the window is visible and enabled
-             * 'active' means that the window is active
-
-        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
-            is not in the appropriate state after this number of seconds.
-            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
-
-        :param retry_interval: How long to sleep between each retry.
-            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
-
-        An example to wait until the dialog
-        exists, is ready, enabled and visible: ::
-
-            self.Dlg.wait("exists enabled visible ready")
-
-        .. seealso::
-            :func:`WindowSpecification.wait_not()`
-
-            :func:`pywinauto.timings.TimeoutError`
-        """
-        check_method_names, timeout, retry_interval = self.__parse_wait_args(wait_for, timeout, retry_interval)
-        wait_until(timeout, retry_interval,
-                   lambda: self.__check_all_conditions(check_method_names, retry_interval))
-
-        # Return the wrapped control
-        return self.find()
-
-    def wait_not(self, wait_for_not, timeout=None, retry_interval=None):
-        """
-        Wait for the window to not be in a particular state/states.
-
-        :param wait_for_not: The state to wait for the window to not be in. It can be any
-            of the following states, also you may combine the states by space key.
-
-             * 'exists' means that the window is a valid handle
-             * 'visible' means that the window is not hidden
-             * 'enabled' means that the window is not disabled
-             * 'ready' means that the window is visible and enabled
-             * 'active' means that the window is active
-
-        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is sill in the
-            state after this number of seconds.
-            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
-
-        :param retry_interval: How long to sleep between each retry.
-            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
-
-        An example to wait until the dialog is not ready, enabled or visible: ::
-
-            self.Dlg.wait_not("enabled visible ready")
-
-        .. seealso::
-            :func:`WindowSpecification.wait()`
-
-            :func:`pywinauto.timings.TimeoutError`
-        """
-        check_method_names, timeout, retry_interval = \
-            self.__parse_wait_args(wait_for_not, timeout, retry_interval)
-        wait_until(timeout, retry_interval,
-                   lambda: not self.__check_all_conditions(check_method_names, retry_interval))
-        # None return value, since we are waiting for a `negative` state of the control.
-        # Expect that you will have nothing to do with the window closed, disabled, etc.
+        return control_name_map
 
     def dump_tree(self, depth=10, max_width=10, filename=None):
         """
