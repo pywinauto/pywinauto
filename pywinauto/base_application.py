@@ -286,13 +286,16 @@ class WindowSpecification(object):
             retry_interval = Timings.window_find_retry
         ctrl = self.find(timeout, retry_interval)
         correct_wait_for = wait_for.lower().split()
+        time_left = timeout
         for condition in correct_wait_for:
+            start = timestamp()
             if condition == 'exists':
-                self.wait_exists(timeout, retry_interval)
+                continue
             elif condition not in WindowSpecification.WAIT_CRITERIA_MAP.keys():
                 raise SyntaxError("Invalid_criteria")
             else:
-                WindowSpecification.WAIT_CRITERIA_MAP[condition](ctrl, timeout, retry_interval)
+                WindowSpecification.WAIT_CRITERIA_MAP[condition](ctrl, time_left, retry_interval)
+            time_left -= timestamp() - start
         return ctrl
 
     def by(self, **criteria):
