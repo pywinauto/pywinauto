@@ -94,7 +94,7 @@ from . import findwindows
 from . import backend
 
 from .actionlogger import ActionLogger
-from .timings import Timings, wait_until, TimeoutError, wait_until_passes
+from .timings import Timings, wait_until, TimeoutError, wait_until_passes, timestamp
 from . import deprecated
 
 
@@ -133,12 +133,10 @@ class WindowSpecification(object):
     .. automethod:: __getattribute__
     .. automethod:: __getitem__
     """
-
-    WAIT_CRITERIA_MAP = {'exists': ('exists',),
-                         'visible': ('is_visible',),
-                         'enabled': ('is_enabled',),
-                         'ready': ('is_visible', 'is_enabled',),
-                         'active': ('is_active',),
+    WAIT_CRITERIA_MAP = {'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_visible(timeout, retry_interval),
+                         'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_enabled(timeout, retry_interval),
+                         'ready': lambda ctrl, timeout, retry_interval: ctrl.wait_ready(timeout, retry_interval),
+                         'active': lambda ctrl, timeout, retry_interval: ctrl.wait_active(timeout, retry_interval),
                          }
 
     def __init__(self, search_criteria, allow_magic_lookup=True):
@@ -228,7 +226,7 @@ class WindowSpecification(object):
         else:
             return (dialog, )
 
-    def __resolve_control(self, criteria, timeout=None, retry_interval=None):
+    def __resolve_control(self, criteria, timeout=None, retry_interval=None, mode='first'):
         """
         Find a control using criteria
 
@@ -255,66 +253,47 @@ class WindowSpecification(object):
                  findbestmatch.MatchError,
                  controls.InvalidWindowHandle,
                  controls.InvalidElement),
-                criteria)
+                criteria,
+                mode)
 
         except TimeoutError as e:
             raise e.original_exception
 
         return ctrl
 
-    def __wait_base(self, wait_for, timeout=None, retry_interval=None):
+    def find(self, timeout=None, retry_interval=None):
+        """Allow the calling code to get the HwndWrapper object"""
+        ctrls = self.__resolve_control(self.criteria, timeout, retry_interval, mode='first')
+        return ctrls[-1]
+
+    def find_all(self, timeout, retry_interval):
+        all_ctrls = self.__resolve_control(self.criteria, timeout, retry_interval, mode='all')
+        return_ctrls = []
+        for ctrls in all_ctrls:
+            return_ctrls.append(ctrls[-1])
+        return return_ctrls
+
+    def wait_exists(self, timeout=None, retry_interval=None):
+        return self.find(timeout, retry_interval)
+
+    def wait(self, wait_for, timeout=None, retry_interval=None):
+        # TODO: DeprecationWarning
+        # import warnings
+        # warnings.warn()
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
-        try:
-            ctrls = self.__resolve_control(self.criteria, timeout, retry_interval)
-            for name in wait_for:
-                check = getattr(ctrls[-1], name)
-                if not check():
-                    return None
-        except (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement) as e:
-            raise e.original_exception
-
-        return ctrls[-1]
-
-    def wait(self, wait_for, timeout=None, retry_interval=None):
-        import warnings
-        warnings.warn()
-        pass
-
-    def wait_exists(self, timeout=None, retry_interval=None):
-        return self.__wait_base(('exists',), timeout, retry_interval)
-
-    def wait_visible(self, timeout=None, retry_interval=None):
-        return self.__wait_base(('is_visible',), timeout, retry_interval)
-
-    def wait_active(self, timeout=None, retry_interval=None):
-        return self.__wait_base(('is_active',), timeout, retry_interval)
-
-    def wait_enabled(self, timeout=None, retry_interval=None):
-        return self.__wait_base(('is_enabled',), timeout, retry_interval)
-
-    def wait_ready(self, timeout=None, retry_interval=None):
-        return self.__wait_base(('is_visible', 'is_enabled'), timeout, retry_interval)
-
-    def find(self, timeout=None, retry_interval=None):
-        """Allow the calling code to get the HwndWrapper object"""
-
-        try:
-            ctrl = self.__get_ctrl(self.criteria)[-1]
-        except (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement) as e:
-            ctrl = self.wait_exists(timeout, retry_interval)
+        ctrl = self.find(timeout, retry_interval)
+        correct_wait_for = wait_for.lower().split()
+        for condition in correct_wait_for:
+            if condition == 'exists':
+                self.wait_exists(timeout, retry_interval)
+            elif condition not in WindowSpecification.WAIT_CRITERIA_MAP.keys():
+                raise SyntaxError("Invalid_criteria")
+            else:
+                WindowSpecification.WAIT_CRITERIA_MAP[condition](ctrl, timeout, retry_interval)
         return ctrl
-
-    def find_all(self, min_count=1, max_count=None):
-        pass
 
     def by(self, **criteria):
         """
