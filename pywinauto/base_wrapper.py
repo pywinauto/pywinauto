@@ -40,6 +40,8 @@ import sys
 
 import six
 
+from .timings import wait_until, timestamp
+
 try:
     from PIL import ImageGrab
 except ImportError:
@@ -353,6 +355,13 @@ class BaseWrapper(object):
         visible and enabled.
         """
         return self.element_info.enabled #and self.top_level_parent().element_info.enabled
+
+    # ------------------------------------------------------------
+    def is_active(self):
+        """
+        TODO: Describe
+        """
+        return self.element_info.active
 
     # -----------------------------------------------------------
     def was_maximized(self):
@@ -825,5 +834,40 @@ class BaseWrapper(object):
     def set_focus(self):
         """Set the focus to this element"""
         pass
+
+    # -----------------------------------------------------------
+    def wait_visible(self, timeout, retry_interval):
+        try:
+            wait_until(timeout, retry_interval, self.is_visible)
+        except TimeoutError as e:
+            raise e
+
+    # -----------------------------------------------------------
+    def wait_enabled(self, timeout, retry_interval):
+        try:
+            wait_until(timeout, retry_interval, self.is_enabled)
+        except TimeoutError as e:
+            raise e
+
+    # -----------------------------------------------------------
+    def wait_active(self, timeout, retry_interval):
+        try:
+            wait_until(timeout, retry_interval, self.is_active)
+        except TimeoutError as e:
+            raise e
+
+    # -----------------------------------------------------------
+    def wait_ready(self, timeout, retry_interval):
+        start = timestamp()
+        try:
+            self.wait_visible(timeout, retry_interval)
+            time_left = timeout - (timestamp() - start)
+            if 0 < time_left and not time_left < retry_interval:
+                self.wait_enabled(timeout, retry_interval)
+            else:
+                err = TimeoutError("timed out") # TODO: add message
+                raise err
+        except TimeoutError as e:
+            raise e
 
 #====================================================================
