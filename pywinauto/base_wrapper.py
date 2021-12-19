@@ -839,6 +839,7 @@ class BaseWrapper(object):
     def wait_visible(self, timeout, retry_interval):
         try:
             wait_until(timeout, retry_interval, self.is_visible)
+            return self
         except TimeoutError as e:
             raise e
 
@@ -846,6 +847,7 @@ class BaseWrapper(object):
     def wait_enabled(self, timeout, retry_interval):
         try:
             wait_until(timeout, retry_interval, self.is_enabled)
+            return self
         except TimeoutError as e:
             raise e
 
@@ -853,6 +855,7 @@ class BaseWrapper(object):
     def wait_active(self, timeout, retry_interval):
         try:
             wait_until(timeout, retry_interval, self.is_active)
+            return self
         except TimeoutError as e:
             raise e
 
@@ -864,6 +867,7 @@ class BaseWrapper(object):
             time_left = timeout - (timestamp() - start)
             if 0 < time_left and not time_left < retry_interval:
                 self.wait_enabled(timeout, retry_interval)
+                return self
             else:
                 err = TimeoutError("timed out") # TODO: add message
                 raise err
