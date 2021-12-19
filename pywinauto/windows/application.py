@@ -87,7 +87,7 @@ def _resolve_from_appdata(
 
     # Remove any attributes from the current search that are
     # completely language dependent
-    for unloc_attrib in ['title_re', 'title', 'best_match']:
+    for unloc_attrib in ['title_re', 'title', 'name', 'name_re', 'best_match']:
         for c in criteria:
             if unloc_attrib in c.keys():
                 del c[unloc_attrib]
@@ -478,7 +478,13 @@ class Application(BaseApplication):
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "
                                   "anything else")
-        h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
+
+        try:
+            h_process = win32api.OpenProcess(win32con.MAXIMUM_ALLOWED, 0, self.process)
+        except win32api.error as e:
+            if e.winerror == win32defines.ERROR_INVALID_PARAMETER:
+                raise ProcessNotFoundError('Process with PID {} does not exist'.format(self.process))
+            raise e
 
         times_dict = win32process.GetProcessTimes(h_process)
         UserTime_start, KernelTime_start = times_dict['UserTime'], times_dict['KernelTime']

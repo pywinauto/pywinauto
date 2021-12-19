@@ -303,25 +303,42 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             # Try to access the underlying ListBox explicitly
             children_lst = self.children(control_type='List')
             if len(children_lst) > 0:
-                children_lst[0]._select(item)
+                list_view = children_lst[0]
+                list_view.get_item(item).select()
                 # do health check and apply workaround for Qt5 combo box if necessary
                 if isinstance(item, six.string_types):
-                    item = children_lst[0].children(name=item)[0]
-                    if self.selected_text() != item:
-                        # workaround for WinForms combo box
-                        item.invoke()
-                        if self.selected_text() != item:
-                            # workaround for Qt5 combo box
-                            item.click_input()
-                            if self.selected_text() != item:
-                                item.click_input()
+                    item_wrapper = list_view.children(name=item)[0]
+                    item_value = item_wrapper.window_text()
+                    if self.element_info.framework_id == 'Win32':
+                        if self.selected_text() != item_value:
+                            item_wrapper.invoke()
+                            if self.selected_text() != item_value:
+                                item_wrapper.click_input()
+                    elif self.element_info.framework_id == 'Qt':
+                        list_view._select(item)
+                        if list_view.is_active():
+                            item_wrapper.click_input()
+                    else:
+                        if self.selected_text() != item_value:
+                            # workaround for WinForms combo box
+                            item_wrapper.invoke()
+                            if self.selected_text() != item_value:
+                                # workaround for Qt5 combo box
+                                item_wrapper.click_input()
+                                if self.selected_text() != item_value:
+                                    item_wrapper.click_input()
                 elif self.selected_index() != item:
                     items = children_lst[0].children(control_type='ListItem')
                     if item < len(items):
-                        items[item].invoke()
+                        if self.element_info.framework_id == 'Qt':
+                            list_view._select(item)
+                            if list_view.is_active():
+                                items[item].click_input()
+                        else:
+                            items[item].invoke()
                     else:
                         raise IndexError('Item number #{} is out of range ' \
-                            '({} items in total)'.format(item, len(items)))
+                                         '({} items in total)'.format(item, len(items)))
             else:
                 raise IndexError("item '{0}' not found or can't be accessed".format(item))
         finally:
@@ -356,7 +373,16 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
             return self.selected_item_index()
         except NoPatternInterfaceError:
             # workaround for Qt5 and WinForms
-            return self.texts().index(self.selected_text())
+            try:
+                children_list_element = self.children(control_type='List')[0]
+                children_list_element_values = children_list_element.texts()
+                if type(children_list_element_values[0]) is list:
+                    return children_list_element_values.index(self.selected_text().splitlines())
+                else:
+                    return children_list_element_values.index(self.selected_text())
+            except IndexError:
+                return self.texts().index(self.selected_text())
+
 
     # -----------------------------------------------------------
     def item_count(self):
@@ -646,7 +672,10 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def value(self):
         """Get a current position of slider's thumb"""
-        return self.iface_range_value.CurrentValue
+        try:
+            return self.iface_range_value.CurrentValue
+        except NoPatternInterfaceError:
+            return self.iface_value.CurrentValue
 
     # -----------------------------------------------------------
     def set_value(self, value):
@@ -660,13 +689,15 @@ class SliderWrapper(uiawrapper.UIAWrapper):
         else:
             raise ValueError("value should be either string or number")
 
-        min_value = self.min_value()
-        max_value = self.max_value()
-        if not (min_value <= value_to_set <= max_value):
-            raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
+        try:
+            min_value = self.min_value()
+            max_value = self.max_value()
+            if not (min_value <= value_to_set <= max_value):
+                raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
-        self.iface_range_value.SetValue(value_to_set)
-
+            self.iface_range_value.SetValue(value_to_set)
+        except NoPatternInterfaceError:
+            self.iface_value.SetValue(str(value))
 
 # ====================================================================
 class HeaderWrapper(uiawrapper.UIAWrapper):
@@ -1162,7 +1193,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         """Initialize the control"""
         super(ToolbarWrapper, self).__init__(elem)
         self.win32_wrapper = None
-        if not self.children() and self.element_info.handle is not None:
+        if len(self.children()) <= 1 and self.element_info.handle is not None:
             self.win32_wrapper = common_controls.ToolbarWrapper(self.element_info.handle)
 
     @property
@@ -1181,7 +1212,10 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
         if self.win32_wrapper is not None:
-            return self.win32_wrapper.button_count()
+            btn_count = self.win32_wrapper.button_count()
+            if btn_count:
+                return btn_count
+            return len(self.win32_wrapper.children())
         else:
             return len(self.children())
 
@@ -1189,13 +1223,19 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def buttons(self):
         """Return all available buttons"""
         if self.win32_wrapper is not None:
-            btn_count = self.win32_wrapper.button_count()
             cc = []
-            for btn_num in range(btn_count):
-                relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
-                button_coord_x, button_coord_y = self.client_to_screen(relative_point)
-                btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
-                cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+            btn_count = self.win32_wrapper.button_count()
+            if btn_count:
+                # MFC toolbar replies on TB_BUTTONCOUNT window message
+                for btn_num in range(btn_count):
+                    relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
+                    button_coord_x, button_coord_y = self.client_to_screen(relative_point)
+                    btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                    cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+            else:
+                # Qt5 toolbar doesn't reply on TB_BUTTONCOUNT window message
+                for btn in self.win32_wrapper.children():
+                    cc.append(uiawrapper.UIAWrapper(UIAElementInfo(btn.handle)))
         else:
             cc = self.children()
         return cc

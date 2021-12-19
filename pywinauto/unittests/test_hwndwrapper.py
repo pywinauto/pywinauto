@@ -64,6 +64,7 @@ from pywinauto.base_wrapper import ElementNotEnabled  # noqa E402
 from pywinauto.base_wrapper import ElementNotVisible  # noqa E402
 from pywinauto import findbestmatch  # noqa E402
 from pywinauto import keyboard  # noqa E402
+from pywinauto import Desktop  # noqa E402
 from pywinauto import timings  # noqa E402
 from pywinauto import WindowNotFoundError  # noqa E402
 
@@ -98,6 +99,10 @@ class HwndWrapperTests(unittest.TestCase):
         #self.dlg = self.app.Calculator
         #self.dlg.menu_select('View->Scientific\tAlt+2')
         #self.ctrl = HwndWrapper(self.dlg.Button2.handle) # Backspace
+
+    def test_get_active_hwnd(self):
+        focused_element = self.dlg.find().get_active()
+        self.assertTrue(type(focused_element) is HwndWrapper or issubclass(type(focused_element), HwndWrapper))
 
     def tearDown(self):
         """Close the application after tests"""
@@ -245,6 +250,10 @@ class HwndWrapperTests(unittest.TestCase):
     def testTopLevelParent(self):
         self.assertEqual(self.ctrl.top_level_parent(), self.dlg.handle)
         self.assertEqual(self.dlg.top_level_parent(), self.dlg.handle)
+
+    def test_get_active_desktop_hwnd(self):
+        focused_element = Desktop(backend="win32").get_active()
+        self.assertTrue(type(focused_element) is HwndWrapper or issubclass(type(focused_element), HwndWrapper))
 
     def testTexts(self):
         self.assertEqual(self.dlg.texts(), ['Common Controls Sample'])

@@ -148,6 +148,24 @@ class BaseWrapper(object):
         else:
             raise RuntimeError('NULL pointer was used to initialize BaseWrapper')
 
+    def by(self, **criteria):
+        """
+        Create WindowSpecification for search in descendants by criteria
+
+        Current wrapper object is used as a parent while searching in the subtree.
+        """
+        from .base_application import WindowSpecification
+        # default to non top level windows because we are usually
+        # looking for a control
+        if 'top_level_only' not in criteria:
+            criteria['top_level_only'] = False
+
+        criteria['backend'] = self.backend.name
+        criteria['parent'] = self.element_info
+        child_specification = WindowSpecification(criteria)
+
+        return child_specification
+
     def __repr_texts(self):
         """Internal common method to be called from __str__ and __repr__"""
         module = self.__class__.__module__
@@ -247,6 +265,12 @@ class BaseWrapper(object):
         """Get wrapper object for top level element at specified screen coordinates (x, y)"""
         top_element_info = self.backend.element_info_class.top_from_point(x, y)
         return self.backend.generic_wrapper_class(top_element_info)
+
+    #------------------------------------------------------------
+    def get_active(self):
+        """Get wrapper object for active element"""
+        element_info = self.backend.element_info_class.get_active()
+        return self.backend.generic_wrapper_class(element_info)
 
     #------------------------------------------------------------
     def friendly_class_name(self):

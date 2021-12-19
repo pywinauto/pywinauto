@@ -91,7 +91,7 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 
-from .backend import registry
+from . import backend
 
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes, timestamp
@@ -148,7 +148,7 @@ class WindowSpecification(object):
         """
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
-            search_criteria['backend'] = registry.active_backend.name
+            search_criteria['backend'] = backend.registry.active_backend.name
         if 'pid' in search_criteria and 'app' in search_criteria:
             raise KeyError('Keywords "pid" and "app" cannot be combined (ambiguous). ' \
                 'Use one option at a time: Application object with keyword "app" or ' \
@@ -156,7 +156,7 @@ class WindowSpecification(object):
         self.app = search_criteria.get('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
-        self.backend = registry.backends[search_criteria['backend']]
+        self.backend = backend.registry.backends[search_criteria['backend']]
         self.allow_magic_lookup = allow_magic_lookup
 
         # Non PEP-8 aliases for partial backward compatibility
@@ -305,7 +305,7 @@ class WindowSpecification(object):
         When this window specification is resolved it will be used
         to match against a control.
         """
-        # default to non top level windows because we are usualy
+        # default to non top level windows because we are usually
         # looking for a control
         if 'top_level_only' not in criteria:
             criteria['top_level_only'] = False
@@ -584,8 +584,8 @@ class WindowSpecification(object):
                 ctrl_text = ctrl.window_text()
                 if ctrl_text:
                     # transform multi-line text to one liner
-                    ctrl_text = ctrl_text.replace('\n', r'\n').replace('\r', r'\r')
-                output += indent + u"{class_name} - '{text}'    {rect}" \
+                    ctrl_text = repr(ctrl_text)
+                output += indent + u"{class_name} - {text}    {rect}" \
                                    "".format(class_name=ctrl.friendly_class_name(),
                                              text=ctrl_text,
                                              rect=ctrl.rectangle())
@@ -602,15 +602,15 @@ class WindowSpecification(object):
                     control_type = ctrl.element_info.control_type
                 criteria_texts = []
                 if ctrl_text:
-                    criteria_texts.append(u'name="{}"'.format(ctrl_text))
+                    criteria_texts.append(u'name={}'.format(ctrl_text))
                 if class_name:
-                    criteria_texts.append(u'class_name="{}"'.format(class_name))
+                    criteria_texts.append(u"class_name='{}'".format(class_name))
                 if auto_id:
-                    criteria_texts.append(u'auto_id="{}"'.format(auto_id))
+                    criteria_texts.append(u"auto_id='{}'".format(auto_id))
                 if control_type:
-                    criteria_texts.append(u'control_type="{}"'.format(control_type))
+                    criteria_texts.append(u"control_type='{}'".format(control_type))
                 if ctrl_text or class_name or auto_id:
-                    output += u'\n' + indent + u'child_window(' + u', '.join(criteria_texts) + u')'
+                    output += u'\n' + indent + u'.by(' + u', '.join(criteria_texts) + u')'
             else:
                 output += indent + u'**********\n'
                 output += indent + u'Max children output limit ({}) has been reached. ' \
@@ -628,11 +628,20 @@ class WindowSpecification(object):
                     print_identifiers(child_elem, current_depth + 1, log_func)
 
         if filename is None:
+            if six.PY3:
+                try:
+                    encoding = sys.stdout.encoding
+                except AttributeError:
+                    encoding = sys.getdefaultencoding()
+            else:
+                encoding = locale.getpreferredencoding()
+            print(u'# -*- coding: {} -*-'.format(encoding))
             print_identifiers(elements_tree)
         else:
-            with codecs.open(filename, "w", locale.getpreferredencoding()) as log_file:
+            with codecs.open(filename, "w", locale.getpreferredencoding(), errors="backslashreplace") as log_file:
                 def log_func(msg):
                     log_file.write(str(msg) + os.linesep)
+                log_func(u'# -*- coding: {} -*-'.format(locale.getpreferredencoding()))
                 print_identifiers(elements_tree, log_func=log_func)
 
     print_control_identifiers = deprecated(dump_tree, deprecated_name='print_control_identifiers')
@@ -721,7 +730,7 @@ class BaseApplication(object):
         if windows[0].handle:
             criteria['handle'] = windows[0].handle
         else:
-            criteria['title'] = windows[0].name
+            criteria['name'] = windows[0].name
 
         return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)
 
@@ -745,7 +754,7 @@ class BaseApplication(object):
         if windows[0].handle:
             criteria['handle'] = windows[0].handle
         else:
-            criteria['title'] = windows[0].name
+            criteria['name'] = windows[0].name
 
 
         return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)

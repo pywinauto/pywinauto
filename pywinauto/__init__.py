@@ -163,3 +163,8 @@ class Desktop(object):
         """Get wrapper object for top level element at specified screen coordinates (x, y)"""
         top_element_info = self.backend.element_info_class.top_from_point(x, y)
         return self.backend.generic_wrapper_class(top_element_info)
+
+    def get_active(self):
+        """Get wrapper object for active element"""
+        element_info = self.backend.element_info_class.get_active()
+        return self.backend.generic_wrapper_class(element_info)

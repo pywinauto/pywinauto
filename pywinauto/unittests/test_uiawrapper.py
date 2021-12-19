@@ -44,6 +44,11 @@ if is_x64_Python():
     winforms_folder = os.path.join(winforms_folder, 'x64')
 winfoms_app_grid = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
 
+if sys.version_info[:2] >= (3, 6):
+    qt_python_folder = os.path.join(
+        os.path.dirname(__file__), r"..\..\apps\Qt_Python_samples")
+    qt_py_combobox_app = sys.executable + ' ' + os.path.join(qt_python_folder, u"qt5_combobox.py")
+
 if UIA_support:
 
     def _set_timings():
@@ -66,6 +71,10 @@ if UIA_support:
             self.app = self.app.start(wpf_app_1)
 
             self.dlg = self.app.WPFSampleApplication
+
+        def test_get_active_uia(self):
+            focused_element = self.dlg.get_active()
+            self.assertTrue(type(focused_element) is UIAWrapper or issubclass(type(focused_element), UIAWrapper))
 
         def tearDown(self):
             """Close the application after tests"""
@@ -152,6 +161,51 @@ if UIA_support:
             button = alpha_toolbar.by(control_type="Button",
                                       auto_id="OverflowButton").find()
             self.assertEqual(button.automation_id(), "OverflowButton")
+
+        def test_access_key(self):
+            """Test find element by access key"""
+            file_menu = self.dlg.by(access_key="Alt+F").find()
+            self.assertEqual("MenuItem", file_menu.element_info.control_type)
+            self.assertEqual("File", file_menu.element_info.name)
+
+        def test_legacy_shortcut(self):
+            """Test find element by keyboard shortcut value from legacy pattern"""
+            file_menu = self.dlg.by(legacy_shortcut="Alt+F").find()
+            self.assertEqual("MenuItem", file_menu.element_info.control_type)
+            self.assertEqual("File", file_menu.element_info.name)
+
+        def test_value(self):
+            """Test find element by value"""
+            edit = self.dlg.by(auto_id="edit1").find()
+            edit.set_edit_text("Test string")
+
+            edit_by_value = self.dlg.by(value="Test string").find()
+            self.assertEqual("edit1", edit_by_value.element_info.auto_id)
+
+        def test_legacy_value(self):
+            """Test find element by value from legacy pattern"""
+            edit = self.dlg.by(auto_id="edit1").find()
+            edit.set_edit_text("Test string")
+
+            edit_by_value = self.dlg.by(legacy_value="Test string").find()
+            self.assertEqual("edit1", edit_by_value.element_info.auto_id)
+
+        def test_legacy_action(self):
+            """Test find element by default action name from legacy pattern"""
+            combobox = self.dlg.by(legacy_action="Expand").find()
+            self.assertEqual("ComboBox", combobox.element_info.control_type)
+            self.assertEqual(2, combobox.item_count())
+
+        def test_legacy_descr(self):
+            """Test find element by description from legacy pattern"""
+            close_button = self.dlg.by(legacy_descr="Closes the window").find()
+            self.assertEqual("Button", close_button.element_info.control_type)
+            self.assertEqual("Close", close_button.element_info.legacy_name)
+
+        def test_legacy_help_not_available(self):
+            """Test return empty string if LegacyIAccessible.Help value is not available"""
+            close_button = self.dlg.by(control_type="TitleBar").find()
+            self.assertEqual("", close_button.element_info.legacy_help)
 
         def test_is_visible(self):
             """Test is_visible method of a control"""
@@ -350,6 +404,10 @@ if UIA_support:
             edit.set_focus()
             self.assertEqual(edit.has_keyboard_focus(), True)
 
+        def test_get_active_desktop_uia(self):
+            focused_element = Desktop(backend="uia").get_active()
+            self.assertTrue(type(focused_element) is UIAWrapper or issubclass(type(focused_element), UIAWrapper))
+
         def test_type_keys(self):
             """Test sending key types to a control"""
             edit = self.dlg.TestLabelEdit.find()
@@ -452,6 +510,13 @@ if UIA_support:
                 expected = (rect.width(), rect.height())
                 result = self.dlg.capture_as_image().size
                 self.assertEqual(expected, result)
+
+        def test_set_value(self):
+            """Test for UIAWrapper.set_value"""
+            edit = self.dlg.by(control_type='Edit', auto_id='edit1').find()
+            self.assertEqual(edit.get_value(), '')
+            edit.set_value('test')
+            self.assertEqual(edit.get_value(), 'test')
 
 
     class UIAWrapperRawViewWalkerTests(UIAWrapperTests):
@@ -1522,7 +1587,7 @@ if UIA_support:
             """Test errors in method .select() for WinForms combo box"""
             self.dlg.set_focus()
             for combo in [self.combo_editable, self.combo_fixed, self.combo_simple]:
-                self.assertRaises(IndexError, combo.select, u'FFFF')
+                self.assertRaises(ValueError, combo.select, u'FFFF')
                 self.assertRaises(IndexError, combo.select, 50)
 
         def test_item_count(self):
@@ -1551,6 +1616,45 @@ if UIA_support:
 
             dlg2_from_point = Desktop(backend="uia").top_from_point(x, y)
             self.assertEqual(dlg2_from_point, dlg_wrapper)
+
+    if sys.version_info[:2] >= (3, 6):
+
+        class ComboBoxTestsQt(unittest.TestCase):
+
+            """Unit tests for the ComboBoxWrapper class with PyQt5 app"""
+
+            def setUp(self):
+                """Set some data and ensure the application is in the state we want"""
+                _set_timings()
+
+                # start the application
+                app = Application(backend='uia').start(qt_py_combobox_app, wait_for_idle=False)
+                self.app = Application(backend='uia').connect(pid=app.process)
+                self.dlg = dlg = self.app.window(name='QTRV')
+
+                self.combo1 = dlg.by(name="Q1", control_type="ComboBox").find()
+                self.combo2 = dlg.by(name="Q2", control_type="ComboBox").find()
+
+            def tearDown(self):
+                """Close the application after tests"""
+                self.app.kill()
+
+            def test_select(self):
+                """Test method .select() for Qt combo box"""
+                self.dlg.set_focus()
+                self.combo1.select(u'Image on right')
+                self.assertEqual(self.combo1.selected_text(), u'Image on right')
+                self.assertEqual(self.combo1.selected_index(), 1)
+                self.combo1.select(2)
+                self.assertEqual(self.combo1.selected_text(), u'Image on top')
+                self.assertEqual(self.combo1.selected_index(), 2)
+
+                self.combo2.select(u'Image and Text')
+                self.assertEqual(self.combo2.selected_text(), u'Image and Text')
+                self.assertEqual(self.combo2.selected_index(), 2)
+                self.combo2.select(0)
+                self.assertEqual(self.combo2.selected_text(), u'Image')
+                self.assertEqual(self.combo2.selected_index(), 0)
 
 
     class ListItemWrapperTests(unittest.TestCase):
@@ -1735,7 +1839,7 @@ if UIA_support:
             combo_box = self.app.top_window().Font.ScriptComboBox.find()
             combo_box.select('Greek')
             self.assertEqual(combo_box.selected_text(), 'Greek')
-            self.assertRaises(IndexError, combo_box.select, 'NonExistingScript')
+            self.assertRaises(ValueError, combo_box.select, 'NonExistingScript')
 
         def test_menu_by_exact_text(self):
             """Test selecting a menu item by exact text match"""
@@ -1809,7 +1913,7 @@ if UIA_support:
             """Close the application after tests"""
             self.app.kill()
 
-        def test_button_access(self):
+        def test_button_access_wpf(self):
             """Test getting access to buttons on Toolbar of WPF demo"""
             # Read a second toolbar with buttons: "button1, button2"
             tb = self.dlg.Toolbar2.find()
@@ -1912,7 +2016,7 @@ if UIA_support:
             self.menu_bar.move_mouse_input(coords=self.window_edge_point, absolute=False)
             self.app.kill()
 
-        def test_button_access(self):
+        def test_button_access_mfc(self):
             """Test getting access to buttons on Toolbar for MFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
             self.assertEqual(self.menu_bar.button_count(), 4)

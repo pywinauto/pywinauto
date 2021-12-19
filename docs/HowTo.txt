@@ -182,7 +182,7 @@ we disambiguate them.
 
 use the `WindowSpecification.print_control_identifiers()` method
 
-e.g. 
+e.g.
   ::
 
    app.YourDialog.print_control_identifiers()
@@ -327,7 +327,7 @@ that the developer has told Windows that they will override how items are displa
 and do it themselves. And in this case they have made it so that strings cannot be
 retrieved :-(.
 
-So what problems does this cause? 
+So what problems does this cause?
 
   ::
 
@@ -341,7 +341,7 @@ So what problems does this cause?
 2. This will fail with an IndexError because the select(string) method of a ListBox
    looks for the item in the Texts to know the index of the item that it should select.
 
-The following workaround will work on this control 
+The following workaround will work on this control
 
   ::
 
@@ -370,7 +370,7 @@ If your application made an extensive use of a similar control type then you cou
 make using it easier by deriving a new class from ListBox, that could use extra
 knowledge about your particular application. For example in the WinHelp example
 every time an item is highlighted in the list view, its text is inserted into the
-Edit control above the list, and you CAN get the text of the item from there e.g. 
+Edit control above the list, and you CAN get the text of the item from there e.g.
 
   ::
 
@@ -393,7 +393,7 @@ The thing that is important to remember is that you are looking for a
 window in the "Explorer.exe" application with the class "Shell_TrayWnd" that has
 Toolbar control with a title "Notification Area".
 
-One way to get this is to do the following 
+One way to get this is to do the following
 
   ::
 
@@ -429,7 +429,7 @@ system tray icons:
     error checking is performed now here but this method will
     more than likely be moved/renamed in the future.)
 
-:``RightClickSystemTrayIcon(button)``: Similar to ``ClickSytemTrayIcon`` but 
+:``RightClickSystemTrayIcon(button)``: Similar to ``ClickSytemTrayIcon`` but
  performs a right click.
 
 
@@ -464,7 +464,7 @@ Example for overriding MTA by setting the single threaded appartment model expli
 
    import sys
    sys.coinit_flags = 2  # COINIT_APARTMENTTHREADED
-   
+
    import pywinauto
 
 
@@ -481,4 +481,3 @@ More info:
 
 .. _Understanding and Using COM Threading Models: https://msdn.microsoft.com/en-us/library/ms809971.aspx
 .. _discussion: https://github.com/pywinauto/pywinauto/issues/394#issuecomment-334926345
-

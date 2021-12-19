@@ -1,4 +1,5 @@
-pywin32
+pywin32==301 ; python_version == '3.6' and sys_platform == "win32"
+pywin32 ; python_version != '3.6' and sys_platform == "win32"
 six
 pillow>=6.2.0
 coverage
@@ -8,3 +9,4 @@ rst2pdf
 Sphinx
 mock==2.0.0
 codacy-coverage
+PyQt5==5.15.4 ; python_version >= '3.6'

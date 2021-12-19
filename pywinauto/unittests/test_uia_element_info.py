@@ -65,6 +65,22 @@ if UIA_support:
             """Test whether the element is visible"""
             self.assertEqual(self.ctrl.visible, True)
 
+        def test_value_not_available(self):
+            """Test correct handling case if ValuePattern is not available for element"""
+            self.assertEqual(self.ctrl.value, "")
+
+        def test_legacy_name(self):
+            """Test application name from legacy pattern equals"""
+            self.assertEqual(self.ctrl.legacy_name, "WPF Sample Application")
+
+        def test_legacy_help(self):
+            """Test get help string"""
+            self.assertEqual(self.ctrl.legacy_help, "")
+
+        def test_accelerator(self):
+            """Test get AcceleratorKey value"""
+            self.assertEqual(self.ctrl.accelerator, "")
+
         def testChildren(self):
             """Test whether a list of only immediate children of the element is equal"""
             self.assertEqual(len(self.ctrl.children()), 5)

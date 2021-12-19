@@ -33,7 +33,7 @@
 """Linux AtspiElementInfo class"""
 
 from .atspi_objects import AtspiAccessible, AtspiComponent, AtspiStateEnum, AtspiAction, AtspiValue, \
-    IATSPI
+    IATSPI, RECT
 from ..element_info import ElementInfo
 
 
@@ -161,7 +161,7 @@ class AtspiElementInfo(ElementInfo):
         """Return children of the element"""
         process = kwargs.get("process", None)
         class_name = kwargs.get("class_name", None)
-        title = kwargs.get("title", None)
+        name = kwargs.get("name", None)
         control_type = kwargs.get("control_type", None)
 
         cnt = self.atspi_accessible.get_child_count(self._handle, None)
@@ -170,7 +170,7 @@ class AtspiElementInfo(ElementInfo):
             child = AtspiElementInfo(self.atspi_accessible.get_child_at_index(self._handle, i, None))
             if class_name is not None and class_name != child.class_name:
                 continue
-            if title is not None and title != child.rich_text:
+            if name is not None and name != child.rich_text:
                 continue
             if control_type is not None and control_type != child.control_type:
                 continue
@@ -248,7 +248,11 @@ class AtspiElementInfo(ElementInfo):
     def enabled(self):
         states = self.get_state_set()
         if self.control_type == "Application":
-            states = self.children()[0].get_state_set()
+            children = self.children()
+            if children:
+                states = children[0].get_state_set()
+            else:
+                return False
         return "STATE_ENABLED" in states
 
     @property
@@ -257,5 +261,11 @@ class AtspiElementInfo(ElementInfo):
         if self.control_type == "Application":
             # Application object have`t rectangle. It`s just a fake container which contain base application
             # info such as process ID, window name etc. Will return application frame rectangle
-            return self.children()[0].rectangle
+            children = self.children()
+            if children:
+                return self.children()[0].rectangle
+            else:
+                return RECT()
+        elif self.control_type == "Invalid":
+            return RECT()
         return self.component.get_rectangle(coord_type="screen")

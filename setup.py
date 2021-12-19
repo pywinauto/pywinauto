@@ -62,11 +62,16 @@ if sys.platform == 'win32':
         import win32api # check if it was already installed manually
     except ImportError:
         install_requires.append('pywin32')
-
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
+elif sys.platform.startswith('linux'):
+    install_requires = ['six', 'python-xlib']
+    packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
+elif sys.platform == 'darwin':
+    install_requires = ['six']
+    packages = ["pywinauto", "pywinauto.controls"]
 else:
     install_requires = ['six', 'python-xlib']
-    packages = ["pywinauto", "pywinauto.linux"]
+    packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
 
 setup(name='pywinauto',
     version = '0.6.8',

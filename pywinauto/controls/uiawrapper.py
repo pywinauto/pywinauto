@@ -334,6 +334,13 @@ class UIAWrapper(WinBaseWrapper):
         return uia_defs.get_elem_interface(elem, "VirtualizedItem")
 
     # ------------------------------------------------------------
+    @lazy_property
+    def iface_legacy_iaccessible(self):
+        """Get the element's LegacyIAccessible interface pattern"""
+        elem = self.element_info.element
+        return uia_defs.get_elem_interface(elem, "LegacyIAccessible")
+
+    # ------------------------------------------------------------
     @property
     def writable_props(self):
         """Extend default properties list."""
@@ -433,6 +440,12 @@ class UIAWrapper(WinBaseWrapper):
         return self
 
     # TODO: figure out how to implement .has_focus() method (if no handle available)
+
+    # -----------------------------------------------------------
+    def set_value(self, value):
+        """An interface to the SetValue method of the Value control pattern"""
+        self.iface_value.SetValue(value)
+        return self
 
     # -----------------------------------------------------------
     def close(self):
@@ -625,6 +638,9 @@ class UIAWrapper(WinBaseWrapper):
         or a list item.
         """
         self.iface_selection_item.Select()
+        if not self.is_selected():
+            warnings.warn("SelectionItem.Select failed, trying LegacyIAccessible.DoDefaultAction", RuntimeWarning)
+            self.iface_legacy_iaccessible.DoDefaultAction()
 
         name = self.element_info.name
         control_type = self.element_info.control_type
@@ -696,6 +712,9 @@ class UIAWrapper(WinBaseWrapper):
         if item_index < len(list_):
             wrp = list_[item_index]
             wrp.iface_selection_item.Select()
+            if not wrp.is_selected():
+                warnings.warn("SelectionItem.Select failed, trying LegacyIAccessible.DoDefaultAction", RuntimeWarning)
+                wrp.iface_legacy_iaccessible.DoDefaultAction()
         else:
             raise IndexError("item '{0}' not found".format(item))
 

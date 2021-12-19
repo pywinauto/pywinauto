@@ -149,7 +149,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         if len(children_lst) > 0:
             if isinstance(item, six.string_types):
                 if self.selected_text() != item:
-                    item = children_lst[0].children(title=item)[0]
+                    item = children_lst[0].children(name=item)[0]
                     item.click()
             elif self.selected_index() != item:
                 items = children_lst[0].children(control_type='MenuItem')

@@ -53,7 +53,7 @@ if sys.platform.startswith('linux'):
             """Verify that it raises when the app is not connected"""
             self.assertRaises(AppNotConnected, Application().__getattribute__, 'Hiya')
             self.assertRaises(AppNotConnected, Application().__getitem__, 'Hiya')
-            self.assertRaises(AppNotConnected, Application().window_, title='Hiya')
+            self.assertRaises(AppNotConnected, Application().window_, name='Hiya')
             self.assertRaises(AppNotConnected, Application().top_window, )
 
         def test_start_problem(self):

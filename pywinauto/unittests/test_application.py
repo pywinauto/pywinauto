@@ -798,7 +798,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
-        self.app = Application().start("Notepad")
+        self.app = Application(backend="win32").start(_notepad_exe())
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit
 
@@ -1183,7 +1183,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
                 content = str(test_log_file.readlines())
                 self.assertTrue("'Untitled - NotepadEdit'" in content
                     and "'Edit'" in content)
-                self.assertTrue("child_window(class_name=\"msctls_statusbar32\"" in content)
+                self.assertTrue(".by(class_name='msctls_statusbar32'" in content)
             os.remove(output_filename)
         else:
             self.fail("dump_tree can't create a file")
@@ -1192,7 +1192,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         if os.path.isfile(output_filename):
             with open(output_filename, "r") as test_log_file:
                 content = str(test_log_file.readlines())
-                self.assertTrue("child_window(class_name=\"Edit\")" in content)
+                self.assertTrue(".by(class_name='Edit')" in content)
             os.remove(output_filename)
         else:
             self.fail("dump_tree can't create a file")
@@ -1202,6 +1202,54 @@ class WindowSpecificationTestCases(unittest.TestCase):
         self.dlgspec.wait('visible')
         windows = findwindows.find_elements(name_re="Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
+
+
+class ChildWindowSpecificationFromWrapperTests(unittest.TestCase):
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.defaults()
+        self.app = Application(backend="win32").start(_notepad_exe())
+        self.ctrlspec = self.app.window(found_index=0).find().by(class_name='Edit')
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+        
+    def test_wrapper_object(self):
+        """Test that we can get a control"""
+        self.assertEqual(True, isinstance(self.ctrlspec, WindowSpecification))
+
+        self.assertEqual(
+            True,
+            isinstance(self.ctrlspec.find(), hwndwrapper.HwndWrapper)
+            )
+
+    def test_parent(self):
+        """Test recreating specification from parent dialog wrapper"""
+        dlg = self.ctrlspec.parent()
+        sub_spec = dlg.by(class_name ="Edit")
+
+        self.assertEqual(True, isinstance(sub_spec, WindowSpecification))
+        self.assertEqual(sub_spec.class_name(), "Edit")
+        self.assertEqual(self.ctrlspec.handle, sub_spec.handle)
+
+    def test_dump_tree_file_output(self):
+        """Make sure dump_tree() creates correct file"""
+        output_filename = "test_dump_tree.txt"
+
+        self.ctrlspec.dump_tree(filename=output_filename)
+        if os.path.isfile(output_filename):
+            with open(output_filename, "r") as test_log_file:
+                content = str(test_log_file.readlines())
+                self.assertTrue(".by(class_name='Edit')" in content)
+            os.remove(output_filename)
+        else:
+            self.fail("dump_tree can't create a file")
+
+    def test_properties(self):
+        """Check control properties"""
+        self.assertEqual(self.ctrlspec.class_name(), "Edit")
+        self.assertTrue(self.ctrlspec.exists())
 
 
 if UIA_support:
@@ -1326,7 +1374,6 @@ if UIA_support:
                              [u'x64', u'BCDialogMenu.exe', u'CmnCtrl1.exe', u'CmnCtrl2.exe', u'CmnCtrl3.exe',
                               u'CtrlTest.exe', u'mfc100u.dll', u'NewControls.exe', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
-
         def test_set_backend_to_window_uia(self):
             """Set backend to method window(), except exception ValueError"""
             with self.assertRaises(ValueError):
