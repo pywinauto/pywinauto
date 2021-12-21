@@ -139,7 +139,13 @@ class WindowSpecification(object):
                          'active': lambda ctrl, timeout, retry_interval: ctrl.wait_active(timeout, retry_interval),
                          }
 
-    def __init__(self, search_criteria):
+    WAIT_NOT_CRITERIA_MAP = {'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_not_visible(timeout, retry_interval),
+                             'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_not_enabled(timeout, retry_interval),
+                             'ready': lambda ctrl, timeout, retry_interval: ctrl.wait_not_ready(timeout, retry_interval),
+                             'active': lambda ctrl, timeout, retry_interval: ctrl.wait_not_active(timeout, retry_interval),
+                             }
+
+    def __init__(self, search_criteria, allow_magic_lookup=True):
         """
         Initialize the class
 
@@ -282,19 +288,53 @@ class WindowSpecification(object):
             timeout = Timings.window_find_timeout
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
-        ctrl = self.find(timeout, retry_interval)
-        correct_wait_for = wait_for.lower().split()
         time_left = timeout
+        start = timestamp()
+        ctrl = self.find(time_left, retry_interval)
+        correct_wait_for = wait_for.lower().split()
         for condition in correct_wait_for:
-            start = timestamp()
+            time_left -= timestamp() - start
+            if time_left < retry_interval:
+                raise TimeoutError("Timed out!")
+
             if condition == 'exists':
                 continue
             elif condition not in WindowSpecification.WAIT_CRITERIA_MAP.keys():
-                raise SyntaxError("Invalid_criteria")
+                raise SyntaxError("Invalid criteria: {}!".format(condition))
             else:
                 WindowSpecification.WAIT_CRITERIA_MAP[condition](ctrl, time_left, retry_interval)
-            time_left -= timestamp() - start
         return ctrl
+
+    def wait_not(self, wait_for, timeout=None, retry_interval=None):
+        # TODO: DeprecationWarning
+        # import warnings
+        # warnings.warn()
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+        correct_wait_for = wait_for.lower().split()
+        if 'exists' in correct_wait_for:
+            try:
+                ctrl = self.find(timeout, retry_interval)
+                raise TimeoutError("Timed out! {} object {} still exists!".format(type(ctrl), ctrl))
+            except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
+                    controls.InvalidWindowHandle, controls.InvalidElement):
+                pass
+
+        else:
+            time_left = timeout
+            start = timestamp()
+            ctrl = self.find(time_left, retry_interval)
+            for condition in correct_wait_for:
+                time_left -= timestamp() - start
+                if time_left < retry_interval:
+                    raise TimeoutError('Timed out!')
+
+                if condition not in WindowSpecification.WAIT_NOT_CRITERIA_MAP.keys():
+                    raise SyntaxError("Invalid criteria: {}!".format(condition))
+                else:
+                    WindowSpecification.WAIT_NOT_CRITERIA_MAP[condition](ctrl, time_left, retry_interval)
 
     def by(self, **criteria):
         """
