@@ -40,7 +40,7 @@ import sys
 
 import six
 
-from .timings import wait_until, timestamp
+from .timings import wait_until, timestamp, Timings
 
 try:
     from PIL import ImageGrab
@@ -837,6 +837,10 @@ class BaseWrapper(object):
 
     # -----------------------------------------------------------
     def wait_visible(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
         try:
             wait_until(timeout, retry_interval, self.is_visible)
             return self
@@ -844,7 +848,19 @@ class BaseWrapper(object):
             raise e
 
     # -----------------------------------------------------------
+    def wait_not_visible(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+        wait_until(timeout, retry_interval, self.is_visible, False)
+
+    # -----------------------------------------------------------
     def wait_enabled(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
         try:
             wait_until(timeout, retry_interval, self.is_enabled)
             return self
@@ -852,7 +868,20 @@ class BaseWrapper(object):
             raise e
 
     # -----------------------------------------------------------
+
+    def wait_not_enabled(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+        wait_until(timeout, retry_interval, self.is_enabled, False)
+
+    # -----------------------------------------------------------
     def wait_active(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
         try:
             wait_until(timeout, retry_interval, self.is_active)
             return self
@@ -860,18 +889,46 @@ class BaseWrapper(object):
             raise e
 
     # -----------------------------------------------------------
+    def wait_not_active(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+        wait_until(timeout, retry_interval, self.is_active, False)
+
+    # -----------------------------------------------------------
     def wait_ready(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
         start = timestamp()
         try:
             self.wait_visible(timeout, retry_interval)
             time_left = timeout - (timestamp() - start)
             if 0 < time_left and not time_left < retry_interval:
-                self.wait_enabled(timeout, retry_interval)
+                self.wait_enabled(time_left, retry_interval)
                 return self
             else:
-                err = TimeoutError("timed out") # TODO: add message
+                err = TimeoutError("Timed out!")
                 raise err
         except TimeoutError as e:
             raise e
+
+    # ------------------------------------------------------------
+    def wait_not_ready(self, timeout, retry_interval):
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+        start = timestamp()
+        self.wait_not_enabled(timeout, retry_interval)
+        time_left = timeout - (timestamp() - start)
+        if 0 < time_left and not time_left < retry_interval:
+            self.wait_not_visible(time_left, retry_interval)
+            return self
+        else:
+            err = TimeoutError("Timed out!")
+            raise err
 
 #====================================================================
