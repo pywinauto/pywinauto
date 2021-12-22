@@ -183,8 +183,7 @@ class WindowSpecification(object):
 
         raise AttributeError(message)
 
-    def __get_ctrl(self, criteria_, mode='first'):
-        """Get a control based on the various criteria"""
+    def __get_dialog_with_updated_criteria(self, criteria_):
         # make a copy of the criteria
         criteria = [crit.copy() for crit in criteria_]
         # find the dialog
@@ -195,42 +194,9 @@ class WindowSpecification(object):
             criteria[0]['pid'] = self.app.process
             del criteria[0]['app']
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
+        return dialog, criteria
 
-        ctrls = []
-        # if there is only criteria for a dialog then return it
-        if len(criteria) > 1:
-            # so there was criteria for a control, add the extra criteria
-            # that are required for child controls
-            previous_parent = dialog.element_info
-            for ctrl_criteria in criteria[1:]:
-                ctrl_criteria["top_level_only"] = False
-                if "parent" not in ctrl_criteria:
-                    ctrl_criteria["parent"] = previous_parent
-
-                if isinstance(ctrl_criteria["parent"], WindowSpecification):
-                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find()
-
-                # resolve the control and return it
-                if 'backend' not in ctrl_criteria:
-                    ctrl_criteria['backend'] = self.backend.name
-                all_ctrls = findwindows.find_elements(**ctrl_criteria)
-                for ctrl in all_ctrls:
-                    curr_ctrl = self.backend.generic_wrapper_class(ctrl)
-                    previous_parent = curr_ctrl.element_info
-                    ctrls.append([curr_ctrl])
-
-        if ctrls:
-            if mode == 'first':
-                return (dialog, ) + tuple(ctrls[0]) if ctrls[0] else (dialog, )
-            if mode == 'all':
-                result_ctrls = []
-                for ctrl in ctrls:
-                    result_ctrls.append((dialog, ) + tuple(ctrl) if ctrl else (dialog, ))
-                return result_ctrls
-        else:
-            return (dialog, )
-
-    def __resolve_control(self, criteria, timeout=None, retry_interval=None, mode='first'):
+    def __find_base(self, criteria_):
         """
         Find a control using criteria
 
@@ -243,6 +209,76 @@ class WindowSpecification(object):
         * **timeout** -  maximum length of time to try to find the controls (default 5)
         * **retry_interval** - how long to wait between each retry (default .2)
         """
+        dialog, criteria = self.__get_dialog_with_updated_criteria(criteria_)
+        if len(criteria) > 1:
+            ctrls = []
+            previous_parent = dialog.element_info
+            for ctrl_criteria in criteria[1:]:
+                ctrl_criteria["top_level_only"] = False
+                if "parent" not in ctrl_criteria:
+                    ctrl_criteria["parent"] = previous_parent
+
+                if isinstance(ctrl_criteria["parent"], WindowSpecification):
+                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find()
+
+                # resolve the control and return it
+                if 'backend' not in ctrl_criteria:
+                    ctrl_criteria['backend'] = self.backend.name
+
+                ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
+                previous_parent = ctrl.element_info
+                ctrls.append(ctrl)
+            return ctrls[-1]
+        else:
+            return dialog
+
+    def __find_all_base(self, criteria_):
+        dialog, criteria = self.__get_dialog_with_updated_criteria(criteria_)
+
+        if len(criteria) == 1:
+            dialogs = []
+            dialog_ctrls = findwindows.find_elements(**criteria[0])
+            for dialog_ctrl in dialog_ctrls:
+                dialogs.append(self.backend.generic_wrapper_class(dialog_ctrl))
+            return dialogs
+
+        else:
+            previous_parent = dialog.element_info
+            for ctrl_criteria in criteria[1:-1]:
+                ctrl_criteria["top_level_only"] = False
+                if "parent" not in ctrl_criteria:
+                    ctrl_criteria["parent"] = previous_parent
+
+                if isinstance(ctrl_criteria["parent"], WindowSpecification):
+                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find()
+
+                # resolve the control and return it
+                if 'backend' not in ctrl_criteria:
+                    ctrl_criteria['backend'] = self.backend.name
+
+                ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
+                previous_parent = ctrl.element_info
+
+            criteria[-1]["top_level_only"] = False
+            if "parent" not in criteria[-1]:
+                criteria[-1]["parent"] = previous_parent
+
+            if isinstance(criteria[-1]["parent"], WindowSpecification):
+                criteria[-1]["parent"] = criteria[-1]["parent"].find()
+
+            # resolve the control and return it
+            if 'backend' not in criteria[-1]:
+                criteria[-1]['backend'] = self.backend.name
+
+            all_ctrls = findwindows.find_elements(**criteria[-1])
+            wrapped_ctrls = []
+            for ctrl in all_ctrls:
+                wrapped_ctrls.append(self.backend.generic_wrapper_class(ctrl))
+
+            return wrapped_ctrls
+
+    def find(self, timeout=None, retry_interval=None):
+        """Allow the calling code to get the HwndWrapper object"""
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -252,30 +288,39 @@ class WindowSpecification(object):
             ctrl = wait_until_passes(
                 timeout,
                 retry_interval,
-                self.__get_ctrl,
+                self.__find_base,
                 (findwindows.ElementNotFoundError,
                  findbestmatch.MatchError,
                  controls.InvalidWindowHandle,
                  controls.InvalidElement),
-                criteria,
-                mode)
-
+                self.criteria
+            )
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
         return ctrl
 
-    def find(self, timeout=None, retry_interval=None):
-        """Allow the calling code to get the HwndWrapper object"""
-        ctrls = self.__resolve_control(self.criteria, timeout, retry_interval, mode='first')
-        return ctrls[-1]
-
     def find_all(self, timeout, retry_interval):
-        all_ctrls = self.__resolve_control(self.criteria, timeout, retry_interval, mode='all')
-        return_ctrls = []
-        for ctrls in all_ctrls:
-            return_ctrls.append(ctrls[-1])
-        return return_ctrls
+        if timeout is None:
+            timeout = Timings.window_find_timeout
+        if retry_interval is None:
+            retry_interval = Timings.window_find_retry
+
+        try:
+            ctrls = wait_until_passes(
+                timeout,
+                retry_interval,
+                self.__find_all_base,
+                (findwindows.ElementNotFoundError,
+                 findbestmatch.MatchError,
+                 controls.InvalidWindowHandle,
+                 controls.InvalidElement),
+                self.criteria
+            )
+        except TimeoutError as e:
+            raise e
+
+        return ctrls
 
     def wait_exists(self, timeout=None, retry_interval=None):
         return self.find(timeout, retry_interval)
@@ -290,9 +335,15 @@ class WindowSpecification(object):
             retry_interval = Timings.window_find_retry
         time_left = timeout
         start = timestamp()
-        ctrl = self.find(time_left, retry_interval)
+        try:
+            ctrl = self.find(time_left, retry_interval)
+        except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
+                controls.InvalidWindowHandle, controls.InvalidElement):
+            raise TimeoutError("Timed out! Control does not exist!")
+
         correct_wait_for = wait_for.lower().split()
         for condition in correct_wait_for:
+
             time_left -= timestamp() - start
             if time_left < retry_interval:
                 raise TimeoutError("Timed out!")
@@ -317,7 +368,7 @@ class WindowSpecification(object):
         if 'exists' in correct_wait_for:
             try:
                 ctrl = self.find(timeout, retry_interval)
-                raise TimeoutError("Timed out! {} object {} still exists!".format(type(ctrl), ctrl))
+                raise TimeoutError("Timed out! {} object {} exists!".format(type(ctrl), ctrl))
             except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
                     controls.InvalidWindowHandle, controls.InvalidElement):
                 pass
@@ -371,12 +422,12 @@ class WindowSpecification(object):
         # then resolve the control and do a getitem on it for the
         if len(self.criteria) >= 2:
 
-            ctrls = self.__resolve_control(self.criteria)
+            ctrl = self.find(self.criteria)
 
             # try to return a good error message if the control does not
             # have a __getitem__() method)
-            if hasattr(ctrls[-1], '__getitem__'):
-                return ctrls[-1][key]
+            if hasattr(ctrl, '__getitem__'):
+                return ctrl[key]
             else:
                 message = "The control does not have a __getitem__ method " \
                     "for item access (i.e. ctrl[key]) so maybe you have " \
@@ -421,10 +472,10 @@ class WindowSpecification(object):
         # attribute and return it
         if len(self.criteria) >= 2:
 
-            ctrls = self.__resolve_control(self.criteria)
+            ctrl = self.find(self.criteria)
 
             try:
-                return getattr(ctrls[-1], attr_name)
+                return getattr(ctrl, attr_name)
             except AttributeError:
                 return self.by(best_match=attr_name)
         else:
@@ -437,8 +488,8 @@ class WindowSpecification(object):
             # Probably there is no DialogWrapper for another backend
 
             if need_to_resolve:
-                ctrls = self.__resolve_control(self.criteria)
-                return getattr(ctrls[-1], attr_name)
+                ctrl = self.find(self.criteria)
+                return getattr(ctrl, attr_name)
 
         # It is a dialog/control criterion so let getitem
         # deal with it
@@ -468,7 +519,7 @@ class WindowSpecification(object):
             criterion['visible'] = None
 
         try:
-            self.__resolve_control(exists_criteria, timeout, retry_interval)
+            self.find(exists_criteria, timeout, retry_interval)
 
             return True
         except (findwindows.ElementNotFoundError,
@@ -479,19 +530,19 @@ class WindowSpecification(object):
 
     def _ctrl_identifiers(self):
 
-        ctrls = self.__resolve_control(self.criteria)
+        ctrl = self.find(self.criteria)
 
-        if ctrls[-1].is_dialog():
+        if ctrl.is_dialog():
             # dialog controls are all the control on the dialog
-            dialog_controls = ctrls[-1].children()
+            dialog_controls = ctrl.children()
 
             ctrls_to_print = dialog_controls[:]
             # filter out hidden controls
             ctrls_to_print = [
                 ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
         else:
-            dialog_controls = ctrls[-1].top_level_parent().children()
-            ctrls_to_print = [ctrls[-1]]
+            dialog_controls = ctrl.top_level_parent().children()
+            ctrls_to_print = [ctrl]
 
         # build the list of disambiguated list of control names
         name_control_map = findbestmatch.build_unique_dict(dialog_controls)
@@ -527,7 +578,7 @@ class WindowSpecification(object):
         if max_width is None:
             max_width = sys.maxsize
         # Wrap this control
-        this_ctrl = self.__resolve_control(self.criteria)[-1]
+        this_ctrl = self.find(self.criteria)
 
         ElementTreeNode = collections.namedtuple('ElementTreeNode', ['elem', 'id', 'children'])
 
