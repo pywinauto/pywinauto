@@ -83,6 +83,7 @@ import time
 import locale
 import codecs
 import collections
+import warnings
 
 import six
 
@@ -139,10 +140,14 @@ class WindowSpecification(object):
                          'active': lambda ctrl, timeout, retry_interval: ctrl.wait_active(timeout, retry_interval),
                          }
 
-    WAIT_NOT_CRITERIA_MAP = {'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_not_visible(timeout, retry_interval),
-                             'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_not_enabled(timeout, retry_interval),
-                             'ready': lambda ctrl, timeout, retry_interval: ctrl.wait_not_ready(timeout, retry_interval),
-                             'active': lambda ctrl, timeout, retry_interval: ctrl.wait_not_active(timeout, retry_interval),
+    WAIT_NOT_CRITERIA_MAP = {'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_not_visible(timeout,
+                                                                                                    retry_interval),
+                             'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_not_enabled(timeout,
+                                                                                                    retry_interval),
+                             'ready': lambda ctrl, timeout, retry_interval: ctrl.wait_not_ready(timeout,
+                                                                                                retry_interval),
+                             'active': lambda ctrl, timeout, retry_interval: ctrl.wait_not_active(timeout,
+                                                                                                  retry_interval),
                              }
 
     def __init__(self, search_criteria, allow_magic_lookup=True):
@@ -200,13 +205,13 @@ class WindowSpecification(object):
 
     def __find_base(self, criteria_):
         """
-        Find a control using criteria
+        Find a control using criteria. The returned control matches conditions from criteria[-1].
 
-        * **criteria** - a list that contains 1 or 2 dictionaries
+        * **criteria** - a list with dictionaries
 
              1st element is search criteria for the dialog
 
-             2nd element is search criteria for a control of the dialog
+             other elements are search criteria for a control of the dialog
 
         * **timeout** -  maximum length of time to try to find the controls (default 5)
         * **retry_interval** - how long to wait between each retry (default .2)
@@ -235,14 +240,22 @@ class WindowSpecification(object):
             return dialog
 
     def __find_all_base(self, criteria_):
+        """
+        Find all controls using criteria. The returned controls match conditions from criteria[-1].
+
+        * **criteria** - a list with dictionaries
+
+             1st element is search criteria for the dialog
+
+             other elements are search criteria for a control of the dialog
+
+        * **timeout** -  maximum length of time to try to find the controls (default 5)
+        * **retry_interval** - how long to wait between each retry (default .2)
+        """
         dialog, criteria = self.__get_dialog_with_updated_criteria(criteria_)
 
         if len(criteria) == 1:
-            dialogs = []
-            dialog_ctrls = findwindows.find_elements(**criteria[0])
-            for dialog_ctrl in dialog_ctrls:
-                dialogs.append(self.backend.generic_wrapper_class(dialog_ctrl))
-            return dialogs
+            return [dialog]
 
         else:
             previous_parent = dialog.element_info
@@ -280,7 +293,9 @@ class WindowSpecification(object):
             return wrapped_ctrls
 
     def find(self, timeout=None, retry_interval=None):
-        """Allow the calling code to get the HwndWrapper object"""
+        """
+        Waiting until control is found, or raise an error
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -303,6 +318,9 @@ class WindowSpecification(object):
         return ctrl
 
     def find_all(self, timeout, retry_interval):
+        """
+        Waiting until controls are found, or raise an error
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -324,13 +342,12 @@ class WindowSpecification(object):
 
         return ctrls
 
-    def wait_exists(self, timeout=None, retry_interval=None):
-        return self.find(timeout, retry_interval)
-
     def wait(self, wait_for, timeout=None, retry_interval=None):
-        # TODO: DeprecationWarning
-        # import warnings
-        # warnings.warn()
+        warnings.warn("Wait method is deprecated and will be removed. "
+                      "Please, use find() instead of wait() or wait('exists'). "
+                      "wait_visible(), wait_enabled(), wait_ready() and wait_active() are methods of "
+                      "HwndWrapper object, so you can use it like .find().wait_visible(), etc.")
+
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -359,9 +376,6 @@ class WindowSpecification(object):
         return ctrl
 
     def wait_not(self, wait_for, timeout=None, retry_interval=None):
-        # TODO: DeprecationWarning
-        # import warnings
-        # warnings.warn()
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:

@@ -837,6 +837,9 @@ class BaseWrapper(object):
 
     # -----------------------------------------------------------
     def wait_visible(self, timeout, retry_interval):
+        """
+        Waiting until control is visible
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -849,6 +852,9 @@ class BaseWrapper(object):
 
     # -----------------------------------------------------------
     def wait_not_visible(self, timeout, retry_interval):
+        """
+        Waiting until control is not visible
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -857,6 +863,9 @@ class BaseWrapper(object):
 
     # -----------------------------------------------------------
     def wait_enabled(self, timeout, retry_interval):
+        """
+        Waiting until control is enabled
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -870,6 +879,9 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
 
     def wait_not_enabled(self, timeout, retry_interval):
+        """
+        Waiting until control is not enabled
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -878,6 +890,9 @@ class BaseWrapper(object):
 
     # -----------------------------------------------------------
     def wait_active(self, timeout, retry_interval):
+        """
+        Waiting until control is active
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -890,6 +905,9 @@ class BaseWrapper(object):
 
     # -----------------------------------------------------------
     def wait_not_active(self, timeout, retry_interval):
+        """
+        Waiting until control is not active
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -898,6 +916,9 @@ class BaseWrapper(object):
 
     # -----------------------------------------------------------
     def wait_ready(self, timeout, retry_interval):
+        """
+        Waiting until control is ready
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -917,6 +938,9 @@ class BaseWrapper(object):
 
     # ------------------------------------------------------------
     def wait_not_ready(self, timeout, retry_interval):
+        """
+        Waiting until control is not ready
+        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
