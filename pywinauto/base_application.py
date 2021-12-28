@@ -313,7 +313,7 @@ class WindowSpecification(object):
                 self.criteria
             )
         except TimeoutError as e:
-            raise e
+            raise findbestmatch.MatchError
 
         return ctrl
 
@@ -386,7 +386,7 @@ class WindowSpecification(object):
                 ctrl = self.find(timeout, retry_interval)
                 raise TimeoutError("Timed out! {} object {} exists!".format(type(ctrl), ctrl))
             except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
-                    controls.InvalidWindowHandle, controls.InvalidElement):
+                    controls.InvalidWindowHandle, controls.InvalidElement, TimeoutError):
                 pass
 
         else:
@@ -438,7 +438,7 @@ class WindowSpecification(object):
         # then resolve the control and do a getitem on it for the
         if len(self.criteria) >= 2:  # FIXME - this is surprising
 
-            ctrl = self.find(self.criteria)
+            ctrl = self.find()
 
             # try to return a good error message if the control does not
             # have a __getitem__() method)
@@ -503,7 +503,7 @@ class WindowSpecification(object):
         # attribute and return it
         if len(self.criteria) >= 2:  # FIXME - this is surprising
 
-            ctrl = self.find(self.criteria)
+            ctrl = self.find()
 
             try:
                 return getattr(ctrl, attr_name)
@@ -520,7 +520,7 @@ class WindowSpecification(object):
             # Probably there is no DialogWrapper for another backend
 
             if need_to_resolve:
-                ctrl = self.find(self.criteria)
+                ctrl = self.find()
                 return getattr(ctrl, attr_name)
 
         # It is a dialog/control criterion so let getitem
@@ -551,7 +551,7 @@ class WindowSpecification(object):
             criterion['visible'] = None
 
         try:
-            self.find(exists_criteria, timeout, retry_interval)
+            self.find(timeout, retry_interval)
 
             return True
         except (findwindows.ElementNotFoundError,
@@ -562,7 +562,7 @@ class WindowSpecification(object):
 
     def _ctrl_identifiers(self):
 
-        ctrl = self.find(self.criteria)
+        ctrl = self.find()
 
         if ctrl.is_dialog():
             # dialog controls are all the control on the dialog
@@ -610,7 +610,7 @@ class WindowSpecification(object):
         if max_width is None:
             max_width = sys.maxsize
         # Wrap this control
-        this_ctrl = self.find(self.criteria)
+        this_ctrl = self.find()
 
         ElementTreeNode = collections.namedtuple('ElementTreeNode', ['elem', 'id', 'children'])
 
