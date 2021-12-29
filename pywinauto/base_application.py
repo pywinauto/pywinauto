@@ -310,8 +310,11 @@ class WindowSpecification(object):
                  controls.InvalidElement),
                 self.criteria
             )
-        except TimeoutError as e:
-            raise findbestmatch.MatchError
+        except (findwindows.ElementNotFoundError,
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle,
+                controls.InvalidElement) as e:
+            raise e
 
         return ctrl
 
@@ -335,7 +338,10 @@ class WindowSpecification(object):
                  controls.InvalidElement),
                 self.criteria
             )
-        except TimeoutError as e:
+        except (findwindows.ElementNotFoundError,
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle,
+                controls.InvalidElement) as e:
             raise e
 
         return ctrls
@@ -539,7 +545,8 @@ class WindowSpecification(object):
         except (findwindows.ElementNotFoundError,
                 findbestmatch.MatchError,
                 controls.InvalidWindowHandle,
-                controls.InvalidElement):
+                controls.InvalidElement,
+                TimeoutError):
             return False
 
     def _ctrl_identifiers(self):
