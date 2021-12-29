@@ -859,7 +859,10 @@ class BaseWrapper(object):
             timeout = Timings.window_find_timeout
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
-        wait_until(timeout, retry_interval, self.is_visible, False)
+        try:
+            wait_until(timeout, retry_interval, self.is_visible, False)
+        except TimeoutError as e:
+            raise e
 
     # -----------------------------------------------------------
     def wait_enabled(self, timeout, retry_interval):
@@ -886,7 +889,11 @@ class BaseWrapper(object):
             timeout = Timings.window_find_timeout
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
-        wait_until(timeout, retry_interval, self.is_enabled, False)
+
+        try:
+            wait_until(timeout, retry_interval, self.is_enabled, False)
+        except TimeoutError as e:
+            raise e
 
     # -----------------------------------------------------------
     def wait_active(self, timeout, retry_interval):
@@ -912,7 +919,11 @@ class BaseWrapper(object):
             timeout = Timings.window_find_timeout
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
-        wait_until(timeout, retry_interval, self.is_active, False)
+
+        try:
+            wait_until(timeout, retry_interval, self.is_active, False)
+        except TimeoutError as e:
+            raise e
 
     # -----------------------------------------------------------
     def wait_ready(self, timeout, retry_interval):
