@@ -386,17 +386,26 @@ class WindowSpecification(object):
             retry_interval = Timings.window_find_retry
         correct_wait_for = wait_for.lower().split()
         if 'exists' in correct_wait_for:
-            try:
-                ctrl = self.find(timeout, retry_interval)
-                raise TimeoutError("Timed out! {} object {} exists!".format(type(ctrl), ctrl))
-            except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
-                    controls.InvalidWindowHandle, controls.InvalidElement, TimeoutError):
-                pass
+            time_left = timeout
+            start = timestamp()
+            while time_left >= retry_interval:
+                try:
+                    ctrl = self.find(time_left, retry_interval)
+                except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
+                        controls.InvalidWindowHandle, controls.InvalidElement, TimeoutError):
+                    break
+                time_left -= timestamp() - start
+            raise TimeoutError("Timed out! Object exists!")
 
         else:
             time_left = timeout
             start = timestamp()
-            ctrl = self.find(time_left, retry_interval)
+            try:
+                ctrl = self.find(time_left, retry_interval)
+            except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
+                    controls.InvalidWindowHandle, controls.InvalidElement, TimeoutError):
+                warnings.warn("Object with the given criteria does not exists")
+                return
             for condition in correct_wait_for:
                 time_left -= timestamp() - start
                 if time_left < retry_interval:
