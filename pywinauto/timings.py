@@ -451,11 +451,7 @@ def wait_until_passes(timeout,
                 time.sleep(min(retry_interval, time_left))
 
             else:
-                # Raise a TimeoutError - and put the original exception
-                # inside it
-                err = TimeoutError()
-                err.original_exception = e
-                raise err
+                raise e
 
     # return the function value
     return func_val
