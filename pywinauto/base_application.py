@@ -310,11 +310,8 @@ class WindowSpecification(object):
                  controls.InvalidElement),
                 self.criteria
             )
-        except (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement) as e:
-            raise e
+        except TimeoutError as e:
+            raise e.original_exception
 
         return ctrl
 
@@ -338,11 +335,8 @@ class WindowSpecification(object):
                  controls.InvalidElement),
                 self.criteria
             )
-        except (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement) as e:
-            raise e
+        except TimeoutError as e:
+            raise e.original_exception
 
         return ctrls
 
@@ -548,32 +542,6 @@ class WindowSpecification(object):
                 controls.InvalidElement,
                 TimeoutError):
             return False
-
-    def _ctrl_identifiers(self):
-
-        ctrl = self.find()
-
-        if ctrl.is_dialog():
-            # dialog controls are all the control on the dialog
-            dialog_controls = ctrl.children()
-
-            ctrls_to_print = dialog_controls[:]
-            # filter out hidden controls
-            ctrls_to_print = [
-                ctrl for ctrl in ctrls_to_print if ctrl.is_visible()]
-        else:
-            dialog_controls = ctrl.top_level_parent().children()
-            ctrls_to_print = [ctrl]
-
-        # build the list of disambiguated list of control names
-        name_control_map = findbestmatch.build_unique_dict(dialog_controls)
-
-        # swap it around so that we are mapped off the controls
-        control_name_map = {}
-        for name, ctrl in name_control_map.items():
-            control_name_map.setdefault(ctrl, []).append(name)
-
-        return control_name_map
 
     def dump_tree(self, depth=10, max_width=10, filename=None):
         """

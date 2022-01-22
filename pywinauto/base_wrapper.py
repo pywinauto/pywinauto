@@ -50,6 +50,8 @@ except ImportError:
 from time import sleep
 from .actionlogger import ActionLogger
 from .mouse import _get_cursor_pos
+from .timings import TimeoutError
+
 
 #=========================================================================
 def remove_non_alphanumeric_symbols(s):
