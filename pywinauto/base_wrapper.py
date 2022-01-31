@@ -850,7 +850,7 @@ class BaseWrapper(object):
             wait_until(timeout, retry_interval, self.is_visible)
             return self
         except TimeoutError as e:
-            raise e
+            raise e.original_exception
 
     # -----------------------------------------------------------
     def wait_not_visible(self, timeout, retry_interval):
@@ -864,7 +864,7 @@ class BaseWrapper(object):
         try:
             wait_until(timeout, retry_interval, self.is_visible, False)
         except TimeoutError as e:
-            raise e
+            raise e.original_exception
 
     # -----------------------------------------------------------
     def wait_enabled(self, timeout, retry_interval):
@@ -879,7 +879,7 @@ class BaseWrapper(object):
             wait_until(timeout, retry_interval, self.is_enabled)
             return self
         except TimeoutError as e:
-            raise e
+            raise e.original_exception
 
     # -----------------------------------------------------------
 
@@ -895,7 +895,7 @@ class BaseWrapper(object):
         try:
             wait_until(timeout, retry_interval, self.is_enabled, False)
         except TimeoutError as e:
-            raise e
+            raise e.original_exception
 
     # -----------------------------------------------------------
     def wait_active(self, timeout, retry_interval):
@@ -910,7 +910,7 @@ class BaseWrapper(object):
             wait_until(timeout, retry_interval, self.is_active)
             return self
         except TimeoutError as e:
-            raise e
+            raise e.original_exception
 
     # -----------------------------------------------------------
     def wait_not_active(self, timeout, retry_interval):
@@ -925,47 +925,6 @@ class BaseWrapper(object):
         try:
             wait_until(timeout, retry_interval, self.is_active, False)
         except TimeoutError as e:
-            raise e
-
-    # -----------------------------------------------------------
-    def wait_ready(self, timeout, retry_interval):
-        """
-        Waiting until control is ready
-        """
-        if timeout is None:
-            timeout = Timings.window_find_timeout
-        if retry_interval is None:
-            retry_interval = Timings.window_find_retry
-        start = timestamp()
-        try:
-            self.wait_visible(timeout, retry_interval)
-            time_left = timeout - (timestamp() - start)
-            if 0 < time_left and not time_left < retry_interval:
-                self.wait_enabled(time_left, retry_interval)
-                return self
-            else:
-                err = TimeoutError("Timed out!")
-                raise err
-        except TimeoutError as e:
-            raise e
-
-    # ------------------------------------------------------------
-    def wait_not_ready(self, timeout, retry_interval):
-        """
-        Waiting until control is not ready
-        """
-        if timeout is None:
-            timeout = Timings.window_find_timeout
-        if retry_interval is None:
-            retry_interval = Timings.window_find_retry
-        start = timestamp()
-        self.wait_not_enabled(timeout, retry_interval)
-        time_left = timeout - (timestamp() - start)
-        if 0 < time_left and not time_left < retry_interval:
-            self.wait_not_visible(time_left, retry_interval)
-            return self
-        else:
-            err = TimeoutError("Timed out!")
-            raise err
+            raise e.original_exception
 
 #====================================================================
