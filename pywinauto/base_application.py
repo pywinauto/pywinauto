@@ -136,7 +136,6 @@ class WindowSpecification(object):
     """
     WAIT_CRITERIA_MAP = {'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_visible(timeout, retry_interval),
                          'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_enabled(timeout, retry_interval),
-                         'ready': lambda ctrl, timeout, retry_interval: ctrl.wait_ready(timeout, retry_interval),
                          'active': lambda ctrl, timeout, retry_interval: ctrl.wait_active(timeout, retry_interval),
                          }
 
@@ -144,8 +143,6 @@ class WindowSpecification(object):
                                                                                                     retry_interval),
                              'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_not_enabled(timeout,
                                                                                                     retry_interval),
-                             'ready': lambda ctrl, timeout, retry_interval: ctrl.wait_not_ready(timeout,
-                                                                                                retry_interval),
                              'active': lambda ctrl, timeout, retry_interval: ctrl.wait_not_active(timeout,
                                                                                                   retry_interval),
                              }
@@ -188,7 +185,7 @@ class WindowSpecification(object):
 
         raise AttributeError(message)
 
-    def __get_dialog_with_updated_criteria(self, criteria_):
+    def _get_updated_criteria(self, criteria_):
         # make a copy of the criteria
         criteria = [crit.copy() for crit in criteria_]
         # find the dialog
@@ -198,23 +195,13 @@ class WindowSpecification(object):
             # find_elements(...) accepts only "process" argument
             criteria[0]['pid'] = self.app.process
             del criteria[0]['app']
+        return criteria
+
+    def __find_base(self, criteria_, timeout, retry_interval):
+        time_left = timeout
+        start = timestamp()
+        criteria = self._get_updated_criteria(criteria_)
         dialog = self.backend.generic_wrapper_class(findwindows.find_element(**criteria[0]))
-        return dialog, criteria
-
-    def __find_base(self, criteria_):
-        """
-        Find a control using criteria. The returned control matches conditions from criteria[-1].
-
-        * **criteria** - a list with dictionaries
-
-             1st element is search criteria for the dialog
-
-             other elements are search criteria for a control of the dialog
-
-        * **timeout** -  maximum length of time to try to find the controls (default 5)
-        * **retry_interval** - how long to wait between each retry (default .2)
-        """
-        dialog, criteria = self.__get_dialog_with_updated_criteria(criteria_)
         if len(criteria) > 1:
             ctrls = []
             previous_parent = dialog.element_info
@@ -224,7 +211,11 @@ class WindowSpecification(object):
                     ctrl_criteria["parent"] = previous_parent
 
                 if isinstance(ctrl_criteria["parent"], WindowSpecification):
-                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find()
+                    time_left -= timestamp() - start
+                    if time_left < retry_interval:
+                        raise TimeoutError("Timed out: can not find control with given criteria {}."
+                                           "Try to increase timeout or decrease retry interval.".format(criteria[-1]))
+                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find(time_left, retry_interval)
 
                 # resolve the control and return it
                 if 'backend' not in ctrl_criteria:
@@ -237,9 +228,47 @@ class WindowSpecification(object):
         else:
             return dialog
 
-    def __find_all_base(self, criteria_):
+    def __find_all_base(self, criteria_, timeout, retry_interval):
+        time_left = timeout
+        start = timestamp()
+        criteria = self._get_updated_criteria(criteria_)
+
+        if len(criteria) == 1:
+            wrapped_dialogs = []
+            dialogs = findwindows.find_elements(**criteria[0])
+            for dialog in dialogs:
+                wrapped_dialogs.append(self.backend.generic_wrapper_class(dialog))
+            return wrapped_dialogs
+
+        else:
+            time_left -= timestamp() - start
+            previous_ctrl = self.__find_base(criteria[:-1], time_left, retry_interval)
+            previous_parent = previous_ctrl.element_info
+            ctrl_criteria = criteria[-1]
+            ctrl_criteria["top_level_only"] = False
+            if "parent" not in ctrl_criteria:
+                ctrl_criteria["parent"] = previous_parent
+
+            if isinstance(ctrl_criteria["parent"], WindowSpecification):
+                time_left -= timestamp() - start
+                if time_left < retry_interval:
+                    raise TimeoutError("Timed out: can not find control with given criteria {}."
+                                       "Try to increase timeout or decrease retry interval.".format(criteria[-1]))
+                ctrl_criteria["parent"] = ctrl_criteria["parent"].find(time_left, retry_interval)
+
+            # resolve the control and return it
+            if 'backend' not in ctrl_criteria:
+                ctrl_criteria['backend'] = self.backend.name
+
+            wrapped_ctrls = []
+            all_ctrls = findwindows.find_elements(**ctrl_criteria)
+            for ctrl in all_ctrls:
+                wrapped_ctrls.append(self.backend.generic_wrapper_class(ctrl))
+            return wrapped_ctrls
+
+    def find(self, timeout=None, retry_interval=None):
         """
-        Find all controls using criteria. The returned controls match conditions from criteria[-1].
+        Find a control using criteria. The returned control matches conditions from criteria[-1].
 
         * **criteria** - a list with dictionaries
 
@@ -250,50 +279,7 @@ class WindowSpecification(object):
         * **timeout** -  maximum length of time to try to find the controls (default 5)
         * **retry_interval** - how long to wait between each retry (default .2)
         """
-        dialog, criteria = self.__get_dialog_with_updated_criteria(criteria_)
 
-        if len(criteria) == 1:
-            return [dialog]
-
-        else:
-            previous_parent = dialog.element_info
-            for ctrl_criteria in criteria[1:-1]:
-                ctrl_criteria["top_level_only"] = False
-                if "parent" not in ctrl_criteria:
-                    ctrl_criteria["parent"] = previous_parent
-
-                if isinstance(ctrl_criteria["parent"], WindowSpecification):
-                    ctrl_criteria["parent"] = ctrl_criteria["parent"].find()
-
-                # resolve the control and return it
-                if 'backend' not in ctrl_criteria:
-                    ctrl_criteria['backend'] = self.backend.name
-
-                ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
-                previous_parent = ctrl.element_info
-
-            criteria[-1]["top_level_only"] = False
-            if "parent" not in criteria[-1]:
-                criteria[-1]["parent"] = previous_parent
-
-            if isinstance(criteria[-1]["parent"], WindowSpecification):
-                criteria[-1]["parent"] = criteria[-1]["parent"].find()
-
-            # resolve the control and return it
-            if 'backend' not in criteria[-1]:
-                criteria[-1]['backend'] = self.backend.name
-
-            all_ctrls = findwindows.find_elements(**criteria[-1])
-            wrapped_ctrls = []
-            for ctrl in all_ctrls:
-                wrapped_ctrls.append(self.backend.generic_wrapper_class(ctrl))
-
-            return wrapped_ctrls
-
-    def find(self, timeout=None, retry_interval=None):
-        """
-        Waiting until control is found, or raise an error
-        """
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
@@ -308,7 +294,9 @@ class WindowSpecification(object):
                  findbestmatch.MatchError,
                  controls.InvalidWindowHandle,
                  controls.InvalidElement),
-                self.criteria
+                self.criteria,
+                timeout,
+                retry_interval,
             )
         except TimeoutError as e:
             raise e.original_exception
@@ -317,7 +305,17 @@ class WindowSpecification(object):
 
     def find_all(self, timeout, retry_interval):
         """
-        Waiting until controls are found, or raise an error
+        Find all controls using criteria. The returned controls match conditions from criteria[-1].
+        Parent controls are assumed to exist in a single instance. Otherwise it will result in an AmbiguousError.
+
+        * **criteria** - a list with dictionaries
+
+             1st element is search criteria for the dialog
+
+             other elements are search criteria for a control of the dialog
+
+        * **timeout** -  maximum length of time to try to find the controls (default 5)
+        * **retry_interval** - how long to wait between each retry (default .2)
         """
         if timeout is None:
             timeout = Timings.window_find_timeout
@@ -333,7 +331,9 @@ class WindowSpecification(object):
                  findbestmatch.MatchError,
                  controls.InvalidWindowHandle,
                  controls.InvalidElement),
-                self.criteria
+                self.criteria,
+                timeout,
+                retry_interval,
             )
         except TimeoutError as e:
             raise e.original_exception
@@ -341,10 +341,33 @@ class WindowSpecification(object):
         return ctrls
 
     def wait(self, wait_for, timeout=None, retry_interval=None):
+        """
+        Wait for the window to be in a particular state/states.
+        :param wait_for: The state to wait for the window to be in. It can
+            be any of the following states, also you may combine the states by space key.
+             * 'exists' means that the window is a valid handle
+             * 'visible' means that the window is not hidden
+             * 'enabled' means that the window is not disabled
+             * 'ready' means that the window is visible and enabled
+             * 'active' means that the window is active
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is not in the appropriate state after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+        An example to wait until the dialog
+        exists, is ready, enabled and visible: ::
+            self.Dlg.wait("exists enabled visible ready")
+        .. seealso::
+            :func:`WindowSpecification.wait_not()`
+            :func:`pywinauto.timings.TimeoutError`
+        """
+
         warnings.warn("Wait method is deprecated and will be removed. "
                       "Please, use find() instead of wait() or wait('exists'). "
-                      "wait_visible(), wait_enabled(), wait_ready() and wait_active() are methods of "
-                      "HwndWrapper object, so you can use it like .find().wait_visible(), etc.")
+                      "wait_visible(), wait_enabled() and wait_active() are methods of "
+                      "HwndWrapper object, so you can use it like .find().wait_active(), "
+                      ".find().wait_visible().wait_enabled(), etc.")
 
         if timeout is None:
             timeout = Timings.window_find_timeout
@@ -354,16 +377,22 @@ class WindowSpecification(object):
         start = timestamp()
         try:
             ctrl = self.find(time_left, retry_interval)
-        except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
-                controls.InvalidWindowHandle, controls.InvalidElement):
-            raise TimeoutError("Timed out! Control does not exist!")
+        except TimeoutError as e:
+            raise e.original_exception
 
         correct_wait_for = wait_for.lower().split()
+        if 'ready' in correct_wait_for:
+            correct_wait_for.remove('ready')
+            if 'visible' not in correct_wait_for:
+                correct_wait_for.append('visible')
+            if 'enabled' not in correct_wait_for:
+                correct_wait_for.append('enabled')
         for condition in correct_wait_for:
 
             time_left -= timestamp() - start
             if time_left < retry_interval:
-                raise TimeoutError("Timed out!")
+                raise TimeoutError("Timed out: not enough time to check the condition {}."
+                                   "Try to increase timeout or decrease retry interval.".format(condition))
 
             if condition == 'exists':
                 continue
@@ -374,27 +403,59 @@ class WindowSpecification(object):
         return ctrl
 
     def wait_not(self, wait_for, timeout=None, retry_interval=None):
+        """
+        Wait for the window to not be in a particular state/states.
+        :param wait_for_not: The state to wait for the window to not be in. It can be any
+            of the following states, also you may combine the states by space key.
+             * 'exists' means that the window is a valid handle
+             * 'visible' means that the window is not hidden
+             * 'enabled' means that the window is not disabled
+             * 'ready' means that the window is visible and enabled
+             * 'active' means that the window is active
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window is sill in the
+            state after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
+        An example to wait until the dialog is not ready, enabled or visible: ::
+            self.Dlg.wait_not("enabled visible ready")
+        .. seealso::
+            :func:`WindowSpecification.wait()`
+            :func:`pywinauto.timings.TimeoutError`
+        """
+
+        warnings.warn("Wait_not method is deprecated and will be removed. "
+                      "You can use exists() or not_exists() instead of wait_not('exists'). "
+                      "wait_not_visible(), wait_not_enabled() and wait_not_active() are methods of "
+                      "HwndWrapper object, so you can use it like .find().wait_not_active(), "
+                      ".find().wait_not_visible().wait_not_enabled(), etc.")
+
         if timeout is None:
             timeout = Timings.window_find_timeout
         if retry_interval is None:
             retry_interval = Timings.window_find_retry
         correct_wait_for = wait_for.lower().split()
-        if 'exists' in correct_wait_for:
-            wait_until(timeout, retry_interval, self.exists, False)
+        if 'ready' in correct_wait_for:
+            correct_wait_for.remove('ready')
+            if 'visible' not in correct_wait_for:
+                correct_wait_for.append('visible')
+            if 'enabled' not in correct_wait_for:
+                correct_wait_for.append('enabled')
 
+        if 'exists' in correct_wait_for:
+            self.not_exists(timeout, retry_interval)
         else:
             time_left = timeout
             start = timestamp()
             try:
                 ctrl = self.find(time_left, retry_interval)
-            except (findwindows.ElementNotFoundError, findbestmatch.MatchError,
-                    controls.InvalidWindowHandle, controls.InvalidElement, TimeoutError):
-                warnings.warn("Object with the given criteria does not exists")
-                return
+            except TimeoutError as e:
+                raise e.original_exception
             for condition in correct_wait_for:
                 time_left -= timestamp() - start
                 if time_left < retry_interval:
-                    raise TimeoutError('Timed out!')
+                    raise TimeoutError('Timed out: not enough time to check the condition {}'
+                                       'Try to increase timeout or decrease retry interval.'.format(condition))
 
                 if condition not in WindowSpecification.WAIT_NOT_CRITERIA_MAP.keys():
                     raise SyntaxError("Invalid criteria: {}!".format(condition))
@@ -509,15 +570,7 @@ class WindowSpecification(object):
         # deal with it
         return self[attr_name]
 
-    def exists(self, timeout=None, retry_interval=None):
-        """
-        Check if the window exists, return True if the control exists
-
-        :param timeout: the maximum amount of time to wait for the
-                    control to exists. Defaults to ``Timings.exists_timeout``
-        :param retry_interval: The control is checked for existance this number
-                    of seconds. ``Defaults to Timings.exists_retry``
-        """
+    def _exists(self, timeout=None, retry_interval=None):
         # set the current timings -couldn't set as defaults as they are
         # evaluated at import time - and timings may be changed at any time
         if timeout is None:
@@ -542,6 +595,28 @@ class WindowSpecification(object):
                 controls.InvalidElement,
                 TimeoutError):
             return False
+
+    def exists(self, timeout=None, retry_interval=None):
+        """
+        Check if the window exists, return True if the control exists
+
+        :param timeout: the maximum amount of time to wait for the
+                    control to exists. Defaults to ``Timings.exists_timeout``
+        :param retry_interval: The control is checked for existance this number
+                    of seconds. ``Defaults to Timings.exists_retry``
+        """
+        return wait_until(timeout, retry_interval, self._exists, True)
+
+    def not_exists(self, timeout=None, retry_interval=None):
+        """
+        Check if the window exists, return True if the control does not exists`
+
+        :param timeout: the maximum amount of time to wait for the
+                    control to exists. Defaults to ``Timings.exists_timeout``
+        :param retry_interval: The control is checked for existance this number
+                    of seconds. ``Defaults to Timings.exists_retry``
+        """
+        return wait_until(timeout, retry_interval, self._exists, False)
 
     def dump_tree(self, depth=10, max_width=10, filename=None):
         """
