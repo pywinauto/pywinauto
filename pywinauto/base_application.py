@@ -378,7 +378,7 @@ class WindowSpecification(object):
         try:
             ctrl = self.find(time_left, retry_interval)
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
         correct_wait_for = wait_for.lower().split()
         if 'ready' in correct_wait_for:
@@ -450,7 +450,7 @@ class WindowSpecification(object):
             try:
                 ctrl = self.find(time_left, retry_interval)
             except TimeoutError as e:
-                raise e.original_exception
+                raise e
             for condition in correct_wait_for:
                 time_left -= timestamp() - start
                 if time_left < retry_interval:
@@ -605,7 +605,14 @@ class WindowSpecification(object):
         :param retry_interval: The control is checked for existance this number
                     of seconds. ``Defaults to Timings.exists_retry``
         """
-        return wait_until(timeout, retry_interval, self._exists, True)
+        if timeout is None:
+            timeout = Timings.exists_timeout
+        if retry_interval is None:
+            retry_interval = Timings.exists_retry
+        try:
+            return wait_until(timeout, retry_interval, self._exists, True)
+        except TimeoutError as e:
+            return False
 
     def not_exists(self, timeout=None, retry_interval=None):
         """
@@ -616,7 +623,14 @@ class WindowSpecification(object):
         :param retry_interval: The control is checked for existance this number
                     of seconds. ``Defaults to Timings.exists_retry``
         """
-        return wait_until(timeout, retry_interval, self._exists, False)
+        if timeout is None:
+            timeout = Timings.exists_timeout
+        if retry_interval is None:
+            retry_interval = Timings.exists_retry
+        try:
+            return wait_until(timeout, retry_interval, self._exists, False)
+        except TimeoutError as e:
+            return False
 
     def dump_tree(self, depth=10, max_width=10, filename=None):
         """
