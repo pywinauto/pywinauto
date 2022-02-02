@@ -850,7 +850,7 @@ class BaseWrapper(object):
             wait_until(timeout, retry_interval, self.is_visible)
             return self
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
     # -----------------------------------------------------------
     def wait_not_visible(self, timeout, retry_interval):
@@ -864,7 +864,7 @@ class BaseWrapper(object):
         try:
             wait_until(timeout, retry_interval, self.is_visible, False)
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
     # -----------------------------------------------------------
     def wait_enabled(self, timeout, retry_interval):
@@ -879,7 +879,7 @@ class BaseWrapper(object):
             wait_until(timeout, retry_interval, self.is_enabled)
             return self
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
     # -----------------------------------------------------------
 
@@ -895,7 +895,7 @@ class BaseWrapper(object):
         try:
             wait_until(timeout, retry_interval, self.is_enabled, False)
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
     # -----------------------------------------------------------
     def wait_active(self, timeout, retry_interval):
@@ -910,7 +910,7 @@ class BaseWrapper(object):
             wait_until(timeout, retry_interval, self.is_active)
             return self
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
     # -----------------------------------------------------------
     def wait_not_active(self, timeout, retry_interval):
@@ -925,6 +925,6 @@ class BaseWrapper(object):
         try:
             wait_until(timeout, retry_interval, self.is_active, False)
         except TimeoutError as e:
-            raise e.original_exception
+            raise e
 
 #====================================================================
