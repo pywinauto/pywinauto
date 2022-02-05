@@ -233,9 +233,9 @@ class WindowSpecification(object):
     def __find_all_base(self, criteria_, timeout, retry_interval):
         time_left = timeout
         start = timestamp()
-        criteria = self._get_updated_criteria(criteria_)
 
-        if len(criteria) == 1:
+        if len(criteria_) == 1:
+            criteria = self._get_updated_criteria(criteria_)
             wrapped_dialogs = []
             dialogs = findwindows.find_elements(**criteria[0])
             for dialog in dialogs:
@@ -244,9 +244,9 @@ class WindowSpecification(object):
 
         else:
             time_left -= timestamp() - start
-            previous_ctrl = self.__find_base(criteria[:-1], time_left, retry_interval)
+            previous_ctrl = self.__find_base(criteria_[:-1], time_left, retry_interval)
             previous_parent = previous_ctrl.element_info
-            ctrl_criteria = criteria[-1]
+            ctrl_criteria = criteria_[-1]
             ctrl_criteria["top_level_only"] = False
             if "parent" not in ctrl_criteria:
                 ctrl_criteria["parent"] = previous_parent
@@ -305,7 +305,7 @@ class WindowSpecification(object):
 
         return ctrl
 
-    def find_all(self, timeout, retry_interval):
+    def find_all(self, timeout=None, retry_interval=None):
         """
         Find all controls using criteria. The returned controls match conditions from criteria[-1].
         Parent controls are assumed to exist in a single instance. Otherwise it will result in an AmbiguousError.
