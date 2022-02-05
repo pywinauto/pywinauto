@@ -934,8 +934,20 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # try one that should not be found
         start = timestamp()
         self.assertEqual(True, self.dlgspec.exists(.5))
-        timedif =  timestamp() - start
+        timedif = timestamp() - start
         self.assertEqual(True, .49 > timedif < .6)
+
+    def test_find_all_dlg(self):
+        dlg_spec_list = self.dlgspec.find_all()
+        self.assertEqual(1, len(dlg_spec_list))
+        self.assertEqual(self.dlgspec.find(), dlg_spec_list[0])
+
+    def test_find_all_notepad(self):
+        ctrls = self.dlgspec.by(parent=self.dlgspec).find_all()
+
+        self.assertEqual(2, len(ctrls))
+        self.assertEqual(ctrls[0], self.app.Notepad.Edit.find())
+        self.assertEqual(ctrls[1], self.app.Notepad.StatusBar.find())
 
     def test_wait(self):
         """test the functionality and timing of the wait method"""
