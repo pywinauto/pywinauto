@@ -447,7 +447,8 @@ class WindowSpecification(object):
                 correct_wait_for.append('enabled')
 
         if 'exists' in correct_wait_for:
-            wait_until(timeout, retry_interval, self.not_exists)
+            if not self.not_exists(timeout, retry_interval):
+                raise TimeoutError("Object with the given criteria {} still exists".format(self.criteria[-1]))
 
         else:
             time_left = timeout
@@ -459,7 +460,7 @@ class WindowSpecification(object):
                     controls.InvalidWindowHandle,
                     controls.InvalidElement,
                     TimeoutError) as e:
-                warnings.warn("Object with the given criteria {} does not exists".format(self.criteria[-1]))
+                warnings.warn("Object with the given criteria {} does not exist".format(self.criteria[-1]))
                 return
             for condition in correct_wait_for:
                 time_left -= timestamp() - start
@@ -582,12 +583,13 @@ class WindowSpecification(object):
 
     def exists(self, timeout=None, retry_interval=None):
         """
-        Check if the window exists, return True if the control exists
+        Wait for the window exists, return True if the control exists.
 
-        :param timeout: the maximum amount of time to wait for the
-                    control to exists. Defaults to ``Timings.exists_timeout``
-        :param retry_interval: The control is checked for existance this number
-                    of seconds. ``Defaults to Timings.exists_retry``
+        :param timeout: maximum length of time to try to find the control.
+            Default: ``Timings.exists_timeout``.
+
+        :param retry_interval: how long to wait between each retry.
+            Default: ``Timings.exists_retry``.
         """
         # set the current timings -couldn't set as defaults as they are
         # evaluated at import time - and timings may be changed at any time
@@ -616,12 +618,13 @@ class WindowSpecification(object):
 
     def not_exists(self, timeout=None, retry_interval=None):
         """
-        Check if the window exists, return True if the control does not exists`
+        Wait for the window does not exist, return True if the control does not exist.
 
-        :param timeout: the maximum amount of time to wait for the
-                    control to exists. Defaults to ``Timings.exists_timeout``
-        :param retry_interval: The control is checked for existance this number
-                    of seconds. ``Defaults to Timings.exists_retry``
+        :param timeout: maximum length of time to wait until the control exists.
+            Default: ``Timings.exists_timeout``.
+
+        :param retry_interval: how long to wait between each retry.
+            Default: ``Timings.exists_retry``.
         """
         # set the current timings -couldn't set as defaults as they are
         # evaluated at import time - and timings may be changed at any time
@@ -638,14 +641,13 @@ class WindowSpecification(object):
             criterion['visible'] = None
 
         try:
-            self.find(timeout, retry_interval)
-            return False
+            return wait_until(timeout, retry_interval, self.exists, False)
         except (findwindows.ElementNotFoundError,
                 findbestmatch.MatchError,
                 controls.InvalidWindowHandle,
                 controls.InvalidElement,
                 TimeoutError):
-            return True
+            return False
 
     def dump_tree(self, depth=10, max_width=10, filename=None):
         """

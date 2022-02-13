@@ -40,8 +40,6 @@ import sys
 
 import six
 
-from .timings import wait_until, timestamp, Timings
-
 try:
     from PIL import ImageGrab
 except ImportError:
@@ -51,6 +49,8 @@ from time import sleep
 from .actionlogger import ActionLogger
 from .mouse import _get_cursor_pos
 from .timings import TimeoutError
+from .timings import Timings
+from .timings import wait_until
 
 
 #=========================================================================
@@ -329,8 +329,8 @@ class BaseWrapper(object):
         owns this element and the element itself are both visible.
 
         If you want to wait for an element to become visible (or wait
-        for it to become hidden) use ``Application.wait('visible')`` or
-        ``Application.wait_not('visible')``.
+        for it to become hidden) use ``BaseWrapper.wait_visible()`` or
+        ``BaseWrapper.wait_not_visible()``.
 
         If you want to raise an exception immediately if an element is
         not visible then you can use the BaseWrapper.verify_visible().
@@ -348,8 +348,8 @@ class BaseWrapper(object):
         owns this element and the element itself are both enabled.
 
         If you want to wait for an element to become enabled (or wait
-        for it to become disabled) use ``Application.wait('visible')`` or
-        ``Application.wait_not('visible')``.
+        for it to become disabled) use ``BaseWrapper.wait_enabled()`` or
+        ``BaseWrapper.wait_not_enabled()``.
 
         If you want to raise an exception immediately if an element is
         not enabled then you can use the BaseWrapper.verify_enabled().
@@ -361,7 +361,17 @@ class BaseWrapper(object):
     # ------------------------------------------------------------
     def is_active(self):
         """
-        TODO: Describe
+        Whether the element is active or not
+
+        Checks that both the top level parent (probably dialog) that
+        owns this element and the element itself are both active.
+
+        If you want to wait for an element to become active (or wait
+        for it to become not active) use ``BaseWrapper.wait_active()`` or
+        ``BaseWrapper.wait_not_active()``.
+
+        If you want to raise an exception immediately if an element is
+        not active then you can use the BaseWrapper.verify_active().
         """
         return self.element_info.active
 
@@ -647,6 +657,17 @@ class BaseWrapper(object):
         if not self.is_visible():
             raise ElementNotVisible()
 
+    # -----------------------------------------------------------
+    def verify_active(self):
+        """
+        Verify that the element is active
+
+        Check first if the element's parent is active. (skip if no parent),
+        then check if element itself is active.
+        """
+        if not self.is_active():
+            raise ElementNotVisible()
+
     #-----------------------------------------------------------
     def click_input(
         self,
@@ -847,7 +868,14 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
     def wait_visible(self, timeout, retry_interval):
         """
-        Waiting until control is visible
+        Wait until control is visible.
+
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is not visible after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
         """
         if timeout is None:
             timeout = Timings.window_find_timeout
@@ -862,7 +890,14 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
     def wait_not_visible(self, timeout, retry_interval):
         """
-        Waiting until control is not visible
+        Wait until control is not visible.
+
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is still visible after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
         """
         if timeout is None:
             timeout = Timings.window_find_timeout
@@ -876,7 +911,14 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
     def wait_enabled(self, timeout, retry_interval):
         """
-        Waiting until control is enabled
+        Wait until control is enabled.
+
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is not enabled after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
         """
         if timeout is None:
             timeout = Timings.window_find_timeout
@@ -892,7 +934,14 @@ class BaseWrapper(object):
 
     def wait_not_enabled(self, timeout, retry_interval):
         """
-        Waiting until control is not enabled
+        Wait until control is not enabled.
+
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is still enabled after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
         """
         if timeout is None:
             timeout = Timings.window_find_timeout
@@ -907,7 +956,14 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
     def wait_active(self, timeout, retry_interval):
         """
-        Waiting until control is active
+        Wait until control is active.
+
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is not active after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
         """
         if timeout is None:
             timeout = Timings.window_find_timeout
@@ -922,7 +978,12 @@ class BaseWrapper(object):
     # -----------------------------------------------------------
     def wait_not_active(self, timeout, retry_interval):
         """
-        Waiting until control is not active
+        :param timeout: Raise an :func:`pywinauto.timings.TimeoutError` if the window
+            is still active after this number of seconds.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_timeout`.
+
+        :param retry_interval: How long to sleep between each retry.
+            Default: :py:attr:`pywinauto.timings.Timings.window_find_retry`.
         """
         if timeout is None:
             timeout = Timings.window_find_timeout
