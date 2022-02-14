@@ -253,7 +253,7 @@ class WindowSpecification(object):
                 time_left -= timestamp() - start
                 if time_left < retry_interval:
                     raise TimeoutError("Timed out: can not find control with given criteria {}."
-                                       "Try to increase timeout or decrease retry interval.".format(criteria[-1]))
+                                       "Try to increase timeout or decrease retry interval.".format(ctrl_criteria))
                 ctrl_criteria["parent"] = ctrl_criteria["parent"].find(time_left, retry_interval)
 
             # resolve the control and return it
@@ -641,7 +641,9 @@ class WindowSpecification(object):
             criterion['visible'] = None
 
         try:
-            return wait_until(timeout, retry_interval, self.exists, False)
+            wait_until(timeout, retry_interval, self.exists, False)
+
+            return True
         except (findwindows.ElementNotFoundError,
                 findbestmatch.MatchError,
                 controls.InvalidWindowHandle,
