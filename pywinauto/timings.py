@@ -58,6 +58,8 @@ The Following are the individual timing settings that can be adjusted:
 * exists_timeout  (default .5)
 * exists_retry   (default .3)
 
+* after_invoke_wait (default .1)
+
 * after_click_wait  (default .09)
 * after_clickinput_wait (default .09)
 
@@ -139,6 +141,8 @@ class TimeConfig(object):
 
         'exists_timeout': .5,
         'exists_retry': .3,
+
+        'after_invoke_wait': .1,
 
         'after_click_wait': .09,
         'after_clickinput_wait': .09,
