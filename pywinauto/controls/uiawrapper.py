@@ -38,6 +38,7 @@ import six
 import time
 import warnings
 import comtypes
+import threading
 
 from .. import backend
 from .. import WindowNotFoundError  # noqa #E402
@@ -544,8 +545,19 @@ class UIAWrapper(WinBaseWrapper):
         """An interface to the Invoke method of the Invoke control pattern"""
         name = self.element_info.name
         control_type = self.element_info.control_type
+        invoke_pattern_iface = self.iface_invoke
 
-        self.iface_invoke.Invoke()
+        # sometimes .Invoke() can hang, although an action (such as button click) was completed successfully
+        def watchdog():
+            thread = threading.Thread(target=invoke_pattern_iface.Invoke)
+            thread.daemon = True
+            thread.start()
+            thread.join(2.)
+            if thread.isAlive():
+                warnings.warn('Timeout for InvokePattern.Invoke() call was exceeded', RuntimeWarning)
+        watchdog_thread = threading.Thread(target=watchdog)
+        watchdog_thread.start()
+        watchdog_thread.join(Timings.after_invoke_wait)
 
         if name and control_type:
             self.actions.log("Invoked " + control_type.lower() + ' "' + name + '"')
