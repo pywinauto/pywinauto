@@ -299,7 +299,7 @@ class WindowSpecification(object):
     def find_all(self, timeout=None, retry_interval=None):
         """
         Find all controls using criteria. The returned controls match conditions from criteria[-1].
-        Parent controls are assumed to exist in a single instance. Otherwise it will result in an AmbiguousError.
+        Parent controls are assumed to exist in a single instance. Otherwise it will result in an ElementAmbiguousError.
 
         * **criteria** - a list with dictionaries
 
@@ -387,7 +387,7 @@ class WindowSpecification(object):
 
         for condition in correct_wait_for:
             time_left -= timestamp() - start
-            if time_left < 0.0:
+            if time_left <= 0.0:
                 raise TimeoutError("Timed out: not enough time to check the condition {}.".format(condition))
             if condition == 'exists':
                 continue
@@ -455,7 +455,7 @@ class WindowSpecification(object):
                 return
             for condition in correct_wait_for:
                 time_left -= timestamp() - start
-                if time_left < 0.0:
+                if time_left <= 0.0:
                     raise TimeoutError('Timed out: not enough time to check the condition {}'.format(condition))
                 if condition not in WindowSpecification.WAIT_NOT_CRITERIA_MAP.keys():
                     raise SyntaxError("Invalid criteria: {}!".format(condition))
