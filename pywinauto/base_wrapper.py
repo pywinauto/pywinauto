@@ -77,6 +77,12 @@ class ElementNotVisible(RuntimeError):
     pass
 
 #=========================================================================
+class ElementNotActive(RuntimeError):
+
+    """Raised when an element is not active"""
+    pass
+
+#=========================================================================
 @six.add_metaclass(abc.ABCMeta)
 class BaseMeta(abc.ABCMeta):
 
@@ -333,8 +339,8 @@ class BaseWrapper(object):
         ``BaseWrapper.wait_not_visible()``.
 
         If you want to raise an exception immediately if an element is
-        not visible then you can use the BaseWrapper.verify_visible().
-        BaseWrapper.verify_actionable() raises if the element is not both
+        not visible then you can use the ``BaseWrapper.verify_visible()``.
+        ``BaseWrapper.verify_actionable()`` raises if the element is not both
         visible and enabled.
         """
         return self.element_info.visible #and self.top_level_parent().element_info.visible
@@ -352,8 +358,8 @@ class BaseWrapper(object):
         ``BaseWrapper.wait_not_enabled()``.
 
         If you want to raise an exception immediately if an element is
-        not enabled then you can use the BaseWrapper.verify_enabled().
-        BaseWrapper.VerifyReady() raises if the window is not both
+        not enabled then you can use the ``BaseWrapper.verify_enabled()``.
+        ``BaseWrapper.VerifyReady()`` raises if the window is not both
         visible and enabled.
         """
         return self.element_info.enabled #and self.top_level_parent().element_info.enabled
@@ -371,7 +377,7 @@ class BaseWrapper(object):
         ``BaseWrapper.wait_not_active()``.
 
         If you want to raise an exception immediately if an element is
-        not active then you can use the BaseWrapper.verify_active().
+        not active then you can use the ``BaseWrapper.verify_active()``.
         """
         return self.element_info.active
 
@@ -666,7 +672,7 @@ class BaseWrapper(object):
         then check if element itself is active.
         """
         if not self.is_active():
-            raise ElementNotVisible()
+            raise ElementNotActive()
 
     #-----------------------------------------------------------
     def click_input(
