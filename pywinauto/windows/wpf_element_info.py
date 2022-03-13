@@ -1,7 +1,6 @@
 """Implementation of the class to deal with an UI element of WPF via injected DLL"""
 import json
 
-from comtypes import COMError
 from six import integer_types, text_type, string_types
 from ctypes.wintypes import tagPOINT
 import warnings
