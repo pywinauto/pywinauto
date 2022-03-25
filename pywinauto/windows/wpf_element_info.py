@@ -1,4 +1,5 @@
 """Implementation of the class to deal with an UI element of WPF via injected DLL"""
+import enum
 import json
 
 from six import integer_types, text_type, string_types
@@ -10,7 +11,16 @@ from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
 from .injector import main, channel
 
-pipes= {}
+pipes = {}
+
+# backend exit codes enum
+OK=0
+PARSE_ERROR=1,
+UNSUPPORTED_ACTION=2,
+MISSING_PARAM=3,
+RUNTIME_ERROR=4,
+NOT_FOUND=5,
+UNSUPPORTED_TYPE=6,
 
 class WPFElementInfo(ElementInfo):
     re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type", "access_key", "accelerator",
@@ -51,19 +61,21 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def handle(self):
-        return 0
+        # TODO
+        return -1
+
+    @property
+    def auto_id(self):
+        """Return AutomationId of the element"""
+        return self.get_field('Name') or ''
 
     @property
     def name(self):
-        command = f"{json.dumps({'action': 'GetProperty', 'element_id': self._element, 'name': 'Name'})}\n"
-        reply = self.pipe.transact(command)
-        reply = json.loads(reply)
-        return reply['value']
+        return self.get_field('Content') or ''
 
     @property
     def rich_text(self):
         return self.name
-        #return ''
 
     @property
     def control_id(self):
@@ -81,21 +93,22 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def class_name(self):
-        command = f"{json.dumps({'action': 'GetTypeName', 'element_id': self._element})}\n"
+        command = json.dumps({'action': 'GetTypeName', 'element_id': self._element})
         reply = self.pipe.transact(command)
         reply = json.loads(reply)
         return reply['value']
 
     @property
     def enabled(self):
-        return True
+        return self.get_field('IsEnabled') or False
 
     @property
     def visible(self):
-        return True
+        return self.get_field('IsVisible') or False
 
     @property
     def parent(self):
+        # TODO
         return None
 
     def children(self, **kwargs):
@@ -104,12 +117,13 @@ class WPFElementInfo(ElementInfo):
     @property
     def control_type(self):
         """Return control type of element"""
+        # TODO
         return None
 
     def iter_children(self, **kwargs):
         if 'process' in kwargs:
             self._pid = kwargs['process']
-        command = f"{json.dumps({'action': 'GetChildren', 'element_id': self._element})}\n"
+        command = json.dumps({'action': 'GetChildren', 'element_id': self._element})
         reply = self.pipe.transact(command)
         reply = json.loads(reply)
         for elem in reply['elements']:
@@ -136,7 +150,19 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def rectangle(self):
+        # TODO
         return RECT()
 
     def dump_window(self):
+        # TODO
         return {}
+
+    def get_field(self, name):
+        # TODO if no such prop - raise exception or return None?
+        # Scenarios: OK, cannot serialize value, value is null, property not exist
+        command = json.dumps({'action': 'GetProperty', 'element_id': self._element, 'name': name})
+        reply = self.pipe.transact(command)
+        reply = json.loads(reply)
+        if reply['status_code'] == OK:
+            return reply['value']
+        return None
