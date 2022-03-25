@@ -71,7 +71,8 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def name(self):
-        return self.get_field('Content') or ''
+        val = self.get_field('Content') or self.get_field('Header')
+        return val or ''
 
     @property
     def rich_text(self):
@@ -150,8 +151,15 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def rectangle(self):
-        # TODO
-        return RECT()
+        rect = RECT()
+        command = json.dumps({'action': 'GetRectangle', 'element_id': self._element})
+        reply = self.pipe.transact(command)
+        reply = json.loads(reply)
+        rect.left = reply['left']
+        rect.right = reply['right']
+        rect.top = reply['top']
+        rect.bottom = reply['bottom']
+        return rect
 
     def dump_window(self):
         # TODO
