@@ -9,7 +9,7 @@ import warnings
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from .injector import main, channel
+from .injected import injector, channel
 
 pipes = {}
 
@@ -53,7 +53,7 @@ class WPFElementInfo(ElementInfo):
     @property
     def pipe(self):
         if self._pid is not None and self._pid not in pipes:
-            pipes[self._pid] = main.create_pipe(self._pid)
+            pipes[self._pid] = injector.create_pipe(self._pid)
         return pipes[self._pid]
 
     def set_cache_strategy(self, cached):
@@ -71,7 +71,8 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def name(self):
-        val = self.get_field('Content') or self.get_field('Header')
+        # TODO rewrite as action to avoid: "System.Windows.Controls.Label: ListBox and Grid"
+        val = self.get_field('Title') or self.get_field('Header') or self.get_field('Content')
         return val or ''
 
     @property
