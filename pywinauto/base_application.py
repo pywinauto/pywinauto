@@ -478,6 +478,7 @@ class WindowSpecification(object):
 
         new_item = WindowSpecification(self.criteria[0], allow_magic_lookup=self.allow_magic_lookup)
         new_item.criteria.extend(self.criteria[1:])
+        criteria['pid'] = self.app.process
         new_item.criteria.append(criteria)
 
         return new_item
