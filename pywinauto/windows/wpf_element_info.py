@@ -9,18 +9,7 @@ import warnings
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from .injected import injector, channel
-
-pipes = {}
-
-# backend exit codes enum
-OK=0
-PARSE_ERROR=1,
-UNSUPPORTED_ACTION=2,
-MISSING_PARAM=3,
-RUNTIME_ERROR=4,
-NOT_FOUND=5,
-UNSUPPORTED_TYPE=6,
+from .injected.defines import *
 
 class WPFElementInfo(ElementInfo):
     re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type", "access_key", "accelerator",
@@ -50,27 +39,27 @@ class WPFElementInfo(ElementInfo):
 
         self.set_cache_strategy(cached=cache_enable)
 
-    @property
-    def pipe(self):
-        if self._pid is not None and self._pid not in pipes:
-            pipes[self._pid] = injector.create_pipe(self._pid)
-        return pipes[self._pid]
-
     def set_cache_strategy(self, cached):
         pass
 
     @property
     def handle(self):
-        # TODO
-        return -1
+        if self._element == 0:
+            return None
+        reply = ConnectionManager().call_action('GetHandle', self._pid, element_id=self._element)
+        return reply['value']
 
     @property
     def auto_id(self):
         """Return AutomationId of the element"""
+        if self._element == 0:
+            return ''
         return self.get_field('Name') or ''
 
     @property
     def name(self):
+        if self._element == 0:
+            return '--root--'
         # TODO rewrite as action to avoid: "System.Windows.Controls.Label: ListBox and Grid"
         val = self.get_field('Title') or self.get_field('Header') or self.get_field('Content')
         return val or ''
@@ -95,17 +84,21 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def class_name(self):
-        command = json.dumps({'action': 'GetTypeName', 'element_id': self._element})
-        reply = self.pipe.transact(command)
-        reply = json.loads(reply)
+        if self._element == 0:
+            return ''
+        reply = ConnectionManager().call_action('GetTypeName', self._pid, element_id=self._element)
         return reply['value']
 
     @property
     def enabled(self):
+        if self._element == 0:
+            return True
         return self.get_field('IsEnabled') or False
 
     @property
     def visible(self):
+        if self._element == 0:
+            return True
         return self.get_field('IsVisible') or False
 
     @property
@@ -125,9 +118,7 @@ class WPFElementInfo(ElementInfo):
     def iter_children(self, **kwargs):
         if 'process' in kwargs:
             self._pid = kwargs['process']
-        command = json.dumps({'action': 'GetChildren', 'element_id': self._element})
-        reply = self.pipe.transact(command)
-        reply = json.loads(reply)
+        reply = ConnectionManager().call_action('GetChildren', self._pid, element_id=self._element)
         for elem in reply['elements']:
             yield WPFElementInfo(elem, pid=self._pid)
 
@@ -153,25 +144,23 @@ class WPFElementInfo(ElementInfo):
     @property
     def rectangle(self):
         rect = RECT()
-        command = json.dumps({'action': 'GetRectangle', 'element_id': self._element})
-        reply = self.pipe.transact(command)
-        reply = json.loads(reply)
-        rect.left = reply['left']
-        rect.right = reply['right']
-        rect.top = reply['top']
-        rect.bottom = reply['bottom']
+        if self._element != 0:
+            reply = ConnectionManager().call_action('GetRectangle', self._pid, element_id=self._element)
+            rect.left = reply['left']
+            rect.right = reply['right']
+            rect.top = reply['top']
+            rect.bottom = reply['bottom']
         return rect
 
     def dump_window(self):
         # TODO
         return {}
 
-    def get_field(self, name):
-        # TODO if no such prop - raise exception or return None?
-        # Scenarios: OK, cannot serialize value, value is null, property not exist
-        command = json.dumps({'action': 'GetProperty', 'element_id': self._element, 'name': name})
-        reply = self.pipe.transact(command)
-        reply = json.loads(reply)
-        if reply['status_code'] == OK:
+    def get_field(self, name, error_if_not_exists=False):
+        try:
+            reply = ConnectionManager().call_action('GetProperty', self._pid, element_id=self._element, name=name)
             return reply['value']
+        except NotFoundError as e:
+            if error_if_not_exists:
+                raise e
         return None
