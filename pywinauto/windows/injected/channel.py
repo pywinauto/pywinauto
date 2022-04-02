@@ -6,6 +6,9 @@ import winerror
 import sys
 
 
+class BrokenPipeError(Exception):
+    pass
+
 class Pipe:
     def __init__(self, name):
         self.name = name
@@ -39,7 +42,7 @@ class Pipe:
                     #print("Attempt {}: connection failed, trying again".format(i + 1))
                     time.sleep(delay)
                 else:
-                    print('Unexpected pipe error: {}'.format(e))
+                    raise BrokenPipeError('Unexpected pipe error: {}'.format(e))
         if self.handle is not None:
             return True
         return False
@@ -53,9 +56,9 @@ class Pipe:
             return resp[1].decode(sys.getdefaultencoding())
         except pywintypes.error as e:
             if e.args[0] == winerror.ERROR_BROKEN_PIPE:
-                print("Broken pipe")
+                raise BrokenPipeError("Broken pipe")
             else:
-                print('Unexpected pipe error: {}'.format(e))
+                raise BrokenPipeError('Unexpected pipe error: {}'.format(e))
             return ''
 
     def close(self):
