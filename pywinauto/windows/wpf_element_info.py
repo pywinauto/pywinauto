@@ -12,11 +12,10 @@ from .win32structures import RECT
 from .injected.defines import *
 
 class WPFElementInfo(ElementInfo):
-    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type", "access_key", "accelerator",
-                "value"]
+    re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type", "value"]
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle", "framework_id", "runtime_id"]
     search_order = ["handle", "control_type", "class_name", "pid", "control_id", "visible", "enabled", "name",
-                    "access_key", "accelerator", "auto_id", "full_control_type", "rectangle", "framework_id",
+                    "auto_id", "full_control_type", "rectangle", "framework_id",
                     "runtime_id", "value"]
     assert set(re_props + exact_only_props) == set(search_order)
 
@@ -83,6 +82,10 @@ class WPFElementInfo(ElementInfo):
         return "WPF"
 
     @property
+    def runtime_id(self):
+        return self._element
+
+    @property
     def class_name(self):
         if self._element == 0:
             return ''
@@ -103,8 +106,10 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def parent(self):
-        # TODO
-        return None
+        if self._element == 0:
+            return None
+        reply = ConnectionManager().call_action('GetParent', self._pid, element_id=self._element)
+        return WPFElementInfo(reply['value'], pid=self._pid)
 
     def children(self, **kwargs):
         return list(self.iter_children(**kwargs))
