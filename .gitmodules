@@ -1,0 +1,4 @@
+[submodule "pywinauto/windows/injected"]
+	path = pywinauto/windows/injected
+	url = https://github.com/eltimen/injected.git
+	branch = dotnet
