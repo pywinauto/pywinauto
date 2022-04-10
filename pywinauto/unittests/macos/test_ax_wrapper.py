@@ -32,18 +32,15 @@
 
 """Tests for mac os AxWrapper"""
 
-import os
-import sys
-import unittest
 
 import sys
 import os
-import time
 import unittest
+
+
 if sys.platform == 'darwin':
     root_dir = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     sys.path.append(root_dir)
-    os.path.join
     from pywinauto.macos.ax_element_info import AxElementInfo
     from pywinauto.macos.application import Application
     from pywinauto.macos.macos_structures import AX_POINT
