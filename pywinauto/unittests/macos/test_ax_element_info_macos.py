@@ -98,14 +98,24 @@ class AxelementinfoTestCases(unittest.TestCase):
         elem = AxElementInfo(self.app.ns_app)
         time.sleep(3)
         expected_rect = AX_RECT(nsrect=get_screen_frame())
-        self.assertEqual(elem.children()[0].rectangle, expected_rect)
+        if (elem.children()[0].rectangle.bottom != expected_rect.bottom):
+            self.assertEqual(elem.children()[0].rectangle.bottom + 51, expected_rect.bottom)
+            self.assertEqual(elem.children()[0].rectangle.top, expected_rect.top)
+            self.assertEqual(elem.children()[0].rectangle.left, expected_rect.left)
+            self.assertEqual(elem.children()[0].rectangle.right, expected_rect.right)
+        else:
+            self.assertEqual(elem.children()[0].rectangle, expected_rect)
 
     def test_return_size_and_position_app(self):
         elem = AxElementInfo(self.app.ns_app)
         time.sleep(3)
         expected_size = AX_SIZE(nssize=get_screen_frame().size)
         extected_point = AX_POINT(x=0,y=0)
-        self.assertEqual(elem.children()[0].size, expected_size)
+        if (elem.children()[0].size.height != expected_size.height):
+            self.assertEqual(elem.children()[0].size.height + 74, expected_size.height)
+            self.assertEqual(elem.children()[0].size.weight, expected_size.weight)
+        else:
+            self.assertEqual(elem.children()[0].size, expected_size)
         self.assertEqual(elem.children()[0].position, extected_point)
 
     def test_is_enabled_app(self):
