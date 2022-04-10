@@ -195,7 +195,6 @@ class AxElementInfo(ElementInfo):
         """
         return self._get_ax_attribute_value(ax_attributes['Maximized'])
 
-
     def _is_hidden(self):
         """
         Returns True if AXUIElement is hidden
@@ -404,6 +403,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def rectangle(self):
+
         invalid_result = AX_RECT(left=-1,right=-1,top=-1,bottom=-1)
         if self.is_desktop:
             return AX_RECT(nsrect=get_screen_frame())
@@ -419,6 +419,7 @@ class AxElementInfo(ElementInfo):
                     return invalid_result
             except AXError as err:
                 return invalid_result
+
         return self.frame
 
     @property
