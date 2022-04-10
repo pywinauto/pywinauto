@@ -32,6 +32,11 @@
 """Basic wrapping of UI Automation elements"""
 import six
 
+try:
+    from PIL import ImageGrab, Image
+except ImportError:
+    ImageGrab = None
+
 from ..macos.ax_element_info import AxElementInfo
 
 from ..macos.macos_functions import set_ax_attribute
@@ -332,6 +337,46 @@ class AXWrapper(BaseWrapper):
 
     def maximize(self):
         set_ax_attribute(self.element_info.ref, 'AXMaximized', True)
+
+    #-----------------------------------------------------------
+    def capture_as_image(self, rect=None, save_image=False, image_name='image.png'):
+        """
+        Return a PIL image of the control.
+
+        See PIL documentation to know what you can do with the resulting
+        image.
+        """
+        control_rectangle = self.rectangle()
+
+        # PIL is optional so check first
+        if not ImageGrab:
+            print("PIL does not seem to be installed. "
+                  "PIL is required for capture_as_image")
+            self.actions.log("PIL does not seem to be installed. "
+                             "PIL is required for capture_as_image")
+            return None
+
+        if rect:
+            control_rectangle = rect
+
+        # get the control rectangle in a way that PIL likes it
+        width = control_rectangle.width()
+        height = control_rectangle.height()
+        left = control_rectangle.left
+        right = control_rectangle.right
+        top = control_rectangle.top
+        bottom = control_rectangle.bottom
+        box = (left, top, right, bottom)
+
+        pil_img_obj = ImageGrab.grab(box)
+
+        if save_image == True:
+            pil_img_obj.save(image_name)
+
+        return pil_img_obj
+
+#====================================================================
+
 
 backend.register('ax', AxElementInfo, AXWrapper)
 backend.activate('ax')  # default for macOS
