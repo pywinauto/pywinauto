@@ -1,5 +1,4 @@
 """Implementation of the class to deal with an UI element of WPF via injected DLL"""
-import enum
 import json
 
 from six import integer_types, text_type, string_types
@@ -169,3 +168,17 @@ class WPFElementInfo(ElementInfo):
             if error_if_not_exists:
                 raise e
         return None
+
+    def __hash__(self):
+        """Return a unique hash value based on the element's ID"""
+        return hash(self._element)
+
+    def __eq__(self, other):
+        """Check if 2 UIAElementInfo objects describe 1 actual element"""
+        if not isinstance(other, WPFElementInfo):
+            return False
+        return self._element == other._element
+
+    def __ne__(self, other):
+        """Check if 2 UIAElementInfo objects describe 2 different elements"""
+        return not (self == other)
