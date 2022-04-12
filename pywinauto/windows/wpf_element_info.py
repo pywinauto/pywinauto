@@ -9,7 +9,7 @@ import warnings
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from .injected.defines import *
+from .injected.api import *
 
 class WPFElementInfo(ElementInfo):
     re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type", "value"]
