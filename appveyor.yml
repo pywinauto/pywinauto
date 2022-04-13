@@ -80,12 +80,10 @@ install:
 
   # Enable desktop (for correct screenshots).
   #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-desktop.ps1'))
-  -
 build: false  # Not a C# project, build stuff at the test step instead.
 
 test_script:
   # run the tests
-  - ./ci/build_injected_dlls.bat
   - "powershell ./ci/runTestsuite.ps1"
 
 
