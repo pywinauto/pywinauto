@@ -118,9 +118,10 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
     """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
 
     _control_types = ['Button',
-        'CheckBox',
-        'RadioButton',
-    ]
+                      'CheckBox',
+                      'RadioButton',
+                      'DropDownButton'
+                      ]
 
     # -----------------------------------------------------------
     def __init__(self, elem):
@@ -187,6 +188,10 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
         # Return itself so that action can be chained
         return self
+
+    # -----------------------------------------------------------
+    def items(self):
+        return self.children()
 
 
 # ====================================================================
@@ -1301,6 +1306,85 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         self.actions.logSectionEnd()
         return button
+
+    # -----------------------------------------------------------
+    def items(self):
+        return self.buttons()
+
+    # -----------------------------------------------------------
+    def _activate(self, item, is_last):
+        """Activate the specified item"""
+        if not item.is_active():
+            item.set_focus()
+        try:
+            item.expand()
+        except(NoPatternInterfaceError):
+            if self.element_info.framework_id == 'WinForm' and not is_last:
+                item.select()
+
+    # -----------------------------------------------------------
+    def _sub_item_by_text(self, menu, name, exact, is_last):
+        """Find a sub-item by the specified text"""
+        sub_item = None
+        items = menu.items()
+        if items:
+            if exact:
+                for i in items:
+                    if name == i.window_text():
+                        sub_item = i
+                        break
+            else:
+                texts = []
+                for i in items:
+                    texts.append(i.window_text())
+                sub_item = findbestmatch.find_best_match(name, texts, items)
+
+        self._activate(sub_item, is_last)
+
+        return sub_item
+
+    # -----------------------------------------------------------
+    def _sub_item_by_idx(self, menu, idx, is_last):
+        """Find a sub-item by the specified index"""
+        sub_item = None
+        items = menu.items()
+        if items:
+            sub_item = items[idx]
+        self._activate(sub_item, is_last)
+        return sub_item
+
+    # ----------------------------------------------------------------
+    def item_by_path(self, path, exact=False):
+        """
+        Find a toolbar item specified by the path
+        """
+        toolbar_items = [p.strip() for p in path.split("->")]
+        items_cnt = len(toolbar_items)
+        if items_cnt == 0:
+            raise IndexError()
+        for item in toolbar_items:
+            if not item:
+                raise IndexError("Empty item name between '->' separators")
+
+        def next_level_menu(parent_menu, item_name, is_last):
+            if item_name.startswith("#"):
+                return self._sub_item_by_idx(parent_menu, int(item_name[1:]), is_last)
+            else:
+                return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
+
+        try:
+            menu = next_level_menu(self, toolbar_items[0], items_cnt == 1)
+            self._activate(menu, items_cnt == 1)
+            if items_cnt == 1:
+                return menu
+
+            for i in range(1, items_cnt):
+                menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
+
+        except AttributeError:
+            raise IndexError()
+
+        return menu
 
 
 # ====================================================================
