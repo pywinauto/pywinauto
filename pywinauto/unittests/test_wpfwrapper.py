@@ -46,21 +46,21 @@ class WPFWrapperTests(unittest.TestCase):
         mouse.move((-500, 500))  # remove the mouse from the screen to avoid side effects
 
         # start the application
-        self.app = Application(backend='uia')
+        self.app = Application(backend='wpf')
         self.app = self.app.start(wpf_app_1)
 
         self.dlg = self.app.WPFSampleApplication
 
-    def test_get_active_uia(self):
+    def test_get_active_wpf(self):
         focused_element = self.dlg.get_active()
-        self.assertTrue(type(focused_element) is UIAWrapper or issubclass(type(focused_element), UIAWrapper))
+        self.assertTrue(type(focused_element) is WPFWrapper or issubclass(type(focused_element), WPFWrapper))
 
     def tearDown(self):
         """Close the application after tests"""
         self.app.kill()
 
     def test_issue_278(self):
-        """Test that statement menu = app.MainWindow.Menu works for 'uia' backend"""
+        """Test that statement menu = app.MainWindow.Menu works for 'wpf' backend"""
         menu_spec = self.dlg.Menu
         self.assertTrue(isinstance(menu_spec, WindowSpecification))
         # Also check the app binding
@@ -87,7 +87,7 @@ class WPFWrapperTests(unittest.TestCase):
         # we don't specify it as a criteria argument
         self.dlg.wait('ready')
         caption = 'WPF Sample Application'
-        wins = self.app.windows(class_name='Window', name=caption)
+        wins = self.app.windows(class_name='MainWindow', name=caption)
 
         # Verify the number of found wrappers
         self.assertEqual(len(wins), 1)
@@ -111,7 +111,7 @@ class WPFWrapperTests(unittest.TestCase):
         """Test getting control ID"""
         button = self.dlg.by(class_name="Button",
                              name="OK").find()
-        self.assertEqual(button.control_id(), None)
+        self.assertNotEqual(button.control_id(), None)
 
     def test_automation_id(self):
         """Test getting automation ID"""
@@ -119,14 +119,6 @@ class WPFWrapperTests(unittest.TestCase):
         button = alpha_toolbar.by(control_type="Button",
                                   auto_id="OverflowButton").find()
         self.assertEqual(button.automation_id(), "OverflowButton")
-
-    def test_value(self):
-        """Test find element by value"""
-        edit = self.dlg.by(auto_id="edit1").find()
-        edit.set_edit_text("Test string")
-
-        edit_by_value = self.dlg.by(value="Test string").find()
-        self.assertEqual("edit1", edit_by_value.element_info.auto_id)
 
     def test_is_visible(self):
         """Test is_visible method of a control"""
@@ -154,65 +146,10 @@ class WPFWrapperTests(unittest.TestCase):
         self.assertEqual(button.is_dialog(), False)
         self.assertEqual(self.dlg.is_dialog(), True)
 
-    def test_move_window(self):
-        """Test  move_window without any parameters"""
-
-        # move_window with default parameters
-        prevRect = self.dlg.rectangle()
-        self.dlg.move_window()
-        self.assertEqual(prevRect, self.dlg.rectangle())
-
-        # move_window call for a not supported control
-        button = self.dlg.by(class_name="Button", name="OK")
-        self.assertRaises(AttributeError, button.move_window)
-
-        # Make RECT stub to avoid import win32structures
-        Rect = collections.namedtuple('Rect', 'left top right bottom')
-        prev_rect = self.dlg.rectangle()
-        new_rect = Rect._make([i + 5 for i in prev_rect])
-
-        self.dlg.move_window(
-            new_rect.left,
-            new_rect.top,
-            new_rect.right - new_rect.left,
-            new_rect.bottom - new_rect.top
-        )
-        time.sleep(0.1)
-        logger = ActionLogger()
-        logger.log("prev_rect = %s", prev_rect)
-        logger.log("new_rect = %s", new_rect)
-        logger.log("self.dlg.rectangle() = %s", self.dlg.rectangle())
-        self.assertEqual(self.dlg.rectangle(), new_rect)
-
-        self.dlg.move_window(prev_rect)
-        self.assertEqual(self.dlg.rectangle(), prev_rect)
-
-    def test_close(self):
-        """Test close method of a control"""
-        wrp = self.dlg.find()
-
-        # mock a failure in get_elem_interface() method only for 'Window' param
-        orig_get_elem_interface = uia_defs.get_elem_interface
-        with mock.patch.object(uia_defs, 'get_elem_interface') as mock_get_iface:
-            def side_effect(elm_info, ptrn_name):
-                if ptrn_name == "Window":
-                    raise uia_defs.NoPatternInterfaceError()
-                else:
-                    return orig_get_elem_interface(elm_info, ptrn_name)
-            mock_get_iface.side_effect=side_effect
-            # also mock a failure in type_keys() method
-            with mock.patch.object(UIAWrapper, 'type_keys') as mock_type_keys:
-                exception_err = comtypes.COMError(-2147220991, 'An event was unable to invoke any of the subscribers', ())
-                mock_type_keys.side_effect = exception_err
-                self.assertRaises(WindowNotFoundError, self.dlg.close)
-
-        self.dlg.close()
-        self.assertEqual(self.dlg.exists(), False)
-
     def test_parent(self):
         """Test getting a parent of a control"""
-        button = self.dlg.Alpha.find()
-        self.assertEqual(button.parent(), self.dlg.find())
+        toolbar = self.dlg.Alpha.find()
+        self.assertEqual(toolbar.parent(), self.dlg.ToolBarTray.find())
 
     def test_top_level_parent(self):
         """Test getting a top-level parent of a control"""
@@ -251,8 +188,8 @@ class WPFWrapperTests(unittest.TestCase):
 
     def test_is_child(self):
         """Test is_child method of a control"""
-        button = self.dlg.Alpha.find()
-        self.assertEqual(button.is_child(self.dlg.find()), True)
+        toolbar = self.dlg.Alpha.find()
+        self.assertEqual(toolbar.is_child(self.dlg.ToolBarTray.find()), True)
 
     def test_equals(self):
         """Test controls comparisons"""
@@ -262,47 +199,9 @@ class WPFWrapperTests(unittest.TestCase):
         self.assertEqual(button, button.element_info)
         self.assertEqual(button, button)
 
-    @unittest.skip("To be solved with issue #790")
-    def test_scroll(self):
-        """Test scroll"""
-        # Check an exception on a non-scrollable control
-        button = self.dlg.by(class_name="Button",
-                             name="OK").find()
-        six.assertRaisesRegex(self, AttributeError, "not scrollable",
-                              button.scroll, "left", "page")
-
-        # Check an exception on a control without horizontal scroll bar
-        tab = self.dlg.Tree_and_List_Views.set_focus()
-        listview = tab.children(class_name=u"ListView")[0]
-        six.assertRaisesRegex(self, AttributeError, "not horizontally scrollable",
-                              listview.scroll, "right", "line")
-
-        # Check exceptions on wrong arguments
-        self.assertRaises(ValueError, listview.scroll, "bbbb", "line")
-        self.assertRaises(ValueError, listview.scroll, "up", "aaaa")
-
-        # Store a cell position
-        cell = listview.cell(3, 0)
-        orig_rect = cell.rectangle()
-        self.assertEqual(orig_rect.left > 0, True)
-
-        # Trigger a horizontal scroll bar on the control
-        hdr = listview.get_header_control()
-        hdr_itm = hdr.children()[1]
-        trf = hdr_itm.iface_transform
-        trf.resize(1000, 20)
-        listview.scroll("right", "page", 2)
-        self.assertEqual(cell.rectangle().left < 0, True)
-
-        # Check an exception on a control without vertical scroll bar
-        tab = self.dlg.ListBox_and_Grid.set_focus()
-        datagrid = tab.children(class_name=u"DataGrid")[0]
-        six.assertRaisesRegex(self, AttributeError, "not vertically scrollable",
-                              datagrid.scroll, "down", "page")
-
     def test_is_keyboard_focusable(self):
         """Test is_keyboard focusable method of several controls"""
-        edit = self.dlg.TestLabelEdit.find()
+        edit = self.dlg.by(auto_id='edit1').find()
         label = self.dlg.TestLabel.find()
         button = self.dlg.by(class_name="Button",
                              name="OK").find()
@@ -312,13 +211,9 @@ class WPFWrapperTests(unittest.TestCase):
 
     def test_set_focus(self):
         """Test setting a keyboard focus on a control"""
-        edit = self.dlg.TestLabelEdit.find()
+        edit = self.dlg.by(auto_id='edit1').find()
         edit.set_focus()
         self.assertEqual(edit.has_keyboard_focus(), True)
-
-    def test_get_active_desktop_uia(self):
-        focused_element = Desktop(backend="uia").get_active()
-        self.assertTrue(type(focused_element) is UIAWrapper or issubclass(type(focused_element), UIAWrapper))
 
     def test_type_keys(self):
         """Test sending key types to a control"""
@@ -336,20 +231,6 @@ class WPFWrapperTests(unittest.TestCase):
         edit.type_keys("y")
         self.assertEqual(edit.window_text(), "testTy")
 
-    def test_minimize_maximize(self):
-        """Test window minimize/maximize operations"""
-        wrp = self.dlg.minimize()
-        self.dlg.wait_not('active')
-        self.assertEqual(wrp.is_minimized(), True)
-        wrp.maximize()
-        self.dlg.wait('active')
-        self.assertEqual(wrp.is_maximized(), True)
-        wrp.minimize()
-        self.dlg.wait_not('active')
-        wrp.restore()
-        self.dlg.wait('active')
-        self.assertEqual(wrp.is_normal(), True)
-
     def test_capture_as_image_multi_monitor(self):
         with mock.patch('win32api.EnumDisplayMonitors') as mon_device:
             mon_device.return_value = (1, 2)
@@ -357,13 +238,6 @@ class WPFWrapperTests(unittest.TestCase):
             expected = (rect.width(), rect.height())
             result = self.dlg.capture_as_image().size
             self.assertEqual(expected, result)
-
-    def test_set_value(self):
-        """Test for UIAWrapper.set_value"""
-        edit = self.dlg.by(control_type='Edit', auto_id='edit1').find()
-        self.assertEqual(edit.get_value(), '')
-        edit.set_value('test')
-        self.assertEqual(edit.get_value(), 'test')
 
 
 class WPFWrapperMouseTests(unittest.TestCase):
@@ -378,10 +252,10 @@ class WPFWrapperMouseTests(unittest.TestCase):
         self.app = self.app.start(wpf_app_1)
 
         dlg = self.app.WPFSampleApplication
-        self.button = dlg.by(class_name="System.Windows.Controls.Button",
+        self.button = dlg.by(class_name="Button",
                              name="OK").find()
 
-        self.label = dlg.by(class_name="System.Windows.Controls.Label", name="TestLabel").find()
+        self.label = dlg.by(class_name="Label", name="TestLabel").find()
         self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1.0)
 
     def tearDown(self):
