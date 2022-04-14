@@ -52,14 +52,14 @@ class WPFElementInfo(ElementInfo):
         """Return AutomationId of the element"""
         if self._element == 0:
             return ''
-        return self.get_field('Name') or ''
+        return self.get_property('Name') or ''
 
     @property
     def name(self):
         if self._element == 0:
             return '--root--'
         # TODO rewrite as action to avoid: "System.Windows.Controls.Label: ListBox and Grid"
-        val = self.get_field('Title') or self.get_field('Header') or self.get_field('Content')
+        val = self.get_property('Title') or self.get_property('Header') or self.get_property('Content')
         return val or ''
 
     @property
@@ -95,13 +95,13 @@ class WPFElementInfo(ElementInfo):
     def enabled(self):
         if self._element == 0:
             return True
-        return self.get_field('IsEnabled') or False
+        return self.get_property('IsEnabled') or False
 
     @property
     def visible(self):
         if self._element == 0:
             return True
-        return self.get_field('IsVisible') or False
+        return self.get_property('IsVisible') or False
 
     @property
     def parent(self):
@@ -116,6 +116,8 @@ class WPFElementInfo(ElementInfo):
     @property
     def control_type(self):
         """Return control type of element"""
+        if self._element == 0:
+            return None
         reply = ConnectionManager().call_action('GetControlType', self._pid, element_id=self._element)
         return reply['value']
 
@@ -158,7 +160,7 @@ class WPFElementInfo(ElementInfo):
     def dump_window(self):
         return dumpwindow(self.handle)
 
-    def get_field(self, name, error_if_not_exists=False):
+    def get_property(self, name, error_if_not_exists=False):
         try:
             reply = ConnectionManager().call_action('GetProperty', self._pid, element_id=self._element, name=name)
             return reply['value']
@@ -180,3 +182,15 @@ class WPFElementInfo(ElementInfo):
     def __ne__(self, other):
         """Check if 2 WPFElementInfo objects describe 2 different elements"""
         return not (self == other)
+
+    @classmethod
+    def get_active(cls, app):
+        """Return current active element"""
+        try:
+            reply = ConnectionManager().call_action('GetFocusedElement', app.process)
+            if reply['value'] > 0:
+                return cls(reply['value'], pid=app.process)
+            else:
+                return None
+        except UnsupportedActionError:
+            return None

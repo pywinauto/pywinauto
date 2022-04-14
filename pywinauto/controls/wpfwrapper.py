@@ -12,9 +12,8 @@ from .. import backend
 from .. import WindowNotFoundError  # noqa #E402
 from ..timings import Timings
 from .win_base_wrapper import WinBaseWrapper
-from .hwndwrapper import HwndWrapper
 from ..base_wrapper import BaseMeta
-
+from ..windows.injected.api import *
 from ..windows.wpf_element_info import WPFElementInfo
 
 class WpfMeta(BaseMeta):
@@ -62,5 +61,25 @@ class WPFWrapper(WinBaseWrapper):
         is raised.
         """
         WinBaseWrapper.__init__(self, element_info, backend.registry.backends['wpf'])
+
+    def get_property(self, name, error_if_not_exists=False):
+        return self.element_info.get_property(name, error_if_not_exists)
+
+    def is_keyboard_focusable(self):
+        """Return True if the element can be focused with keyboard"""
+        return self.get_property('Focusable') or False
+
+    # -----------------------------------------------------------
+    def has_keyboard_focus(self):
+        """Return True if the element is focused with keyboard"""
+        return self.get_property('IsKeyboardFocused') or False
+
+    def set_focus(self):
+        reply = ConnectionManager().call_action('SetFocus', self.element_info.pid,
+                                                element_id=self.element_info.runtime_id)
+        return self
+
+
+
 
 backend.register('wpf', WPFElementInfo, WPFWrapper)
