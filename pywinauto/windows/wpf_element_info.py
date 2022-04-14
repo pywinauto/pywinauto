@@ -116,8 +116,8 @@ class WPFElementInfo(ElementInfo):
     @property
     def control_type(self):
         """Return control type of element"""
-        # TODO
-        return None
+        reply = ConnectionManager().call_action('GetControlType', self._pid, element_id=self._element)
+        return reply['value']
 
     def iter_children(self, **kwargs):
         if 'process' in kwargs:
@@ -125,7 +125,6 @@ class WPFElementInfo(ElementInfo):
         reply = ConnectionManager().call_action('GetChildren', self._pid, element_id=self._element)
         for elem in reply['elements']:
             yield WPFElementInfo(elem, pid=self._pid)
-
 
     def descendants(self, **kwargs):
         return list(self.iter_descendants(**kwargs))
@@ -157,8 +156,7 @@ class WPFElementInfo(ElementInfo):
         return rect
 
     def dump_window(self):
-        # TODO
-        return {}
+        return dumpwindow(self.handle)
 
     def get_field(self, name, error_if_not_exists=False):
         try:
@@ -174,11 +172,11 @@ class WPFElementInfo(ElementInfo):
         return hash(self._element)
 
     def __eq__(self, other):
-        """Check if 2 UIAElementInfo objects describe 1 actual element"""
+        """Check if 2 WPFElementInfo objects describe 1 actual element"""
         if not isinstance(other, WPFElementInfo):
             return False
         return self._element == other._element
 
     def __ne__(self, other):
-        """Check if 2 UIAElementInfo objects describe 2 different elements"""
+        """Check if 2 WPFElementInfo objects describe 2 different elements"""
         return not (self == other)
