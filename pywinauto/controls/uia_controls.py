@@ -119,8 +119,7 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     _control_types = ['Button',
                       'CheckBox',
-                      'RadioButton',
-                      'DropDownButton'
+                      'RadioButton'
                       ]
 
     # -----------------------------------------------------------
@@ -191,7 +190,7 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def items(self):
-        return self.children()
+        return self.children(control_type="MenuItem")
 
 
 # ====================================================================
@@ -1374,7 +1373,6 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         try:
             menu = next_level_menu(self, toolbar_items[0], items_cnt == 1)
-            self._activate(menu, items_cnt == 1)
             if items_cnt == 1:
                 return menu
 
