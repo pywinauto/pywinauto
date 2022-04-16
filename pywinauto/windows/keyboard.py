@@ -250,6 +250,10 @@ CODES = {
     'VK_TAB': 9,
     'VK_UP': 38,
     'ZOOM': 251,
+    'VK_MEDIA_NEXT_TRACK': 176,
+    'VK_MEDIA_PREV_TRACK': 177,
+    'VK_MEDIA_STOP': 178,
+    'VK_MEDIA_PLAY_PAUSE': 179
 }
 # reverse the CODES dict to make it easy to look up a particular code name
 CODE_NAMES = dict((entry[1], entry[0]) for entry in CODES.items())

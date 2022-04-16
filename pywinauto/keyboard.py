@@ -62,7 +62,8 @@ below. The module is also available on Linux.
     {F17}, {F14}, {F15}, {F24}, {RIGHT}, {VK_F24}, {VK_CAPITAL}, {VK_LBUTTON},
     {VK_OEM_CLEAR}, {VK_ESCAPE}, {UP}, {VK_DIVIDE}, {INS}, {VK_JUNJA},
     {VK_F19}, {VK_EXECUTE}, {VK_PLAY}, {VK_RMENU}, {VK_F13}, {VK_F12}, {LWIN},
-    {VK_DOWN}, {VK_F17}, {VK_F16}, {VK_F15}, {VK_F14}
+    {VK_DOWN}, {VK_F17}, {VK_F16}, {VK_F15}, {VK_F14}, {VK_MEDIA_NEXT_TRACK},
+    {VK_MEDIA_PREV_TRACK}, {VK_MEDIA_STOP}, {VK_MEDIA_PLAY_PAUSE}
 
     ~ is a shorter alias for {ENTER}
 
