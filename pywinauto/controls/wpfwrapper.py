@@ -65,11 +65,14 @@ class WPFWrapper(WinBaseWrapper):
     def get_property(self, name, error_if_not_exists=False):
         return self.element_info.get_property(name, error_if_not_exists)
 
+    def automation_id(self):
+        """Return the Automation ID of the control"""
+        return self.element_info.auto_id
+
     def is_keyboard_focusable(self):
         """Return True if the element can be focused with keyboard"""
         return self.get_property('Focusable') or False
 
-    # -----------------------------------------------------------
     def has_keyboard_focus(self):
         """Return True if the element is focused with keyboard"""
         return self.get_property('IsKeyboardFocused') or False
@@ -79,7 +82,10 @@ class WPFWrapper(WinBaseWrapper):
                                                 element_id=self.element_info.runtime_id)
         return self
 
-
+    def get_active(self):
+        """Return wrapper object for current active element"""
+        element_info = self.backend.element_info_class.get_active(self.element_info._pid)
+        return self.backend.generic_wrapper_class(element_info)
 
 
 backend.register('wpf', WPFElementInfo, WPFWrapper)

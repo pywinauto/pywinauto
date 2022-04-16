@@ -7,6 +7,7 @@ import warnings
 
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
+from .application import Application
 from .win32structures import RECT
 from .injected.api import *
 
@@ -64,6 +65,8 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def rich_text(self):
+        if self.control_type=='Edit':
+            return self.get_property('Text') or ''
         return self.name
 
     @property
@@ -184,12 +187,20 @@ class WPFElementInfo(ElementInfo):
         return not (self == other)
 
     @classmethod
-    def get_active(cls, app):
+    def get_active(cls, app_or_pid):
         """Return current active element"""
+        if isinstance(app_or_pid, integer_types):
+            pid = app_or_pid
+        elif isinstance(handle_or_elem, Application):
+            pid = app.process
+        else:
+            raise TypeError("UIAElementInfo object can be initialized " + \
+                            "with integer or IUIAutomationElement instance only!")
+
         try:
-            reply = ConnectionManager().call_action('GetFocusedElement', app.process)
+            reply = ConnectionManager().call_action('GetFocusedElement', pid)
             if reply['value'] > 0:
-                return cls(reply['value'], pid=app.process)
+                return cls(reply['value'], pid=pid)
             else:
                 return None
         except UnsupportedActionError:
