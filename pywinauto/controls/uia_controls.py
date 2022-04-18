@@ -1216,10 +1216,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
         if self.win32_wrapper is not None:
-            btn_count = self.win32_wrapper.button_count()
-            if btn_count:
-                return btn_count
-            return len(self.win32_wrapper.children())
+            return len(self.buttons())
         else:
             return len(self.children())
 
@@ -1231,11 +1228,15 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             btn_count = self.win32_wrapper.button_count()
             if btn_count:
                 # MFC toolbar replies on TB_BUTTONCOUNT window message
+                rectangles = []
                 for btn_num in range(btn_count):
                     relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
                     button_coord_x, button_coord_y = self.client_to_screen(relative_point)
                     btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
-                    cc.append(uiawrapper.UIAWrapper(btn_elem_info))
+                    button = uiawrapper.UIAWrapper(btn_elem_info)
+                    if button.element_info.rectangle not in rectangles:
+                        cc.append(button)
+                        rectangles.append(button.element_info.rectangle)
             else:
                 # Qt5 toolbar doesn't reply on TB_BUTTONCOUNT window message
                 for btn in self.win32_wrapper.children():
