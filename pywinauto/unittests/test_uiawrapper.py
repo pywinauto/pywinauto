@@ -2019,8 +2019,8 @@ if UIA_support:
         def test_button_access_mfc(self):
             """Test getting access to buttons on Toolbar for MFC demo"""
             # Read a first toolbar with buttons: "File, View, Help"
-            self.assertEqual(self.menu_bar.button_count(), 4)
-            self.assertEqual(self.toolbar.button_count(), 11)
+            self.assertEqual(self.menu_bar.button_count(), 3)
+            self.assertEqual(self.toolbar.button_count(), 8)
 
             # Test if it's in writable properties
             props = set(self.menu_bar.get_properties().keys())
@@ -2037,9 +2037,9 @@ if UIA_support:
 
         def test_texts(self):
             """Test method .texts() for MFC Toolbar"""
-            self.assertEqual(self.menu_bar.texts(), [u'File', u'View', u'Help', u'Help'])
-            self.assertEqual(self.toolbar.texts(), [u'New', u'Open', u'Save', u'Save',
-                u'Cut', u'Copy', u'Paste', u'Paste', u'Print', u'About', u'About'])
+            self.assertEqual(self.menu_bar.texts(), [u'File', u'View', u'Help'])
+            self.assertEqual(self.toolbar.texts(), [u'New', u'Open', u'Save',
+                                                    u'Cut', u'Copy', u'Paste', u'Print', u'About'])
 
 
     class TreeViewWpfTests(unittest.TestCase):
