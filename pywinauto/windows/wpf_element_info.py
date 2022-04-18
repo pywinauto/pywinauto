@@ -59,9 +59,8 @@ class WPFElementInfo(ElementInfo):
     def name(self):
         if self._element == 0:
             return '--root--'
-        # TODO rewrite as action to avoid: "System.Windows.Controls.Label: ListBox and Grid"
-        val = self.get_property('Title') or self.get_property('Header') or self.get_property('Content')
-        return val or ''
+        reply = ConnectionManager().call_action('GetName', self._pid, element_id=self._element)
+        return reply['value']
 
     @property
     def rich_text(self):
