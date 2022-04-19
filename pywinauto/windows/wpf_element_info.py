@@ -153,10 +153,10 @@ class WPFElementInfo(ElementInfo):
         rect = RECT()
         if self._element != 0:
             reply = ConnectionManager().call_action('GetRectangle', self._pid, element_id=self._element)
-            rect.left = reply['left']
-            rect.right = reply['right']
-            rect.top = reply['top']
-            rect.bottom = reply['bottom']
+            rect.left = reply['value']['left']
+            rect.right = reply['value']['right']
+            rect.top = reply['value']['top']
+            rect.bottom = reply['value']['bottom']
         return rect
 
     def dump_window(self):
