@@ -23,6 +23,8 @@ from pywinauto import WindowNotFoundError  # noqa: E402
 import pywinauto.controls.wpf_controls as wpf_ctls
 from pywinauto.controls.wpfwrapper import WPFWrapper
 from pywinauto.windows.wpf_element_info import WPFElementInfo
+from pywinauto.windows.injected.api import InjectedTargetError
+from pywinauto.windows.injected.channel import BrokenPipeError
 
 wpf_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -276,6 +278,84 @@ class WPFWrapperMouseTests(unittest.TestCase):
         """Test right_click_input method of a control"""
         self.button.right_click_input()
         self.assertEqual(self.label.window_text(), "RightClick")
+
+
+class WindowWrapperTests(unittest.TestCase):
+
+    """Unit tests for the WPFWrapper class"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+        mouse.move((-500, 500))  # remove the mouse from the screen to avoid side effects
+
+        # start the application
+        self.app = Application(backend='wpf')
+        self.app = self.app.start(wpf_app_1)
+
+        self.dlg = self.app.WPFSampleApplication
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_close(self):
+        """Test close method of a control"""
+        wrp = self.dlg.find()
+        wrp.close()
+
+        try:
+            # process can be in the termination state at this moment
+            self.assertEqual(self.dlg.exists(), False)
+        except (InjectedTargetError, BrokenPipeError):
+            pass
+
+    def test_move_window(self):
+        """Test move_window without any parameters"""
+
+        # move_window with default parameters
+        prevRect = self.dlg.rectangle()
+        self.dlg.move_window()
+        self.assertEqual(prevRect, self.dlg.rectangle())
+
+        # move_window call for a not supported control
+        button = self.dlg.by(class_name="Button", name="OK")
+        self.assertRaises(AttributeError, button.move_window)
+
+        # Make RECT stub to avoid import win32structures
+        Rect = collections.namedtuple('Rect', 'left top right bottom')
+        prev_rect = self.dlg.rectangle()
+        new_rect = Rect._make([i + 5 for i in prev_rect])
+
+        self.dlg.move_window(
+            new_rect.left,
+            new_rect.top,
+            new_rect.right - new_rect.left,
+            new_rect.bottom - new_rect.top
+        )
+        time.sleep(0.1)
+        logger = ActionLogger()
+        logger.log("prev_rect = %s", prev_rect)
+        logger.log("new_rect = %s", new_rect)
+        logger.log("self.dlg.rectangle() = %s", self.dlg.rectangle())
+        self.assertEqual(self.dlg.rectangle(), new_rect)
+
+        self.dlg.move_window(prev_rect)
+        self.assertEqual(self.dlg.rectangle(), prev_rect)
+
+    def test_minimize_maximize(self):
+        """Test window minimize/maximize operations"""
+        wrp = self.dlg.minimize()
+        self.dlg.wait_not('active')
+        self.assertEqual(wrp.is_minimized(), True)
+        wrp.maximize()
+        self.dlg.wait('active')
+        self.assertEqual(wrp.is_maximized(), True)
+        wrp.minimize()
+        self.dlg.wait_not('active')
+        wrp.restore()
+        self.dlg.wait('active')
+        self.assertEqual(wrp.is_normal(), True)
 
 
 if __name__ == "__main__":
