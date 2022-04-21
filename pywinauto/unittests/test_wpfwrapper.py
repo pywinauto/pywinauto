@@ -429,6 +429,84 @@ class ButtonWrapperTests(unittest.TestCase):
         cur_state = no.select().is_selected()
         self.assertEqual(cur_state, True)
 
+class ComboBoxTests(unittest.TestCase):
+
+    """Unit tests for the ComboBoxWrapper class with WPF app"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        self.app = Application(backend='wpf')
+        self.app = self.app.start(wpf_app_1)
+
+        self.dlg = self.app.WPFSampleApplication
+        self.combo = self.dlg.by(control_type="ComboBox").find()
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_expand_collapse(self):
+        """Test methods .expand() and .collapse() for WPF combo box"""
+        self.dlg.set_focus()
+
+        combo = self.combo
+        combo_name = self.combo.element_info.name
+
+        self.assertFalse(combo.is_expanded(),
+            msg='{} combo box must be collapsed initially'.format(combo_name))
+
+        # test that method allows chaining
+        self.assertEqual(combo.expand(), combo,
+            msg='Method .expand() for {} combo box must return self'.format(combo_name))
+        self.assertTrue(combo.is_expanded(),
+            msg='{} combo box has not been expanded!'.format(combo_name))
+
+        # .expand() keeps already expanded state (and still allows chaining)
+        self.assertEqual(combo.expand(), combo,
+            msg='Method .expand() for {} combo box must return self, always!'.format(combo_name))
+        self.assertTrue(combo.is_expanded(),
+            msg='{} combo box does NOT keep expanded state!'.format(combo_name))
+
+        # collapse
+        self.assertEqual(combo.collapse(), combo,
+            msg='Method .collapse() for {} combo box must return self'.format(combo_name))
+        self.assertFalse(combo.is_expanded(),
+            msg='{} combo box has not been collapsed!'.format(combo_name))
+
+        # collapse already collapsed should keep collapsed state
+        self.assertEqual(combo.collapse(), combo,
+            msg='Method .collapse() for {} combo box must return self, always!'.format(combo_name))
+        self.assertFalse(combo.is_expanded(),
+            msg='{} combo box does NOT keep collapsed state!'.format(combo_name))
+
+    def test_texts(self):
+        """Test method .texts() for WPF combo box"""
+        self.dlg.set_focus()
+        texts = [u'Combo Item 1', u'Combo Item 2']
+
+        self.assertEqual(self.combo.texts(), texts)
+        self.assertEqual(self.combo.expand().texts(), texts)
+        self.assertTrue(self.combo.is_expanded())
+
+    def test_select(self):
+        """Test method .select() for WPF combo box"""
+        self.dlg.set_focus()
+
+        self.assertEqual(self.combo.selected_index(), -1) # nothing selected
+        self.combo.select(u'Combo Item 2')
+        self.assertEqual(self.combo.selected_text(), u'Combo Item 2')
+        self.assertEqual(self.combo.selected_index(), 1)
+        self.combo.select(0)
+        self.assertEqual(self.combo.selected_text(), u'Combo Item 1')
+        self.assertEqual(self.combo.selected_index(), 0)
+
+    def test_item_count(self):
+        """Test method .item_count() for WPF combo box"""
+        self.dlg.set_focus()
+        self.assertEqual(self.combo.item_count(), 2)
 
 if __name__ == "__main__":
     unittest.main()
