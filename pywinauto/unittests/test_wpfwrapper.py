@@ -358,5 +358,77 @@ class WindowWrapperTests(unittest.TestCase):
         self.assertEqual(wrp.is_normal(), True)
 
 
+class ButtonWrapperTests(unittest.TestCase):
+
+    """Unit tests for the WPF controls inherited from ButtonBase"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        self.app = Application(backend='wpf')
+        self.app = self.app.start(wpf_app_1)
+
+        self.dlg = self.app.WPFSampleApplication
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_check_box(self):
+        """Test 'toggle' and 'toggle_state' for the check box control"""
+        # Get a current state of the check box control
+        check_box = self.dlg.CheckBox.find()
+        cur_state = check_box.get_toggle_state()
+        self.assertEqual(cur_state, wpf_ctls.ButtonWrapper.INDETERMINATE)
+
+        # Toggle the next state
+        cur_state = check_box.toggle().get_toggle_state()
+
+        # Get a new state of the check box control
+        self.assertEqual(cur_state, wpf_ctls.ButtonWrapper.UNCHECKED)
+
+        cur_state = check_box.select().get_toggle_state()
+        self.assertEqual(cur_state, wpf_ctls.ButtonWrapper.CHECKED)
+
+    def test_toggle_button(self):
+        """Test 'toggle' and 'toggle_state' for the toggle button control"""
+        # Get a current state of the check box control
+        button = self.dlg.ToggleMe.find()
+        cur_state = button.get_toggle_state()
+        self.assertEqual(cur_state, button.CHECKED)
+
+        # Toggle the next state
+        cur_state = button.toggle().get_toggle_state()
+
+        # Get a new state of the check box control
+        self.assertEqual(cur_state, button.UNCHECKED)
+
+        # Toggle the next state
+        cur_state = button.toggle().get_toggle_state()
+        self.assertEqual(cur_state, button.CHECKED)
+
+    def test_button_click(self):
+        """Test the click method for the Button control"""
+        label = self.dlg.by(control_type="Text",
+                            name="TestLabel").find()
+        self.dlg.Apply.click()
+        self.assertEqual(label.window_text(), "ApplyClick")
+
+    def test_radio_button(self):
+        """Test 'select' and 'is_selected' for the radio button control"""
+        yes = self.dlg.Yes.find()
+        cur_state = yes.is_selected()
+        self.assertEqual(cur_state, False)
+
+        cur_state = yes.select().is_selected()
+        self.assertEqual(cur_state, True)
+
+        no = self.dlg.No.find()
+        cur_state = no.select().is_selected()
+        self.assertEqual(cur_state, True)
+
+
 if __name__ == "__main__":
     unittest.main()

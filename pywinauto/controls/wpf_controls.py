@@ -76,3 +76,115 @@ class WindowWrapper(wpfwrapper.WPFWrapper):
     def is_dialog(self):
         """Window is always a dialog so return True"""
         return True
+
+
+class ButtonWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
+
+    _control_types = ['Button',
+        'CheckBox',
+        'RadioButton',
+    ]
+
+    UNCHECKED = 0
+    CHECKED = 1
+    INDETERMINATE = 2
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ButtonWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def toggle(self):
+        """
+        An interface to Toggle method of the Toggle control pattern.
+
+        Control supporting the Toggle pattern cycles through its
+        toggle states in the following order:
+        ToggleState_On, ToggleState_Off and,
+        if supported, ToggleState_Indeterminate
+
+        Usually applied for the check box control.
+
+        The radio button control does not implement IToggleProvider,
+        because it is not capable of cycling through its valid states.
+        Toggle a state of a check box control. (Use 'select' method instead)
+        Notice, a radio button control isn't supported by UIA.
+        https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
+        """
+
+        current_state = self.get_property('IsChecked')
+        if self.get_property('IsThreeState'):
+            states = (True, False, None)
+        else:
+            states = (True, False)
+
+        if current_state is None and not self.get_property('IsThreeState'):
+            next_state = False
+        else:
+            next_state = states[(states.index(current_state)+1) % len(states)]
+
+        self.set_property('IsChecked', next_state)
+
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+
+        if name and control_type:
+            self.actions.log('Toggled ' + control_type.lower() + ' "' +  name + '"')
+        # Return itself so that action can be chained
+        return self
+
+    # -----------------------------------------------------------
+    def get_toggle_state(self):
+        """
+        Get a toggle state of a check box control.
+
+        The toggle state is represented by an integer
+        0 - unchecked
+        1 - checked
+        2 - indeterminate
+        """
+        val = self.get_property('IsChecked')
+        if val is None:
+            return self.INDETERMINATE
+        return self.CHECKED if val else self.UNCHECKED
+
+
+    # -----------------------------------------------------------
+    def is_dialog(self):
+        """Buttons are never dialogs so return False"""
+        return False
+
+    # -----------------------------------------------------------
+    def click(self):
+        """Click the Button control by raising the ButtonBase.Click event"""
+        self.raise_event('Click')
+        # Return itself so that action can be chained
+        return self
+
+    def select(self):
+        """Select the item
+
+        Usually applied for controls like: a radio button, a tree view item
+        or a list item.
+        """
+        self.set_property('IsChecked', True)
+
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+        if name and control_type:
+            self.actions.log("Selected " + control_type.lower() + ' "' + name + '"')
+
+        # Return itself so that action can be chained
+        return self
+
+    # -----------------------------------------------------------
+    def is_selected(self):
+        """Indicate that the item is selected or not.
+
+        Usually applied for controls like: a radio button, a tree view item,
+        a list item.
+        """
+        return self.get_property('IsChecked')
