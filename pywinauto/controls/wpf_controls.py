@@ -188,3 +188,94 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
         a list item.
         """
         return self.get_property('IsChecked')
+
+class ComboBoxWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap a UIA CoboBox control"""
+
+    _control_types = ['ComboBox']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ComboBoxWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def expand(self):
+        self.set_property('IsDropDownOpen', True)
+        return self
+
+    # -----------------------------------------------------------
+    def collapse(self):
+        self.set_property('IsDropDownOpen', False)
+        return self
+
+    # -----------------------------------------------------------
+    def is_editable(self):
+        return self.get_property('IsEditable')
+
+    # -----------------------------------------------------------
+    def is_expanded(self):
+        """Test if the control is expanded"""
+        return self.get_property('IsDropDownOpen')
+
+    # -----------------------------------------------------------
+    def is_collapsed(self):
+        """Test if the control is collapsed"""
+        return not self.get_property('IsDropDownOpen')
+
+    # -----------------------------------------------------------
+    def texts(self):
+        """Return the text of the items in the combobox"""
+        return [child.element_info.rich_text for child in self.iter_children()]
+
+    # -----------------------------------------------------------
+    def select(self, item):
+        """
+        Select the ComboBox item
+
+        The item can be either a 0 based index of the item to select
+        or it can be the string that you want to select
+        """
+        if isinstance(item, six.integer_types):
+            self.set_property('SelectedIndex', item)
+        else:
+            index = None
+            for i, child in enumerate(self.iter_children()):
+                if child.element_info.rich_text == item:
+                    index = 1
+            if index is None:
+                raise ValueError('no such item: {}'.format(item))
+            self.set_property('SelectedIndex', index)
+        return self
+
+    # -----------------------------------------------------------
+    # TODO: add selected_texts for a combobox with a multi-select support
+    def selected_text(self):
+        """
+        Return the selected text or None
+
+        Notice, that in case of multi-select it will be only the text from
+        a first selected item
+        """
+        selected_index = self.get_property('SelectedIndex')
+        if selected_index == -1:
+            return ''
+        return self.children()[selected_index].element_info.rich_text
+
+    # -----------------------------------------------------------
+    # TODO: add selected_indices for a combobox with multi-select support
+    def selected_index(self):
+        """Return the selected index"""
+        return self.get_property('SelectedIndex')
+
+
+    # -----------------------------------------------------------
+    def item_count(self):
+        """
+        Return the number of items in the combobox
+
+        The interface is kept mostly for a backward compatibility with
+        the native ComboBox interface
+        """
+        return len(self.children())
