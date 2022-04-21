@@ -72,6 +72,17 @@ class WPFWrapper(WinBaseWrapper):
                                         value=value, is_enum=is_enum)
         return self
 
+    def invoke_method(self, name):
+        ConnectionManager().call_action('InvokeMethod', self.element_info.pid,
+                                        element_id=self.element_info.runtime_id,
+                                        name=name)
+        return self
+
+    def raise_event(self, name):
+        ConnectionManager().call_action('RaiseEvent', self.element_info.pid,
+                                        element_id=self.element_info.runtime_id,
+                                        name=name)
+
     def automation_id(self):
         """Return the Automation ID of the control"""
         return self.element_info.auto_id
@@ -114,9 +125,7 @@ class WPFWrapper(WinBaseWrapper):
         """
         Close the window
         """
-        ConnectionManager().call_action('InvokeMethod', self.element_info.pid,
-                                        element_id=self.element_info.runtime_id,
-                                        name='Close')
+        self.invoke_method('Close')
 
     # -----------------------------------------------------------
     def minimize(self):
