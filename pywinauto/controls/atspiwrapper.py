@@ -186,6 +186,15 @@ class AtspiWrapper(BaseWrapper):
                 return True
         return False
 
+    # -----------------------------------------------------------
+    def get_slider(self):
+        self.verify_actionable()
+        slider = []
+        for child in self.descendants():
+            if child.element_info.control_type in ["ScrollBar"]:
+                slider.append(child)
+        return slider[0]
+
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)
 backend.activate('atspi')  # default for Linux

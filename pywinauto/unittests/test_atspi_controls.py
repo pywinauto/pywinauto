@@ -387,7 +387,7 @@ if sys.platform.startswith("linux"):
                              _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
 
 
-    class AtspiWrapperControlsTests(unittest.TestCase):
+    class AtspiMenuWrapperTests(unittest.TestCase):
 
         """Unit tests for atspi_controls.MenuWrapper"""
 
@@ -467,6 +467,48 @@ if sys.platform.startswith("linux"):
             menu_item = menu_bar.item_by_path("Fi -> Ex")
             self.assertTrue(
                 menu_item.element_info.control_type == "MenuItem" and menu_item.selected_menu_name() == "Exit")
+
+
+
+    class AtspiScrollBarWrapperTests(unittest.TestCase):
+
+        """Unit tests for atspi_controls.ScrollBarWrapper"""
+
+        def setUp(self):
+            self.app = Application()
+            self.app.start(_test_new_app())
+            self.app_window = self.app.gtk_controls
+            self.app_wrapper = self.app_window.find()
+
+        def tearDown(self):
+            self.app.kill()
+
+        def test_min_value_is_float(self):
+            scrollbar = self.app_wrapper.get_slider()
+            self.assertTrue(type(scrollbar.get_min_value()) == float)
+
+        def test_scrolling(self):
+            scrollbar = self.app_wrapper.get_slider()
+            time.sleep(5)
+            max_value = scrollbar.get_max_value()
+            scrollbar.set_value(max_value*0.5)
+            print(max_value)
+            print(max_value*0.5)
+            new_position = scrollbar.get_current_value()
+            print(new_position)
+            self.assertAlmostEqual(new_position, max_value*0.5, delta=0.1)
+
+        def test_scrollbar_value_less_than_minimum(self):
+            scrollbar = self.app_wrapper.get_slider()
+            min_value = scrollbar.get_min_value()
+            with self.assertRaises(ValueError):
+                scrollbar.set_value(min_value - 1)
+
+        def test_scrollbar_value_more_than_maximum(self):
+            scrollbar = self.app_wrapper.get_slider()
+            max_value = scrollbar.get_max_value()
+            with self.assertRaises(ValueError):
+                scrollbar.set_value(max_value + 1)
 
 
 if __name__ == "__main__":

@@ -475,16 +475,64 @@ class MenuWrapper(atspiwrapper.AtspiWrapper):
             else:
                 return self._sub_item_by_text(parent_menu, item_name, exact)
 
-        # Find a top level menu item and select it. After selecting this item
-        # a new Menu control is created and placed on the dialog. It can be
-        # a direct child or a descendant.
-        # Sometimes we need to re-discover Menu again
         try:
             menu = next_level_menu(self, menu_items[0])
             if items_cnt == 1:
                 return menu
             for i in range(1, items_cnt):
                 menu = next_level_menu(menu, menu_items[i])
-        except(AttributeError):
+        except AttributeError:
             raise IndexError()
         return menu
+
+
+class ScrollBarWrapper(atspiwrapper.AtspiWrapper):
+    """Wrap an Atspi-compatible Slider control"""
+
+    _control_types = ['ScrollBar']
+    has_title = False
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ScrollBarWrapper, self).__init__(elem)
+        self.value = self.element_info.get_value()
+
+    # -----------------------------------------------------------
+    def get_min_value(self):
+        """Get the minimum value of the ScrollBar"""
+        return self.value.get_minimum_value()
+
+    # -----------------------------------------------------------
+    def get_max_value(self):
+        """Get the maximum value of the ScrollBar"""
+        return self.value.get_maximum_value()
+
+    # -----------------------------------------------------------
+    def get_min_step(self):
+        """Get the minimum step of the ScrollBar"""
+        return self.value.get_minimum_increment()
+
+    # -----------------------------------------------------------
+    def get_current_value(self):
+        """Get a current position of slider's thumb"""
+        return self.element_info.get_value().get_current_value()
+
+    # -----------------------------------------------------------
+    def set_value(self, value):
+        """Set position of slider's thumb"""
+        if isinstance(value, float):
+            value_to_set = value
+        elif isinstance(value, six.integer_types):
+            value_to_set = value
+        elif isinstance(value, six.text_type):
+            value_to_set = float(value)
+        else:
+            raise ValueError("value should be either string or number")
+
+        min_value = self.get_min_value()
+        max_value = self.get_max_value()
+        if not (min_value <= value_to_set <= max_value):
+            raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
+
+        self.value.set_current_value(value_to_set)
