@@ -1082,7 +1082,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
             item.set_focus()
         try:
             item.expand()
-        except(NoPatternInterfaceError):
+        except NoPatternInterfaceError:
             if self.element_info.framework_id == 'WinForm' and not is_last:
                 item.select()
 
@@ -1216,6 +1216,8 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def button_count(self):
         """Return a number of buttons on the ToolBar"""
         if self.win32_wrapper is not None:
+            # We need this workaround because win32_wrapper.button_count() takes duplicated buttons into account.
+            # This case is handled in ToolbarWrapper.buttons()
             return len(self.buttons())
         else:
             return len(self.children())
@@ -1308,17 +1310,13 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         return button
 
     # -----------------------------------------------------------
-    def items(self):
-        return self.buttons()
-
-    # -----------------------------------------------------------
     def _activate(self, item, is_last):
         """Activate the specified item"""
         if not item.is_active():
             item.set_focus()
         try:
             item.expand()
-        except(NoPatternInterfaceError):
+        except NoPatternInterfaceError:
             if self.element_info.framework_id == 'WinForm' and not is_last:
                 item.select()
 
@@ -1354,9 +1352,23 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         return sub_item
 
     # ----------------------------------------------------------------
+    items = buttons
+
     def item_by_path(self, path, exact=False):
         """
-        Find a toolbar item specified by the path
+        Walk the items in this toolbar to find the item specified by a path
+
+        The path is specified by a list of items separated by '->'. Each item
+        can be either a string (can include spaces) e.g. "Save As" or a zero
+        based index of the item to return prefaced by # e.g. #1.
+
+        These can be mixed as necessary. For example:
+            - "#0->Save As",
+            - "Tools->#0->Configure"
+
+        * **path** - Path to the specified item. **Required**.
+        * **exact** - If false, text matching will use a 'best match' fuzzy algorithm. If true, will try to find the
+                      item with the given name. (Default false). **Optional**
         """
         toolbar_items = [p.strip() for p in path.split("->")]
         items_cnt = len(toolbar_items)
