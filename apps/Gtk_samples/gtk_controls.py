@@ -46,7 +46,13 @@ class MainWindow(Gtk.Window):
                       (4, "Cauliflower", "White"),
                       (5, "Capsicum", "Yellow"),
                       (6, "Capsicum", "Green"),
-                      (7, "Capsicum", "Red")]
+                      (7, "Capsicum", "Red"),
+                      (8, "Carrot", "Orange"),
+                      (9, "Potato", "Yellow"),
+                      (10, "Garlic", "White"),
+                      (11, "Onion", "White"),
+                      (12, "Green Onion", "Green"),
+                      (13, "Basilic", "Green")]
         for item in store_data:
             list_store.append(list(item))
         table_data = Gtk.TreeView(model = list_store)
@@ -56,13 +62,13 @@ class MainWindow(Gtk.Window):
             table_data.append_column(column)
 
         scroll_window_list_store = Gtk.ScrolledWindow()
-        scroll_window_list_store.set_hexpand(True)
+        # scroll_window_list_store.set_hexpand(True)
         scroll_window_list_store.add(table_data)
         return scroll_window_list_store
 
     def _add_tree(self, ):
         tree_store = Gtk.TreeStore(str)
-        empty_date = tree_store.append(None, ["Empty Date"])
+        tree_store.append(None, ["Empty Date"])
         weeks = tree_store.append(None, ["Week"])
         week_data = [["Monday"], ["Tuesday"], ["Wednesday"], ["Thursday"], ["Friday"], ["Saturday"], ["Sunday"]]
         for i in range(len(week_data)):
@@ -85,7 +91,7 @@ class MainWindow(Gtk.Window):
         tree_view_column.add_attribute(cell_renderer_text, "text", 0)
 
         scroll_window_tree = Gtk.ScrolledWindow()
-        scroll_window_tree.set_hexpand(True)
+        #scroll_window_tree.set_hexpand(True)
         scroll_window_tree.add(tree_view)
 
         return scroll_window_tree
@@ -334,11 +340,16 @@ class MainWindow(Gtk.Window):
         return grid
 
     def _add_scrollbar(self, grid):
-        scroll_window = Gtk.ScrolledWindow()
-        scroll_window.set_vexpand(True)
-        scroll_window.set_hexpand(True)
-        scroll_window.add(self.notebook)
-        grid.attach(scroll_window, 1, 4, 1, 4)
+        layout = Gtk.Layout()
+        layout.set_size(300, 200)
+        layout.set_vexpand(True)
+        layout.set_hexpand(True)
+        layout.put(self.notebook, 10, 10)
+        grid.attach(layout, 1, 1, 1, 1)
+        vadjustment = layout.get_vadjustment()
+        vscrollbar = Gtk.VScrollbar(orientation=Gtk.Orientation.VERTICAL,
+                                   adjustment=vadjustment)
+        grid.attach(vscrollbar, 4, 1, 1, 1)
 
     def __init__(self):
         Gtk.Window.__init__(self, title="MainWindow")
@@ -351,8 +362,7 @@ class MainWindow(Gtk.Window):
         self.add(self.grid)
         self.set_default_size(600, 200)
         self.set_border_width(0)
-        #self._add_scrollbar(self.grid)
-        self.grid.attach(self.notebook, 0, 1, 4, 4)
+        self._add_scrollbar(self.grid)
 
         general_tab = self._add_tab()
         self.notebook.append_page(general_tab, Gtk.Label.new("General"))
