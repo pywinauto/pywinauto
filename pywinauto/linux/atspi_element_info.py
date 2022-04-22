@@ -269,3 +269,6 @@ class AtspiElementInfo(ElementInfo):
         elif self.control_type == "Invalid":
             return RECT()
         return self.component.get_rectangle(coord_type="screen")
+
+    def get_value(self):
+        return AtspiValue(self.atspi_accessible.get_value(self.handle))
