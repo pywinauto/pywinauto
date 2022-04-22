@@ -40,6 +40,7 @@ import six
 import mock
 import ctypes
 
+
 if sys.platform.startswith("linux"):
     sys.path.append(".")
     from pywinauto.linux.atspi_element_info import AtspiElementInfo
@@ -59,8 +60,10 @@ if sys.platform.startswith("linux"):
     from pywinauto.linux.atspi_objects import RECT
     from pywinauto.linux.atspi_objects import POINT
     from pywinauto.controls.atspi_controls import ImageWrapper
+    from pywinauto.findbestmatch import MatchError
 
 app_name = r"gtk_example.py"
+app_new_name = r"gtk_controls.py"
 text = "This is some text inside of a Gtk.TextView. \n" \
        "Select text and click one of the buttons 'bold', 'italic', \n" \
        "or 'underline' to modify the text accordingly."
@@ -76,6 +79,16 @@ def _test_app():
                                r"apps/Gtk_samples")
     sys.path.append(test_folder)
     return os.path.join(test_folder, app_name)
+
+
+def _test_new_app():
+    test_folder = os.path.join(os.path.dirname
+                               (os.path.dirname
+                                (os.path.dirname
+                                 (os.path.abspath(__file__)))),
+                               r"apps/Gtk_samples")
+    sys.path.append(test_folder)
+    return os.path.join(test_folder, app_new_name)
 
 
 def print_tree(start_el_info, level_shifter=""):
@@ -237,7 +250,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(combo_box.selected_text(), countries[1])
 
         def test_ololo(self):
-            #print_tree(self.app_window.element_info)
+            # print_tree(self.app_window.element_info)
             combo_box = self.app_window.Frame.Panel.ComboBox
             time.sleep(5)
             print(combo_box.window_text())
@@ -250,6 +263,7 @@ if sys.platform.startswith("linux"):
             self.text_area.select(text_to_select)
             self.assertEqual(self.text_area.selection_indices(),
                              (text.find(text_to_select), text.find(text_to_select) + len(text_to_select)))
+
 
     class AtspiWrapperDocumentMockedTests(unittest.TestCase):
 
@@ -371,6 +385,89 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.wrp.image.get_position(), POINT(pnt.x, pnt.y))
             self.assertEqual(mock_get_position.call_args[0][1],
                              _AtspiCoordType.ATSPI_COORD_TYPE_WINDOW)
+
+
+    class AtspiWrapperControlsTests(unittest.TestCase):
+
+        """Unit tests for atspi_controls.MenuWrapper"""
+
+        def setUp(self):
+            self.app = Application()
+            self.app.start(_test_new_app())
+            time.sleep(1)
+            self.app_window = self.app.gtk_controls
+            self.app_wrapper = self.app_window.find()
+
+        def tearDown(self):
+            self.app.kill()
+
+        def test_menu_item_count(self):
+            menu_bar = self.app_wrapper.get_menu()
+            self.assertEqual(menu_bar.item_count(), 4)
+
+        def test_menu_selected_name(self):
+            menu_bar = self.app_wrapper.get_menu()
+            menu = menu_bar.item_by_path("File")
+            self.assertEqual(menu.selected_menu_name(), "File")
+
+        def test_menu_selected_index(self):
+            menu_bar = self.app_wrapper.get_menu()
+            menu = menu_bar.item_by_path("#0 -> #2")
+            self.assertEqual(menu.selected_index(), 2)
+
+        def test_menu_select_by_text(self):
+            menu_bar = self.app_wrapper.get_menu()
+            menu = menu_bar.item_by_path("File")
+            self.assertTrue(menu.element_info.control_type == "Menu" and menu.selected_menu_name() == "File")
+
+        def test_menu_select_by_index(self):
+            menu_bar = self.app_wrapper.get_menu()
+            menu = menu_bar.item_by_path("#0")
+            self.assertTrue(menu.element_info.control_type == "Menu" and menu.selected_menu_name() == "File")
+
+        def test_menu_item_select_by_text(self):
+            menu_bar = self.app_wrapper.get_menu()
+            menu_item = menu_bar.item_by_path("File -> Open")
+            self.assertTrue(
+                menu_item.element_info.control_type == "MenuItem" and menu_item.selected_menu_name() == "Open")
+
+        def test_menu_item_select_by_index(self):
+            menu_bar = self.app_wrapper.get_menu()
+            menu_item = menu_bar.item_by_path("#0 -> #2")
+            self.assertTrue(
+                menu_item.element_info.control_type == "MenuItem" and menu_item.selected_menu_name() == "Exit")
+
+        def test_menu_wrong_name(self):
+            menu_bar = self.app_wrapper.get_menu()
+            with self.assertRaises(MatchError):
+                menu_bar.item_by_path("Tool")
+
+        def test_menu_wrong_index(self):
+            menu_bar = self.app_wrapper.get_menu()
+            with self.assertRaises(IndexError):
+                menu_bar.item_by_path("#2")
+
+        def test_menu_empty_submenu_by_name(self):
+            menu_bar = self.app_wrapper.get_menu()
+            with self.assertRaises(IndexError):
+                menu_bar.item_by_path("File -> -> Template")
+
+        def test_menu_empty_submenu_by_index(self):
+            menu_bar = self.app_wrapper.get_menu()
+            with self.assertRaises(IndexError):
+                menu_bar.item_by_path("#0 -> -> #1")
+
+        def test_menu_exact_name_true(self):
+            menu_bar = self.app_wrapper.get_menu()
+            with self.assertRaises(IndexError):
+                menu_bar.item_by_path("File -> Ope", exact=True)
+
+        def test_menu_exact_name_false(self):
+            menu_bar = self.app_wrapper.get_menu()
+            menu_item = menu_bar.item_by_path("Fi -> Ex")
+            self.assertTrue(
+                menu_item.element_info.control_type == "MenuItem" and menu_item.selected_menu_name() == "Exit")
+
 
 if __name__ == "__main__":
     unittest.main()

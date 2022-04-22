@@ -36,10 +36,12 @@ import locale
 import six
 
 from . import atspiwrapper
+from ..import findbestmatch
 from ..linux.atspi_objects import AtspiImage
 from ..linux.atspi_objects import AtspiDocument
 from ..linux.atspi_objects import AtspiText
 from ..linux.atspi_objects import AtspiEditableText
+
 
 # region PATTERNS
 
@@ -51,8 +53,7 @@ class ButtonWrapper(atspiwrapper.AtspiWrapper):
     _control_types = ['PushButton',
                       'CheckBox',
                       'ToggleButton',
-                      'RadioButton',
-                      'MenuItem',
+                      'RadioButton'
                       ]
 
     # -----------------------------------------------------------
@@ -356,3 +357,134 @@ class DocumentWrapper(atspiwrapper.AtspiWrapper):
     def attributes(self):
         """Return the document's constant attributes"""
         return self.document.get_attributes()
+
+
+class MenuWrapper(atspiwrapper.AtspiWrapper):
+
+    """Wrap an Atspi-compatible MenuBar, Menu or MenuItem control"""
+
+    _control_types = ['MenuBar', 'Menu', 'MenuItem']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(MenuWrapper, self).__init__(elem)
+        self.action = self.element_info.get_action()
+        self.state = self.element_info.get_state_set()
+
+    # -----------------------------------------------------------
+    def items(self):
+        """Find all menu and menu items"""
+        menus = self.descendants(control_type="Menu")
+        menu_items = self.descendants(control_type="MenuItem")
+        return menus + menu_items
+
+    # -----------------------------------------------------------
+    def selected_menu_name(self):
+        """Return the selected text"""
+        return self.element_info.name
+
+    # -----------------------------------------------------------
+    def selected_index(self):
+        """Return the selected index"""
+        menu_name = self.element_info.name
+        par = self.element_info.parent
+        children = []
+        for child in par.descendants():
+            if child.control_type in ['Menu', 'MenuItem']:
+                children.append(child)
+        for i, c in enumerate(children):
+            if c.name == menu_name:
+                num = i
+        return num
+
+    # -----------------------------------------------------------
+    def item_count(self):
+        """Number of items in the control"""
+        children = []
+        for child in self.descendants():
+            if child.element_info.control_type in ['Menu', 'MenuItem']:
+                children.append(child)
+        return len(children)
+
+    # -----------------------------------------------------------
+    def click(self):
+        """Click the Button control"""
+        self.action.do_action_by_name("click")
+        return self
+
+    # -----------------------------------------------------------
+    def item_by_index(self, idx):
+        """Find a menu item specified by the index"""
+        item = self.items()[idx]
+        return item
+
+    # -----------------------------------------------------------
+    def _activate(self, item):
+        """Activate the specified item"""
+        if not item.is_active():
+            item.set_focus()
+        item.action.do_action_by_name("click")
+
+    # -----------------------------------------------------------
+    def _sub_item_by_text(self, menu, name, exact):
+        """Find a menu sub-item by the specified text"""
+        sub_item = None
+        items = menu.items()
+        if items:
+            if exact:
+                for i in items:
+                    if name == i.window_text():
+                        sub_item = i
+                        break
+            else:
+                texts = []
+                for i in items:
+                    texts.append(i.window_text())
+                sub_item = findbestmatch.find_best_match(name, texts, items)
+
+        self._activate(sub_item)
+
+        return sub_item
+
+    # -----------------------------------------------------------
+    def _sub_item_by_idx(self, menu, idx):
+        """Find a menu sub-item by the specified index"""
+        sub_item = None
+        items = menu.items()
+        if items:
+            sub_item = items[idx]
+        self._activate(sub_item)
+        return sub_item
+
+    # -----------------------------------------------------------
+    def item_by_path(self, path, exact=False):
+        """Find a menu item specified by the path"""
+        # Get the path parts
+        menu_items = [p.strip() for p in path.split("->")]
+        items_cnt = len(menu_items)
+        if items_cnt == 0:
+            raise IndexError()
+        for item in menu_items:
+            if not item:
+                raise IndexError("Empty item name between '->' separators")
+
+        def next_level_menu(parent_menu, item_name):
+            if item_name.startswith("#"):
+                return self._sub_item_by_idx(parent_menu, int(item_name[1:]))
+            else:
+                return self._sub_item_by_text(parent_menu, item_name, exact)
+
+        # Find a top level menu item and select it. After selecting this item
+        # a new Menu control is created and placed on the dialog. It can be
+        # a direct child or a descendant.
+        # Sometimes we need to re-discover Menu again
+        try:
+            menu = next_level_menu(self, menu_items[0])
+            if items_cnt == 1:
+                return menu
+            for i in range(1, items_cnt):
+                menu = next_level_menu(menu, menu_items[i])
+        except(AttributeError):
+            raise IndexError()
+        return menu

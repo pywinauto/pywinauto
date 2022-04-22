@@ -129,6 +129,7 @@ class AtspiWrapper(BaseWrapper):
         self.element_info.component.grab_focus("screen")
         return self
 
+    # ------------------------------------------------------------
     def set_window_focus(self, pid):
         display = Display()
         root = display.screen().root
@@ -144,6 +145,7 @@ class AtspiWrapper(BaseWrapper):
 
         top_level_set_focus_by_pid(pid, root, '-')
 
+    # ------------------------------------------------------------
     def set_focus(self):
         if self.parent() == self.root() or self.parent().parent() == self.root() and not self.is_visible():
             # Try to find first child control of current window like button or text area and set focus to it.
@@ -163,8 +165,26 @@ class AtspiWrapper(BaseWrapper):
 
         return self
 
+    # ------------------------------------------------------------
     def get_states(self):
         return self.element_info.get_state_set()
+
+    # ------------------------------------------------------------
+    def get_menu(self):
+        self.verify_actionable()
+        menu = None
+        for child in self.descendants():
+            if child.element_info.control_type in ["MenuBar"]:
+                menu = child
+        return menu
+
+    # -----------------------------------------------------------
+    def is_active(self):
+        """Whether the element is active or not"""
+        for i in self.state:
+            if i == 'STATE_ACTIVE':
+                return True
+        return False
 
 
 backend.register('atspi', AtspiElementInfo, AtspiWrapper)
