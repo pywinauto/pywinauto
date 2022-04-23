@@ -7,7 +7,6 @@ import warnings
 
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
-from .application import Application
 from .win32structures import RECT
 from .injected.api import *
 
@@ -188,6 +187,8 @@ class WPFElementInfo(ElementInfo):
     @classmethod
     def get_active(cls, app_or_pid):
         """Return current active element"""
+        from .application import Application
+
         if isinstance(app_or_pid, integer_types):
             pid = app_or_pid
         elif isinstance(handle_or_elem, Application):
