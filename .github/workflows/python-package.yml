@@ -44,11 +44,20 @@ jobs:
         pip install codecov coverage pyobjc
     - name: Install test apps
       run: |
-        ls -la
+        cd apps/MouseTester/macos
+        sudo hdiutil attach mousebuttons.dmg
+        sudo cp -R /Volumes/mousebuttons/mousebuttons.app /Applications
+        sudo hdiutil detach /Volumes/mousebuttons/
+
         cd apps/SendKeysTester/macos
         sudo hdiutil attach send_keys_test_app.dmg
         sudo cp -R /Volumes/send_keys_test_app/send_keys_test_app.app /Applications
         sudo hdiutil detach /Volumes/send_keys_test_app/
+
+        cd apps/Controls/macos
+        sudo hdiutil attach test_app_controls.dmg
+        sudo cp -R /Volumes/test_app_controls/ControlsTestAppSB.app /Applications
+        sudo hdiutil detach /Volumes/test_app_controls/
     - name: Run tests
       run: |
         python3 pywinauto/unittests/macos/test_ax_element_info_macos.py
