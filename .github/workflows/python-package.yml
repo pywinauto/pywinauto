@@ -31,6 +31,7 @@ jobs:
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
     - name: Install test apps
       run: |
+        ls -la
         cd apps/SendKeysTester/macos
         sudo hdiutil attach send_keys_test_app.dmg
         sudo cp -R /Volumes/send_keys_test_app/send_keys_test_app.app /Applications
