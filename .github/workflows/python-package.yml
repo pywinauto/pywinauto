@@ -26,9 +26,22 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        python -m pip install flake8 pytest
         if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        git clone https://github.com/yyuu/pyenv.git ~/.pyenv
+        PYENV_ROOT="$HOME/.pyenv"
+        PATH="$PYENV_ROOT/bin:$PATH"
+        eval "$(pyenv init -)"
+        PYVER="$(pyenv install --list | grep -E "^\\s*$PYVER" | sort -n -t. -k3 | tail -n1)"
+        pyenv install $PYVER
+        pyenv global $PYVER
+        python --version
+    - name: Install PIP
+      run: |
+        curl -O https://bootstrap.pypa.io/get-pip.py
+        python get-pip.py --user
+        python -m pip install pip==9.0.3
+        python -m pip install six
+        pip install codecov coverage pyobjc
     - name: Install test apps
       run: |
         ls -la
