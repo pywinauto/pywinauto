@@ -776,6 +776,24 @@ class UIAWrapper(WinBaseWrapper):
         menu.item_by_path(path, exact).select()
 
     # -----------------------------------------------------------
+    def toolbar_select(self, path, exact=False):
+        """
+        Select a Toolbar item specified in the path.
+
+        The full path syntax is specified in:
+        :py:meth:`pywinauto.controls.uia_controls.ToolbarWrapper.item_by_path`
+        """
+        self.verify_actionable()
+
+        cc = self.children(control_type="ToolBar")
+        if not cc:
+            cc = self.descendants(control_type="ToolBar")
+            if not cc:
+                raise AttributeError
+        menu = cc[0]
+        menu.item_by_path(path, exact).select()
+
+    # -----------------------------------------------------------
     _scroll_types = {
         "left": {
             "line": (uia_defs.scroll_small_decrement, uia_defs.scroll_no_amount),

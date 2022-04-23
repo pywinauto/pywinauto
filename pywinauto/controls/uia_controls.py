@@ -1366,7 +1366,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 
         * **path** - Path to the specified item. **Required**.
         * **exact** - If false, text matching will use a 'best match' fuzzy algorithm. If true, will try to find the
-                      item with the given name. (Default false). **Optional**
+                      item with the given name. (Default False). **Optional**
         """
         toolbar_items = [p.strip() for p in path.split("->")]
         items_cnt = len(toolbar_items)
