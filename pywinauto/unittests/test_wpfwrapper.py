@@ -508,5 +508,97 @@ class ComboBoxTests(unittest.TestCase):
         self.dlg.set_focus()
         self.assertEqual(self.combo.item_count(), 2)
 
+
+class EditWrapperTests(unittest.TestCase):
+
+    """Unit tests for the EditWrapper class"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        app = Application(backend='wpf')
+        app = app.start(wpf_app_1)
+
+        self.app = app
+        self.dlg = app.WPFSampleApplication
+
+        self.edit = self.dlg.by(class_name="TextBox").find()
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_set_window_text(self):
+        """Test setting text value of control (the text in textbox itself)"""
+        text_to_set = "This test"
+
+        self.edit.set_window_text(text_to_set)
+        self.assertEqual(self.edit.text_block(), text_to_set)
+
+        self.edit.set_window_text(" is done", True)
+        self.assertEqual(self.edit.text_block(), text_to_set + " is done")
+
+    def test_set_text(self):
+        """Test setting the text of the edit control"""
+        self.edit.set_edit_text("Some text")
+        self.assertEqual(self.edit.text_block(), "Some text")
+
+        self.edit.set_edit_text(579)
+        self.assertEqual(self.edit.text_block(), "579")
+
+        self.edit.set_edit_text(333, pos_start=1, pos_end=2)
+        self.assertEqual(self.edit.text_block(), "53339")
+
+    def test_line_count(self):
+        """Test getting the line count of the edit control"""
+        self.edit.set_edit_text("Here is some text")
+
+        self.assertEqual(self.edit.line_count(), 1)
+
+    def test_get_line(self):
+        """Test getting each line of the edit control"""
+        test_data = "Here is some text"
+        self.edit.set_edit_text(test_data)
+
+        self.assertEqual(self.edit.get_line(0), test_data)
+
+    def test_get_value(self):
+        """Test getting value of the edit control"""
+        test_data = "Some value"
+        self.edit.set_edit_text(test_data)
+
+        self.assertEqual(self.edit.get_value(), test_data)
+
+    def test_text_block(self):
+        """Test getting the text block of the edit control"""
+        test_data = "Here is some text"
+        self.edit.set_edit_text(test_data)
+
+        self.assertEqual(self.edit.text_block(), test_data)
+
+    def test_select(self):
+        """Test selecting text in the edit control in various ways"""
+        self.edit.set_edit_text("Some text")
+
+        self.edit.select(0, 0)
+        self.assertEqual((0, 0), self.edit.selection_indices())
+
+        self.edit.select()
+        self.assertEqual((0, 9), self.edit.selection_indices())
+
+        self.edit.select(1, 7)
+        self.assertEqual((1, 7), self.edit.selection_indices())
+
+        self.edit.select(5, 2)
+        self.assertEqual((2, 5), self.edit.selection_indices())
+
+        self.edit.select("me t")
+        self.assertEqual((2, 6), self.edit.selection_indices())
+
+        self.assertRaises(RuntimeError, self.edit.select, "123")
+
+
 if __name__ == "__main__":
     unittest.main()

@@ -1,7 +1,6 @@
 """Wrap various WPF windows controls. To be used with 'wpf' backend."""
 import locale
 import time
-import comtypes
 import six
 
 from . import wpfwrapper
@@ -269,7 +268,6 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
         """Return the selected index"""
         return self.get_property('SelectedIndex')
 
-
     # -----------------------------------------------------------
     def item_count(self):
         """
@@ -279,3 +277,181 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
         the native ComboBox interface
         """
         return len(self.children())
+
+
+class EditWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an Edit control"""
+
+    _control_types = ['Edit']
+    has_title = False
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(EditWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(EditWrapper, self).writable_props
+        props.extend(['selection_indices'])
+        return props
+
+    # -----------------------------------------------------------
+    def line_count(self):
+        """Return how many lines there are in the Edit"""
+        return self.window_text().count("\n") + 1
+
+    # -----------------------------------------------------------
+    def line_length(self, line_index):
+        """Return how many characters there are in the line"""
+        # need to first get a character index of that line
+        lines = self.window_text().splitlines()
+        if line_index < len(lines):
+            return len(lines[line_index])
+        elif line_index == self.line_count() - 1:
+            return 0
+        else:
+            raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
+
+    # -----------------------------------------------------------
+    def get_line(self, line_index):
+        """Return the line specified"""
+        lines = self.window_text().splitlines()
+        if line_index < len(lines):
+            return lines[line_index]
+        elif line_index == self.line_count() - 1:
+            return ""
+        else:
+            raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
+
+    # -----------------------------------------------------------
+    def get_value(self):
+        """Return the current value of the element"""
+        return self.get_property('Text') or ''
+
+    # -----------------------------------------------------------
+    def is_editable(self):
+        """Return the edit possibility of the element"""
+        return not self.get_property('IsReadOnly')
+
+    # -----------------------------------------------------------
+    def texts(self):
+        """Get the text of the edit control"""
+        texts = [ self.get_line(i) for i in range(self.line_count()) ]
+
+        return texts
+
+    # -----------------------------------------------------------
+    def text_block(self):
+        """Get the text of the edit control"""
+        return self.window_text()
+
+    # -----------------------------------------------------------
+    def selection_indices(self):
+        """The start and end indices of the current selection"""
+        start = self.get_property('SelectionStart')
+        end = start + self.get_property('SelectionLength')
+
+        return start, end
+
+    # -----------------------------------------------------------
+    def set_window_text(self, text, append=False):
+        """Override set_window_text for edit controls because it should not be
+        used for Edit controls.
+
+        Edit Controls should either use set_edit_text() or type_keys() to modify
+        the contents of the edit control.
+        """
+        self.verify_actionable()
+
+        if append:
+            text = self.window_text() + text
+
+        self.set_property('Text', text)
+
+    # -----------------------------------------------------------
+    def set_edit_text(self, text, pos_start=None, pos_end=None):
+        """Set the text of the edit control"""
+        self.verify_actionable()
+
+        # allow one or both of pos_start and pos_end to be None
+        if pos_start is not None or pos_end is not None:
+            # if only one has been specified - then set the other
+            # to the current selection start or end
+            start, end = self.selection_indices()
+            if pos_start is None:
+                pos_start = start
+            if pos_end is None and not isinstance(start, six.string_types):
+                pos_end = end
+        else:
+            pos_start = 0
+            pos_end = len(self.window_text())
+
+        if isinstance(text, six.text_type):
+            if six.PY3:
+                aligned_text = text
+            else:
+                aligned_text = text.encode(locale.getpreferredencoding())
+        elif isinstance(text, six.binary_type):
+            if six.PY3:
+                aligned_text = text.decode(locale.getpreferredencoding())
+            else:
+                aligned_text = text
+        else:
+            # convert a non-string input
+            if six.PY3:
+                aligned_text = six.text_type(text)
+            else:
+                aligned_text = six.binary_type(text)
+
+        # Calculate new text value
+        current_text = self.window_text()
+        new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
+
+        self.set_property('Text', new_text)
+
+        # time.sleep(Timings.after_editsetedittext_wait)
+
+        if isinstance(aligned_text, six.text_type):
+            self.actions.log('Set text to the edit box: ' + aligned_text)
+        else:
+            self.actions.log(b'Set text to the edit box: ' + aligned_text)
+
+        # return this control so that actions can be chained.
+        return self
+    # set set_text as an alias to set_edit_text
+    set_text = set_edit_text
+
+    # -----------------------------------------------------------
+    def select(self, start=0, end=None):
+        """Set the edit selection of the edit control"""
+        self.verify_actionable()
+        self.set_focus()
+
+        if isinstance(start, six.integer_types):
+            if isinstance(end, six.integer_types) and start > end:
+                start, end = end, start
+            elif end is None:
+                end = len(self.window_text())
+        else:
+            # if we have been asked to select a string
+            if isinstance(start, six.text_type):
+                string_to_select = start
+            elif isinstance(start, six.binary_type):
+                string_to_select = start.decode(locale.getpreferredencoding())
+            else:
+                raise ValueError('start and end should be integer or string')
+
+            start = self.window_text().find(string_to_select)
+            if start < 0:
+                raise RuntimeError("Text '{0}' hasn't been found".format(string_to_select))
+            end = start + len(string_to_select)
+
+        self.set_property('SelectionStart', start)
+        self.set_property('SelectionLength', end-start)
+
+        # return this control so that actions can be chained.
+        return self
