@@ -460,7 +460,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
 class TabControlWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an UIA-compatible Tab control"""
+    """Wrap an WPF Tab control"""
 
     _control_types = ['Tab']
 
@@ -498,3 +498,191 @@ class TabControlWrapper(wpfwrapper.WPFWrapper):
     def texts(self):
         """Tabs texts"""
         return self.children_texts()
+
+
+class SliderWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an WPF Slider control"""
+
+    _control_types = ['Slider']
+    has_title = False
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(SliderWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def min_value(self):
+        """Get the minimum value of the Slider"""
+        return self.get_property('Minimum')
+
+    # -----------------------------------------------------------
+    def max_value(self):
+        """Get the maximum value of the Slider"""
+        return self.get_property('Maximum')
+
+    # -----------------------------------------------------------
+    def small_change(self):
+        """
+        Get a small change of slider's thumb
+
+        This change is achieved by pressing left and right arrows
+        when slider's thumb has keyboard focus.
+        """
+        return self.get_property('SmallChange')
+
+    # -----------------------------------------------------------
+    def large_change(self):
+        """
+        Get a large change of slider's thumb
+
+        This change is achieved by pressing PgUp and PgDown keys
+        when slider's thumb has keyboard focus.
+        """
+        return self.get_property('LargeChange')
+
+    # -----------------------------------------------------------
+    def value(self):
+        """Get a current position of slider's thumb"""
+        return self.get_property('Value')
+
+    # -----------------------------------------------------------
+    def set_value(self, value):
+        """Set position of slider's thumb"""
+        if isinstance(value, float):
+            value_to_set = value
+        elif isinstance(value, six.integer_types):
+            value_to_set = value
+        elif isinstance(value, six.text_type):
+            value_to_set = float(value)
+        else:
+            raise ValueError("value should be either string or number")
+
+        min_value = self.min_value()
+        max_value = self.max_value()
+        if not (min_value <= value_to_set <= max_value):
+            raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
+
+        self.set_property('Value', value_to_set)
+
+
+class ToolbarWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an WPF ToolBar control
+
+    The control's children usually are: Buttons, SplitButton,
+    MenuItems, ThumbControls, TextControls, Separators, CheckBoxes.
+    Notice that ToolTip controls are children of the top window and
+    not of the toolbar.
+    """
+
+    _control_types = ['ToolBar']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ToolbarWrapper, self).__init__(elem)
+        self.win32_wrapper = None
+        if len(self.children()) <= 1 and self.element_info.handle is not None:
+            self.win32_wrapper = common_controls.ToolbarWrapper(self.element_info.handle)
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ToolbarWrapper, self).writable_props
+        props.extend(['button_count'])
+        return props
+
+    # ----------------------------------------------------------------
+    def texts(self):
+        """Return texts of the Toolbar"""
+        return [c.window_text() for c in self.buttons()]
+
+    #----------------------------------------------------------------
+    def button_count(self):
+        """Return a number of buttons on the ToolBar"""
+        return len(self.children())
+
+    # ----------------------------------------------------------------
+    def buttons(self):
+        """Return all available buttons"""
+        return self.children()
+
+    # ----------------------------------------------------------------
+    def button(self, button_identifier, exact=True):
+        """Return a button by the specified identifier
+
+        * **button_identifier** can be either an index of a button or
+          a string with the text of the button.
+        * **exact** flag specifies if the exact match for the text look up
+          has to be applied.
+        """
+        cc = self.buttons()
+        texts = [c.window_text() for c in cc]
+
+        if isinstance(button_identifier, six.string_types):
+            self.actions.log('Toolbar buttons: ' + str(texts))
+
+            if exact:
+                try:
+                    button_index = texts.index(button_identifier)
+                except ValueError:
+                    raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
+            else:
+                # one of these will be returned for the matching text
+                indices = [i for i in range(0, len(texts))]
+
+                # find which index best matches that text
+                button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
+        else:
+            button_index = button_identifier
+
+        return cc[button_index]
+
+    # ----------------------------------------------------------------
+    def check_button(self, button_identifier, make_checked, exact=True):
+        """Find where the button is and toggle it
+
+        * **button_identifier** can be either an index of the button or
+          a string with the text on the button.
+        * **make_checked** specifies the required toggled state of the button.
+          If the button is already in the specified state the state isn't changed.
+        * **exact** flag specifies if the exact match for the text look up
+          has to be applied
+        """
+
+        self.actions.logSectionStart('Checking "' + self.window_text() +
+                                     '" toolbar button "' + str(button_identifier) + '"')
+        button = self.button(button_identifier, exact=exact)
+        if make_checked:
+            self.actions.log('Pressing down toolbar button "' + str(button_identifier) + '"')
+        else:
+            self.actions.log('Pressing up toolbar button "' + str(button_identifier) + '"')
+
+        if not button.is_enabled():
+            self.actions.log('Toolbar button is not enabled!')
+            raise RuntimeError("Toolbar button is not enabled!")
+
+        res = (button.get_toggle_state() == ButtonWrapper.CHECKED)
+        if res != make_checked:
+            button.toggle()
+
+        self.actions.logSectionEnd()
+        return button
+
+    def collapse(self):
+        """Collapse overflow area of the ToolBar (IsOverflowOpen property)"""
+        self.set_property('IsOverflowOpen', False)
+
+    def expand(self):
+        """Expand overflow area of the ToolBar (IsOverflowOpen property)"""
+        self.set_property('IsOverflowOpen', True)
+
+    def is_expanded(self):
+        """Check if the ToolBar overflow area is currently visible"""
+        return not self.get_property('HasOverflowItems') or self.get_property('IsOverflowOpen')
+
+    def is_collapsed(self):
+        """Check if the ToolBar overflow area is not visible"""
+        return not self.is_expanded()
