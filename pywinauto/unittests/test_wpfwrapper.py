@@ -600,5 +600,44 @@ class EditWrapperTests(unittest.TestCase):
         self.assertRaises(RuntimeError, self.edit.select, "123")
 
 
+class TabControlWrapperTests(unittest.TestCase):
+
+    """Unit tests for the TabControlWrapper class"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        app = Application(backend='wpf')
+        app = app.start(wpf_app_1)
+        dlg = app.WPFSampleApplication
+
+        self.app = app
+        self.ctrl = dlg.by(class_name="TabControl").find()
+        self.texts = [u"General", u"Tree and List Views", u"ListBox and Grid"]
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_tab_count(self):
+        """Test the tab count in the Tab control"""
+        self.assertEqual(self.ctrl.tab_count(), len(self.texts))
+
+    def test_get_selected_tab(self):
+        """Test selecting a tab by index or by name and getting an index of the selected tab"""
+        # Select a tab by name, use chaining to get the index of the selected tab
+        idx = self.ctrl.select(u"Tree and List Views").get_selected_tab()
+        self.assertEqual(idx, 1)
+        # Select a tab by index
+        self.ctrl.select(0)
+        self.assertEqual(self.ctrl.get_selected_tab(), 0)
+
+    def test_texts(self):
+        """Make sure the tabs captions are read correctly"""
+        self.assertEqual(self.ctrl.texts(), self.texts)
+
+
 if __name__ == "__main__":
     unittest.main()
