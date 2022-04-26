@@ -102,7 +102,7 @@ class WPFWrapper(WinBaseWrapper):
 
     def get_active(self):
         """Return wrapper object for current active element"""
-        element_info = self.backend.element_info_class.get_active(self.element_info._pid)
+        element_info = self.backend.element_info_class.get_active(self.element_info.pid)
         if element_info is None:
             return None
         return self.backend.generic_wrapper_class(element_info)
@@ -114,6 +114,9 @@ class WPFWrapper(WinBaseWrapper):
             return False
         return (focused_wrap.top_level_parent() == self.top_level_parent())
 
+    def children_texts(self):
+        """Get texts of the control's children"""
+        return [c.window_text() for c in self.children()]
 
     #  System.Windows.WindowState enum
     NORMAL=0

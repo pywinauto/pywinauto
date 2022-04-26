@@ -188,6 +188,7 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
         """
         return self.get_property('IsChecked')
 
+
 class ComboBoxWrapper(wpfwrapper.WPFWrapper):
 
     """Wrap a UIA CoboBox control"""
@@ -455,3 +456,45 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
         # return this control so that actions can be chained.
         return self
+
+
+class TabControlWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an UIA-compatible Tab control"""
+
+    _control_types = ['Tab']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TabControlWrapper, self).__init__(elem)
+
+    # ----------------------------------------------------------------
+    def get_selected_tab(self):
+        """Return an index of a selected tab"""
+        return self.get_property('SelectedIndex')
+
+    # ----------------------------------------------------------------
+    def tab_count(self):
+        """Return a number of tabs"""
+        return len(self.children())
+
+    # ----------------------------------------------------------------
+    def select(self, item):
+        """Select a tab by index or by name"""
+        if isinstance(item, six.integer_types):
+            self.set_property('SelectedIndex', item)
+        else:
+            index = None
+            for i, child in enumerate(self.iter_children()):
+                if child.element_info.rich_text == item:
+                    index = 1
+            if index is None:
+                raise ValueError('no such item: {}'.format(item))
+            self.set_property('SelectedIndex', index)
+        return self
+
+    # ----------------------------------------------------------------
+    def texts(self):
+        """Tabs texts"""
+        return self.children_texts()
