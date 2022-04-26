@@ -639,5 +639,114 @@ class TabControlWrapperTests(unittest.TestCase):
         self.assertEqual(self.ctrl.texts(), self.texts)
 
 
+class SliderWrapperTests(unittest.TestCase):
+
+    """Unit tests for the SliderWrapper class"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        app = Application(backend='wpf')
+        app = app.start(wpf_app_1)
+
+        self.app = app
+        self.dlg = app.WPFSampleApplication
+
+        self.slider = self.dlg.by(class_name="Slider").find()
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_min_value(self):
+        """Test getting minimum value of the Slider"""
+        self.assertEqual(self.slider.min_value(), 0.0)
+
+    def test_max_value(self):
+        """Test getting maximum value of the Slider"""
+        self.assertEqual(self.slider.max_value(), 100.0)
+
+    def test_small_change(self):
+        """Test Getting small change of slider's thumb"""
+        self.assertEqual(self.slider.small_change(), 0.1)
+
+    def test_large_change(self):
+        """Test Getting large change of slider's thumb"""
+        self.assertEqual(self.slider.large_change(), 1.0)
+
+    def test_value(self):
+        """Test getting current position of slider's thumb"""
+        self.assertEqual(self.slider.value(), 70.0)
+
+    def test_set_value(self):
+        """Test setting position of slider's thumb"""
+        self.slider.set_value(24)
+        self.assertEqual(self.slider.value(), 24.0)
+
+        self.slider.set_value(33.3)
+        self.assertEqual(self.slider.value(), 33.3)
+
+        self.slider.set_value("75.4")
+        self.assertEqual(self.slider.value(), 75.4)
+
+        self.assertRaises(ValueError, self.slider.set_value, -1)
+        self.assertRaises(ValueError, self.slider.set_value, 102)
+
+        self.assertRaises(ValueError, self.slider.set_value, [50, ])
+
+
+class ToolbarWpfTests(unittest.TestCase):
+
+    """Unit tests for ToolbarWrapper class on WPF demo"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        self.app = Application(backend='wpf')
+        self.app = self.app.start(wpf_app_1)
+        self.dlg = self.app.WPFSampleApplication
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_button_access_wpf(self):
+        """Test getting access to buttons on Toolbar of WPF demo"""
+        # Read a second toolbar with buttons: "button1, button2"
+        tb = self.dlg.Toolbar2.find()
+        self.assertEqual(tb.button_count(), 2)
+        self.assertEqual(len(tb.texts()), 2)
+
+        # Test if it's in writable properties
+        props = set(tb.get_properties().keys())
+        self.assertEqual('button_count' in props, True)
+
+        expect_txt = "button 1"
+        self.assertEqual(tb.button(0).window_text(), expect_txt)
+
+        found_txt = tb.button(expect_txt, exact=True).window_text()
+        self.assertEqual(found_txt, expect_txt)
+
+        found_txt = tb.button("b 1", exact=False).window_text()
+        self.assertEqual(found_txt, expect_txt)
+
+        expect_txt = "button 2"
+        found_txt = tb.button(expect_txt, exact=True).window_text()
+        self.assertEqual(found_txt, expect_txt)
+
+        # Notice that findbestmatch.MatchError is subclassed from IndexError
+        self.assertRaises(IndexError, tb.button, "BaD n_$E ", exact=False)
+
+    def test_overflow_area_status(self):
+        """Check if overflow area visible (note: OverflowButton is inactive in the sample"""
+        tb = self.dlg.Toolbar2.find()
+        self.assertTrue(tb.is_expanded())
+        self.assertFalse(tb.is_collapsed())
+
+
 if __name__ == "__main__":
     unittest.main()
