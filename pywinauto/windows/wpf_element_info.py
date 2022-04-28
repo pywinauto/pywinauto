@@ -10,6 +10,26 @@ from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
 from .injected.api import *
 
+
+def is_element_satisfying_criteria(element, process=None, class_name=None, name=None, control_type=None,
+                                   **kwargs):
+    """Check if element satisfies filter criteria"""
+    is_appropriate_control_type = True
+    if control_type:
+        if isinstance(control_type, string_types):
+            is_appropriate_control_type = element.control_type == control_type
+        else:
+            raise TypeError('control_type must be string')
+
+    def is_none_or_equals(criteria, prop):
+        return criteria is None or prop == criteria
+
+    return is_none_or_equals(process, element.process_id) \
+        and is_none_or_equals(class_name, element.class_name) \
+        and is_none_or_equals(name, element.name) \
+        and is_appropriate_control_type
+
+
 class WPFElementInfo(ElementInfo):
     re_props = ["class_name", "name", "auto_id", "control_type", "full_control_type", "value"]
     exact_only_props = ["handle", "pid", "control_id", "enabled", "visible", "rectangle", "framework_id", "runtime_id"]
@@ -123,11 +143,13 @@ class WPFElementInfo(ElementInfo):
         return reply['value']
 
     def iter_children(self, **kwargs):
-        if 'process' in kwargs:
+        if 'process' in kwargs and self._pid is None:
             self._pid = kwargs['process']
         reply = ConnectionManager().call_action('GetChildren', self._pid, element_id=self._element)
-        for elem in reply['elements']:
-            yield WPFElementInfo(elem, pid=self._pid)
+        for elem_id in reply['elements']:
+            element = WPFElementInfo(elem_id, pid=self._pid)
+            if is_element_satisfying_criteria(element, **kwargs):
+                yield element
 
     def descendants(self, **kwargs):
         return list(self.iter_descendants(**kwargs))
@@ -135,17 +157,20 @@ class WPFElementInfo(ElementInfo):
     def iter_descendants(self, **kwargs):
         cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop("depth", None)
+        process = kwargs.pop("process", None)
         if not isinstance(depth, (integer_types, type(None))) or isinstance(depth, integer_types) and depth < 0:
             raise Exception("Depth must be an integer")
 
         if depth == 0:
             return
-        for child in self.iter_children(**kwargs):
-            yield child
+        for child in self.iter_children(process=process):
+            if is_element_satisfying_criteria(child, **kwargs):
+                yield child
             if depth is not None:
                 kwargs["depth"] = depth - 1
             for c in child.iter_descendants(**kwargs):
-                yield c
+                if is_element_satisfying_criteria(c, **kwargs):
+                    yield c
 
     @property
     def rectangle(self):
@@ -191,8 +216,8 @@ class WPFElementInfo(ElementInfo):
 
         if isinstance(app_or_pid, integer_types):
             pid = app_or_pid
-        elif isinstance(handle_or_elem, Application):
-            pid = app.process
+        elif isinstance(app_or_pid, Application):
+            pid = app_or_pid.process
         else:
             raise TypeError("UIAElementInfo object can be initialized " + \
                             "with integer or IUIAutomationElement instance only!")
