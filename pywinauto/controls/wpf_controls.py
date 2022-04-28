@@ -686,3 +686,140 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
     def is_collapsed(self):
         """Check if the ToolBar overflow area is not visible"""
         return not self.is_expanded()
+
+
+class MenuItemWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an UIA-compatible MenuItem control"""
+
+    _control_types = ['MenuItem']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(MenuItemWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def items(self):
+        """Find all items of the menu item"""
+        return self.children(control_type="MenuItem")
+
+    # -----------------------------------------------------------
+    def select(self):
+        """Select Menu item by raising Click event"""
+        self.raise_event('Click')
+
+
+class MenuWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an WPF MenuBar or Menu control"""
+
+    _control_types = ['Menu']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(MenuWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def items(self):
+        """Find all menu items"""
+        return self.children(control_type="MenuItem")
+
+    # -----------------------------------------------------------
+    def item_by_index(self, idx):
+        """Find a menu item specified by the index"""
+        item = self.items()[idx]
+        return item
+
+    # -----------------------------------------------------------
+    def _activate(self, item):
+        """Activate the specified item"""
+        if not item.is_active():
+            item.set_focus()
+        item.set_property('IsSubmenuOpen', True)
+
+    # -----------------------------------------------------------
+    def _sub_item_by_text(self, menu, name, exact, is_last):
+        """Find a menu sub-item by the specified text"""
+        sub_item = None
+        items = menu.items()
+        if items:
+            if exact:
+                for i in items:
+                    if name == i.window_text():
+                        sub_item = i
+                        break
+            else:
+                texts = []
+                for i in items:
+                    texts.append(i.window_text())
+                sub_item = findbestmatch.find_best_match(name, texts, items)
+
+        if sub_item is None:
+            raise IndexError('Item `{}` not found'.format(name))
+
+        self._activate(sub_item)
+        return sub_item
+
+    # -----------------------------------------------------------
+    def _sub_item_by_idx(self, menu, idx, is_last):
+        """Find a menu sub-item by the specified index"""
+        sub_item = None
+        items = menu.items()
+        if items:
+            sub_item = items[idx]
+
+        if sub_item is None:
+            raise IndexError('Item with index {} not found'.format(idx))
+
+        self._activate(sub_item)
+        return sub_item
+
+    # -----------------------------------------------------------
+    def item_by_path(self, path, exact=False):
+        """Find a menu item specified by the path
+
+        The full path syntax is specified in:
+        :py:meth:`.controls.menuwrapper.Menu.get_menu_path`
+
+        Note: $ - specifier is not supported
+        """
+        # Get the path parts
+        menu_items = [p.strip() for p in path.split("->")]
+        items_cnt = len(menu_items)
+        if items_cnt == 0:
+            raise IndexError()
+        for item in menu_items:
+            if not item:
+                raise IndexError("Empty item name between '->' separators")
+
+        def next_level_menu(parent_menu, item_name, is_last):
+            if item_name.startswith("#"):
+                return self._sub_item_by_idx(parent_menu, int(item_name[1:]), is_last)
+            else:
+                return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
+
+        # Find a top level menu item and select it. After selecting this item
+        # a new Menu control is created and placed on the dialog. It can be
+        # a direct child or a descendant.
+        # Sometimes we need to re-discover Menu again
+        try:
+            menu = next_level_menu(self, menu_items[0], items_cnt == 1)
+            if items_cnt == 1:
+                return menu
+
+            if not menu.items():
+                self._activate(menu)
+                timings.wait_until(
+                    timings.Timings.window_find_timeout,
+                    timings.Timings.window_find_retry,
+                    lambda: len(self.top_level_parent().descendants(control_type="Menu")) > 0)
+                menu = self.top_level_parent().descendants(control_type="Menu")[0]
+
+            for i in range(1, items_cnt):
+                menu = next_level_menu(menu, menu_items[i], items_cnt == i + 1)
+        except AttributeError:
+            raise IndexError()
+
+        return menu

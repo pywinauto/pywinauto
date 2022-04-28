@@ -217,5 +217,32 @@ class WPFWrapper(WinBaseWrapper):
         """
         raise AttributeError("This method is not supported for {0}".format(self))
 
+    def menu_select(self, path, exact=False, ):
+        """Select a menu item specified in the path
+
+        The full path syntax is specified in:
+        :py:meth:`pywinauto.menuwrapper.Menu.get_menu_path`
+
+        There are usually at least two menu bars: "System" and "Application"
+        System menu bar is a standard window menu with items like:
+        'Restore', 'Move', 'Size', 'Minimize', e.t.c.
+        It is not supported by backends based on DLL injection.
+        Application menu bar is often what we look for. In most cases,
+        its parent is the dialog itself so it should be found among the direct
+        children of the dialog. Notice that we don't use "Application"
+        string as a title criteria because it couldn't work on applications
+        with a non-english localization.
+        If there is no menu bar has been found we fall back to look up
+        for Menu control. We try to find the control through all descendants
+        of the dialog
+        """
+        self.verify_actionable()
+
+        cc = self.descendants(control_type="Menu")
+        if not cc:
+            raise AttributeError
+        menu = cc[0]
+        menu.item_by_path(path, exact).select()
+
 
 backend.register('wpf', WPFElementInfo, WPFWrapper)
