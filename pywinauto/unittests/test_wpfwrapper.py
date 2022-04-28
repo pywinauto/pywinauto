@@ -748,5 +748,69 @@ class ToolbarWpfTests(unittest.TestCase):
         self.assertFalse(tb.is_collapsed())
 
 
+class MenuWrapperWpfTests(unittest.TestCase):
+
+    """Unit tests for the MenuWrapper class on WPF demo"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        self.app = Application(backend='wpf')
+        self.app = self.app.start(wpf_app_1)
+        self.dlg = self.app.WPFSampleApplication
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_menu_by_index(self):
+        """Test selecting a WPF menu item by index"""
+        path = "#0->#1->#1"  # "File->Close->Later"
+        self.dlg.menu_select(path)
+        label = self.dlg.MenuLaterClickStatic.find()
+        self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+        # Non-existing paths
+        path = "#5->#1"
+        self.assertRaises(IndexError, self.dlg.menu_select, path)
+        path = "#0->#1->#1->#2->#3"
+        self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+    def test_menu_by_exact_text(self):
+        """Test selecting a WPF menu item by exact text match"""
+        path = "_File->_Close->_Later"
+        self.dlg.menu_select(path, True)
+        label = self.dlg.MenuLaterClickStatic.find()
+        self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+        # A non-exact menu name
+        path = "File->About"
+        self.assertRaises(IndexError, self.dlg.menu_select, path, True)
+
+    def test_menu_by_best_match_text(self):
+        """Test selecting a WPF menu item by best match text"""
+        path = "file-> close -> later"
+        self.dlg.menu_select(path, False)
+        label = self.dlg.MenuLaterClickStatic.find()
+        self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+    def test_menu_by_mixed_match(self):
+        """Test selecting a WPF menu item by a path with mixed specifiers"""
+        path = "file-> #1 -> later"
+        self.dlg.menu_select(path, False)
+        label = self.dlg.MenuLaterClickStatic.find()
+        self.assertEqual(label.window_text(), u"MenuLaterClick")
+
+        # Bad specifiers
+        path = "file-> 1 -> later"
+        self.assertRaises(IndexError, self.dlg.menu_select, path)
+        path = "#0->#1->1"
+        self.assertRaises(IndexError, self.dlg.menu_select, path)
+        path = "0->#1->1"
+        self.assertRaises(IndexError, self.dlg.menu_select, path)
+
+
 if __name__ == "__main__":
     unittest.main()
