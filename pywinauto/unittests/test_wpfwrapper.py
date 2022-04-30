@@ -812,5 +812,175 @@ class MenuWrapperWpfTests(unittest.TestCase):
         self.assertRaises(IndexError, self.dlg.menu_select, path)
 
 
+class TreeViewWpfTests(unittest.TestCase):
+
+    """Unit tests for TreeViewWrapper class on WPF demo"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        self.app = Application(backend='wpf')
+        self.app = self.app.start(wpf_app_1)
+        self.dlg = self.app.WPFSampleApplication
+        tab_itm = self.dlg.TreeAndListViews.set_focus()
+        self.ctrl = tab_itm.descendants(control_type="Tree")[0]
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_tv_item_count_and_roots(self):
+        """Test getting roots and a total number of items in TreeView"""
+        self.assertEqual(self.ctrl.item_count(), 27)
+
+        # Test if it's in writable properties
+        props = set(self.ctrl.get_properties().keys())
+        self.assertEqual('item_count' in props, True)
+
+        roots = self.ctrl.roots()
+        self.assertEqual(len(roots), 1)
+        self.assertEqual(roots[0].texts()[0], u'Date Elements')
+
+        sub_items = roots[0].sub_elements(depth=1)
+        self.assertEqual(len(sub_items), 4)
+        self.assertEqual(sub_items[0].window_text(), u'Empty Date')
+        self.assertEqual(sub_items[-1].window_text(), u'Years')
+
+        expected_str = "Date Elements\n Empty Date\n Week\n  Monday\n  Tuesday\n  Wednsday\n"
+        expected_str += "  Thursday\n  Friday\n  Saturday\n  Sunday\n "
+        expected_str += "Months\n  January\n  February\n  March\n  April\n  June\n  July\n  August\n  Semptember\n  "
+        expected_str += "October\n  November\n  December\n Years\n  2015\n  2016\n  2017\n  2018\n"
+        self.assertEqual(self.ctrl.print_items(), expected_str)
+
+    def test_tv_item_select(self):
+        """Test selecting an item from TreeView"""
+        # Find by a path with indexes
+        itm = self.ctrl.get_item((0, 2, 3))
+        self.assertEqual(itm.is_selected(), False)
+
+        # Select
+        itm.select()
+        self.assertEqual(itm.is_selected(), True)
+
+        # A second call to Select doesn't remove selection
+        itm.select()
+        self.assertEqual(itm.is_selected(), True)
+
+        itm = self.ctrl.get_item((0, 3, 2))
+        itm.ensure_visible()
+        self.assertEqual(itm.is_selected(), False)
+        # coords = itm.children(control_type='Text')[0].rectangle().mid_point()
+        # itm.click_input(coords=coords, absolute=True)
+        # self.assertEqual(itm.is_selected(), True)
+
+    def test_tv_get_item(self):
+        """Test getting an item from TreeView"""
+        # Find by a path with indexes
+        itm = self.ctrl.get_item((0, 2, 3))
+        self.assertEqual(isinstance(itm, wpf_ctls.TreeItemWrapper), True)
+        self.assertEqual(itm.window_text(), u'April')
+
+        # Find by a path with strings
+        itm = self.ctrl.get_item('\\Date Elements\\Months\\April', exact=True)
+        self.assertEqual(isinstance(itm, wpf_ctls.TreeItemWrapper), True)
+        self.assertEqual(itm.window_text(), u'April')
+
+        itm = self.ctrl.get_item('\\ Date Elements \\ months \\ april', exact=False)
+        self.assertEqual(isinstance(itm, wpf_ctls.TreeItemWrapper), True)
+        self.assertEqual(itm.window_text(), u'April')
+
+        itm = self.ctrl.get_item('\\Date Elements', exact=False)
+        self.assertEqual(isinstance(itm, wpf_ctls.TreeItemWrapper), True)
+        self.assertEqual(itm.window_text(), u'Date Elements')
+
+        # Try to find the last item in the tree hierarchy
+        itm = self.ctrl.get_item('\\Date Elements\\Years\\2018', exact=False)
+        self.assertEqual(isinstance(itm, wpf_ctls.TreeItemWrapper), True)
+        self.assertEqual(itm.window_text(), u'2018')
+
+        itm = self.ctrl.get_item((0, 3, 3))
+        self.assertEqual(isinstance(itm, wpf_ctls.TreeItemWrapper), True)
+        self.assertEqual(itm.window_text(), u'2018')
+
+        self.assertRaises(RuntimeError,
+                          self.ctrl.get_item,
+                          'Date Elements\\months',
+                          exact=False)
+
+        self.assertRaises(IndexError,
+                          self.ctrl.get_item,
+                          '\\_X_- \\months',
+                          exact=False)
+
+        self.assertRaises(IndexError,
+                          self.ctrl.get_item,
+                          '\\_X_- \\ months',
+                          exact=True)
+
+        self.assertRaises(IndexError,
+                          self.ctrl.get_item,
+                          '\\Date Elements\\ months \\ aprel',
+                          exact=False)
+
+        self.assertRaises(IndexError,
+                          self.ctrl.get_item,
+                          '\\Date Elements\\ months \\ april\\',
+                          exact=False)
+
+        self.assertRaises(IndexError,
+                          self.ctrl.get_item,
+                          '\\Date Elements\\ months \\ aprel',
+                          exact=True)
+
+        self.assertRaises(IndexError, self.ctrl.get_item, (0, 200, 1))
+
+        self.assertRaises(IndexError, self.ctrl.get_item, (130, 2, 1))
+
+    def test_tv_drag_n_drop(self):
+        """Test moving an item with mouse over TreeView"""
+        # Make sure the both nodes are visible
+        self.ctrl.get_item('\\Date Elements\\weeks').collapse()
+        itm_from = self.ctrl.get_item('\\Date Elements\\Years')
+        itm_to = self.ctrl.get_item('\\Date Elements\\Empty Date')
+
+        itm_from.drag_mouse_input(itm_to)
+
+        # Verify that the item and its sub-items are attached to the new node
+        itm = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+        self.assertEqual(itm.window_text(), 'Years')
+        itm = self.ctrl.get_item((0, 0, 0, 0))
+        self.assertEqual(itm.window_text(), '2015')
+        itm = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+        itm.collapse()
+
+        itm_from = self.ctrl.get_item('\\Date Elements\\Empty Date\\Years')
+        itm_to = self.ctrl.get_item(r'\Date Elements\Months')
+        self.ctrl.drag_mouse_input(itm_to, itm_from)
+        itm = self.ctrl.get_item(r'\Date Elements\Months\Years')
+        self.assertEqual(itm.window_text(), 'Years')
+
+        # Error handling: drop on itself
+        self.assertRaises(AttributeError,
+                          self.ctrl.drag_mouse_input,
+                          itm_from, itm_from)
+
+        # Drag-n-drop by manually calculated absolute coordinates
+        itm_from = self.ctrl.get_item(r'\Date Elements\Months')
+        itm_from.collapse()
+        r = itm_from.rectangle()
+        coords_from = (int(r.left + (r.width() / 4.0)),
+                       int(r.top + (r.height() / 2.0)))
+
+        r = self.ctrl.get_item(r'\Date Elements\Weeks').rectangle()
+        coords_to = (int(r.left + (r.width() / 4.0)),
+                     int(r.top + (r.height() / 2.0)))
+
+        self.ctrl.drag_mouse_input(coords_to, coords_from)
+        itm = self.ctrl.get_item(r'\Date Elements\Weeks\Months')
+        self.assertEqual(itm.window_text(), 'Months')
+
+
 if __name__ == "__main__":
     unittest.main()

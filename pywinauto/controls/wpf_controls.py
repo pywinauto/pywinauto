@@ -823,3 +823,216 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
             raise IndexError()
 
         return menu
+
+
+class TreeItemWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an WPF TreeItem control
+
+    In addition to the provided methods of the wrapper
+    additional inherited methods can be especially helpful:
+    select(), extend(), collapse(), is_extended(), is_collapsed(),
+    click_input(), rectangle() and many others
+    """
+
+    _control_types = ['TreeItem']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TreeItemWrapper, self).__init__(elem)
+
+    # -----------------------------------------------------------
+    def ensure_visible(self):
+        """Make sure that the TreeView item is visible"""
+        self.invoke_method('BringIntoView')
+
+    # -----------------------------------------------------------
+    def get_child(self, child_spec, exact=False):
+        """Return the child item of this item
+
+        Accepts either a string or an index.
+        If a string is passed then it returns the child item
+        with the best match for the string.
+        """
+        cc = self.children(control_type='TreeItem')
+        if isinstance(child_spec, six.string_types):
+            texts = [c.window_text() for c in cc]
+            if exact:
+                if child_spec in texts:
+                    index = texts.index(child_spec)
+                else:
+                    raise IndexError('There is no child equal to "' + str(child_spec) + '" in ' + str(texts))
+            else:
+                indices = range(0, len(texts))
+                index = findbestmatch.find_best_match(
+                    child_spec, texts, indices, limit_ratio=.6)
+
+        else:
+            index = child_spec
+
+        return cc[index]
+
+    # -----------------------------------------------------------
+    def _calc_click_coords(self):
+        """Override the BaseWrapper helper method
+
+        Set coordinates close to a left part of the item rectangle
+
+        The returned coordinates are always absolute
+        """
+        
+        # TODO get rectangle of text area
+        rect = self.rectangle()
+        coords = (rect.left + int(float(rect.width()) / 4.),
+                  rect.top + int(float(rect.height()) / 2.))
+        return coords
+
+    # -----------------------------------------------------------
+    def sub_elements(self, depth=None):
+        """Return a list of all visible sub-items of this control"""
+        return self.descendants(control_type="TreeItem", depth=depth)
+
+    def expand(self):
+        self.set_property('IsExpanded', True)
+        return self
+
+    # -----------------------------------------------------------
+    def collapse(self):
+        self.set_property('IsExpanded', False)
+        return self
+
+    # -----------------------------------------------------------
+    def is_expanded(self):
+        """Test if the control is expanded"""
+        return self.get_property('IsExpanded')
+
+    # -----------------------------------------------------------
+    def is_collapsed(self):
+        """Test if the control is collapsed"""
+        return not self.get_property('IsExpanded')
+
+    # -----------------------------------------------------------
+    def select(self):
+        self.set_property('IsSelected', True)
+        return self
+
+    # -----------------------------------------------------------
+    def is_selected(self):
+        """Test if the control is expanded"""
+        return self.get_property('IsSelected')
+
+
+# ====================================================================
+class TreeViewWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an WPF Tree control"""
+
+    _control_types = ['Tree']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(TreeViewWrapper, self).__init__(elem)
+
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(TreeViewWrapper, self).writable_props
+        props.extend(['item_count'])
+        return props
+
+    # -----------------------------------------------------------
+    def item_count(self, depth=None):
+        """Return a number of items in TreeView"""
+        return len(self.descendants(control_type="TreeItem", depth=depth))
+
+    # -----------------------------------------------------------
+    def roots(self):
+        """Return root elements of TreeView"""
+        return self.children(control_type="TreeItem")
+
+    # -----------------------------------------------------------
+    def get_item(self, path, exact=False):
+        r"""Read a TreeView item
+
+        * **path** a path to the item to return. This can be one of
+          the following:
+
+          * A string separated by \\ characters. The first character must
+            be \\. This string is split on the \\ characters and each of
+            these is used to find the specific child at each level. The
+            \\ represents the root item - so you don't need to specify the
+            root itself.
+          * A list/tuple of strings - The first item should be the root
+            element.
+          * A list/tuple of integers - The first item the index which root
+            to select. Indexing always starts from zero: get_item((0, 2, 3))
+
+        * **exact** a flag to request exact match of strings in the path
+          or apply a fuzzy logic of best_match thus allowing non-exact
+          path specifiers
+        """
+        if not self.item_count():
+            return None
+
+        # Ensure the path is absolute
+        if isinstance(path, six.string_types):
+            if not path.startswith("\\"):
+                raise RuntimeError(
+                    "Only absolute paths allowed - "
+                    "please start the path with \\")
+            path = path.split("\\")[1:]
+
+        # find the correct root elem
+        if isinstance(path[0], int):
+            current_elem = self.roots()[path[0]]
+        else:
+            roots = self.roots()
+            texts = [r.window_text() for r in roots]
+            if exact:
+                if path[0] in texts:
+                    current_elem = roots[texts.index(path[0])]
+                else:
+                    raise IndexError("There is no root element equal to '{0}'".format(path[0]))
+            else:
+                try:
+                    current_elem = findbestmatch.find_best_match(
+                        path[0], texts, roots, limit_ratio=.6)
+                except IndexError:
+                    raise IndexError("There is no root element similar to '{0}'".format(path[0]))
+
+        # now for each of the lower levels
+        # just index into it's children
+        for child_spec in path[1:]:
+            try:
+                # ensure that the item is expanded as this is sometimes
+                # required for loading tree view branches
+                current_elem.expand()
+                current_elem = current_elem.get_child(child_spec, exact)
+            except IndexError:
+                if isinstance(child_spec, six.string_types):
+                    raise IndexError("Item '{0}' does not have a child '{1}'".format(
+                                     current_elem.window_text(), child_spec))
+                else:
+                    raise IndexError("Item '{0}' does not have {1} children".format(
+                                     current_elem.window_text(), child_spec + 1))
+
+        return current_elem
+
+    # -----------------------------------------------------------
+    def print_items(self, max_depth=None):
+        """Print all items with line indents"""
+        self.text = ""
+
+        def _print_one_level(item, ident):
+            """Get texts for the item and its children"""
+            self.text += " " * ident + item.window_text() + "\n"
+            if max_depth is None or ident <= max_depth:
+                for child in item.children(control_type="TreeItem"):
+                    _print_one_level(child, ident + 1)
+
+        for root in self.roots():
+            _print_one_level(root, 0)
+
+        return self.text
