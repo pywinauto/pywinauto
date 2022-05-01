@@ -982,5 +982,115 @@ class TreeViewWpfTests(unittest.TestCase):
         self.assertEqual(itm.window_text(), 'Months')
 
 
+class ListViewWrapperTests(unittest.TestCase):
+
+    """Unit tests for the ListViewWrapper class"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        app = Application(backend='wpf')
+        app = app.start(wpf_app_1)
+        dlg = app.WPFSampleApplication
+
+        self.app = app
+
+        self.listbox_datagrid_tab = dlg.ListBox_and_Grid
+
+        self.listbox_texts = [
+            [u"TextItem 1", ],
+            [u"TextItem 2", ],
+            [u"ButtonItem", ],
+            [u"CheckItem", ],
+            [u"TextItem 3", ],
+            [u"TextItem 4", ],
+            [u"TextItem 5", ],
+            [u"TextItem 6", ],
+            [u"TextItem 7", ],
+            [u"TextItem 8", ],
+        ]
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_item_count(self):
+        """Test the items count in the ListView controls"""
+        # ListBox
+        self.listbox_datagrid_tab.set_focus()
+        listbox = self.listbox_datagrid_tab.descendants(class_name=u"ListBox")[0]
+        self.assertEqual(listbox.item_count(), len(self.listbox_texts))
+
+    def test_cells(self):
+        """Test getting a cells of the ListView controls"""
+        # ListBox
+        self.listbox_datagrid_tab.set_focus()
+        listbox = self.listbox_datagrid_tab.descendants(class_name=u"ListBox")[0]
+        cells = listbox.cells()
+        self.assertEqual(cells[listbox.item_count() - 1].window_text(), "TextItem 8")
+        self.assertEqual(cells[3].window_text(), "CheckItem")
+
+    def test_get_item(self):
+        """Test getting an item of ListView controls"""
+        # ListBox
+        self.listbox_datagrid_tab.set_focus()
+        listbox = self.listbox_datagrid_tab.descendants(class_name=u"ListBox")[0]
+        item = listbox.get_item(u"TextItem 2")
+        self.assertEqual(item.texts(), self.listbox_texts[1])
+
+        item = listbox.get_item(3)
+        self.assertEqual(item.texts(), self.listbox_texts[3])
+
+        item = listbox.get_item(u"TextItem 8")
+        self.assertEqual(item.texts(), self.listbox_texts[9])
+
+    def test_get_items(self):
+        """Test getting all items of ListView controls"""
+        # ListBox
+        self.listbox_datagrid_tab.set_focus()
+        listbox = self.listbox_datagrid_tab.descendants(class_name=u"ListBox")[0]
+        content = [item.texts() for item in listbox.get_items()]
+        self.assertEqual(content, self.listbox_texts)
+
+    def test_texts(self):
+        """Test getting all items of ListView controls"""
+        # ListBox
+        self.listbox_datagrid_tab.set_focus()
+        listbox = self.listbox_datagrid_tab.descendants(class_name=u"ListBox")[0]
+        self.assertEqual(listbox.texts(), self.listbox_texts)
+
+    def test_select_and_get_item(self):
+        """Test selecting an item of the ListView control"""
+        self.listbox_datagrid_tab.set_focus()
+        self.ctrl = self.listbox_datagrid_tab.descendants(class_name=u"ListBox")[0]
+        self.assertEqual(self.ctrl.texts(), self.listbox_texts)
+        # Verify get_selected_count
+        self.assertEqual(self.ctrl.get_selected_count(), 0)
+
+        # Select by an index
+        row = 1
+        i = self.ctrl.get_item(row)
+        self.assertEqual(i.is_selected(), False)
+        i.select()
+        self.assertEqual(i.is_selected(), True)
+        cnt = self.ctrl.get_selected_count()
+        self.assertEqual(cnt, 1)
+        rect = self.ctrl.get_item_rect(row)
+        self.assertEqual(rect, i.rectangle())
+
+        # Select by text
+        row = 'TextItem 6'
+        i = self.ctrl.get_item(row)
+        i.select()
+        self.assertEqual(i.is_selected(), True)
+        i = self.ctrl.get_item(7)  # re-get the item by a row index
+        self.assertEqual(i.is_selected(), True)
+
+        row = None
+        self.assertRaises(TypeError, self.ctrl.get_item, row)
+
+
 if __name__ == "__main__":
     unittest.main()
