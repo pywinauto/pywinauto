@@ -1036,3 +1036,158 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
             _print_one_level(root, 0)
 
         return self.text
+
+
+class ListItemWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an UIA-compatible ListViewItem control"""
+
+    _control_types = ['ListItem', ]
+
+    # -----------------------------------------------------------
+    def __init__(self, elem, container=None):
+        """Initialize the control"""
+        super(ListItemWrapper, self).__init__(elem)
+
+        # Init a pointer to the item's container wrapper.
+        # It must be set by a container wrapper producing the item.
+        # Notice that the self.parent property isn't the same
+        # because it results in a different instance of a wrapper.
+        self.container = container
+
+    def texts(self):
+        """Return a list of item texts"""
+        return [self.window_text()]
+
+    def select(self):
+        """Select the item
+
+        Usually applied for controls like: a radio button, a tree view item
+        or a list item.
+        """
+        self.set_property('IsSelected', True)
+
+        name = self.element_info.name
+        control_type = self.element_info.control_type
+        if name and control_type:
+            self.actions.log("Selected " + control_type.lower() + ' "' + name + '"')
+
+        # Return itself so that action can be chained
+        return self
+
+    # -----------------------------------------------------------
+    def is_selected(self):
+        """Indicate that the item is selected or not.
+
+        Usually applied for controls like: a radio button, a tree view item,
+        a list item.
+        """
+        return self.get_property('IsSelected')
+
+
+class ListViewWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an UIA-compatible ListView control"""
+
+    _control_types = ['List']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(ListViewWrapper, self).__init__(elem)
+
+    def __getitem__(self, key):
+        return self.get_item(key)
+
+    # -----------------------------------------------------------
+    def item_count(self):
+        """A number of items in the List"""
+        return len(self.children())
+
+    # -----------------------------------------------------------
+    def cells(self):
+        """Return list of list of cells for any type of control"""
+        return self.children(content_only=True)
+
+    # -----------------------------------------------------------
+    def get_item(self, row):
+        """Return an item of the ListView control
+
+        * **row** can be either an index of the row or a string
+          with the text of a cell in the row you want returned.
+        """
+        # Verify arguments
+        if isinstance(row, six.string_types):
+            # Get DataGrid row
+            try:
+                itm = self.descendants(name=row)[0]
+                # Applications like explorer.exe usually return ListItem
+                # directly while other apps can return only a cell.
+                # In this case we need to take its parent - the whole row.
+                if not isinstance(itm, ListItemWrapper):
+                    itm = itm.parent()
+            except IndexError:
+                raise ValueError("Element '{0}' not found".format(row))
+        elif isinstance(row, six.integer_types):
+            # Get the item by a row index
+            list_items = self.children(content_only=True)
+            itm = list_items[row]
+        else:
+            raise TypeError("String type or integer is expected")
+
+        # Give to the item a pointer on its container
+        itm.container = self
+        return itm
+
+    item = get_item  # this is an alias to be consistent with other content elements
+
+    # -----------------------------------------------------------
+    def get_items(self):
+        """Return all items of the ListView control"""
+        return self.children(content_only=True)
+
+    items = get_items  # this is an alias to be consistent with other content elements
+
+    # -----------------------------------------------------------
+    def get_item_rect(self, item_index):
+        """Return the bounding rectangle of the list view item
+
+        The method is kept mostly for a backward compatibility
+        with the native ListViewWrapper interface
+        """
+        itm = self.get_item(item_index)
+        return itm.rectangle()
+
+    def get_selection(self):
+        # TODO get selected items directly from SelectedItems property
+        return [child for child in self.iter_children() if child.is_selected()]
+
+    # -----------------------------------------------------------
+    def get_selected_count(self):
+        """Return a number of selected items
+
+        The call can be quite expensive as we retrieve all
+        the selected items in order to count them
+        """
+        selection = self.get_selection()
+        if selection:
+            return len(selection)
+        else:
+            return 0
+
+    # -----------------------------------------------------------
+    def texts(self):
+        """Return a list of item texts"""
+        return [elem.texts() for elem in self.children(content_only=True)]
+
+    # -----------------------------------------------------------
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListViewWrapper, self).writable_props
+        props.extend(['column_count',
+                      'item_count',
+                      'columns',
+                      # 'items',
+                      ])
+        return props
