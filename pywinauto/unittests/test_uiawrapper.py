@@ -2264,6 +2264,39 @@ if UIA_support:
             # our window has been brought to the focus (clickable point exists)
             self.assertEqual(self.dlg.element_info.element.GetClickablePoint()[-1], 1)
 
+    class ToolBarTests(unittest.TestCase):
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            _set_timings()
+
+            test_folder = os.path.join(os.path.dirname(os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__)))), r"apps/WinForms_samples")
+            self.toolbar_test = os.path.join(test_folder, "ToolBarTest.exe")
+
+            # start the application
+            self.app = Application(backend='uia')
+            self.app = self.app.start(self.toolbar_test)
+
+            self.dlg = self.app.ToolBarTest.find()
+            self.another_app = None
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+            if self.another_app:
+                self.another_app.kill()
+                self.another_app = None
+
+        def test_toolbar_select(self):
+            self.dlg.toolbar_select('File->TestItem->Exit')
+            self.assertEqual(self.app.dlg.not_exists(), True)
+
+        def test_item_by_path(self):
+            toolbar = self.app.dlg.toolStrip1.find()
+            self.assertEqual(toolbar.item_by_path('#2->#1'), toolbar.item_by_path('Edit->Button2'))
+            self.assertEqual(toolbar.item_by_path('Edit->#0'), toolbar.item_by_path('Edit->Button1'))
+            self.assertEqual(toolbar.item_by_path('#2->Button3'), toolbar.item_by_path('Edit->Button3'))
+
 
 if __name__ == "__main__":
     if UIA_support:
