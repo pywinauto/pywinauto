@@ -9,7 +9,7 @@ from . import common_controls
 from .. import findbestmatch
 from .. import timings
 from ..windows.wpf_element_info import WPFElementInfo
-from ..windows.injected.api import *
+from ..windows.injected.api import ConnectionManager
 
 
 # ====================================================================

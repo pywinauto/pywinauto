@@ -1,14 +1,10 @@
-"""Implementation of the class to deal with an UI element of WPF via injected DLL"""
-import json
+"""Implementation of the class to deal with an UI element of WPF via injected managed DLL/assembly"""
+from six import integer_types, string_types
 
-from six import integer_types, text_type, string_types
-from ctypes.wintypes import tagPOINT
-import warnings
-
-from pywinauto.handleprops import dumpwindow, controlid
+from pywinauto.handleprops import dumpwindow
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from .injected.api import *
+from .injected.api import ConnectionManager, NotFoundError, UnsupportedActionError
 
 
 def is_element_satisfying_criteria(element, process=None, class_name=None, name=None, control_type=None,
@@ -44,13 +40,13 @@ class WPFElementInfo(ElementInfo):
 
         If elem_id is None create an instance for UI root element.
         """
-        self._pid=pid
+        self._pid = pid
         if elem_id is not None:
             if isinstance(elem_id, integer_types):
                 # Create instance of WPFElementInfo from a handle
                 self._element = elem_id
             else:
-                raise TypeError("WPFElementInfo object can be initialized " + \
+                raise TypeError("WPFElementInfo object can be initialized "
                                 "with integer instance only!")
         else:
             self._element = 0
@@ -83,7 +79,7 @@ class WPFElementInfo(ElementInfo):
 
     @property
     def rich_text(self):
-        if self.control_type=='Edit':
+        if self.control_type == 'Edit':
             return self.get_property('Text') or ''
         return self.name
 
@@ -219,8 +215,8 @@ class WPFElementInfo(ElementInfo):
         elif isinstance(app_or_pid, Application):
             pid = app_or_pid.process
         else:
-            raise TypeError("UIAElementInfo object can be initialized " + \
-                            "with integer or IUIAutomationElement instance only!")
+            raise TypeError("WPFElementInfo object can be initialized "
+                            "with integer or Application instance only!")
 
         try:
             reply = ConnectionManager().call_action('GetFocusedElement', pid)

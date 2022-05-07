@@ -1,7 +1,6 @@
 import unittest
 import os
 import sys
-import mock
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
@@ -9,13 +8,12 @@ from pywinauto.handleprops import processid  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 
-from pywinauto.windows.wpf_element_info import WPFElementInfo
-
 wpf_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
 if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
 wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
+
 
 class WPFElementInfoTests(unittest.TestCase):
     """Unit tests for the WPFlementInfo class"""

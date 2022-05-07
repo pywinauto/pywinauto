@@ -8,7 +8,6 @@ import sys
 import collections
 import unittest
 import mock
-import six
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
@@ -16,13 +15,10 @@ from pywinauto.base_application import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.timings import Timings, wait_until  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
-from pywinauto import Desktop
 from pywinauto import mouse  # noqa: E402
-from pywinauto import WindowNotFoundError  # noqa: E402
 
 import pywinauto.controls.wpf_controls as wpf_ctls
 from pywinauto.controls.wpfwrapper import WPFWrapper
-from pywinauto.windows.wpf_element_info import WPFElementInfo
 from pywinauto.windows.injected.api import InjectedTargetError
 from pywinauto.windows.injected.channel import BrokenPipeError
 
@@ -31,6 +27,7 @@ wpf_samples_folder = os.path.join(
 if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
 wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
+
 
 def _set_timings():
     """Setup timings for WPF related tests"""

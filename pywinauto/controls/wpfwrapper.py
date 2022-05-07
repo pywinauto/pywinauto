@@ -4,21 +4,17 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 import six
-import time
-import warnings
-import threading
 
 from .. import backend
 from .. import WindowNotFoundError  # noqa #E402
-from ..timings import Timings
 from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
-from ..windows.injected.api import *
+from ..windows.injected.api import ConnectionManager
 from ..windows.wpf_element_info import WPFElementInfo
 
-class WpfMeta(BaseMeta):
 
-    """Metaclass for UiaWrapper objects"""
+class WpfMeta(BaseMeta):
+    """Metaclass for WpfWrapper objects"""
     control_type_to_cls = {}
 
     def __init__(cls, name, bases, attrs):
@@ -31,7 +27,7 @@ class WpfMeta(BaseMeta):
 
     @staticmethod
     def find_wrapper(element):
-        """Find the correct wrapper for this UIA element"""
+        """Find the correct wrapper for this WPF element"""
 
         # Check for a more specific wrapper in the registry
         try:
@@ -41,6 +37,7 @@ class WpfMeta(BaseMeta):
             wrapper_match = WPFWrapper
 
         return wrapper_match
+
 
 @six.add_metaclass(WpfMeta)
 class WPFWrapper(WinBaseWrapper):
@@ -119,9 +116,9 @@ class WPFWrapper(WinBaseWrapper):
         return [c.window_text() for c in self.children()]
 
     #  System.Windows.WindowState enum
-    NORMAL=0
-    MAXIMIZED=1
-    MINIMIZED=2
+    NORMAL = 0
+    MAXIMIZED = 1
+    MINIMIZED = 2
 
     # -----------------------------------------------------------
     def close(self):
