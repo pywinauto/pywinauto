@@ -83,7 +83,6 @@ class AXMeta(BaseMeta):
         """Find the correct wrapper for this AX element"""
         # Set a general wrapper by default
         wrapper_match = AXWrapper
-        # print('element.control_type:', element.control_type)
 
         # Check for a more specific wrapper in the registry
         if element.control_type in AXMeta.control_type_to_cls:
@@ -289,8 +288,6 @@ class AXWrapper(BaseWrapper):
         """
         if self.is_dialog():
             self.set_focus()
-        #if self.backend.name == "win32":
-        #    self._ensure_enough_privileges('win32api.SetCursorPos(x, y)')
         # TODO: check it in more general way for both backends
 
         if isinstance(coords, AX_RECT):
