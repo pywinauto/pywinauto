@@ -41,7 +41,7 @@ from ..macos.macos_functions import set_ax_attribute
 class ButtonWrapper(ax_wrapper.AXWrapper):
 
     """Wraps all kind of ax button controls"""
-    # All actions should be tested
+    # TODO All actions should be tested
 
     _control_types = [
         'Button',

@@ -30,7 +30,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """
-Example script for Itunes on macOS 10.14
+Example script for iTunes on macOS 10.14
 """
 
 import time, sys

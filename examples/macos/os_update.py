@@ -48,4 +48,4 @@ swu = app.Window.child_window(name='Software UpdateWindow')
 # advanced = swu.child_window(name='Advanced...')
 # advanced.click()
 
-# TO DO check full update on another machine
+# TODO check full update on another machine
