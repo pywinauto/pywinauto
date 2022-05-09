@@ -36,7 +36,7 @@ from Foundation import NSRect, NSPoint, NSSize
 from ..base_types import Structure, PointIteratorMixin, RectExtMixin
 from ctypes import c_int
 
-class AX_RECT():
+class AX_RECT(object):
     """Wrap the macos NSRect structure and add extra functionality"""
     def __init__(self, **kwargs):
         rect   = kwargs.get("nsrect", None)
@@ -81,8 +81,8 @@ class AX_RECT():
         return False
 
 
-class AX_POINT():
-    """Wrap the macos NSRect structure and add extra functionality"""
+class AX_POINT(object):
+    """Wrap the macos NSPoint structure and add extra functionality"""
     def __init__(self, **kwargs):
         x = kwargs.get("x", None)
         y = kwargs.get("y", None)
@@ -111,7 +111,7 @@ class AX_POINT():
         return False
 
 
-class AX_SIZE():
+class AX_SIZE(object):
     """Wrap the macos NSSize structure and add extra functionality"""
     def __init__(self, **kwargs):
         w = kwargs.get("width", None)
