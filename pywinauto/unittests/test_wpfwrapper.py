@@ -1091,7 +1091,7 @@ class ListViewWrapperTests(unittest.TestCase):
 
 class GridListViewWrapperTests(unittest.TestCase):
 
-    """Unit tests for the DataGridWrapper class with a GridView view"""
+    """Unit tests for the DataGridWrapper class"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -1105,6 +1105,7 @@ class GridListViewWrapperTests(unittest.TestCase):
         self.app = app
 
         self.listview_tab = dlg.Tree_and_List_Views
+        self.listbox_datagrid_tab = dlg.ListBox_and_Grid
 
         self.listview_texts = [
             [u"1", u"Tomatoe", u"Red"],
@@ -1116,26 +1117,43 @@ class GridListViewWrapperTests(unittest.TestCase):
             [u"7", u"Cupsicum", u"Green", ],
         ]
 
+        self.datagrid_texts = [
+            [u"0", u"A0", u"B0", u"C0", u"D0", u"E0", u"", ],
+            [u"1", u"A1", u"B1", u"C1", u"D1", u"E1", u"", ],
+            [u"2", u"A2", u"B2", u"C2", u"D2", u"E2", u"", ],
+            [u"3", u"A3", u"B3", u"C3", u"D3", u"E3", u"", ],
+        ]
+
     def tearDown(self):
         """Close the application after tests"""
         self.app.kill()
 
     def test_item_count(self):
-        """Test the items count in the ListView controls"""
+        """Test the items count in grid controls"""
         # ListView
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
         self.assertEqual(listview.item_count(), len(self.listview_texts))
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        self.assertEqual(datagrid.item_count(), len(self.datagrid_texts))
+
     def test_column_count(self):
-        """Test the columns count in the ListView controls"""
+        """Test the columns count in grid controls"""
         # ListView
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
         self.assertEqual(listview.column_count(), len(self.listview_texts[0]))
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        self.assertEqual(datagrid.column_count(), len(self.datagrid_texts[0]) - 1)
+
     def test_get_header_control(self):
-        """Test getting a Header control and Header Item control of ListView controls"""
+        """Test getting a Header control and Header Item control of grid controls"""
         # ListView
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
@@ -1144,24 +1162,49 @@ class GridListViewWrapperTests(unittest.TestCase):
         self.assertTrue(isinstance(hdr_itm, wpf_ctls.HeaderItemWrapper))
         self.assertEquals('Name', hdr_itm.element_info.name)
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        grid_hdr_item = datagrid.get_header_controls()[2]
+        self.assertEquals('B', grid_hdr_item.element_info.name)
+        self.assertTrue(isinstance(grid_hdr_item, wpf_ctls.HeaderItemWrapper))
+
     def test_get_column(self):
-        """Test get_column() method for the ListView controls"""
+        """Test get_column() method for grid controls"""
         # ListView
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
         listview_col = listview.get_column(1)
         self.assertEqual(listview_col.texts()[0], u"Name")
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        datagrid_col = datagrid.get_column(2)
+        self.assertEqual(datagrid_col.texts()[0], u"B")
+
+        self.assertRaises(IndexError, datagrid.get_column, 10)
+
     def test_cell(self):
-        """Test getting a cell of the ListView controls"""
+        """Test getting a cell of grid controls"""
         # ListView
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
         cell = listview.cell(3, 2)
         self.assertEqual(cell.window_text(), self.listview_texts[3][2])
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        cell = datagrid.cell(2, 0)
+        self.assertEqual(cell.window_text(), self.datagrid_texts[2][0])
+
+        self.assertRaises(TypeError, datagrid.cell, 1.5, 1)
+
+        self.assertRaises(IndexError, datagrid.cell, 10, 10)
+
     def test_cells(self):
-        """Test getting a cells of the ListView controls"""
+        """Test getting a cells of grid controls"""
         def compare_cells(cells, control):
             for i in range(0, control.item_count()):
                 for j in range(0, control.column_count()):
@@ -1172,8 +1215,13 @@ class GridListViewWrapperTests(unittest.TestCase):
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
         compare_cells(listview.cells(), listview)
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        compare_cells(datagrid.cells(), datagrid)
+
     def test_get_item(self):
-        """Test getting an item of ListView controls"""
+        """Test getting an item of grid controls"""
         # ListView
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
@@ -1182,20 +1230,42 @@ class GridListViewWrapperTests(unittest.TestCase):
 
         self.assertRaises(ValueError, listview.get_item, u"Apple")
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        item = datagrid.get_item(u"B2")
+        self.assertEqual(item.texts(), self.datagrid_texts[2])
+
+        item = datagrid.get_item(3)
+        self.assertEqual(item.texts(), self.datagrid_texts[3])
+
+        self.assertRaises(TypeError, datagrid.get_item, 12.3)
+
     def test_get_items(self):
-        """Test getting all items of ListView controls"""
+        """Test getting all items of grid controls"""
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
         content = [item.texts() for item in listview.get_items()]
         self.assertEqual(content, self.listview_texts)
 
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        content = [item.texts() for item in datagrid.get_items()]
+        self.assertEqual(content, self.datagrid_texts)
+
     def test_texts(self):
-        """Test getting all items of ListView controls"""
+        """Test getting all items of grid controls"""
         self.listview_tab.set_focus()
         listview = self.listview_tab.descendants(class_name=u"ListView")[0]
         self.assertEqual(listview.texts(), self.listview_texts)
 
-    def test_select_and_get_item(self):
+        # DataGrid
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        self.assertEqual(datagrid.texts(), self.datagrid_texts)
+
+    def test_select_and_get_item_listview(self):
         """Test selecting an item of the ListView control"""
         self.listview_tab.set_focus()
         self.ctrl = self.listview_tab.descendants(class_name=u"ListView")[0]
@@ -1226,6 +1296,38 @@ class GridListViewWrapperTests(unittest.TestCase):
 
         row = None
         self.assertRaises(TypeError, self.ctrl.get_item, row)
+
+    def test_select_and_get_item_datagrid(self):
+        """Test selecting an item of the DataGrid control"""
+        self.listbox_datagrid_tab.set_focus()
+        datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
+        # Verify get_selected_count
+        self.assertEqual(datagrid.get_selected_count(), 0)
+
+        # Select by an index
+        row = 1
+        i = datagrid.get_item(row)
+        self.assertEqual(i.is_selected(), False)
+        i.select()
+        self.assertEqual(i.is_selected(), True)
+        cnt = datagrid.get_selected_count()
+        self.assertEqual(cnt, 1)
+        rect = datagrid.get_item_rect(row)
+        self.assertEqual(rect, i.rectangle())
+
+        # Select by text
+        row = 'A3'
+        i = datagrid.get_item(row)
+        i.select()
+        self.assertEqual(i.is_selected(), True)
+        row = 'B0'
+        i = datagrid.get_item(row)
+        i.select()
+        i = datagrid.get_item(3)  # re-get the item by a row index
+        self.assertEqual(i.is_selected(), True)
+
+        row = None
+        self.assertRaises(TypeError, datagrid.get_item, row)
 
 
 if __name__ == "__main__":

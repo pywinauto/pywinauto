@@ -76,7 +76,7 @@ class WindowWrapper(wpfwrapper.WPFWrapper):
 
 class ButtonWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap a UIA-compatible Button, CheckBox or RadioButton control"""
+    """Wrap a WPF Button, CheckBox or RadioButton control"""
 
     _control_types = ['Button',
         'CheckBox',
@@ -95,20 +95,10 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def toggle(self):
         """
-        An interface to Toggle method of the Toggle control pattern.
-
-        Control supporting the Toggle pattern cycles through its
-        toggle states in the following order:
-        ToggleState_On, ToggleState_Off and,
-        if supported, ToggleState_Indeterminate
+        Switch state of checkable controls in cycle between CHECKED/UNCHECKED or
+        CHECKED/UNCHECKED/INDETERMINATE (if a control is  three-state)
 
         Usually applied for the check box control.
-
-        The radio button control does not implement IToggleProvider,
-        because it is not capable of cycling through its valid states.
-        Toggle a state of a check box control. (Use 'select' method instead)
-        Notice, a radio button control isn't supported by UIA.
-        https://msdn.microsoft.com/en-us/library/windows/desktop/ee671290(v=vs.85).aspx
         """
 
         current_state = self.get_property('IsChecked')
@@ -188,7 +178,7 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
 
 class ComboBoxWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap a UIA CoboBox control"""
+    """Wrap a WPF CoboBox control"""
 
     _control_types = ['ComboBox']
 
@@ -687,7 +677,7 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
 
 class MenuItemWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an UIA-compatible MenuItem control"""
+    """Wrap an WPF MenuItem control"""
 
     _control_types = ['MenuItem']
 
@@ -1037,7 +1027,7 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
 
 class ListItemWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an UIA-compatible ListViewItem control"""
+    """Wrap an WPF ListViewItem and DataGrid row controls"""
 
     _control_types = ['ListItem', ]
 
@@ -1054,9 +1044,16 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
 
     def texts(self):
         """Return a list of item texts"""
-        if len(self.children()) == 0:
-            return [self.window_text()]
-        return [elem.window_text() for elem in self.descendants() if len(elem.window_text()) > 0]
+        children = self.children()
+        if len(children) == 1 and children[0].element_info.control_type == 'Pane':
+            items_holder = children[0]  # grid ListViewItem
+
+            descendants = items_holder.children()
+            if len(descendants) == 1 and descendants[0].element_info.control_type == 'Pane':
+                return [self.window_text()]  # ListBoxItem or non-grid ListViewItem
+        else:
+            items_holder = self  # DataGridRow
+        return [elem.window_text() for elem in items_holder.children()]
 
     def select(self):
         """Select the item
@@ -1086,7 +1083,7 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
 
 class ListViewWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an UIA-compatible ListView control"""
+    """Wrap an WPF ListView control"""
 
     _control_types = ['List']
 
@@ -1204,7 +1201,7 @@ class HeaderItemWrapper(wpfwrapper.WPFWrapper):
 
 class DataGridWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF ListView control with a GridView view"""
+    """Wrap WPF ListView (with a GridView view) or DataGrid control"""
 
     _control_types = ['DataGrid']
 
@@ -1218,7 +1215,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def item_count(self):
-        """A number of items in the ListView"""
+        """A number of items in the Grid"""
         return len(self.children(control_type='ListItem'))
 
     # -----------------------------------------------------------
@@ -1241,9 +1238,17 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def cells(self):
-        """Return list of list of cells for any type of contol"""
+        """Return list of list of cells for any type of control"""
         rows = self.children(control_type='ListItem')
-        return [row.children()[0].children(content_only=True) for row in rows]
+
+        result = []
+        for row in rows:
+            children = row.children()
+            if len(children) == 1 and children[0].element_info.control_type == 'Pane':
+                result.append(children[0].children())
+            else:
+                result.append(children)
+        return result
 
     # -----------------------------------------------------------
     def cell(self, row, column):
@@ -1261,9 +1266,11 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
         if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
             raise TypeError("row and column must be numbers")
 
-        _row = self.get_item(row).children()[0]
-        cell_elem = _row.children()[column]
-
+        _row = self.get_item(row).children()
+        if len(_row) == 1 and _row[0].element_info.control_type == 'Pane':
+            cell_elem = _row[0].children()[column]
+        else:
+            cell_elem = _row[column]
         return cell_elem
 
     # -----------------------------------------------------------
@@ -1324,7 +1331,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
     def get_selected_count(self):
         """Return a number of selected items
 
-        The call can be quite expensieve as we retrieve all
+        The call can be quite expensive as we retrieve all
         the selected items in order to count them
         """
         selection = self.get_selection()
