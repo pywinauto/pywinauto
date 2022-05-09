@@ -1,4 +1,4 @@
-import sys
+fimport sys
 import time
 import unittest
 
@@ -46,12 +46,12 @@ class AxElementInfoDesktopSpecificTestCases(unittest.TestCase):
         element = AxElementInfo(self.desktop.children()[0])
         self.assertTrue(element.control_type in known_top_lvl_control_types)
 
-class AxelementinfoTestCases(unittest.TestCase):
+class AxElementInfoTestCases(unittest.TestCase):
 
     """Unit tests for the application.Application class"""
     def setUp(self):
         self.app = Application()
-        self.app.start(bundle_id = 'pywinauto.testapps.send-keys-test-app',new_instance = False)
+        self.app.start(bundle_id='pywinauto.testapps.send-keys-test-app',new_instance=False)
 
     def tearDown(self):
         self.app.kill()
