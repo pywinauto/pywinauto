@@ -68,7 +68,7 @@ class Application(BaseApplication):
                     NSAppleEventDescriptor.nullDescriptor(),
                     None)
             if not r[0]:
-                    raise AppStartError('Could not launch application by bundle id "{}". Verify you use correct bundle_id of application. Verify the application with this bundle_id is installed. Error code: {}'.format(bundle_id, r))
+                raise AppStartError('Could not launch application by bundle id "{}". Verify you use correct bundle_id of application. Verify the application with this bundle_id is installed. Error code: {}'.format(bundle_id, r))
 
             ns_app_array = macos_functions.get_app_instance_by_bundle(bundle_id)
             self.ns_app = ns_app_array[0]
