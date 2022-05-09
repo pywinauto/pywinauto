@@ -84,6 +84,12 @@ class WPFElementInfo(ElementInfo):
         return self.name
 
     @property
+    def value(self):
+        if self.control_type == 'Edit':
+            return self.get_property('Text') or self.get_property('Password') or ''
+        return ''
+
+    @property
     def control_id(self):
         return self._element
 
