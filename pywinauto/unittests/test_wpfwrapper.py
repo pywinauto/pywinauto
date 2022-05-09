@@ -1089,5 +1089,144 @@ class ListViewWrapperTests(unittest.TestCase):
         self.assertRaises(TypeError, self.ctrl.get_item, row)
 
 
+class GridListViewWrapperTests(unittest.TestCase):
+
+    """Unit tests for the DataGridWrapper class with a GridView view"""
+
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        _set_timings()
+
+        # start the application
+        app = Application(backend='wpf')
+        app = app.start(wpf_app_1)
+        dlg = app.WPFSampleApplication
+
+        self.app = app
+
+        self.listview_tab = dlg.Tree_and_List_Views
+
+        self.listview_texts = [
+            [u"1", u"Tomatoe", u"Red"],
+            [u"2", u"Cucumber", u"Green", ],
+            [u"3", u"Reddish", u"Purple", ],
+            [u"4", u"Cauliflower", u"White", ],
+            [u"5", u"Cupsicum", u"Yellow", ],
+            [u"6", u"Cupsicum", u"Red", ],
+            [u"7", u"Cupsicum", u"Green", ],
+        ]
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+
+    def test_item_count(self):
+        """Test the items count in the ListView controls"""
+        # ListView
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        self.assertEqual(listview.item_count(), len(self.listview_texts))
+
+    def test_column_count(self):
+        """Test the columns count in the ListView controls"""
+        # ListView
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        self.assertEqual(listview.column_count(), len(self.listview_texts[0]))
+
+    def test_get_header_control(self):
+        """Test getting a Header control and Header Item control of ListView controls"""
+        # ListView
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        hdr_itm = listview.get_header_controls()[1]
+        # HeaderItem of ListView
+        self.assertTrue(isinstance(hdr_itm, wpf_ctls.HeaderItemWrapper))
+        self.assertEquals('Name', hdr_itm.element_info.name)
+
+    def test_get_column(self):
+        """Test get_column() method for the ListView controls"""
+        # ListView
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        listview_col = listview.get_column(1)
+        self.assertEqual(listview_col.texts()[0], u"Name")
+
+    def test_cell(self):
+        """Test getting a cell of the ListView controls"""
+        # ListView
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        cell = listview.cell(3, 2)
+        self.assertEqual(cell.window_text(), self.listview_texts[3][2])
+
+    def test_cells(self):
+        """Test getting a cells of the ListView controls"""
+        def compare_cells(cells, control):
+            for i in range(0, control.item_count()):
+                for j in range(0, control.column_count()):
+                    self.assertEqual(cells[i][j], control.cell(i, j))
+
+        # ListView
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        compare_cells(listview.cells(), listview)
+
+    def test_get_item(self):
+        """Test getting an item of ListView controls"""
+        # ListView
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        item = listview.get_item(u"Reddish")
+        self.assertEqual(item.texts(), self.listview_texts[2])
+
+        self.assertRaises(ValueError, listview.get_item, u"Apple")
+
+    def test_get_items(self):
+        """Test getting all items of ListView controls"""
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        content = [item.texts() for item in listview.get_items()]
+        self.assertEqual(content, self.listview_texts)
+
+    def test_texts(self):
+        """Test getting all items of ListView controls"""
+        self.listview_tab.set_focus()
+        listview = self.listview_tab.descendants(class_name=u"ListView")[0]
+        self.assertEqual(listview.texts(), self.listview_texts)
+
+    def test_select_and_get_item(self):
+        """Test selecting an item of the ListView control"""
+        self.listview_tab.set_focus()
+        self.ctrl = self.listview_tab.descendants(class_name=u"ListView")[0]
+        # Verify get_selected_count
+        self.assertEqual(self.ctrl.get_selected_count(), 0)
+
+        # Select by an index
+        row = 1
+        i = self.ctrl.get_item(row)
+        self.assertEqual(i.is_selected(), False)
+        i.select()
+        self.assertEqual(i.is_selected(), True)
+        cnt = self.ctrl.get_selected_count()
+        self.assertEqual(cnt, 1)
+        rect = self.ctrl.get_item_rect(row)
+        self.assertEqual(rect, i.rectangle())
+
+        # Select by text
+        row = '3'
+        i = self.ctrl.get_item(row)
+        i.select()
+        self.assertEqual(i.is_selected(), True)
+        row = 'White'
+        i = self.ctrl.get_item(row)
+        i.select()
+        i = self.ctrl.get_item(3)  # re-get the item by a row index
+        self.assertEqual(i.is_selected(), True)
+
+        row = None
+        self.assertRaises(TypeError, self.ctrl.get_item, row)
+
+
 if __name__ == "__main__":
     unittest.main()

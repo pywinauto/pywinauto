@@ -4,12 +4,9 @@ import time
 import six
 
 from . import wpfwrapper
-from . import win32_controls
 from . import common_controls
 from .. import findbestmatch
 from .. import timings
-from ..windows.wpf_element_info import WPFElementInfo
-from ..windows.injected.api import ConnectionManager
 
 
 # ====================================================================
@@ -1057,7 +1054,9 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
 
     def texts(self):
         """Return a list of item texts"""
-        return [self.window_text()]
+        if len(self.children()) == 0:
+            return [self.window_text()]
+        return [elem.window_text() for elem in self.descendants() if len(elem.window_text()) > 0]
 
     def select(self):
         """Select the item
@@ -1179,6 +1178,165 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
     def texts(self):
         """Return a list of item texts"""
         return [elem.texts() for elem in self.children(content_only=True)]
+
+    # -----------------------------------------------------------
+    @property
+    def writable_props(self):
+        """Extend default properties list."""
+        props = super(ListViewWrapper, self).writable_props
+        props.extend(['item_count',
+                      # 'items',
+                      ])
+        return props
+
+
+class HeaderItemWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an WPF Header Item control"""
+
+    _control_types = ['HeaderItem']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(HeaderItemWrapper, self).__init__(elem)
+
+
+class DataGridWrapper(wpfwrapper.WPFWrapper):
+
+    """Wrap an WPF ListView control with a GridView view"""
+
+    _control_types = ['DataGrid']
+
+    # -----------------------------------------------------------
+    def __init__(self, elem):
+        """Initialize the control"""
+        super(DataGridWrapper, self).__init__(elem)
+
+    def __getitem__(self, key):
+        return self.get_item(key)
+
+    # -----------------------------------------------------------
+    def item_count(self):
+        """A number of items in the ListView"""
+        return len(self.children(control_type='ListItem'))
+
+    # -----------------------------------------------------------
+    def column_count(self):
+        """Return the number of columns"""
+        return len(self.children(control_type='HeaderItem'))
+
+    # -----------------------------------------------------------
+    def get_header_controls(self):
+        """Return Header controls associated with the Table"""
+        return self.children(control_type='HeaderItem')
+
+    columns = get_header_controls
+
+    # -----------------------------------------------------------
+    def get_column(self, col_index):
+        """Get the information for a column of the ListView"""
+        col = self.columns()[col_index]
+        return col
+
+    # -----------------------------------------------------------
+    def cells(self):
+        """Return list of list of cells for any type of contol"""
+        rows = self.children(control_type='ListItem')
+        return [row.children()[0].children(content_only=True) for row in rows]
+
+    # -----------------------------------------------------------
+    def cell(self, row, column):
+        """Return a cell in the with a GridView view
+
+        Only for controls with Grid pattern support
+
+        * **row** is an index of a row in the list.
+        * **column** is an index of a column in the specified row.
+
+        The returned cell can be of different control types.
+        Mostly: TextBlock, ImageControl, EditControl, DataItem
+        or even another layer of data items (Group, DataGrid)
+        """
+        if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
+            raise TypeError("row and column must be numbers")
+
+        _row = self.get_item(row).children()[0]
+        cell_elem = _row.children()[column]
+
+        return cell_elem
+
+    # -----------------------------------------------------------
+    def get_item(self, row):
+        """Return an item of the ListView control
+
+        * **row** can be either an index of the row or a string
+          with the text of a cell in the row you want returned.
+        """
+        # Verify arguments
+        if isinstance(row, six.string_types):
+            # Get DataGrid row
+            try:
+                itm = self.descendants(name=row)[0]
+                # Applications like explorer.exe usually return ListItem
+                # directly while other apps can return only a cell.
+                # In this case we need to take its parent - the whole row.
+                while itm is not None and not isinstance(itm, ListItemWrapper):
+                    itm = itm.parent()
+            except IndexError:
+                raise ValueError("Element '{0}' not found".format(row))
+        elif isinstance(row, six.integer_types):
+            # Get the item by a row index
+            list_items = self.children(control_type='ListItem')
+            itm = list_items[row]
+        else:
+            raise TypeError("String type or integer is expected")
+
+        # Give to the item a pointer on its container
+        if itm is not None:
+            itm.container = self
+        return itm
+
+    item = get_item  # this is an alias to be consistent with other content elements
+
+    # -----------------------------------------------------------
+    def get_items(self):
+        """Return all items of the ListView control"""
+        return self.children(control_type='ListItem')
+
+    items = get_items  # this is an alias to be consistent with other content elements
+
+    # -----------------------------------------------------------
+    def get_item_rect(self, item_index):
+        """Return the bounding rectangle of the list view item
+
+        The method is kept mostly for a backward compatibility
+        with the native ListViewWrapper interface
+        """
+        itm = self.get_item(item_index)
+        return itm.rectangle()
+
+    def get_selection(self):
+        # TODO get selected items directly from SelectedItems property
+        return [child for child in self.iter_children(control_type='ListItem') if child.is_selected()]
+
+    # -----------------------------------------------------------
+    def get_selected_count(self):
+        """Return a number of selected items
+
+        The call can be quite expensieve as we retrieve all
+        the selected items in order to count them
+        """
+        selection = self.get_selection()
+        if selection:
+            return len(selection)
+        else:
+            return 0
+
+    # -----------------------------------------------------------
+    def texts(self):
+        """Return a list of item texts"""
+        return [elem.texts() for elem in self.descendants(control_type='ListItem')]
 
     # -----------------------------------------------------------
     @property
