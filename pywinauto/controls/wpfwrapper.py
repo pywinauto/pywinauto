@@ -6,7 +6,6 @@ from __future__ import print_function
 import six
 
 from .. import backend
-from .. import WindowNotFoundError  # noqa #E402
 from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
 from ..windows.injected.api import ConnectionManager
@@ -109,7 +108,7 @@ class WPFWrapper(WinBaseWrapper):
         focused_wrap = self.get_active()
         if focused_wrap is None:
             return False
-        return (focused_wrap.top_level_parent() == self.top_level_parent())
+        return focused_wrap.top_level_parent() == self.top_level_parent()
 
     def children_texts(self):
         """Get texts of the control's children"""
@@ -164,7 +163,7 @@ class WPFWrapper(WinBaseWrapper):
 
     # -----------------------------------------------------------
     def get_show_state(self):
-        """Get the show state and Maximized/minimzed/restored state
+        """Get the show state and Maximized/minimized/restored state
 
         Returns values as following
 
