@@ -1342,7 +1342,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
     @property
     def writable_props(self):
         """Extend default properties list."""
-        props = super(ListViewWrapper, self).writable_props
+        props = super(DataGridWrapper, self).writable_props
         props.extend(['column_count',
                       'item_count',
                       'columns',

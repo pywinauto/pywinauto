@@ -408,7 +408,7 @@ class ButtonWrapperTests(unittest.TestCase):
 
     def test_button_click(self):
         """Test the click method for the Button control"""
-        label = self.dlg.by(control_type="Text",
+        label = self.dlg.by(class_name="Label",
                             name="TestLabel").find()
         self.dlg.Apply.click()
         self.assertEqual(label.window_text(), "ApplyClick")
