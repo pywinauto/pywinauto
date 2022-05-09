@@ -14,7 +14,6 @@ from ..backend import registry
 from ..element_info import ElementInfo
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 from ..timings import Timings, wait_until
-backend.register('ax', ElementInfo, BaseWrapper)
 
 def get_process_ids(cache_update=False):
     if cache_update:
