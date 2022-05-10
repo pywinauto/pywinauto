@@ -47,10 +47,12 @@ elif sys.platform == "darwin":
     from . import ax_wrapper # register "ax" back-end
     from . import ax_controls
     from .ax_wrapper import InvalidWindowHandle
-else:
+elif sys.platform.startswith('linux'):
     from . import atspiwrapper  # register "atspi" back-end
     from . import atspi_controls
     from .atspiwrapper import InvalidWindowHandle
+else:
+    raise NotImplementedError("Platform {} is not supported".format(sys.platform))
 
 
 from ..base_wrapper import InvalidElement
