@@ -107,7 +107,9 @@ class MouseTests(unittest.TestCase):
     def test_left_click(self):
         left, top = self.__get_pos(50)
         mouse.click(coords=(left, top))
+        print(left, top)
         data = self.__get_text()
+        print(data)
         self.assertTrue(str(int(top)) in data)
         self.assertTrue(str(int(left)) in data)
         self.assertTrue("LeftButton" in data)
@@ -154,7 +156,57 @@ class MouseTests(unittest.TestCase):
         self.assertTrue("Mouse Release" in data)
         self.assertTrue("MiddleButton" in data)
 
-    if sys.platform.startswith('linux'):
+    # TODO: make the feature and the tests cross-platform (duration param)
+    if sys.platform == "win32":
+        def test_mouse_can_move_cursor(self):
+            coord = (0, 1)
+            mouse.move(coord)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+
+            mouse.move((-200, -300))
+            self.assertEqual((0, 0), mouse._get_cursor_pos())
+
+        def test_mouse_fail_on_int_duration_and_float_coord(self):
+            self.assertRaises(TypeError, mouse.move, coord=(0, 0), duration=1)
+            self.assertRaises(TypeError, mouse.move, coord=(0.0, 0))
+
+        def test_mouse_tween(self):
+            coord = (401, 301)
+            mouse.move(coord, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+
+            mouse.move(coord, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+
+        def test_move_mouse_input_tween(self):
+            coord = (1, 2)
+            self.dlg.move_mouse_input(coords=coord, absolute=True)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+            coord = (501, 401)
+            self.dlg.move_mouse_input(coords=coord, absolute=True, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+            self.dlg.move_mouse_input(coords=coord, absolute=True, duration=0.5)
+            self.assertEqual(coord, mouse._get_cursor_pos())
+
+        def test_drag_mouse_input_tween(self):
+            rect = self.dlg.rectangle()
+            x0, y0 = rect.left, rect.top
+            x1, y1 = 10, 50
+            x0_curs, y0_curs = (rect.left + rect.right) // 2, rect.top + 10
+            x1_curs, y1_curs = (rect.right - rect.left) // 2 + x1, 10 + y1
+
+            mouse.move((x0_curs, y0_curs))
+            self.assertEqual((x0_curs, y0_curs), mouse._get_cursor_pos())
+
+            self.dlg.drag_mouse_input(src=(x0_curs, y0_curs), dst=(x1_curs, y1_curs), absolute=True)
+            rect = self.dlg.rectangle()
+            self.assertEqual((rect.left, rect.top), (x1, y1))
+
+            self.dlg.drag_mouse_input(src=(x1_curs, y1_curs), dst=(x0_curs, y0_curs), absolute=True, duration=1.0)
+            rect = self.dlg.rectangle()
+            self.assertEqual((rect.left, rect.top), (x0, y0))
+
+    if sys.platform != 'win32':
         def test_swapped_buttons(self):
             current_map = self.display.get_pointer_mapping()
             swapped_map = copy.copy(current_map)
