@@ -186,7 +186,7 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
         if self.backend == 'win32':
             self.app.window(name='About RowList').wait('visible')
         elif self.backend == 'uia':
-            self.app.RowListSampleApplication.child_window(name='About RowList').wait('visible')
+            self.app.RowListSampleApplication.by(name='About RowList').wait('visible')
         else:
             raise NotImplementedError('test_kill_soft_with_modal_subdialog: ' \
                 'backend "{}" is not supported'.format(self.backend))
@@ -294,11 +294,8 @@ class ApplicationTestCases(unittest.TestCase):
         app = Application()
         app.start(_notepad_exe())
         with self.assertRaises(NotImplementedError):
-            for i, a in enumerate(app):
-                if i > 2:
-                    app.kill()
-                    self.fail('Application object appears to be iterable unexpectedly!')
-                    break
+            for a in app:
+                pass
         app.kill()
 
     def test_not_connected(self):
@@ -783,7 +780,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         window = app_no_magic.window(best_match="UntitledNotepad")
 
-        dlg = window.child_window(best_match="Edit")
+        dlg = window.by(best_match="Edit")
         dlg.draw_outline()
 
         with self.assertRaises(AttributeError):
@@ -802,7 +799,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
-        self.app = Application().start("Notepad")
+        self.app = Application(backend="win32").start(_notepad_exe())
         self.dlgspec = self.app.UntitledNotepad
         self.ctrlspec = self.app.UntitledNotepad.Edit
 
@@ -853,12 +850,12 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         self.assertEqual(
             True,
-            isinstance(self.dlgspec.wrapper_object(), hwndwrapper.HwndWrapper)
+            isinstance(self.dlgspec.find(), hwndwrapper.HwndWrapper)
             )
 
     def test_window(self):
         """test specifying a sub window of an existing specification"""
-        sub_spec = self.dlgspec.child_window(class_name = "Edit")
+        sub_spec = self.dlgspec.by(class_name ="Edit")
         sub_spec_legacy = self.dlgspec.window(class_name = "Edit")
 
         self.assertEqual(True, isinstance(sub_spec, WindowSpecification))
@@ -891,7 +888,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             self.dlgspec.class_name())
 
         # Check handling 'parent' as a WindowSpecification
-        spec = self.ctrlspec.child_window(parent=self.dlgspec, visible=True)
+        spec = self.ctrlspec.by(parent=self.dlgspec, visible=True)
         self.assertEqual(spec.class_name(), "Edit")
 
     def test_non_magic_getattr(self):
@@ -900,7 +897,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
         ws_no_magic = WindowSpecification(dict(best_match="Notepad"), allow_magic_lookup=False)
         self.assertEqual(ws_no_magic.allow_magic_lookup, False)
 
-        dlg = ws_no_magic.child_window(best_match="Edit")
+        dlg = ws_no_magic.by(best_match="Edit")
         has_focus = dlg.has_keyboard_focus()
         self.assertIn(has_focus, (True, False))
 
@@ -938,48 +935,60 @@ class WindowSpecificationTestCases(unittest.TestCase):
         # try one that should not be found
         start = timestamp()
         self.assertEqual(True, self.dlgspec.exists(.5))
-        timedif =  timestamp() - start
+        timedif = timestamp() - start
         self.assertEqual(True, .49 > timedif < .6)
+
+    def test_find_all_dlg(self):
+        dlg_spec_list = self.dlgspec.find_all()
+        self.assertEqual(1, len(dlg_spec_list))
+        self.assertEqual(self.dlgspec.find(), dlg_spec_list[0])
+
+    def test_find_all_notepad(self):
+        ctrls = self.dlgspec.by(parent=self.dlgspec).find_all()
+
+        self.assertEqual(2, len(ctrls))
+        self.assertEqual(ctrls[0], self.app.Notepad.Edit.find())
+        self.assertEqual(ctrls[1], self.app.Notepad.StatusBar.find())
 
     def test_wait(self):
         """test the functionality and timing of the wait method"""
         allowable_error = .2
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("enaBleD "))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait("enaBleD "))
         time_taken = (timestamp() - start)
         if not 0 <= time_taken < (0 + 2 * allowable_error):
             self.assertEqual(.02,  time_taken)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("  ready"))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait("  ready"))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait(" exiSTS"))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait(" exiSTS"))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait(" VISIBLE "))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait(" VISIBLE "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait(" ready enabled"))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait(" ready enabled"))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("visible exists "))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait("visible exists "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("exists "))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait("exists "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
         start = timestamp()
-        self.assertEqual(self.dlgspec.wrapper_object(), self.dlgspec.wait("actIve "))
+        self.assertEqual(self.dlgspec.find(), self.dlgspec.wait("actIve "))
         self.assertEqual(True, 0 <= (timestamp() - start) < 0 + allowable_error)
 
-        self.assertRaises(SyntaxError, self.dlgspec.Wait, "Invalid_criteria")
+        self.assertRaises(SyntaxError, self.dlgspec.wait, "Invalid_criteria")
 
     def test_wait_non_existing(self):
         """test timing of the wait method for non-existing element"""
@@ -1006,7 +1015,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             status_bar_menu.select()
 
         # check that existing invisible control is still found with 'exists' criterion
-        status_bar_spec = self.app.UntitledNotepad.child_window(class_name="msctls_statusbar32", visible=None)
+        status_bar_spec = self.app.UntitledNotepad.by(class_name="msctls_statusbar32", visible=None)
         self.assertEqual('StatusBar', status_bar_spec.wait('exists').friendly_class_name())
 
         start = timestamp()
@@ -1173,33 +1182,33 @@ class WindowSpecificationTestCases(unittest.TestCase):
             len(self.app['Font'].descendants(depth=1)),
             len(self.app['Font'].descendants(depth=2)))
 
-    def test_print_control_identifiers(self):
-        """Make sure print_control_identifiers() doesn't crash"""
-        self.dlgspec.print_control_identifiers()
-        self.ctrlspec.print_control_identifiers()
+    def test_dump_tree(self):
+        """Make sure dump_tree() doesn't crash"""
+        self.dlgspec.dump_tree()
+        self.ctrlspec.dump_tree()
 
-    def test_print_control_identifiers_file_output(self):
-        """Make sure print_control_identifiers() creates correct file"""
-        output_filename = "test_print_control_identifiers.txt"
-        self.dlgspec.print_ctrl_ids(filename=output_filename)
+    def test_dump_tree_file_output(self):
+        """Make sure dump_tree() creates correct file"""
+        output_filename = "test_dump_tree.txt"
+        self.dlgspec.dump_tree(filename=output_filename)
         if os.path.isfile(output_filename):
             with open(output_filename, "r") as test_log_file:
                 content = str(test_log_file.readlines())
                 self.assertTrue("'Untitled - NotepadEdit'" in content
                     and "'Edit'" in content)
-                self.assertTrue("child_window(class_name=\"msctls_statusbar32\"" in content)
+                self.assertTrue(".by(class_name='msctls_statusbar32'" in content)
             os.remove(output_filename)
         else:
-            self.fail("print_control_identifiers can't create a file")
+            self.fail("dump_tree can't create a file")
 
         self.ctrlspec.dump_tree(filename=output_filename)
         if os.path.isfile(output_filename):
             with open(output_filename, "r") as test_log_file:
                 content = str(test_log_file.readlines())
-                self.assertTrue("child_window(class_name=\"Edit\")" in content)
+                self.assertTrue(".by(class_name='Edit')" in content)
             os.remove(output_filename)
         else:
-            self.fail("print_control_identifiers can't create a file")
+            self.fail("dump_tree can't create a file")
 
     def test_find_elements_re(self):
         """Test for bug #90: A crash in 'find_elements' when called with 'title_re' argument"""
@@ -1207,6 +1216,78 @@ class WindowSpecificationTestCases(unittest.TestCase):
         windows = findwindows.find_elements(name_re="Untitled - Notepad")
         self.assertTrue(len(windows) >= 1)
 
+
+class ChildWindowSpecificationFromWrapperTests(unittest.TestCase):
+    def setUp(self):
+        """Set some data and ensure the application is in the state we want"""
+        Timings.defaults()
+        self.app = Application(backend="win32").start(_notepad_exe())
+        self.ctrlspec = self.app.window(found_index=0).find().by(class_name='Edit')
+
+    def tearDown(self):
+        """Close the application after tests"""
+        self.app.kill()
+        
+    def test_wrapper_object(self):
+        """Test that we can get a control"""
+        self.assertEqual(True, isinstance(self.ctrlspec, WindowSpecification))
+
+        self.assertEqual(
+            True,
+            isinstance(self.ctrlspec.find(), hwndwrapper.HwndWrapper)
+            )
+
+    def test_parent(self):
+        """Test recreating specification from parent dialog wrapper"""
+        dlg = self.ctrlspec.parent()
+        sub_spec = dlg.by(class_name ="Edit")
+
+        self.assertEqual(True, isinstance(sub_spec, WindowSpecification))
+        self.assertEqual(sub_spec.class_name(), "Edit")
+        self.assertEqual(self.ctrlspec.handle, sub_spec.handle)
+
+    def test_dump_tree_file_output(self):
+        """Make sure dump_tree() creates correct file"""
+        output_filename = "test_dump_tree.txt"
+
+        self.ctrlspec.dump_tree(filename=output_filename)
+        if os.path.isfile(output_filename):
+            with open(output_filename, "r") as test_log_file:
+                content = str(test_log_file.readlines())
+                self.assertTrue(".by(class_name='Edit')" in content)
+            os.remove(output_filename)
+        else:
+            self.fail("dump_tree can't create a file")
+
+    def test_properties(self):
+        """Check control properties"""
+        self.assertEqual(self.ctrlspec.class_name(), "Edit")
+        self.assertTrue(self.ctrlspec.exists())
+
+
+if UIA_support:
+    class UIAWindowSpecificationTestCases(unittest.TestCase):
+        """Unit tests for the application.Application class with UIA backend"""
+
+        def setUp(self):
+            """Set some data and ensure the application is in the state we want"""
+            Timings.defaults()
+            self.app = Application(backend="uia").start(_notepad_exe())
+            self.dlgspec = self.app.UntitledNotepad
+
+        def tearDown(self):
+            """Close the application after tests"""
+            self.app.kill()
+
+        def test_child_window_depth(self):
+            """Test that child_window() with depth works correctly"""
+            # TODO fix same elements at different tree levels on win32 backend
+            self.dlgspec.menu_select("Format -> Font")
+            font = self.dlgspec.by(name="Font")
+
+            with self.assertRaises(findbestmatch.MatchError):
+                font.by(best_match="ListBox0", depth=1).find()
+            font.by(best_match="ListBox0", depth=2).find()
 
 class WaitUntilDecoratorTests(unittest.TestCase):
     """Unit tests for always_wait_until and always_wait_until_passes decorators"""
@@ -1301,12 +1382,11 @@ if UIA_support:
 
         def test_folder_list(self):
             """Test that ListViewWrapper returns correct files list in explorer.exe"""
-            files_list = self.desktop.MFC_samplesDialog.Shell_Folder_View.Items_View.wrapper_object()
+            files_list = self.desktop.MFC_samplesDialog.Shell_Folder_View.Items_View.find()
             self.assertEqual([item.window_text() for item in files_list.get_items()],
                              [u'x64', u'BCDialogMenu.exe', u'CmnCtrl1.exe', u'CmnCtrl2.exe', u'CmnCtrl3.exe',
-                              u'CtrlTest.exe', u'mfc100u.dll', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
+                              u'CtrlTest.exe', u'mfc100u.dll', u'NewControls.exe', u'RebarTest.exe', u'RowList.exe', u'TrayMenu.exe'])
             self.assertEqual(files_list.item('RebarTest.exe').window_text(), 'RebarTest.exe')
-
         def test_set_backend_to_window_uia(self):
             """Set backend to method window(), except exception ValueError"""
             with self.assertRaises(ValueError):
@@ -1348,7 +1428,7 @@ if UIA_support:
             window = self.desktop_no_magic.window(name="MFC_samples")
             self.assertEqual(window.allow_magic_lookup, False)
 
-            dlg = window.child_window(class_name="ShellTabWindowClass").wrapper_object()
+            dlg = window.by(class_name="ShellTabWindowClass").find()
             self.assertIsInstance(dlg, UIAWrapper)
 
             has_focus = dlg.has_keyboard_focus()
@@ -1416,15 +1496,15 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
 
     def test_from_point_win32(self):
         """Test method Desktop(backend='win32').from_point(x, y)"""
-        combo = self.app.Common_Controls_Sample.ComboBox.wrapper_object()
+        combo = self.app.Common_Controls_Sample.ComboBox.find()
         x, y = combo.rectangle().mid_point()
         combo_from_point = self.desktop.from_point(x, y)
         self.assertEqual(combo, combo_from_point)
 
     def test_top_from_point_win32(self):
         """Test method Desktop(backend='win32').top_from_point(x, y)"""
-        combo = self.app.Common_Controls_Sample.ComboBox.wrapper_object()
-        dlg = self.app.Common_Controls_Sample.wrapper_object()
+        combo = self.app.Common_Controls_Sample.ComboBox.find()
+        dlg = self.app.Common_Controls_Sample.find()
         x, y = combo.rectangle().mid_point()
         dlg_from_point = self.desktop.top_from_point(x, y)
         self.assertEqual(dlg, dlg_from_point)
@@ -1436,7 +1516,7 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         window = self.desktop_no_magic.window(name=self.window_title, pid=self.app.process)
         self.assertEqual(window.allow_magic_lookup, False)
 
-        dlg = window.child_window(class_name="msctls_trackbar32").wrapper_object()
+        dlg = window.by(class_name="msctls_trackbar32").find()
         self.assertIsInstance(dlg, TrackbarWrapper)
 
         pos = dlg.get_position()

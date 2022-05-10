@@ -160,6 +160,15 @@ class Win32FunctionsTestCases(unittest.TestCase):
         r0 = RECT(0)
         self.assertEqual(r0.__repr__(), "<RECT L0, T0, R0, B0>")
 
+    def test_RECT_iter(self):
+        """Test RECT is iterable"""
+        r = RECT(1, 2, 3, 4)
+        (left, top, right, bottom) = r
+        self.assertEqual(left, r.left)
+        self.assertEqual(right, r.right)
+        self.assertEqual(top, r.top)
+        self.assertEqual(bottom, r.bottom)
+
     def test_Structure(self):
         class Structure0(Structure):
             _fields_ = [("f0", ctypes.c_int)]

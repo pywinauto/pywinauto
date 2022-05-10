@@ -300,7 +300,7 @@ class SendKeysTests(unittest.TestCase):
         received = self.receive_text()
         self.assertEqual("A", received)
 
-    if sys.platform.startswith('linux'):
+    if sys.platform != 'win32':
         def testAltModifier(self):
             """Make sure that alt modifier works"""
             clipboard.set_data('abc')

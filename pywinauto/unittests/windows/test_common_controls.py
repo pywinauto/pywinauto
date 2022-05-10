@@ -40,6 +40,7 @@ from datetime import datetime
 #import pdb
 import os
 import win32api
+import win32gui
 import six
 
 #sys.path.append(".")
@@ -100,7 +101,7 @@ class ListViewTestCases32(unittest.TestCase):
 
         self.app = app
         self.dlg = app.RowListSampleApplication
-        self.ctrl = app.RowListSampleApplication.ListView.wrapper_object()
+        self.ctrl = app.RowListSampleApplication.ListView.find()
         self.dlg.Toolbar.button(0).click()  # switch to icon view
         self.dlg.Toolbar.button(6).click()  # switch off states
 
@@ -486,7 +487,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         app.start(self.path)
 
         self.dlg = app.ListViewEx
-        self.ctrl = self.dlg.ListView.wrapper_object()
+        self.ctrl = self.dlg.ListView.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -528,23 +529,23 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         self.assertTrue('In-place-edit control "Edit"' in str(context.exception))
 
     def test_automation_id_by_win32(self):
-        list_view = self.dlg.child_window(auto_id="listViewEx1").wait('visible')
+        list_view = self.dlg.by(auto_id="listViewEx1").wait('visible')
         self.assertEqual(list_view.automation_id(), "listViewEx1")
 
-        check_box = self.dlg.child_window(auto_id="checkBoxDoubleClickActivation").wait('visible')
+        check_box = self.dlg.by(auto_id="checkBoxDoubleClickActivation").wait('visible')
         self.assertEqual(check_box.automation_id(), "checkBoxDoubleClickActivation")
 
         check_box = self.dlg.checkBoxDoubleClickActivation.wait('visible')
         self.assertEqual(check_box.automation_id(), "checkBoxDoubleClickActivation")
 
     def test_win32_control_type(self):
-        list_view = self.dlg.child_window(control_type="ListViewEx.ListViewEx").wait('visible')
+        list_view = self.dlg.by(control_type="ListViewEx.ListViewEx").wait('visible')
         self.assertEqual(list_view.control_type(), "ListViewEx.ListViewEx")
         self.assertEqual(list_view.full_control_type(),
                          "ListViewEx.ListViewEx, ListViewEx, Version=1.0.6520.42612, " \
                          "Culture=neutral, PublicKeyToken=null")
 
-        check_box = self.dlg.child_window(control_type="System.Windows.Forms.CheckBox").wait('visible')
+        check_box = self.dlg.by(control_type="System.Windows.Forms.CheckBox").wait('visible')
         self.assertEqual(check_box.control_type(), "System.Windows.Forms.CheckBox")
         self.assertEqual(check_box.full_control_type(),
                          "System.Windows.Forms.CheckBox, System.Windows.Forms, " \
@@ -585,7 +586,7 @@ class TreeViewTestCases32(unittest.TestCase):
         self.app = Application()
         self.app.start(self.path)
         self.dlg = self.app.MicrosoftControlSpy
-        self.ctrl = self.app.MicrosoftControlSpy.TreeView.wrapper_object()
+        self.ctrl = self.app.MicrosoftControlSpy.TreeView.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -706,7 +707,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.dlg = self.app.CommonControlsSample
-        self.ctrl = self.app.CommonControlsSample.TreeView.wrapper_object()
+        self.ctrl = self.app.CommonControlsSample.TreeView.find()
         self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
 
     def tearDown(self):
@@ -766,6 +767,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
         birds.click_input(where='button')
         self.assertEqual(birds.is_expanded(), True)
+        time.sleep(win32gui.GetDoubleClickTime() * 2.0 / 1000)
         birds.click_input(double=True, where='icon')
         self.assertEqual(birds.is_expanded(), False)
 
@@ -820,7 +822,7 @@ class HeaderTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.RowListSampleApplication
-        self.ctrl = app.RowListSampleApplication.Header.wrapper_object()
+        self.ctrl = app.RowListSampleApplication.Header.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -895,7 +897,7 @@ class StatusBarTestCases(unittest.TestCase):
             RECT(92, 2, 261, 22)]
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.StatusBar.wrapper_object()
+        self.ctrl = app.MicrosoftControlSpy.StatusBar.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1001,7 +1003,7 @@ class TabControlTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.CommonControlsSample
-        self.ctrl = app.CommonControlsSample.TabControl.wrapper_object()
+        self.ctrl = app.CommonControlsSample.TabControl.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1133,8 +1135,8 @@ class ToolbarTestCases(unittest.TestCase):
         # The sample app has two toolbars. The first toolbar can be
         # addressed as Toolbar, Toolbar0 and Toolbar1.
         # The second control goes as Toolbar2
-        self.ctrl = app.CommonControlsSample.ToolbarNew.wrapper_object()
-        self.ctrl2 = app.CommonControlsSample.ToolbarErase.wrapper_object()
+        self.ctrl = app.CommonControlsSample.ToolbarNew.find()
+        self.ctrl2 = app.CommonControlsSample.ToolbarErase.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1264,7 +1266,7 @@ class RebarTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.RebarTest_RebarTest
         self.dlg.wait('ready', 20)
-        self.ctrl = app.RebarTest_RebarTest.Rebar.wrapper_object()
+        self.ctrl = app.RebarTest_RebarTest.Rebar.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1332,7 +1334,7 @@ class DatetimeTestCases(unittest.TestCase):
         self.app = app
         self.dlg = app.CommonControlsSample
         self.dlg.wait('ready', 20)
-        tab = app.CommonControlsSample.TabControl.wrapper_object()
+        tab = app.CommonControlsSample.TabControl.find()
         tab.select(3)
         self.ctrl = self.dlg.DateTimePicker
 
@@ -1472,7 +1474,7 @@ class UpDownTestCases(unittest.TestCase):
 
         self.app = app
         self.dlg = app.MicrosoftControlSpy
-        self.ctrl = app.MicrosoftControlSpy.UpDown2.wrapper_object()
+        self.ctrl = app.MicrosoftControlSpy.UpDown2.find()
 
     def tearDown(self):
         """Close the application after tests"""
@@ -1559,7 +1561,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         dlg = app.top_window()
         dlg.TabControl.select(1)
 
-        ctrl = dlg.Trackbar.wrapper_object()
+        ctrl = dlg.Trackbar.find()
         self.app = app
         self.dlg = dlg
         self.ctrl = ctrl
@@ -1615,7 +1617,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
         self.assert_channel_rect(self.ctrl.get_channel_rect(), system_rect)
 
     def assert_channel_rect(self, first_rect, second_rect):
-        """Compare two rect strucrures"""
+        """Compare two rect structures"""
         self.assertEqual(first_rect.height(), second_rect.height())
         self.assertEqual(first_rect.width(), second_rect.width())
 
