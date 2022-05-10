@@ -157,7 +157,8 @@ class WPFElementInfo(ElementInfo):
         return list(self.iter_descendants(**kwargs))
 
     def iter_descendants(self, **kwargs):
-        cache_enable = kwargs.pop('cache_enable', False)
+        # TODO implement cache support
+        # cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop("depth", None)
         process = kwargs.pop("process", None)
         if not isinstance(depth, (integer_types, type(None))) or isinstance(depth, integer_types) and depth < 0:
