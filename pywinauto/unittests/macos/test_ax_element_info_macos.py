@@ -1,4 +1,4 @@
-fimport sys
+import sys
 import time
 import unittest
 

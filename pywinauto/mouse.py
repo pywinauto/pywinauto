@@ -34,6 +34,7 @@
 import sys
 import time
 if sys.platform == 'win32':
+    from .windows.mouse import MouseEvent, MouseHook
     import pywintypes
     import win32api
     import win32gui
