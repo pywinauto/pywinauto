@@ -390,7 +390,7 @@ class AxElementInfo(ElementInfo):
             return False
 
     @property
-    def can_be_keyboard_focusable(self):
+    def is_keyboard_focusable(self):
         return check_attribute_valid(self.ref,ax_attributes["Focused"])
 
     @property

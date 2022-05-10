@@ -137,7 +137,7 @@ class AXWrapper(BaseWrapper):
     # ------------------------------------------------------------
 
     def set_focus(self):
-        # If element can be focusable we must take the following steps to make it focused:
+        # If element is focusable we must take the following steps to make it focused:
         # 1. Make element keyboard focused
         # 2. Make the window that contains this element focused as well
         # Otherwise just focus the window
@@ -150,7 +150,7 @@ class AXWrapper(BaseWrapper):
 
         # Focus the element
         # Check the control type to avoid focusing twice
-        if not is_window and self.element_info.can_be_keyboard_focusable:
+        if not is_window and self.element_info.is_keyboard_focusable:
             set_ax_attribute(self.element_info.ref,"AXFocused",True)
         
         # Focus the window
