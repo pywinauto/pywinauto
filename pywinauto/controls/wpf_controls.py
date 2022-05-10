@@ -1029,7 +1029,7 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
 
     """Wrap an WPF ListViewItem and DataGrid row controls"""
 
-    _control_types = ['ListItem', ]
+    _control_types = ['ListItem', 'DataItem']
 
     # -----------------------------------------------------------
     def __init__(self, elem, container=None):
@@ -1044,16 +1044,15 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
 
     def texts(self):
         """Return a list of item texts"""
-        children = self.children()
-        if len(children) == 1 and children[0].element_info.control_type == 'Pane':
-            items_holder = children[0]  # grid ListViewItem
-
-            descendants = items_holder.children()
-            if len(descendants) == 1 and descendants[0].element_info.control_type == 'Pane':
-                return [self.window_text()]  # ListBoxItem or non-grid ListViewItem
+        if self.element_info.control_type == 'ListItem':
+            return [self.window_text()] # ListBoxItem
         else:
-            items_holder = self  # DataGridRow
-        return [elem.window_text() for elem in items_holder.children()]
+            children = self.children()
+            if len(children) == 1 and children[0].element_info.control_type == 'Pane':
+                items_holder = children[0]  # ListViewItem
+            else:
+                items_holder = self  # DataGridRow
+            return [elem.window_text() for elem in items_holder.children()]
 
     def select(self):
         """Select the item
@@ -1216,7 +1215,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def item_count(self):
         """A number of items in the Grid"""
-        return len(self.children(control_type='ListItem'))
+        return len(self.children(control_type='DataItem'))
 
     # -----------------------------------------------------------
     def column_count(self):
@@ -1239,7 +1238,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def cells(self):
         """Return list of list of cells for any type of control"""
-        rows = self.children(control_type='ListItem')
+        rows = self.children(control_type='DataItem')
 
         result = []
         for row in rows:
@@ -1294,7 +1293,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
                 raise ValueError("Element '{0}' not found".format(row))
         elif isinstance(row, six.integer_types):
             # Get the item by a row index
-            list_items = self.children(control_type='ListItem')
+            list_items = self.children(control_type='DataItem')
             itm = list_items[row]
         else:
             raise TypeError("String type or integer is expected")
@@ -1309,7 +1308,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def get_items(self):
         """Return all items of the ListView control"""
-        return self.children(control_type='ListItem')
+        return self.children(control_type='DataItem')
 
     items = get_items  # this is an alias to be consistent with other content elements
 
@@ -1325,7 +1324,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     def get_selection(self):
         # TODO get selected items directly from SelectedItems property
-        return [child for child in self.iter_children(control_type='ListItem') if child.is_selected()]
+        return [child for child in self.iter_children(control_type='DataItem') if child.is_selected()]
 
     # -----------------------------------------------------------
     def get_selected_count(self):
@@ -1343,7 +1342,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def texts(self):
         """Return a list of item texts"""
-        return [elem.texts() for elem in self.descendants(control_type='ListItem')]
+        return [elem.texts() for elem in self.descendants(control_type='DataItem')]
 
     # -----------------------------------------------------------
     @property
