@@ -37,10 +37,11 @@ else:
     from ApplicationServices import kAXValueTypeAXError
     from ApplicationServices import kAXValueTypeIllegal
 
-from Foundation import * 
+from Foundation import NSWorkspace
 
 from AppKit import NSRunningApplication
 from AppKit import NSSizeFromString
+from AppKit import NSPointFromString
 from AppKit import NSRectFromString
 from AppKit import NSRangeFromString
 
