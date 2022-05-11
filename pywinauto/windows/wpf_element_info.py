@@ -4,7 +4,7 @@ from six import integer_types, string_types
 from pywinauto.handleprops import dumpwindow
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from .injected.api import ConnectionManager, NotFoundError, UnsupportedActionError
+from .injected.api import ConnectionManager, InjectedNotFoundError, InjectedUnsupportedActionError
 
 
 def is_element_satisfying_criteria(element, process=None, class_name=None, name=None, control_type=None,
@@ -193,7 +193,7 @@ class WPFElementInfo(ElementInfo):
         try:
             reply = ConnectionManager().call_action('GetProperty', self._pid, element_id=self._element, name=name)
             return reply['value']
-        except NotFoundError as e:
+        except InjectedNotFoundError as e:
             if error_if_not_exists:
                 raise e
         return None
@@ -231,5 +231,5 @@ class WPFElementInfo(ElementInfo):
                 return cls(reply['value'], pid=pid)
             else:
                 return None
-        except UnsupportedActionError:
+        except InjectedUnsupportedActionError:
             return None
