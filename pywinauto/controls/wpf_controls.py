@@ -1200,7 +1200,9 @@ class HeaderItemWrapper(wpfwrapper.WPFWrapper):
 
 class DataGridWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap WPF ListView (with a GridView view) or DataGrid control"""
+    """Wrap WPF controls that displays data in a customizable grid.
+
+    It can be DataGrid or ListView control in a GridView mode"""
 
     _control_types = ['DataGrid']
 
@@ -1231,7 +1233,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_column(self, col_index):
-        """Get the information for a column of the ListView"""
+        """Get the information for a column of the grid"""
         col = self.columns()[col_index]
         return col
 
@@ -1251,16 +1253,10 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def cell(self, row, column):
-        """Return a cell in the with a GridView view
-
-        Only for controls with Grid pattern support
+        """Return a cell in the grid
 
         * **row** is an index of a row in the list.
         * **column** is an index of a column in the specified row.
-
-        The returned cell can be of different control types.
-        Mostly: TextBlock, ImageControl, EditControl, DataItem
-        or even another layer of data items (Group, DataGrid)
         """
         if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
             raise TypeError("row and column must be numbers")
@@ -1274,7 +1270,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_item(self, row):
-        """Return an item of the ListView control
+        """Return an item (elements in the specified row) of the grid control
 
         * **row** can be either an index of the row or a string
           with the text of a cell in the row you want returned.
@@ -1307,7 +1303,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_items(self):
-        """Return all items of the ListView control"""
+        """Return all items of the grid control"""
         return self.children(control_type='DataItem')
 
     items = get_items  # this is an alias to be consistent with other content elements
