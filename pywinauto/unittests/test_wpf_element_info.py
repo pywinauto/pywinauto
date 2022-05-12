@@ -61,7 +61,7 @@ class WPFElementInfoTests(unittest.TestCase):
     def testChildren(self):
         """Test whether a list of only immediate children of the element is equal"""
         self.assertEqual(len(self.ctrl.children()), 1)
-        self.assertEqual(len(self.ctrl.children()[0].children()), 2)
+        self.assertEqual(len(self.ctrl.children()[0].children()[0].children()), 2)
 
     def test_children_generator(self):
         """Test whether children generator iterates over correct elements"""
