@@ -38,7 +38,7 @@ import six
 from . import uiawrapper
 from . import win32_controls
 from . import common_controls
-from .. import findbestmatch
+from .. import findbestmatch, findwindows
 from .. import timings
 from ..windows import uia_defines as uia_defs
 from ..windows.uia_defines import IUIA
@@ -1045,12 +1045,11 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
         """Apply Select pattern"""
         try:
             self.iface_selection_item.Select()
-        except(NoPatternInterfaceError):
+        except NoPatternInterfaceError:
             try:
                 self.iface_invoke.Invoke()
-            except(NoPatternInterfaceError):
-                raise AttributeError
-
+            except Exception as e:
+                self.click_input()
 
 # ====================================================================
 class MenuWrapper(uiawrapper.UIAWrapper):
@@ -1317,7 +1316,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         try:
             item.expand()
         except NoPatternInterfaceError:
-            if self.element_info.framework_id == 'WinForm' and not is_last:
+            if not is_last:
                 item.select()
 
     # -----------------------------------------------------------
@@ -1385,12 +1384,29 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
                 return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
 
         try:
-            menu = next_level_menu(self, toolbar_items[0], items_cnt == 1)
             if items_cnt == 1:
+                menu = next_level_menu(self, toolbar_items[0], items_cnt == 1)
                 return menu
-
-            for i in range(1, items_cnt):
-                menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
+            else:
+                menu = self
+                new_descendants = []
+                for i in range(items_cnt):
+                    descendants_before = self.top_level_parent().descendants()
+                    if len(new_descendants) == 0:
+                        menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
+                    else:
+                        new_descendants.append(menu)
+                        try:
+                            for ctrl in new_descendants[::-1]:
+                                try:
+                                    menu = next_level_menu(ctrl, toolbar_items[i], items_cnt == i + 1)
+                                except AttributeError:
+                                    pass
+                        except (findwindows.ElementNotFoundError,
+                                findbestmatch.MatchError):
+                            raise IndexError()
+                    descendants_after = self.top_level_parent().descendants()
+                    new_descendants = list(set(descendants_after) - set(descendants_before))
 
         except AttributeError:
             raise IndexError()

@@ -2041,6 +2041,10 @@ if UIA_support:
             self.assertEqual(self.toolbar.texts(), [u'New', u'Open', u'Save',
                                                     u'Cut', u'Copy', u'Paste', u'Print', u'About'])
 
+        def test_item_by_path(self):
+            self.menu_bar.item_by_path('File->Exit').select()
+            self.assertTrue(self.dlg.not_exists(), True)
+
 
     class TreeViewWpfTests(unittest.TestCase):
 
