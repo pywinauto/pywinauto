@@ -42,18 +42,20 @@ jobs:
         python -m pip install pip==9.0.3
         python -m pip install six
         pip install codecov coverage pyobjc
-    - name: Install test apps
+    - name: Install mousebuttons application
       run: |
         cd apps/MouseTester/macos
         sudo hdiutil attach mousebuttons.dmg
         sudo cp -R /Volumes/mousebuttons/mousebuttons.app /Applications
         sudo hdiutil detach /Volumes/mousebuttons/
-
+    - name: Install SendKeysTester application
+      run: |
         cd apps/SendKeysTester/macos
         sudo hdiutil attach send_keys_test_app.dmg
         sudo cp -R /Volumes/send_keys_test_app/send_keys_test_app.app /Applications
         sudo hdiutil detach /Volumes/send_keys_test_app/
-
+    - name: Install ControlsTestAppSB application
+      run: |
         cd apps/Controls/macos
         sudo hdiutil attach test_app_controls.dmg
         sudo cp -R /Volumes/test_app_controls/ControlsTestAppSB.app /Applications
@@ -61,3 +63,5 @@ jobs:
     - name: Run tests
       run: |
         python3 pywinauto/unittests/macos/test_ax_element_info_macos.py
+        python3 pywinauto/unittests/macos/test_ax_wrapper.py
+        python3 pywinauto/unittests/macos/test_application_macos.py
