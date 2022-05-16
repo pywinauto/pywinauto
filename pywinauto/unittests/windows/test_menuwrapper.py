@@ -43,7 +43,7 @@ from pywinauto.timings import Timings
 
 
 mfc_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+   os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 

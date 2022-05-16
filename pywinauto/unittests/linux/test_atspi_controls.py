@@ -75,7 +75,7 @@ def _test_app():
                                (os.path.dirname
                                 (os.path.dirname
                                  (os.path.abspath(__file__)))),
-                               r"apps/Gtk_samples")
+                               r"../apps/Gtk_samples")
     sys.path.append(test_folder)
     return os.path.join(test_folder, app_name)
 
@@ -85,7 +85,7 @@ def _test_new_app():
                                (os.path.dirname
                                 (os.path.dirname
                                  (os.path.abspath(__file__)))),
-                               r"apps/Gtk_samples")
+                               r"../apps/Gtk_samples")
     sys.path.append(test_folder)
     return os.path.join(test_folder, app_new_name)
 

@@ -38,7 +38,7 @@ import os, sys
 import codecs
 import unittest
 #sys.path.append(".")
-sys.path.append("..")
+sys.path.append("C:\\Users\\user\\pywinauto")
 from pywinauto import xml_helpers
 from pywinauto.windows import win32defines
 from pywinauto.sysinfo import is_x64_Python
@@ -57,9 +57,10 @@ def _set_timings_fast():
     Timings.closeclick_dialog_close_wait = 2.
 
 mfc_samples_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
+print('FOLDER: ' + mfc_samples_folder)
 MFC_tutorial_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\MFC_tutorial")
+    os.path.dirname(__file__), r"..\..\..\apps\MFC_tutorial")
 
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
