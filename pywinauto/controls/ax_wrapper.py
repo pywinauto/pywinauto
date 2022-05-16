@@ -30,7 +30,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Basic wrapping of UI Automation elements"""
-import six
+import six, time
 
 try:
     from PIL import ImageGrab, Image
@@ -268,7 +268,8 @@ class AXWrapper(BaseWrapper):
         pressed = "",
         absolute = False,
         key_down = True,
-        key_up = True):
+        key_up = True,
+        fast_move = False):
         """Click at the specified coordinates
 
         * **button** The mouse button to click. One of 'left', 'right',
@@ -324,7 +325,7 @@ class AXWrapper(BaseWrapper):
 
         _perform_click_input(button, coords, double, button_down, button_up,
                              wheel_dist=wheel_dist, pressed=pressed,
-                             key_down=key_down, key_up=key_up)
+                             key_down=key_down, key_up=key_up, fast_move=fast_move)
 
         if message:
             self.actions.log(message)
@@ -333,6 +334,11 @@ class AXWrapper(BaseWrapper):
         set_ax_attribute(self.element_info.ref, 'AXMinimized', True)
 
     def maximize(self):
+        """
+        Maximize the window
+
+        Only controls supporting Window pattern should answer
+        """
         set_ax_attribute(self.element_info.ref, 'AXMaximized', True)
 
     #-----------------------------------------------------------
@@ -357,8 +363,6 @@ class AXWrapper(BaseWrapper):
             control_rectangle = rect
 
         # get the control rectangle in a way that PIL likes it
-        width = control_rectangle.width()
-        height = control_rectangle.height()
         left = control_rectangle.left
         right = control_rectangle.right
         top = control_rectangle.top
@@ -367,7 +371,7 @@ class AXWrapper(BaseWrapper):
 
         pil_img_obj = ImageGrab.grab(box)
 
-        if save_image == True:
+        if save_image:
             pil_img_obj.save(image_name)
 
         return pil_img_obj

@@ -1,17 +1,11 @@
 # This workflow will install Python dependencies, run tests and lint with a variety of Python versions
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-python-with-github-actions
 
-name: Python package
-
-on:
-  push:
-    branches: [ master, mac_os_latest, mac_coverage, atspi ]
-  pull_request:
-    branches: [ master, mac_os_latest, mac_coverage, atspi ]
+name: macOS CI
+on: [push, pull_request]
 
 jobs:
-  build:
-
+  macOS:
     runs-on: macos-10.15
     strategy:
       fail-fast: false
@@ -40,24 +34,27 @@ jobs:
         curl -O https://bootstrap.pypa.io/get-pip.py
         python get-pip.py --user
         python -m pip install pip==9.0.3
-        python -m pip install six
-        pip install codecov coverage pyobjc
-    - name: Install test apps
+        if [ -f dev-requirements.txt ]; then pip install -r dev-requirements.txt; fi
+        pip install codecov coverage pytest
+    - name: Install mousebuttons application
       run: |
         cd apps/MouseTester/macos
         sudo hdiutil attach mousebuttons.dmg
         sudo cp -R /Volumes/mousebuttons/mousebuttons.app /Applications
         sudo hdiutil detach /Volumes/mousebuttons/
-
+    - name: Install SendKeysTester application
+      run: |
         cd apps/SendKeysTester/macos
         sudo hdiutil attach send_keys_test_app.dmg
         sudo cp -R /Volumes/send_keys_test_app/send_keys_test_app.app /Applications
         sudo hdiutil detach /Volumes/send_keys_test_app/
-
+    - name: Install ControlsTestAppSB application
+      run: |
         cd apps/Controls/macos
         sudo hdiutil attach test_app_controls.dmg
         sudo cp -R /Volumes/test_app_controls/ControlsTestAppSB.app /Applications
         sudo hdiutil detach /Volumes/test_app_controls/
     - name: Run tests
       run: |
-        python3 pywinauto/unittests/macos/test_ax_element_info_macos.py
+        coverage run -m pytest pywinauto/unittests/macos/test_ax_wrapper.py
+        coverage report -m

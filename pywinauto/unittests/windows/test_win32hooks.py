@@ -69,7 +69,7 @@ class Win32HooksTests(unittest.TestCase):
         """Run notepad.exe to have a safe area for mouse clicks"""
 
         mfc_samples_folder = os.path.join(
-            os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+            os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
         if is_x64_Python():
             mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
         sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")

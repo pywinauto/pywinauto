@@ -58,7 +58,7 @@ elif sys.platform.startswith('linux'):
     from . import atspi_controls
     from .atspiwrapper import InvalidWindowHandle
 else:
-    raise NotImplementedError("Platform {} is not supported".format(sys.platform))
+    raise NotImplementedError("Platform {0} is not supported".format(sys.platform))
 
     from . import wpfwrapper
     from . import wpf_controls

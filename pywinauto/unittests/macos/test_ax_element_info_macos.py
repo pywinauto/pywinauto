@@ -1,9 +1,10 @@
-import sys
+import sys, os
 import time
 import unittest
 
 if sys.platform == 'darwin':
     sys.path.append(".")
+    print(os.path.abspath(os.getcwd()))
     from pywinauto.macos.ax_element_info import AXError, AxElementInfo
     from pywinauto.macos.ax_element_info_object import known_control_types, known_top_lvl_control_types
     from pywinauto.macos.macos_functions import get_screen_frame
