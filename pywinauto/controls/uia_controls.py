@@ -1046,7 +1046,7 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
         except NoPatternInterfaceError:
             try:
                 self.iface_invoke.Invoke()
-            except Exception as e:
+            except comtypes.COMError:
                 self.click_input()
 
 # ====================================================================
