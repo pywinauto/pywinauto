@@ -62,6 +62,7 @@ jobs:
         sudo hdiutil detach /Volumes/test_app_controls/
     - name: Run tests
       run: |
-        python3 pywinauto/unittests/macos/test_ax_element_info_macos.py
-        python3 pywinauto/unittests/macos/test_ax_wrapper.py
-        python3 pywinauto/unittests/macos/test_application_macos.py
+        cd pywinauto/unittests/
+        python3 macos/test_ax_element_info_macos.py
+        python3 macos/test_ax_wrapper.py
+        python3 macos/test_application_macos.py
