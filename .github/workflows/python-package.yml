@@ -40,8 +40,7 @@ jobs:
         curl -O https://bootstrap.pypa.io/get-pip.py
         python get-pip.py --user
         python -m pip install pip==9.0.3
-        python -m pip install six
-        pip install codecov coverage pyobjc
+        if [ -f dev-requirements.txt ]; then pip install -r dev-requirements.txt; fi
     - name: Install mousebuttons application
       run: |
         cd apps/MouseTester/macos
