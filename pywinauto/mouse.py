@@ -248,11 +248,6 @@ elif sys.platform == 'darwin':
 else:
     _display = Display()
 
-    # TODO: check this method
-    def _get_cursor_pos():  # get global coordinate
-        data = _display.screen().root.query_pointer()._data
-        return data["root_x"], data["root_y"]
-
     def _perform_click_input(button='left', coords=(0, 0),
                              button_down=True, button_up=True, double=False,
                              wheel_dist=0, pressed="", key_down=True, key_up=True,
@@ -286,6 +281,11 @@ else:
                 if button_up:
                     fake_input(_display, X.ButtonRelease, button)
                     _display.sync()
+
+# TODO: check this method
+def _get_cursor_pos():  # get global coordinate
+    data = _display.screen().root.query_pointer()._data
+    return data["root_x"], data["root_y"]
 
 
 def click(button='left', coords=(0, 0)):
