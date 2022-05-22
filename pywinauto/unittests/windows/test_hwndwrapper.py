@@ -71,7 +71,7 @@ from pywinauto import WindowNotFoundError  # noqa E402
 
 
 mfc_samples_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
@@ -579,7 +579,7 @@ class SendKeystrokesTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
         notepad2_mod_folder = os.path.join(
-        os.path.dirname(__file__), r"..\..\apps\Notepad2-mod")
+        os.path.dirname(__file__), r"..\..\..\apps\Notepad2-mod")
         if is_x64_Python():
             notepad2_mod_folder = os.path.join(notepad2_mod_folder, 'x64')
         self.app = Application().start(os.path.join(notepad2_mod_folder, u"Notepad2.exe"))

@@ -10,7 +10,6 @@ import unittest
 import mock
 import six
 
-#sys.path.append(".")
 sys.path.append("..")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.base_application import WindowSpecification  # noqa: E402
@@ -28,26 +27,26 @@ if UIA_support:
     from pywinauto.windows.uia_element_info import UIAElementInfo
 
 wpf_samples_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\WPF_samples")
+    os.path.dirname(__file__), r"..\..\..\apps\WPF_samples")
 if is_x64_Python():
     wpf_samples_folder = os.path.join(wpf_samples_folder, 'x64')
 wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
 mfc_samples_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+    os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 mfc_app_rebar_test = os.path.join(mfc_samples_folder, u"RebarTest.exe")
 
 winforms_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\WinForms_samples")
+    os.path.dirname(__file__), r"..\..\..\apps\WinForms_samples")
 if is_x64_Python():
     winforms_folder = os.path.join(winforms_folder, 'x64')
 winfoms_app_grid = os.path.join(winforms_folder, u"DataGridView_TestApp.exe")
 
 if sys.version_info[:2] >= (3, 6):
     qt_python_folder = os.path.join(
-        os.path.dirname(__file__), r"..\..\apps\Qt_Python_samples")
+        os.path.dirname(__file__), r"..\..\..\apps\Qt_Python_samples")
     qt_py_combobox_app = sys.executable + ' ' + os.path.join(qt_python_folder, u"qt5_combobox.py")
 
 if UIA_support:
@@ -2224,7 +2223,7 @@ if UIA_support:
             _set_timings()
 
             test_folder = os.path.join(os.path.dirname(os.path.dirname(
-                os.path.dirname(os.path.abspath(__file__)))), r"apps/MouseTester")
+                os.path.dirname(os.path.abspath(__file__)))), r"apps\MouseTester")
             self.qt5_app = os.path.join(test_folder, "mousebuttons.exe")
 
             # start the application

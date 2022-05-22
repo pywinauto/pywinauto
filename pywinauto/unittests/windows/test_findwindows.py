@@ -46,7 +46,7 @@ from pywinauto.timings import Timings
 
 
 mfc_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+   os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 mfc_app_1 = os.path.join(mfc_samples_folder, u"CmnCtrl2.exe")

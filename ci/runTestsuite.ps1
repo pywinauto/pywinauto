@@ -43,7 +43,7 @@ function run {
     
     #nosetests  --all-modules --with-xunit pywinauto/unittests
     # --traverse-namespace is required for python 3.8 https://stackoverflow.com/q/58556183
-    nosetests --nologcapture --traverse-namespace --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests
+    nosetests --nologcapture --traverse-namespace --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests\windows
     $success = $?
     Write-Host "result code of nosetests:" $success
 

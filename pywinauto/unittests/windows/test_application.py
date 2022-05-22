@@ -85,7 +85,7 @@ def _notepad_exe():
         return r"C:\Windows\SysWOW64\notepad.exe"
 
 mfc_samples_folder_32 = mfc_samples_folder = os.path.join(
-   os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+   os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
 if is_x64_Python():
     mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
 
