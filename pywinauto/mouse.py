@@ -89,6 +89,7 @@ if sys.platform == 'win32':
         pressed="",
         key_down=True,
         key_up=True,
+        fast_move=False
     ):
         """Perform a click action using SendInput
 
