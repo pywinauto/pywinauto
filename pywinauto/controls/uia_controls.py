@@ -38,7 +38,7 @@ import six
 from . import uiawrapper
 from . import win32_controls
 from . import common_controls
-from .. import findbestmatch, findwindows
+from .. import findbestmatch
 from .. import timings
 from ..windows import uia_defines as uia_defs
 from ..windows.uia_defines import IUIA
@@ -1383,33 +1383,25 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             else:
                 return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
 
-        try:
-            if items_cnt == 1:
-                menu = next_level_menu(self, toolbar_items[0], items_cnt == 1)
-                return menu
-            else:
-                menu = self
-                new_descendants = []
-                for i in range(items_cnt):
-                    descendants_before = self.top_level_parent().descendants()
-                    if len(new_descendants) == 0:
-                        menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
-                    else:
-                        new_descendants.append(menu)
-                        try:
-                            for ctrl in new_descendants[::-1]:
-                                try:
-                                    menu = next_level_menu(ctrl, toolbar_items[i], items_cnt == i + 1)
-                                except AttributeError:
-                                    pass
-                        except (findwindows.ElementNotFoundError,
-                                findbestmatch.MatchError):
-                            raise IndexError()
-                    descendants_after = self.top_level_parent().descendants()
-                    new_descendants = list(set(descendants_after) - set(descendants_before))
+        if items_cnt == 1:
+            menu = next_level_menu(self, toolbar_items[0], True)
+            return menu
 
-        except AttributeError:
-            raise IndexError()
+        menu = self
+        new_descendants = []
+        for i in range(items_cnt):
+            descendants_before = self.top_level_parent().descendants()
+            if len(new_descendants) == 0:
+                menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
+            else:
+                new_descendants.append(menu)
+                for ctrl in new_descendants[::-1]:
+                    try:
+                        menu = next_level_menu(ctrl, toolbar_items[i], items_cnt == i + 1)
+                    except AttributeError:
+                        pass
+            descendants_after = self.top_level_parent().descendants()
+            new_descendants = list(set(descendants_after) - set(descendants_before))
 
         return menu
 
