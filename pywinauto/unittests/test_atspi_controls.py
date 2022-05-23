@@ -249,15 +249,6 @@ if sys.platform.startswith("linux"):
             combo_box.select(countries[1])
             self.assertEqual(combo_box.selected_text(), countries[1])
 
-        def test_ololo(self):
-            # print_tree(self.app_window.element_info)
-            combo_box = self.app_window.Frame.Panel.ComboBox
-            time.sleep(5)
-            print(combo_box.window_text())
-
-            # actions = self.app_window.Frame.Panel.ComboBox.Menu.element_info.get_action()
-            # print(actions.get_all_actions())
-
         def test_text_area_set_selection_by_text(self):
             text_to_select = "Select text"
             self.text_area.select(text_to_select)
@@ -486,17 +477,6 @@ if sys.platform.startswith("linux"):
         def test_min_value_is_float(self):
             scrollbar = self.app_wrapper.get_slider()
             self.assertTrue(type(scrollbar.get_min_value()) == float)
-
-        def test_scrolling(self):
-            scrollbar = self.app_wrapper.get_slider()
-            time.sleep(5)
-            max_value = scrollbar.get_max_value()
-            scrollbar.set_value(max_value*0.5)
-            print(max_value)
-            print(max_value*0.5)
-            new_position = scrollbar.get_current_value()
-            print(new_position)
-            self.assertAlmostEqual(new_position, max_value*0.5, delta=0.1)
 
         def test_scrollbar_value_less_than_minimum(self):
             scrollbar = self.app_wrapper.get_slider()
