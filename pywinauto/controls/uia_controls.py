@@ -1393,11 +1393,16 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
                 menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
             else:
                 new_descendants.append(menu)
-                for ctrl in new_descendants[::-1]:
-                    try:
-                        menu = next_level_menu(ctrl, toolbar_items[i], items_cnt == i + 1)
-                    except AttributeError:
-                        pass
+                try:
+                    for ctrl in new_descendants[::-1]:
+                        try:
+                            menu = next_level_menu(ctrl, toolbar_items[i], items_cnt == i + 1)
+                        except AttributeError:
+                            pass
+                except findbestmatch.MatchError:
+                    raise AttributeError("Could not find '{}' as a child of one of the following controls: {}".format(
+                        toolbar_items[i], new_descendants
+                    ))
             descendants_after = self.top_level_parent().descendants()
             new_descendants = list(set(descendants_after) - set(descendants_before))
 
