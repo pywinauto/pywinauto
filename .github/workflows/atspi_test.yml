@@ -1,0 +1,52 @@
+name: atspi CI
+on: [push, pull_request]
+jobs:
+  Linux:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os : [ubuntu-18.04, ubuntu-20.04]
+        python: [ '2.7', '3.6', '3.7', '3.8', '3.9', '3.10' ]
+        exclude:
+          - os: ubuntu-20.04
+            python: '2.7'
+          - os: ubuntu-20.04
+            python: '3.6'
+          - os: ubuntu-20.04
+            python: '3.7'
+    env:
+      DISPLAY: ':0'
+    steps:
+    - name: get repo
+      uses: actions/checkout@v1
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: ${{ matrix.python }}
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        sudo apt-get install python3 python3-pip -y
+        sudo apt-get install python-xlib
+        sudo apt-get install python3-xlib
+        pip install codecov coverage
+        pip install python-xlib --upgrade
+        pip install mock --upgrade
+        python -m pip install pytest
+        sudo apt install python3-gi gobject-introspection gir1.2-gtk-3.0
+        sudo apt-get install at-spi2-core
+        sudo apt-get install python3-pyatspi
+        sudo apt install -y xvfb x11-utils libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xdotool
+    - name: Remote display start
+      run: |
+        sudo /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
+        sleep 5
+        set +eE
+        sudo apt install -y gdm3
+        sudo service gdm start
+        sleep 5
+    - name: Test run
+      run: |
+        coverage run -m pytest pywinauto/unittests/test_atspi_controls.py pywinauto/unittests/test_atspi_element_info.py pywinauto/unittests/test_atspi_wrapper.py
+        coverage report -m
