@@ -61,6 +61,10 @@ class WPFWrapper(WinBaseWrapper):
     def get_property(self, name, error_if_not_exists=False):
         return self.element_info.get_property(name, error_if_not_exists)
 
+    def get_properties(self):
+        """Return a dict with names and types of available properties of the element"""
+        return self.element_info.get_properties()
+
     def set_property(self, name, value, is_enum=False):
         ConnectionManager().call_action('SetProperty', self.element_info.pid,
                                         element_id=self.element_info.runtime_id,
