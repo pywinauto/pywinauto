@@ -16,7 +16,7 @@ wpf_app_1 = os.path.join(wpf_samples_folder, u"WpfApplication1.exe")
 
 
 class WPFElementInfoTests(unittest.TestCase):
-    """Unit tests for the WPFlementInfo class"""
+    """Unit tests for the WPFElementInfo class"""
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
@@ -100,6 +100,7 @@ class WPFElementInfoTests(unittest.TestCase):
         """Test whether descendant generator iterates over correct elements"""
         descendants = [desc for desc in self.ctrl.iter_descendants(depth=3)]
         self.assertSequenceEqual(self.ctrl.descendants(depth=3), descendants)
+
 
 if __name__ == "__main__":
     unittest.main()

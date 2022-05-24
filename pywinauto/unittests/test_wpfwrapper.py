@@ -161,6 +161,14 @@ class WPFWrapperTests(unittest.TestCase):
         """Test getting texts of a control"""
         self.assertEqual(self.dlg.texts(), ['WPF Sample Application'])
 
+    def test_get_properties(self):
+        """Test getting list of properties of a control"""
+        props_dict = self.dlg.get_properties()
+        self.assertTrue(type(props_dict) is dict)
+        self.assertIn('Name', props_dict)
+        self.assertEquals(props_dict['Name'], 'String')
+        self.assertGreater(len(props_dict), 25)
+
     def test_children(self):
         """Test getting children of a control"""
         tab_ctrl = self.dlg.by(class_name="TabControl").find()

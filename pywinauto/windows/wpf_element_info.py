@@ -198,6 +198,11 @@ class WPFElementInfo(ElementInfo):
                 raise e
         return None
 
+    def get_properties(self):
+        """Return a dict with names and types of available properties of the element"""
+        reply = ConnectionManager().call_action('GetProperties', self._pid, element_id=self._element)
+        return reply['value']
+
     def __hash__(self):
         """Return a unique hash value based on the element's ID"""
         return hash(self._element)
