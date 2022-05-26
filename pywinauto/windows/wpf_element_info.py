@@ -68,7 +68,7 @@ class WPFElementInfo(ElementInfo):
         """Return AutomationId of the element"""
         if self._element == 0:
             return ''
-        return self.get_property('Name') or ''
+        return self.get_native_property('Name') or ''
 
     @property
     def name(self):
@@ -80,13 +80,13 @@ class WPFElementInfo(ElementInfo):
     @property
     def rich_text(self):
         if self.control_type == 'Edit':
-            return self.get_property('Text') or ''
+            return self.get_native_property('Text') or ''
         return self.name
 
     @property
     def value(self):
         if self.control_type == 'Edit':
-            return self.get_property('Text') or self.get_property('Password') or ''
+            return self.get_native_property('Text') or self.get_native_property('Password') or ''
         return ''
 
     @property
@@ -118,13 +118,13 @@ class WPFElementInfo(ElementInfo):
     def enabled(self):
         if self._element == 0:
             return True
-        return self.get_property('IsEnabled') or False
+        return self.get_native_property('IsEnabled') or False
 
     @property
     def visible(self):
         if self._element == 0:
             return True
-        return self.get_property('IsVisible') or False
+        return self.get_native_property('IsVisible') or False
 
     @property
     def parent(self):
@@ -189,7 +189,7 @@ class WPFElementInfo(ElementInfo):
     def dump_window(self):
         return dumpwindow(self.handle)
 
-    def get_property(self, name, error_if_not_exists=False):
+    def get_native_property(self, name, error_if_not_exists=False):
         try:
             reply = ConnectionManager().call_action('GetProperty', self._pid, element_id=self._element, name=name)
             return reply['value']
@@ -198,7 +198,7 @@ class WPFElementInfo(ElementInfo):
                 raise e
         return None
 
-    def get_properties(self):
+    def get_native_properties(self):
         """Return a dict with names and types of available properties of the element"""
         reply = ConnectionManager().call_action('GetProperties', self._pid, element_id=self._element)
         return reply['value']

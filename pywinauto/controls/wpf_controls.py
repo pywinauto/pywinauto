@@ -61,10 +61,10 @@ class WindowWrapper(wpfwrapper.WPFWrapper):
             height = cur_rect.height()
 
         # ask for the window to be moved
-        self.set_property('Left', x)
-        self.set_property('Top', y)
-        self.set_property('Width', width)
-        self.set_property('Height', height)
+        self.set_native_property('Left', x)
+        self.set_native_property('Top', y)
+        self.set_native_property('Width', width)
+        self.set_native_property('Height', height)
 
         time.sleep(timings.Timings.after_movewindow_wait)
 
@@ -101,18 +101,18 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
         Usually applied for the check box control.
         """
 
-        current_state = self.get_property('IsChecked')
-        if self.get_property('IsThreeState'):
+        current_state = self.get_native_property('IsChecked')
+        if self.get_native_property('IsThreeState'):
             states = (True, False, None)
         else:
             states = (True, False)
 
-        if current_state is None and not self.get_property('IsThreeState'):
+        if current_state is None and not self.get_native_property('IsThreeState'):
             next_state = False
         else:
             next_state = states[(states.index(current_state)+1) % len(states)]
 
-        self.set_property('IsChecked', next_state)
+        self.set_native_property('IsChecked', next_state)
 
         name = self.element_info.name
         control_type = self.element_info.control_type
@@ -132,7 +132,7 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
         1 - checked
         2 - indeterminate
         """
-        val = self.get_property('IsChecked')
+        val = self.get_native_property('IsChecked')
         if val is None:
             return self.INDETERMINATE
         return self.CHECKED if val else self.UNCHECKED
@@ -156,7 +156,7 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
         Usually applied for controls like: a radio button, a tree view item
         or a list item.
         """
-        self.set_property('IsChecked', True)
+        self.set_native_property('IsChecked', True)
 
         name = self.element_info.name
         control_type = self.element_info.control_type
@@ -173,7 +173,7 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
         Usually applied for controls like: a radio button, a tree view item,
         a list item.
         """
-        return self.get_property('IsChecked')
+        return self.get_native_property('IsChecked')
 
 
 class ComboBoxWrapper(wpfwrapper.WPFWrapper):
@@ -189,27 +189,27 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def expand(self):
-        self.set_property('IsDropDownOpen', True)
+        self.set_native_property('IsDropDownOpen', True)
         return self
 
     # -----------------------------------------------------------
     def collapse(self):
-        self.set_property('IsDropDownOpen', False)
+        self.set_native_property('IsDropDownOpen', False)
         return self
 
     # -----------------------------------------------------------
     def is_editable(self):
-        return self.get_property('IsEditable')
+        return self.get_native_property('IsEditable')
 
     # -----------------------------------------------------------
     def is_expanded(self):
         """Test if the control is expanded"""
-        return self.get_property('IsDropDownOpen')
+        return self.get_native_property('IsDropDownOpen')
 
     # -----------------------------------------------------------
     def is_collapsed(self):
         """Test if the control is collapsed"""
-        return not self.get_property('IsDropDownOpen')
+        return not self.get_native_property('IsDropDownOpen')
 
     # -----------------------------------------------------------
     def texts(self):
@@ -225,7 +225,7 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
         or it can be the string that you want to select
         """
         if isinstance(item, six.integer_types):
-            self.set_property('SelectedIndex', item)
+            self.set_native_property('SelectedIndex', item)
         else:
             index = None
             for i, child in enumerate(self.iter_children()):
@@ -233,7 +233,7 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
                     index = 1
             if index is None:
                 raise ValueError('no such item: {}'.format(item))
-            self.set_property('SelectedIndex', index)
+            self.set_native_property('SelectedIndex', index)
         return self
 
     # -----------------------------------------------------------
@@ -245,7 +245,7 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
         Notice, that in case of multi-select it will be only the text from
         a first selected item
         """
-        selected_index = self.get_property('SelectedIndex')
+        selected_index = self.get_native_property('SelectedIndex')
         if selected_index == -1:
             return ''
         return self.children()[selected_index].element_info.rich_text
@@ -254,7 +254,7 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
         """Return the selected index"""
-        return self.get_property('SelectedIndex')
+        return self.get_native_property('SelectedIndex')
 
     # -----------------------------------------------------------
     def item_count(self):
@@ -318,12 +318,12 @@ class EditWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def get_value(self):
         """Return the current value of the element"""
-        return self.get_property('Text') or ''
+        return self.get_native_property('Text') or ''
 
     # -----------------------------------------------------------
     def is_editable(self):
         """Return the edit possibility of the element"""
-        return not self.get_property('IsReadOnly')
+        return not self.get_native_property('IsReadOnly')
 
     # -----------------------------------------------------------
     def texts(self):
@@ -340,8 +340,8 @@ class EditWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def selection_indices(self):
         """The start and end indices of the current selection"""
-        start = self.get_property('SelectionStart')
-        end = start + self.get_property('SelectionLength')
+        start = self.get_native_property('SelectionStart')
+        end = start + self.get_native_property('SelectionLength')
 
         return start, end
 
@@ -358,7 +358,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
         if append:
             text = self.window_text() + text
 
-        self.set_property('Text', text)
+        self.set_native_property('Text', text)
 
     # -----------------------------------------------------------
     def set_edit_text(self, text, pos_start=None, pos_end=None):
@@ -399,7 +399,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
         current_text = self.window_text()
         new_text = current_text[:pos_start] + aligned_text + current_text[pos_end:]
 
-        self.set_property('Text', new_text)
+        self.set_native_property('Text', new_text)
 
         # time.sleep(Timings.after_editsetedittext_wait)
 
@@ -438,8 +438,8 @@ class EditWrapper(wpfwrapper.WPFWrapper):
                 raise RuntimeError("Text '{0}' hasn't been found".format(string_to_select))
             end = start + len(string_to_select)
 
-        self.set_property('SelectionStart', start)
-        self.set_property('SelectionLength', end-start)
+        self.set_native_property('SelectionStart', start)
+        self.set_native_property('SelectionLength', end - start)
 
         # return this control so that actions can be chained.
         return self
@@ -459,7 +459,7 @@ class TabControlWrapper(wpfwrapper.WPFWrapper):
     # ----------------------------------------------------------------
     def get_selected_tab(self):
         """Return an index of a selected tab"""
-        return self.get_property('SelectedIndex')
+        return self.get_native_property('SelectedIndex')
 
     # ----------------------------------------------------------------
     def tab_count(self):
@@ -470,7 +470,7 @@ class TabControlWrapper(wpfwrapper.WPFWrapper):
     def select(self, item):
         """Select a tab by index or by name"""
         if isinstance(item, six.integer_types):
-            self.set_property('SelectedIndex', item)
+            self.set_native_property('SelectedIndex', item)
         else:
             index = None
             for i, child in enumerate(self.iter_children()):
@@ -478,7 +478,7 @@ class TabControlWrapper(wpfwrapper.WPFWrapper):
                     index = 1
             if index is None:
                 raise ValueError('no such item: {}'.format(item))
-            self.set_property('SelectedIndex', index)
+            self.set_native_property('SelectedIndex', index)
         return self
 
     # ----------------------------------------------------------------
@@ -502,12 +502,12 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     def min_value(self):
         """Get the minimum value of the Slider"""
-        return self.get_property('Minimum')
+        return self.get_native_property('Minimum')
 
     # -----------------------------------------------------------
     def max_value(self):
         """Get the maximum value of the Slider"""
-        return self.get_property('Maximum')
+        return self.get_native_property('Maximum')
 
     # -----------------------------------------------------------
     def small_change(self):
@@ -517,7 +517,7 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
         This change is achieved by pressing left and right arrows
         when slider's thumb has keyboard focus.
         """
-        return self.get_property('SmallChange')
+        return self.get_native_property('SmallChange')
 
     # -----------------------------------------------------------
     def large_change(self):
@@ -527,12 +527,12 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
         This change is achieved by pressing PgUp and PgDown keys
         when slider's thumb has keyboard focus.
         """
-        return self.get_property('LargeChange')
+        return self.get_native_property('LargeChange')
 
     # -----------------------------------------------------------
     def value(self):
         """Get a current position of slider's thumb"""
-        return self.get_property('Value')
+        return self.get_native_property('Value')
 
     # -----------------------------------------------------------
     def set_value(self, value):
@@ -551,7 +551,7 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
         if not (min_value <= value_to_set <= max_value):
             raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
-        self.set_property('Value', value_to_set)
+        self.set_native_property('Value', value_to_set)
 
 
 class ToolbarWrapper(wpfwrapper.WPFWrapper):
@@ -660,15 +660,15 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
 
     def collapse(self):
         """Collapse overflow area of the ToolBar (IsOverflowOpen property)"""
-        self.set_property('IsOverflowOpen', False)
+        self.set_native_property('IsOverflowOpen', False)
 
     def expand(self):
         """Expand overflow area of the ToolBar (IsOverflowOpen property)"""
-        self.set_property('IsOverflowOpen', True)
+        self.set_native_property('IsOverflowOpen', True)
 
     def is_expanded(self):
         """Check if the ToolBar overflow area is currently visible"""
-        return not self.get_property('HasOverflowItems') or self.get_property('IsOverflowOpen')
+        return not self.get_native_property('HasOverflowItems') or self.get_native_property('IsOverflowOpen')
 
     def is_collapsed(self):
         """Check if the ToolBar overflow area is not visible"""
@@ -724,7 +724,7 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
         """Activate the specified item"""
         if not item.is_active():
             item.set_focus()
-        item.set_property('IsSubmenuOpen', True)
+        item.set_native_property('IsSubmenuOpen', True)
 
     # -----------------------------------------------------------
     def _sub_item_by_text(self, menu, name, exact, is_last):
@@ -881,33 +881,33 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
         return self.descendants(control_type="TreeItem", depth=depth)
 
     def expand(self):
-        self.set_property('IsExpanded', True)
+        self.set_native_property('IsExpanded', True)
         return self
 
     # -----------------------------------------------------------
     def collapse(self):
-        self.set_property('IsExpanded', False)
+        self.set_native_property('IsExpanded', False)
         return self
 
     # -----------------------------------------------------------
     def is_expanded(self):
         """Test if the control is expanded"""
-        return self.get_property('IsExpanded')
+        return self.get_native_property('IsExpanded')
 
     # -----------------------------------------------------------
     def is_collapsed(self):
         """Test if the control is collapsed"""
-        return not self.get_property('IsExpanded')
+        return not self.get_native_property('IsExpanded')
 
     # -----------------------------------------------------------
     def select(self):
-        self.set_property('IsSelected', True)
+        self.set_native_property('IsSelected', True)
         return self
 
     # -----------------------------------------------------------
     def is_selected(self):
         """Test if the control is expanded"""
-        return self.get_property('IsSelected')
+        return self.get_native_property('IsSelected')
 
 
 # ====================================================================
@@ -1060,7 +1060,7 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
         Usually applied for controls like: a radio button, a tree view item
         or a list item.
         """
-        self.set_property('IsSelected', True)
+        self.set_native_property('IsSelected', True)
 
         name = self.element_info.name
         control_type = self.element_info.control_type
@@ -1077,7 +1077,7 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
         Usually applied for controls like: a radio button, a tree view item,
         a list item.
         """
-        return self.get_property('IsSelected')
+        return self.get_native_property('IsSelected')
 
 
 class ListViewWrapper(wpfwrapper.WPFWrapper):
