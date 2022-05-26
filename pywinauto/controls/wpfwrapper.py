@@ -58,14 +58,14 @@ class WPFWrapper(WinBaseWrapper):
         """
         WinBaseWrapper.__init__(self, element_info, backend.registry.backends['wpf'])
 
-    def get_property(self, name, error_if_not_exists=False):
-        return self.element_info.get_property(name, error_if_not_exists)
+    def get_native_property(self, name, error_if_not_exists=False):
+        return self.element_info.get_native_property(name, error_if_not_exists)
 
-    def get_properties(self):
+    def get_native_properties(self):
         """Return a dict with names and types of available properties of the element"""
-        return self.element_info.get_properties()
+        return self.element_info.get_native_properties()
 
-    def set_property(self, name, value, is_enum=False):
+    def set_native_property(self, name, value, is_enum=False):
         ConnectionManager().call_action('SetProperty', self.element_info.pid,
                                         element_id=self.element_info.runtime_id,
                                         name=name,
@@ -89,11 +89,11 @@ class WPFWrapper(WinBaseWrapper):
 
     def is_keyboard_focusable(self):
         """Return True if the element can be focused with keyboard"""
-        return self.get_property('Focusable') or False
+        return self.get_native_property('Focusable') or False
 
     def has_keyboard_focus(self):
         """Return True if the element is focused with keyboard"""
-        return self.get_property('IsKeyboardFocused') or False
+        return self.get_native_property('IsKeyboardFocused') or False
 
     def set_focus(self):
         ConnectionManager().call_action('SetFocus', self.element_info.pid,
@@ -135,7 +135,7 @@ class WPFWrapper(WinBaseWrapper):
         """
         Minimize the window
         """
-        self.set_property('WindowState', 'Minimized', is_enum=True)
+        self.set_native_property('WindowState', 'Minimized', is_enum=True)
         return self
 
     # -----------------------------------------------------------
@@ -145,7 +145,7 @@ class WPFWrapper(WinBaseWrapper):
 
         Only controls supporting Window pattern should answer
         """
-        self.set_property('WindowState', 'Maximized', is_enum=True)
+        self.set_native_property('WindowState', 'Maximized', is_enum=True)
         return self
 
     # -----------------------------------------------------------
@@ -156,13 +156,13 @@ class WPFWrapper(WinBaseWrapper):
         Only controls supporting Window pattern should answer
         """
         # it's very strange, but set WindowState to Normal is not enough...
-        self.set_property('WindowState', 'Normal', is_enum=True)
-        restore_rect = self.get_property('RestoreBounds')
+        self.set_native_property('WindowState', 'Normal', is_enum=True)
+        restore_rect = self.get_native_property('RestoreBounds')
         self.move_window(restore_rect['left'],
                          restore_rect['top'],
-                         self.get_property('Width'),
-                         self.get_property('Height'))
-        self.set_property('WindowState', 'Normal', is_enum=True)
+                         self.get_native_property('Width'),
+                         self.get_native_property('Height'))
+        self.set_native_property('WindowState', 'Normal', is_enum=True)
         return self
 
     # -----------------------------------------------------------
@@ -175,7 +175,7 @@ class WPFWrapper(WinBaseWrapper):
         Maximized = 1
         Minimized = 2
         """
-        val = self.element_info.get_property('WindowState')
+        val = self.element_info.get_native_property('WindowState')
         if val == 'Normal':
             return self.NORMAL
         elif val == 'Maximized':

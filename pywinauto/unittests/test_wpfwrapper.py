@@ -163,7 +163,7 @@ class WPFWrapperTests(unittest.TestCase):
 
     def test_get_properties(self):
         """Test getting list of properties of a control"""
-        props_dict = self.dlg.get_properties()
+        props_dict = self.dlg.get_native_properties()
         self.assertTrue(type(props_dict) is dict)
         self.assertIn('Name', props_dict)
         self.assertEquals(props_dict['Name'], 'String')
