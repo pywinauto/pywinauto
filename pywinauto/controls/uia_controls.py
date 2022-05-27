@@ -190,6 +190,7 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def items(self):
+        """Find all menu items"""
         return self.children(control_type="MenuItem")
 
 
