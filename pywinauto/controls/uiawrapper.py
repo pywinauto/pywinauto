@@ -789,7 +789,7 @@ class UIAWrapper(WinBaseWrapper):
         if not cc:
             cc = self.descendants(control_type="ToolBar")
             if not cc:
-                raise AttributeError
+                raise AttributeError("Can not find ToolBar item in {}".format(self.descendants()))
         menu = cc[0]
         menu.item_by_path(path, exact).select()
 
