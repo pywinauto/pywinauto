@@ -48,8 +48,8 @@ maximize = systemMenu.View.child_window(name='Enter Full Screen')
 maximize.click()
 
 # open
-open = systemMenu.File.Open
-open.click()
+open_button = systemMenu.File.Open
+open_button.click()
 cancel = app.Window.click()
 cancel.click()
 

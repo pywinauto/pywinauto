@@ -20,6 +20,24 @@ from ApplicationServices import AXUIElementGetPid
 
 from ApplicationServices import kAXErrorSuccess
 from ApplicationServices import kAXErrorNoValue
+
+from AppKit import NSRunningApplication
+from AppKit import NSSizeFromString
+from AppKit import NSPointFromString
+from AppKit import NSRectFromString
+from AppKit import NSRangeFromString
+
+from Foundation import NSWorkspace
+
+from .macos_functions import check_attribute_valid
+from .macos_functions import get_list_of_attributes
+from .macos_functions import get_screen_frame
+from .macos_functions import getAXUIElementForApp
+
+from .macos_defines import ax_attributes
+from .ax_error import AXError
+from .macos_structures import AX_RECT, AX_POINT, AX_SIZE
+from ..element_info import ElementInfo
 # Those constants are supported only in pyobjc 6.2 and later
 # pyobjc 6.2 supports Python 3.6 and later
 if sys.version_info[0] < 3.6:
@@ -37,24 +55,6 @@ else:
     from ApplicationServices import kAXValueTypeAXError
     from ApplicationServices import kAXValueTypeIllegal
 
-from Foundation import NSWorkspace
-
-from AppKit import NSRunningApplication
-from AppKit import NSSizeFromString
-from AppKit import NSPointFromString
-from AppKit import NSRectFromString
-from AppKit import NSRangeFromString
-
-from .macos_functions import check_attribute_valid
-from .macos_functions import get_list_of_attributes
-from .macos_functions import get_screen_frame
-from .macos_functions import get_list_of_actions
-from .macos_functions import getAXUIElementForApp
-
-from .macos_defines import ax_attributes
-from .ax_error import AXError
-from .macos_structures import AX_RECT, AX_POINT, AX_SIZE
-from ..element_info import ElementInfo
 
 def _cf_attr_to_py_object(self, attrValue):
 
@@ -109,7 +109,7 @@ def _cf_attr_to_py_object(self, attrValue):
             return _cg_val_to_py_obj(attrValue)
 
         except KeyError:
-            raise NotImplementedError("Type conversion for {} and {} is not implemented".format(str(cf_attr_type), str(ax_attr_type)))
+            raise NotImplementedError("Type conversion for {0} and {1} is not implemented".format(str(cf_attr_type), str(ax_attr_type)))
 
 class AxElementInfo(ElementInfo):
 
@@ -323,6 +323,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def label(self):
+        """Return label of the element"""
         try:
             return self._get_ax_attribute_value("AXLabel")
         except AXError:
@@ -346,6 +347,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def size(self):
+        """Return size of the element"""
         try:
             native_obj = self._get_ax_attribute_value(ax_attributes["Size"])
             return AX_SIZE(nssize=native_obj)
@@ -354,6 +356,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def position(self):
+        """Return position of the element"""
         try:
             native_obj = self._get_ax_attribute_value(ax_attributes["Position"])
             return AX_POINT(nspoint=native_obj)
@@ -452,6 +455,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def subrole(self):
+        """Return subrole of the element"""
         try:
             return self._get_ax_attribute_value(ax_attributes["Subrole"])
         except AXError:
@@ -468,6 +472,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def value(self):
+        """Return value of the element"""
         try:
             return self._get_ax_attribute_value(ax_attributes["Value"])
         except AXError:
@@ -532,6 +537,7 @@ class AxElementInfo(ElementInfo):
 
     @property
     def identifier(self):
+        """Return the identifier of the element"""
         try:
             return self._get_ax_attribute_value("AXIdentifier")
         except AXError:

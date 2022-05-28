@@ -11,7 +11,6 @@ from . import macos_functions
 from .ax_element_info import AxElementInfo
 
 from ..backend import registry
-from ..element_info import ElementInfo
 from ..base_application import AppStartError, ProcessNotFoundError, AppNotConnected, BaseApplication
 from ..timings import Timings, wait_until
 

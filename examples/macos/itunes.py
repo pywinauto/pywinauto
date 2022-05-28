@@ -34,8 +34,6 @@ Example script for iTunes on macOS 10.14
 """
 
 import time, sys
-sys.path.append(".")
-
 from pywinauto import Application
 
 app = Application().start('Itunes')
