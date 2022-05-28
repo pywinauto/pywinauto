@@ -128,8 +128,8 @@ if sys.platform == 'win32':
     from .windows.keyboard import VK_SHIFT, VK_CONTROL, VK_MENU, CODES, MODIFIERS
     from .windows.keyboard import handle_code, parse_keys, send_keys, LoByte
 elif sys.platform == "darwin":
-    from .macos.keyboard import KeySequenceError, KeyAction, PauseAction
-    from .macos.keyboard import handle_code, parse_keys, send_keys
+    from .macos.keyboard_helper import KeySequenceError, KeyAction, PauseAction
+    from .macos.keyboard_helper import handle_code, parse_keys, send_keys
 else:
     from .linux.keyboard import KeySequenceError, KeyAction, PauseAction
     from .linux.keyboard import handle_code, parse_keys, send_keys
