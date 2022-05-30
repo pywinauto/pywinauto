@@ -1371,7 +1371,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         toolbar_items = [p.strip() for p in path.split("->")]
         items_cnt = len(toolbar_items)
         if items_cnt == 0:
-            raise IndexError()
+            raise IndexError("Empty path is not accepted by the method!")
         for item in toolbar_items:
             if not item:
                 raise IndexError("Empty item name between '->' separators")
