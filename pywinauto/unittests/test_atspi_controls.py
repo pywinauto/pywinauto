@@ -476,17 +476,17 @@ if sys.platform.startswith("linux"):
 
         def test_min_value_is_float(self):
             scrollbar = self.app_wrapper.get_slider()
-            self.assertTrue(type(scrollbar.get_min_value()) == float)
+            self.assertTrue(type(scrollbar.min_value()) == float)
 
         def test_scrollbar_value_less_than_minimum(self):
             scrollbar = self.app_wrapper.get_slider()
-            min_value = scrollbar.get_min_value()
+            min_value = scrollbar.min_value()
             with self.assertRaises(ValueError):
                 scrollbar.set_value(min_value - 1)
 
         def test_scrollbar_value_more_than_maximum(self):
             scrollbar = self.app_wrapper.get_slider()
-            max_value = scrollbar.get_max_value()
+            max_value = scrollbar.max_value()
             with self.assertRaises(ValueError):
                 scrollbar.set_value(max_value + 1)
 
