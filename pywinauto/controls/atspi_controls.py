@@ -496,27 +496,27 @@ class ScrollBarWrapper(atspiwrapper.AtspiWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(ScrollBarWrapper, self).__init__(elem)
-        self.value = self.element_info.get_value()
+        self.atspi_value_obj = self.element_info.get_atspi_value_obj()
 
     # -----------------------------------------------------------
-    def get_min_value(self):
+    def min_value(self):
         """Get the minimum value of the ScrollBar"""
-        return self.value.get_minimum_value()
+        return self.atspi_value_obj.get_minimum_value()
 
     # -----------------------------------------------------------
-    def get_max_value(self):
+    def max_value(self):
         """Get the maximum value of the ScrollBar"""
-        return self.value.get_maximum_value()
+        return self.atspi_value_obj.get_maximum_value()
 
     # -----------------------------------------------------------
-    def get_min_step(self):
+    def min_step(self):
         """Get the minimum step of the ScrollBar"""
-        return self.value.get_minimum_increment()
+        return self.atspi_value_obj.get_minimum_increment()
 
     # -----------------------------------------------------------
-    def get_current_value(self):
+    def get_value(self):
         """Get a current position of slider's thumb"""
-        return self.element_info.get_value().get_current_value()
+        return self.atspi_value_obj.get_current_value()
 
     # -----------------------------------------------------------
     def set_value(self, value):
@@ -530,9 +530,9 @@ class ScrollBarWrapper(atspiwrapper.AtspiWrapper):
         else:
             raise ValueError("value should be either string or number")
 
-        min_value = self.get_min_value()
-        max_value = self.get_max_value()
+        min_value = self.min_value()
+        max_value = self.max_value()
         if not (min_value <= value_to_set <= max_value):
             raise ValueError("value should be bigger than {0} and smaller than {1}".format(min_value, max_value))
 
-        self.value.set_current_value(value_to_set)
+        self.atspi_value_obj.set_current_value(value_to_set)
