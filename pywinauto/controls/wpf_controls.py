@@ -1,3 +1,35 @@
+# -*- coding: utf-8 -*-
+# GUI Application automation and testing library
+# Copyright (C) 2006-2017 Mark Mc Mahon and Contributors
+# https://github.com/pywinauto/pywinauto/graphs/contributors
+# http://pywinauto.readthedocs.io/en/latest/credits.html
+# All rights reserved.
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+# * Redistributions of source code must retain the above copyright notice, this
+#   list of conditions and the following disclaimer.
+#
+# * Redistributions in binary form must reproduce the above copyright notice,
+#   this list of conditions and the following disclaimer in the documentation
+#   and/or other materials provided with the distribution.
+#
+# * Neither the name of pywinauto nor the names of its
+#   contributors may be used to endorse or promote products derived from
+#   this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+# DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+# FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+# DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+# SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+# CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+# OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+# OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
 """Wrap various WPF windows controls. To be used with 'wpf' backend."""
 import locale
 import time
@@ -12,18 +44,18 @@ from .. import timings
 # ====================================================================
 class WindowWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap a WPF Window control"""
+    """Wrap a WPF Window control."""
 
     _control_types = ['Window']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(WindowWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def move_window(self, x=None, y=None, width=None, height=None):
-        """Move the window to the new coordinates
+        """Move the window to the new coordinates.
 
         * **x** Specifies the new left position of the window.
                 Defaults to the current left position of the window.
@@ -70,13 +102,13 @@ class WindowWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def is_dialog(self):
-        """Window is always a dialog so return True"""
+        """Window is always a dialog so return True."""
         return True
 
 
 class ButtonWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap a WPF Button, CheckBox or RadioButton control"""
+    """Wrap a WPF Button, CheckBox or RadioButton control."""
 
     _control_types = ['Button',
         'CheckBox',
@@ -89,14 +121,13 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(ButtonWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def toggle(self):
-        """
-        Switch state of checkable controls in cycle between CHECKED/UNCHECKED or
-        CHECKED/UNCHECKED/INDETERMINATE (if a control is  three-state)
+        """Switch state of checkable controls in cycle between CHECKED/UNCHECKED or
+        CHECKED/UNCHECKED/INDETERMINATE (if a control is  three-state).
 
         Usually applied for the check box control.
         """
@@ -124,8 +155,7 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_toggle_state(self):
-        """
-        Get a toggle state of a check box control.
+        """Get a toggle state of a check box control.
 
         The toggle state is represented by an integer
         0 - unchecked
@@ -140,18 +170,18 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def is_dialog(self):
-        """Buttons are never dialogs so return False"""
+        """Buttons are never dialogs so return False."""
         return False
 
     # -----------------------------------------------------------
     def click(self):
-        """Click the Button control by raising the ButtonBase.Click event"""
+        """Click the Button control by raising the ButtonBase.Click event."""
         self.raise_event('Click')
         # Return itself so that action can be chained
         return self
 
     def select(self):
-        """Select the item
+        """Select the item.
 
         Usually applied for controls like: a radio button, a tree view item
         or a list item.
@@ -178,48 +208,50 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
 
 class ComboBoxWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap a WPF CoboBox control"""
+    """Wrap a WPF ComboBox control."""
 
     _control_types = ['ComboBox']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(ComboBoxWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def expand(self):
+        """Display items of the combobox."""
         self.set_native_property('IsDropDownOpen', True)
         return self
 
     # -----------------------------------------------------------
     def collapse(self):
+        """Hide items of the combobox."""
         self.set_native_property('IsDropDownOpen', False)
         return self
 
     # -----------------------------------------------------------
     def is_editable(self):
+        """Return the edit possibility of the element."""
         return self.get_native_property('IsEditable')
 
     # -----------------------------------------------------------
     def is_expanded(self):
-        """Test if the control is expanded"""
+        """Test if the control is expanded."""
         return self.get_native_property('IsDropDownOpen')
 
     # -----------------------------------------------------------
     def is_collapsed(self):
-        """Test if the control is collapsed"""
+        """Test if the control is collapsed."""
         return not self.get_native_property('IsDropDownOpen')
 
     # -----------------------------------------------------------
     def texts(self):
-        """Return the text of the items in the combobox"""
+        """Return the text of the items in the combobox."""
         return [child.element_info.rich_text for child in self.iter_children()]
 
     # -----------------------------------------------------------
     def select(self, item):
-        """
-        Select the ComboBox item
+        """Select the combobox item.
 
         The item can be either a 0 based index of the item to select
         or it can be the string that you want to select
@@ -228,19 +260,18 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
             self.set_native_property('SelectedIndex', item)
         else:
             index = None
-            for i, child in enumerate(self.iter_children()):
+            for child in self.iter_children():
                 if child.element_info.rich_text == item:
                     index = 1
             if index is None:
-                raise ValueError('no such item: {}'.format(item))
+                raise IndexError('no such item: {}'.format(item))
             self.set_native_property('SelectedIndex', index)
         return self
 
     # -----------------------------------------------------------
     # TODO: add selected_texts for a combobox with a multi-select support
     def selected_text(self):
-        """
-        Return the selected text or None
+        """Return the selected text or None.
 
         Notice, that in case of multi-select it will be only the text from
         a first selected item
@@ -253,13 +284,12 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
     # -----------------------------------------------------------
     # TODO: add selected_indices for a combobox with multi-select support
     def selected_index(self):
-        """Return the selected index"""
+        """Return the selected index."""
         return self.get_native_property('SelectedIndex')
 
     # -----------------------------------------------------------
     def item_count(self):
-        """
-        Return the number of items in the combobox
+        """Return the number of items in the ComboBox.
 
         The interface is kept mostly for a backward compatibility with
         the native ComboBox interface
@@ -269,14 +299,14 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
 
 class EditWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an Edit control"""
+    """Wrap an Edit control."""
 
     _control_types = ['Edit']
     has_title = False
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(EditWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
@@ -289,12 +319,12 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def line_count(self):
-        """Return how many lines there are in the Edit"""
+        """Return how many lines there are in the Edit."""
         return self.window_text().count("\n") + 1
 
     # -----------------------------------------------------------
     def line_length(self, line_index):
-        """Return how many characters there are in the line"""
+        """Return how many characters there are in the line."""
         # need to first get a character index of that line
         lines = self.window_text().splitlines()
         if line_index < len(lines):
@@ -306,7 +336,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_line(self, line_index):
-        """Return the line specified"""
+        """Return the line specified."""
         lines = self.window_text().splitlines()
         if line_index < len(lines):
             return lines[line_index]
@@ -317,29 +347,29 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_value(self):
-        """Return the current value of the element"""
+        """Return the current value of the element."""
         return self.get_native_property('Text') or ''
 
     # -----------------------------------------------------------
     def is_editable(self):
-        """Return the edit possibility of the element"""
+        """Return the edit possibility of the element."""
         return not self.get_native_property('IsReadOnly')
 
     # -----------------------------------------------------------
     def texts(self):
-        """Get the text of the edit control"""
+        """Get the text of the edit control."""
         texts = [ self.get_line(i) for i in range(self.line_count()) ]
 
         return texts
 
     # -----------------------------------------------------------
     def text_block(self):
-        """Get the text of the edit control"""
+        """Get the text of the edit control."""
         return self.window_text()
 
     # -----------------------------------------------------------
     def selection_indices(self):
-        """The start and end indices of the current selection"""
+        """The start and end indices of the current selection."""
         start = self.get_native_property('SelectionStart')
         end = start + self.get_native_property('SelectionLength')
 
@@ -347,8 +377,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def set_window_text(self, text, append=False):
-        """Override set_window_text for edit controls because it should not be
-        used for Edit controls.
+        """Override set_window_text for edit controls because it should not be used for Edit controls.
 
         Edit Controls should either use set_edit_text() or type_keys() to modify
         the contents of the edit control.
@@ -362,7 +391,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def set_edit_text(self, text, pos_start=None, pos_end=None):
-        """Set the text of the edit control"""
+        """Set the text of the edit control."""
         self.verify_actionable()
 
         # allow one or both of pos_start and pos_end to be None
@@ -415,7 +444,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def select(self, start=0, end=None):
-        """Set the edit selection of the edit control"""
+        """Set the edit selection of the edit control."""
         self.verify_actionable()
         self.set_focus()
 
@@ -447,72 +476,71 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
 class TabControlWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF Tab control"""
+    """Wrap an WPF Tab control."""
 
     _control_types = ['Tab']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(TabControlWrapper, self).__init__(elem)
 
     # ----------------------------------------------------------------
     def get_selected_tab(self):
-        """Return an index of a selected tab"""
+        """Return an index of a selected tab."""
         return self.get_native_property('SelectedIndex')
 
     # ----------------------------------------------------------------
     def tab_count(self):
-        """Return a number of tabs"""
+        """Return a number of tabs."""
         return len(self.children())
 
     # ----------------------------------------------------------------
     def select(self, item):
-        """Select a tab by index or by name"""
+        """Select a tab by index or by name."""
         if isinstance(item, six.integer_types):
             self.set_native_property('SelectedIndex', item)
         else:
             index = None
-            for i, child in enumerate(self.iter_children()):
+            for child in self.iter_children():
                 if child.element_info.rich_text == item:
                     index = 1
             if index is None:
-                raise ValueError('no such item: {}'.format(item))
+                raise IndexError('no such item: {}'.format(item))
             self.set_native_property('SelectedIndex', index)
         return self
 
     # ----------------------------------------------------------------
     def texts(self):
-        """Tabs texts"""
+        """Tabs texts."""
         return self.children_texts()
 
 
 class SliderWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF Slider control"""
+    """Wrap an WPF Slider control."""
 
     _control_types = ['Slider']
     has_title = False
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(SliderWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def min_value(self):
-        """Get the minimum value of the Slider"""
+        """Get the minimum value of the Slider."""
         return self.get_native_property('Minimum')
 
     # -----------------------------------------------------------
     def max_value(self):
-        """Get the maximum value of the Slider"""
+        """Get the maximum value of the Slider."""
         return self.get_native_property('Maximum')
 
     # -----------------------------------------------------------
     def small_change(self):
-        """
-        Get a small change of slider's thumb
+        """Get a small change of slider's thumb.
 
         This change is achieved by pressing left and right arrows
         when slider's thumb has keyboard focus.
@@ -521,8 +549,7 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def large_change(self):
-        """
-        Get a large change of slider's thumb
+        """Get a large change of slider's thumb.
 
         This change is achieved by pressing PgUp and PgDown keys
         when slider's thumb has keyboard focus.
@@ -531,12 +558,12 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def value(self):
-        """Get a current position of slider's thumb"""
+        """Get a current position of slider's thumb."""
         return self.get_native_property('Value')
 
     # -----------------------------------------------------------
     def set_value(self, value):
-        """Set position of slider's thumb"""
+        """Set position of slider's thumb."""
         if isinstance(value, float):
             value_to_set = value
         elif isinstance(value, six.integer_types):
@@ -556,7 +583,7 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
 
 class ToolbarWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF ToolBar control
+    """Wrap an WPF ToolBar control.
 
     The control's children usually are: Buttons, SplitButton,
     MenuItems, ThumbControls, TextControls, Separators, CheckBoxes.
@@ -568,7 +595,7 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(ToolbarWrapper, self).__init__(elem)
         self.win32_wrapper = None
         if len(self.children()) <= 1 and self.element_info.handle is not None:
@@ -583,22 +610,22 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
 
     # ----------------------------------------------------------------
     def texts(self):
-        """Return texts of the Toolbar"""
+        """Return texts of the Toolbar."""
         return [c.window_text() for c in self.buttons()]
 
     #----------------------------------------------------------------
     def button_count(self):
-        """Return a number of buttons on the ToolBar"""
+        """Return a number of buttons on the ToolBar."""
         return len(self.children())
 
     # ----------------------------------------------------------------
     def buttons(self):
-        """Return all available buttons"""
+        """Return all available buttons."""
         return self.children()
 
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
-        """Return a button by the specified identifier
+        """Return a button by the specified identifier.
 
         * **button_identifier** can be either an index of a button or
           a string with the text of the button.
@@ -629,7 +656,7 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
 
     # ----------------------------------------------------------------
     def check_button(self, button_identifier, make_checked, exact=True):
-        """Find where the button is and toggle it
+        """Find where the button is and toggle it.
 
         * **button_identifier** can be either an index of the button or
           a string with the text on the button.
@@ -659,76 +686,76 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
         return button
 
     def collapse(self):
-        """Collapse overflow area of the ToolBar (IsOverflowOpen property)"""
+        """Collapse overflow area of the ToolBar (IsOverflowOpen property)."""
         self.set_native_property('IsOverflowOpen', False)
 
     def expand(self):
-        """Expand overflow area of the ToolBar (IsOverflowOpen property)"""
+        """Expand overflow area of the ToolBar (IsOverflowOpen property)."""
         self.set_native_property('IsOverflowOpen', True)
 
     def is_expanded(self):
-        """Check if the ToolBar overflow area is currently visible"""
+        """Check if the ToolBar overflow area is currently visible."""
         return not self.get_native_property('HasOverflowItems') or self.get_native_property('IsOverflowOpen')
 
     def is_collapsed(self):
-        """Check if the ToolBar overflow area is not visible"""
+        """Check if the ToolBar overflow area is not visible."""
         return not self.is_expanded()
 
 
 class MenuItemWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF MenuItem control"""
+    """Wrap an WPF MenuItem control."""
 
     _control_types = ['MenuItem']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(MenuItemWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def items(self):
-        """Find all items of the menu item"""
+        """Find all items of the menu item."""
         return self.children(control_type="MenuItem")
 
     # -----------------------------------------------------------
     def select(self):
-        """Select Menu item by raising Click event"""
+        """Select Menu item by raising Click event."""
         self.raise_event('Click')
 
 
 class MenuWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF MenuBar or Menu control"""
+    """Wrap an WPF MenuBar or Menu control."""
 
     _control_types = ['Menu']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(MenuWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def items(self):
-        """Find all menu items"""
+        """Find all menu items."""
         return self.children(control_type="MenuItem")
 
     # -----------------------------------------------------------
     def item_by_index(self, idx):
-        """Find a menu item specified by the index"""
+        """Find a menu item specified by the index."""
         item = self.items()[idx]
         return item
 
     # -----------------------------------------------------------
     def _activate(self, item):
-        """Activate the specified item"""
+        """Activate the specified item."""
         if not item.is_active():
             item.set_focus()
         item.set_native_property('IsSubmenuOpen', True)
 
     # -----------------------------------------------------------
-    def _sub_item_by_text(self, menu, name, exact, is_last):
-        """Find a menu sub-item by the specified text"""
+    def _sub_item_by_text(self, menu, name, exact):
+        """Find a menu sub-item by the specified text."""
         sub_item = None
         items = menu.items()
         if items:
@@ -750,8 +777,8 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
         return sub_item
 
     # -----------------------------------------------------------
-    def _sub_item_by_idx(self, menu, idx, is_last):
-        """Find a menu sub-item by the specified index"""
+    def _sub_item_by_idx(self, menu, idx):
+        """Find a menu sub-item by the specified index."""
         sub_item = None
         items = menu.items()
         if items:
@@ -765,7 +792,7 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def item_by_path(self, path, exact=False):
-        """Find a menu item specified by the path
+        """Find a menu item specified by the path.
 
         The full path syntax is specified in:
         :py:meth:`.controls.menuwrapper.Menu.get_menu_path`
@@ -783,9 +810,8 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
 
         def next_level_menu(parent_menu, item_name, is_last):
             if item_name.startswith("#"):
-                return self._sub_item_by_idx(parent_menu, int(item_name[1:]), is_last)
-            else:
-                return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
+                return self._sub_item_by_idx(parent_menu, int(item_name[1:]))
+            return self._sub_item_by_text(parent_menu, item_name, exact)
 
         # Find a top level menu item and select it. After selecting this item
         # a new Menu control is created and placed on the dialog. It can be
@@ -814,7 +840,7 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
 
 class TreeItemWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF TreeItem control
+    """Wrap an WPF TreeItem control.
 
     In addition to the provided methods of the wrapper
     additional inherited methods can be especially helpful:
@@ -826,17 +852,17 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(TreeItemWrapper, self).__init__(elem)
 
     # -----------------------------------------------------------
     def ensure_visible(self):
-        """Make sure that the TreeView item is visible"""
+        """Make sure that the TreeView item is visible."""
         self.invoke_method('BringIntoView')
 
     # -----------------------------------------------------------
     def get_child(self, child_spec, exact=False):
-        """Return the child item of this item
+        """Return the child item of this item.
 
         Accepts either a string or an index.
         If a string is passed then it returns the child item
@@ -862,7 +888,7 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def _calc_click_coords(self):
-        """Override the BaseWrapper helper method
+        """Override the BaseWrapper helper method.
 
         Set coordinates close to a left part of the item rectangle
 
@@ -877,7 +903,7 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def sub_elements(self, depth=None):
-        """Return a list of all visible sub-items of this control"""
+        """Return a list of all visible sub-items of this control."""
         return self.descendants(control_type="TreeItem", depth=depth)
 
     def expand(self):
@@ -891,12 +917,12 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def is_expanded(self):
-        """Test if the control is expanded"""
+        """Test if the control is expanded."""
         return self.get_native_property('IsExpanded')
 
     # -----------------------------------------------------------
     def is_collapsed(self):
-        """Test if the control is collapsed"""
+        """Test if the control is collapsed."""
         return not self.get_native_property('IsExpanded')
 
     # -----------------------------------------------------------
@@ -906,20 +932,20 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def is_selected(self):
-        """Test if the control is expanded"""
+        """Test if the control is expanded."""
         return self.get_native_property('IsSelected')
 
 
 # ====================================================================
 class TreeViewWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF Tree control"""
+    """Wrap an WPF Tree control."""
 
     _control_types = ['Tree']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(TreeViewWrapper, self).__init__(elem)
 
     @property
@@ -931,17 +957,17 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def item_count(self, depth=None):
-        """Return a number of items in TreeView"""
+        """Return a number of items in TreeView."""
         return len(self.descendants(control_type="TreeItem", depth=depth))
 
     # -----------------------------------------------------------
     def roots(self):
-        """Return root elements of TreeView"""
+        """Return root elements of TreeView."""
         return self.children(control_type="TreeItem")
 
     # -----------------------------------------------------------
     def get_item(self, path, exact=False):
-        r"""Read a TreeView item
+        r"""Read a TreeView item.
 
         * **path** a path to the item to return. This can be one of
           the following:
@@ -1009,11 +1035,11 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def print_items(self, max_depth=None):
-        """Print all items with line indents"""
+        """Print all items with line indents."""
         self.text = ""
 
         def _print_one_level(item, ident):
-            """Get texts for the item and its children"""
+            """Get texts for the item and its children."""
             self.text += " " * ident + item.window_text() + "\n"
             if max_depth is None or ident <= max_depth:
                 for child in item.children(control_type="TreeItem"):
@@ -1027,13 +1053,13 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
 
 class ListItemWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF ListViewItem and DataGrid row controls"""
+    """Wrap an WPF ListViewItem and DataGrid row controls."""
 
     _control_types = ['ListItem', 'DataItem']
 
     # -----------------------------------------------------------
     def __init__(self, elem, container=None):
-        """Initialize the control"""
+        """Initialize the control."""
         super(ListItemWrapper, self).__init__(elem)
 
         # Init a pointer to the item's container wrapper.
@@ -1043,19 +1069,18 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
         self.container = container
 
     def texts(self):
-        """Return a list of item texts"""
+        """Return a list of item texts."""
         if self.element_info.control_type == 'ListItem':
-            return [self.window_text()] # ListBoxItem
+            return [self.window_text()]  # ListBoxItem
+        children = self.children()
+        if len(children) == 1 and children[0].element_info.control_type == 'Pane':
+            items_holder = children[0]  # ListViewItem
         else:
-            children = self.children()
-            if len(children) == 1 and children[0].element_info.control_type == 'Pane':
-                items_holder = children[0]  # ListViewItem
-            else:
-                items_holder = self  # DataGridRow
-            return [elem.window_text() for elem in items_holder.children()]
+            items_holder = self  # DataGridRow
+        return [elem.window_text() for elem in items_holder.children()]
 
     def select(self):
-        """Select the item
+        """Select the item.
 
         Usually applied for controls like: a radio button, a tree view item
         or a list item.
@@ -1082,13 +1107,13 @@ class ListItemWrapper(wpfwrapper.WPFWrapper):
 
 class ListViewWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF ListView control"""
+    """Wrap an WPF ListView control."""
 
     _control_types = ['List']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(ListViewWrapper, self).__init__(elem)
 
     def __getitem__(self, key):
@@ -1096,17 +1121,17 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def item_count(self):
-        """A number of items in the List"""
+        """A number of items in the List."""
         return len(self.children())
 
     # -----------------------------------------------------------
     def cells(self):
-        """Return list of list of cells for any type of control"""
+        """Return list of list of cells for any type of control."""
         return self.children(content_only=True)
 
     # -----------------------------------------------------------
     def get_item(self, row):
-        """Return an item of the ListView control
+        """Return an item of the ListView control.
 
         * **row** can be either an index of the row or a string
           with the text of a cell in the row you want returned.
@@ -1138,14 +1163,14 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_items(self):
-        """Return all items of the ListView control"""
+        """Return all items of the ListView control."""
         return self.children(content_only=True)
 
     items = get_items  # this is an alias to be consistent with other content elements
 
     # -----------------------------------------------------------
     def get_item_rect(self, item_index):
-        """Return the bounding rectangle of the list view item
+        """Return the bounding rectangle of the list view item.
 
         The method is kept mostly for a backward compatibility
         with the native ListViewWrapper interface
@@ -1154,12 +1179,13 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
         return itm.rectangle()
 
     def get_selection(self):
+        """Get selected items."""
         # TODO get selected items directly from SelectedItems property
         return [child for child in self.iter_children() if child.is_selected()]
 
     # -----------------------------------------------------------
     def get_selected_count(self):
-        """Return a number of selected items
+        """Return a number of selected items.
 
         The call can be quite expensive as we retrieve all
         the selected items in order to count them
@@ -1172,7 +1198,7 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def texts(self):
-        """Return a list of item texts"""
+        """Return a list of item texts."""
         return [elem.texts() for elem in self.children(content_only=True)]
 
     # -----------------------------------------------------------
@@ -1188,7 +1214,7 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
 
 class HeaderItemWrapper(wpfwrapper.WPFWrapper):
 
-    """Wrap an WPF Header Item control"""
+    """Wrap an WPF Header Item control."""
 
     _control_types = ['HeaderItem']
 
@@ -1202,13 +1228,14 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     """Wrap WPF controls that displays data in a customizable grid.
 
-    It can be DataGrid or ListView control in a GridView mode"""
+    It can be DataGrid or ListView control in a GridView mode.
+    """
 
     _control_types = ['DataGrid']
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(DataGridWrapper, self).__init__(elem)
 
     def __getitem__(self, key):
@@ -1216,30 +1243,30 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def item_count(self):
-        """A number of items in the Grid"""
+        """A number of items in the Grid."""
         return len(self.children(control_type='DataItem'))
 
     # -----------------------------------------------------------
     def column_count(self):
-        """Return the number of columns"""
+        """Return the number of columns."""
         return len(self.children(control_type='HeaderItem'))
 
     # -----------------------------------------------------------
     def get_header_controls(self):
-        """Return Header controls associated with the Table"""
+        """Return Header controls associated with the Table."""
         return self.children(control_type='HeaderItem')
 
     columns = get_header_controls
 
     # -----------------------------------------------------------
     def get_column(self, col_index):
-        """Get the information for a column of the grid"""
+        """Get the information for a column of the grid."""
         col = self.columns()[col_index]
         return col
 
     # -----------------------------------------------------------
     def cells(self):
-        """Return list of list of cells for any type of control"""
+        """Return list of list of cells for any type of control."""
         rows = self.children(control_type='DataItem')
 
         result = []
@@ -1253,7 +1280,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def cell(self, row, column):
-        """Return a cell in the grid
+        """Return a cell in the grid.
 
         * **row** is an index of a row in the list.
         * **column** is an index of a column in the specified row.
@@ -1270,7 +1297,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_item(self, row):
-        """Return an item (elements in the specified row) of the grid control
+        """Return an item (elements in the specified row) of the grid control.
 
         * **row** can be either an index of the row or a string
           with the text of a cell in the row you want returned.
@@ -1303,14 +1330,14 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_items(self):
-        """Return all items of the grid control"""
+        """Return all items of the grid control."""
         return self.children(control_type='DataItem')
 
     items = get_items  # this is an alias to be consistent with other content elements
 
     # -----------------------------------------------------------
     def get_item_rect(self, item_index):
-        """Return the bounding rectangle of the list view item
+        """Return the bounding rectangle of the list view item.
 
         The method is kept mostly for a backward compatibility
         with the native ListViewWrapper interface
@@ -1324,7 +1351,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def get_selected_count(self):
-        """Return a number of selected items
+        """Return a number of selected items.
 
         The call can be quite expensive as we retrieve all
         the selected items in order to count them
@@ -1337,7 +1364,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def texts(self):
-        """Return a list of item texts"""
+        """Return a list of item texts."""
         return [elem.texts() for elem in self.descendants(control_type='DataItem')]
 
     # -----------------------------------------------------------
