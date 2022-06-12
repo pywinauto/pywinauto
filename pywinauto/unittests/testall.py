@@ -36,8 +36,17 @@ import unittest
 
 import coverage
 
-testfolder = os.path.abspath(os.path.dirname(__file__))
-package_root = os.path.abspath(os.path.join(testfolder, r"..\.."))
+if sys.platform == 'darwin':
+	testfolder = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'macos')
+elif sys.platform == 'linux':
+	testfolder = os.path.join(os.path.abspath(os.path.dirname(__file__)),'linux')
+else:
+    testfolder = os.path.join(os.path.abspath(os.path.dirname(__file__)), 'windows')
+
+#testfolder = os.path.abspath(os.path.dirname(__file__))
+
+package_root = os.path.abspath(os.path.join(testfolder, r"..\..\.."))
+
 sys.path.append(package_root)
 
 # needs to be called before importing the modules
@@ -53,6 +62,7 @@ pywinauto.actionlogger.enable()
 #pywinauto.timings.Timings.window_find_timeout = 50
 
 modules_to_test = [pywinauto]
+print(modules_to_test)
 
 
 def run_tests():

@@ -5,6 +5,7 @@ import copy
 import sys
 import os
 import unittest
+
 if sys.platform == 'win32':
     import win32clipboard
     sys.path.append(".")
@@ -12,6 +13,17 @@ if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys
     from pywinauto import mouse
     from pywinauto.timings import Timings
+elif sys.platform == 'darwin':
+    sys.path.append(".")
+    from pywinauto import mouse
+
+    from pywinauto.macos.macos_functions import launch_application
+    from pywinauto.macos.macos_functions import get_instance_of_app
+    from pywinauto.macos.macos_functions import get_screen_frame
+    from pywinauto.macos.macos_functions import read_from_clipboard
+    from pywinauto.macos.keyboard_helper import send_keys
+
+    from Quartz import CGPoint
 else:
     import subprocess
     from Xlib.display import Display
@@ -45,19 +57,31 @@ class MouseTests(unittest.TestCase):
             self.app = Application()
             self.app.start(_test_app())
             self.dlg = self.app.mousebuttons
+        elif sys.platform == 'darwin':
+            launch_application("mousebuttons")
+            self.app = get_instance_of_app("mousebuttons")
+            os.system("ps -ax | grep mousebuttons")
         else:
             self.display = Display()
             self.app = subprocess.Popen("exec " + _test_app(), shell=True)
             time.sleep(1)
 
     def tearDown(self):
-        self.app.kill()
+        if sys.platform == 'darwin':
+            os.system("killall -9 mousebuttons")
+            time.sleep(2)
+        else:
+            self.app.kill()
 
     def __get_pos(self, shift):
         if sys.platform == 'win32':
             rect = self.dlg.rectangle()
             center = rect.mid_point()
             return center.x + shift, center.y + shift
+        elif sys.platform == 'darwin':
+            frame = get_screen_frame()
+            center = CGPoint(frame.size.width / 2,frame.size.height / 2);
+            return (center.x + shift,center.y + shift)
         else:
             root = self.display.screen().root
             left_pos = root.get_geometry().width / 2
@@ -69,19 +93,22 @@ class MouseTests(unittest.TestCase):
         time.sleep(1)
         send_keys('^a^c', pause=0.2)
         if sys.platform == 'win32':
+            send_keys('^a^c', pause=0.2)
             win32clipboard.OpenClipboard()
             data = win32clipboard.GetClipboardData()
             win32clipboard.CloseClipboard()
+        elif sys.platform == 'darwin':
+            send_keys('{cmd}a{cmd}c',pause=0.2)
+            data = read_from_clipboard()
         else:
+            send_keys('^a^c', pause=0.2)
             data = clipboard.get_data()
         return data
 
     def test_left_click(self):
         left, top = self.__get_pos(50)
         mouse.click(coords=(left, top))
-        print(left, top)
         data = self.__get_text()
-        print(data)
         self.assertTrue(str(int(top)) in data)
         self.assertTrue(str(int(left)) in data)
         self.assertTrue("LeftButton" in data)
@@ -178,7 +205,7 @@ class MouseTests(unittest.TestCase):
             rect = self.dlg.rectangle()
             self.assertEqual((rect.left, rect.top), (x0, y0))
 
-    if sys.platform != 'win32':
+    if sys.platform not in ['win32', 'darwin']:
         def test_swapped_buttons(self):
             current_map = self.display.get_pointer_mapping()
             swapped_map = copy.copy(current_map)

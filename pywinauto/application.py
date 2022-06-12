@@ -30,10 +30,12 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import sys
 
-from .base_application import WindowSpecification  # noqa: W0611
+from .base_application import WindowSpecification
 
 if sys.platform == 'win32':
-    from .windows.application import Application  # noqa: W0611
+    from .windows.application import Application
+elif sys.platform == 'darwin':
+    from .macos.application import Application
 else:
     from .linux.application import Application  # noqa: W0611
 

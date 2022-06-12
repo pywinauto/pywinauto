@@ -67,8 +67,18 @@ elif sys.platform.startswith('linux'):
     install_requires = ['six', 'python-xlib']
     packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
 elif sys.platform == 'darwin':
-    install_requires = ['six']
-    packages = ["pywinauto", "pywinauto.controls"]
+    install_requires = [
+        'codecov',
+        'six',
+        'pyobjc-core==5.3',
+        'pyobjc-framework-AppleScriptObjC==5.3',
+        'pyobjc-framework-ApplicationServices==5.3',
+        'pyobjc-framework-Cocoa==5.3',
+        'pyobjc-framework-CoreText==5.3',
+        'pyobjc-framework-FSEvents==5.3',
+        'pyobjc-framework-Quartz==5.3'
+    ]
+    packages = ["pywinauto", "pywinauto.macos"]
 else:
     install_requires = ['six', 'python-xlib']
     packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
@@ -78,9 +88,6 @@ setup(name='pywinauto',
     description = 'A set of Python modules to automate the Microsoft Windows GUI',
     keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
     url = "http://pywinauto.github.io/",
-    project_urls = {
-        "Source": "https://github.com/pywinauto/pywinauto",
-    },
     author = 'Mark Mc Mahon and Contributors',
     author_email = 'pywinauto-users@lists.sourceforge.net',
     long_description = """

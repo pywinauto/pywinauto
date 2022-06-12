@@ -38,7 +38,7 @@ import six
 from . import uiawrapper
 from . import win32_controls
 from . import common_controls
-from .. import findbestmatch
+from .. import findbestmatch, findwindows
 from .. import timings
 from ..windows import uia_defines as uia_defs
 from ..windows.uia_defines import IUIA
@@ -64,7 +64,6 @@ class WindowWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def move_window(self, x=None, y=None, width=None, height=None):
         """Move the window to the new coordinates
-
         * **x** Specifies the new left position of the window.
                 Defaults to the current left position of the window.
         * **y** Specifies the new top position of the window.
@@ -131,14 +130,11 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
     def toggle(self):
         """
         An interface to Toggle method of the Toggle control pattern.
-
         Control supporting the Toggle pattern cycles through its
         toggle states in the following order:
         ToggleState_On, ToggleState_Off and,
         if supported, ToggleState_Indeterminate
-
         Usually applied for the check box control.
-
         The radio button control does not implement IToggleProvider,
         because it is not capable of cycling through its valid states.
         Toggle a state of a check box control. (Use 'select' method instead)
@@ -159,12 +155,10 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
     def get_toggle_state(self):
         """
         Get a toggle state of a check box control.
-
         The toggle state is represented by an integer
         0 - unchecked
         1 - checked
         2 - indeterminate
-
         The following constants are defined in the uia_defines module
         toggle_state_off = 0
         toggle_state_on = 1
@@ -190,7 +184,6 @@ class ButtonWrapper(uiawrapper.UIAWrapper):
 
     # -----------------------------------------------------------
     def items(self):
-        """Find all menu items"""
         return self.children(control_type="MenuItem")
 
 
@@ -296,7 +289,6 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
     def select(self, item):
         """
         Select the ComboBox item
-
         The item can be either a 0 based index of the item to select
         or it can be the string that you want to select
         """
@@ -356,7 +348,6 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
     def selected_text(self):
         """
         Return the selected text or None
-
         Notice, that in case of multi-select it will be only the text from
         a first selected item
         """
@@ -393,7 +384,6 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
     def item_count(self):
         """
         Return the number of items in the combobox
-
         The interface is kept mostly for a backward compatibility with
         the native ComboBox interface
         """
@@ -498,7 +488,6 @@ class EditWrapper(uiawrapper.UIAWrapper):
     def set_window_text(self, text, append=False):
         """Override set_window_text for edit controls because it should not be
         used for Edit controls.
-
         Edit Controls should either use set_edit_text() or type_keys() to modify
         the contents of the edit control.
         """
@@ -658,7 +647,6 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     def small_change(self):
         """
         Get a small change of slider's thumb
-
         This change is achieved by pressing left and right arrows
         when slider's thumb has keyboard focus.
         """
@@ -668,7 +656,6 @@ class SliderWrapper(uiawrapper.UIAWrapper):
     def large_change(self):
         """
         Get a large change of slider's thumb
-
         This change is achieved by pressing PgUp and PgDown keys
         when slider's thumb has keyboard focus.
         """
@@ -751,7 +738,6 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def is_checked(self):
         """Return True if the ListItem is checked
-
         Only items supporting Toggle pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
         """
@@ -891,12 +877,9 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def cell(self, row, column):
         """Return a cell in the ListView control
-
         Only for controls with Grid pattern support
-
         * **row** is an index of a row in the list.
         * **column** is an index of a column in the specified row.
-
         The returned cell can be of different control types.
         Mostly: TextBlock, ImageControl, EditControl, DataItem
         or even another layer of data items (Group, DataGrid)
@@ -923,7 +906,6 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_item(self, row):
         """Return an item of the ListView control
-
         * **row** can be either an index of the row or a string
           with the text of a cell in the row you want returned.
         """
@@ -986,7 +968,6 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_item_rect(self, item_index):
         """Return the bounding rectangle of the list view item
-
         The method is kept mostly for a backward compatibility
         with the native ListViewWrapper interface
         """
@@ -996,7 +977,6 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_selected_count(self):
         """Return a number of selected items
-
         The call can be quite expensieve as we retrieve all
         the selected items in order to count them
         """
@@ -1049,7 +1029,7 @@ class MenuItemWrapper(uiawrapper.UIAWrapper):
         except NoPatternInterfaceError:
             try:
                 self.iface_invoke.Invoke()
-            except comtypes.COMError:
+            except Exception as e:
                 self.click_input()
 
 # ====================================================================
@@ -1120,10 +1100,8 @@ class MenuWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def item_by_path(self, path, exact=False):
         """Find a menu item specified by the path
-
         The full path syntax is specified in:
         :py:meth:`.controls.menuwrapper.Menu.get_menu_path`
-
         Note: $ - specifier is not supported
         """
         # Get the path parts
@@ -1183,7 +1161,6 @@ class TooltipWrapper(uiawrapper.UIAWrapper):
 class ToolbarWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible ToolBar control
-
     The control's children usually are: Buttons, SplitButton,
     MenuItems, ThumbControls, TextControls, Separators, CheckBoxes.
     Notice that ToolTip controls are children of the top window and
@@ -1250,7 +1227,6 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     # ----------------------------------------------------------------
     def button(self, button_identifier, exact=True):
         """Return a button by the specified identifier
-
         * **button_identifier** can be either an index of a button or
           a string with the text of the button.
         * **exact** flag specifies if the exact match for the text look up
@@ -1281,7 +1257,6 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     # ----------------------------------------------------------------
     def check_button(self, button_identifier, make_checked, exact=True):
         """Find where the button is and toggle it
-
         * **button_identifier** can be either an index of the button or
           a string with the text on the button.
         * **make_checked** specifies the required toggled state of the button.
@@ -1357,15 +1332,12 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
     def item_by_path(self, path, exact=False):
         """
         Walk the items in this toolbar to find the item specified by a path
-
         The path is specified by a list of items separated by '->'. Each item
         can be either a string (can include spaces) e.g. "Save As" or a zero
         based index of the item to return prefaced by # e.g. #1.
-
         These can be mixed as necessary. For example:
             - "#0->Save As",
             - "Tools->#0->Configure"
-
         * **path** - Path to the specified item. **Required**.
         * **exact** - If false, text matching will use a 'best match' fuzzy algorithm. If true, will try to find the
                       item with the given name. (Default False). **Optional**
@@ -1373,7 +1345,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         toolbar_items = [p.strip() for p in path.split("->")]
         items_cnt = len(toolbar_items)
         if items_cnt == 0:
-            raise IndexError("Empty path is not accepted by the method!")
+            raise IndexError()
         for item in toolbar_items:
             if not item:
                 raise IndexError("Empty item name between '->' separators")
@@ -1384,30 +1356,33 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             else:
                 return self._sub_item_by_text(parent_menu, item_name, exact, is_last)
 
-        if items_cnt == 1:
-            menu = next_level_menu(self, toolbar_items[0], True)
-            return menu
-
-        menu = self
-        new_descendants = []
-        for i in range(items_cnt):
-            descendants_before = self.top_level_parent().descendants()
-            if len(new_descendants) == 0:
-                menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
+        try:
+            if items_cnt == 1:
+                menu = next_level_menu(self, toolbar_items[0], items_cnt == 1)
+                return menu
             else:
-                new_descendants.append(menu)
-                try:
-                    for ctrl in new_descendants[::-1]:
+                menu = self
+                new_descendants = []
+                for i in range(items_cnt):
+                    descendants_before = self.top_level_parent().descendants()
+                    if len(new_descendants) == 0:
+                        menu = next_level_menu(menu, toolbar_items[i], items_cnt == i + 1)
+                    else:
+                        new_descendants.append(menu)
                         try:
-                            menu = next_level_menu(ctrl, toolbar_items[i], items_cnt == i + 1)
-                        except AttributeError:
-                            pass
-                except findbestmatch.MatchError:
-                    raise AttributeError("Could not find '{}' as a child of one of the following controls: {}".format(
-                        toolbar_items[i], new_descendants
-                    ))
-            descendants_after = self.top_level_parent().descendants()
-            new_descendants = list(set(descendants_after) - set(descendants_before))
+                            for ctrl in new_descendants[::-1]:
+                                try:
+                                    menu = next_level_menu(ctrl, toolbar_items[i], items_cnt == i + 1)
+                                except AttributeError:
+                                    pass
+                        except (findwindows.ElementNotFoundError,
+                                findbestmatch.MatchError):
+                            raise IndexError()
+                    descendants_after = self.top_level_parent().descendants()
+                    new_descendants = list(set(descendants_after) - set(descendants_before))
+
+        except AttributeError:
+            raise IndexError()
 
         return menu
 
@@ -1416,7 +1391,6 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
 class TreeItemWrapper(uiawrapper.UIAWrapper):
 
     """Wrap an UIA-compatible TreeItem control
-
     In addition to the provided methods of the wrapper
     additional inherited methods can be especially helpful:
     select(), extend(), collapse(), is_extended(), is_collapsed(),
@@ -1433,7 +1407,6 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def is_checked(self):
         """Return True if the TreeItem is checked
-
         Only items supporting Toggle pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
         """
@@ -1447,7 +1420,6 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_child(self, child_spec, exact=False):
         """Return the child item of this item
-
         Accepts either a string or an index.
         If a string is passed then it returns the child item
         with the best match for the string.
@@ -1473,11 +1445,9 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def _calc_click_coords(self):
         """Override the BaseWrapper helper method
-
         Try to get coordinates of a text box inside the item.
         If no text box found just set coordinates
         close to a left part of the item rectangle
-
         The returned coordinates are always absolute
         """
         tt = self.children(control_type="Text")
@@ -1529,10 +1499,8 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
     # -----------------------------------------------------------
     def get_item(self, path, exact=False):
         r"""Read a TreeView item
-
         * **path** a path to the item to return. This can be one of
           the following:
-
           * A string separated by \\ characters. The first character must
             be \\. This string is split on the \\ characters and each of
             these is used to find the specific child at each level. The
@@ -1542,7 +1510,6 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
             element.
           * A list/tuple of integers - The first item the index which root
             to select. Indexing always starts from zero: get_item((0, 2, 3))
-
         * **exact** a flag to request exact match of strings in the path
           or apply a fuzzy logic of best_match thus allowing non-exact
           path specifiers
@@ -1628,4 +1595,3 @@ class StaticWrapper(uiawrapper.UIAWrapper):
     def __init__(self, elem):
         """Initialize the control"""
         super(StaticWrapper, self).__init__(elem)
-

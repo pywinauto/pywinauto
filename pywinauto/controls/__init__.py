@@ -30,11 +30,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import sys
 """Controls package"""
-if sys.platform.startswith('linux'):
-    from . import atspiwrapper  # register "atspi" back-end
-    from . import atspi_controls
-    from .atspiwrapper import InvalidWindowHandle
-else:
+if sys.platform == 'win32':
     from ..sysinfo import UIA_support
     if UIA_support:
         from . import uiawrapper # register "uia" back-end (at the end of uiawrapper module)
@@ -47,6 +43,16 @@ else:
     # contain
     from . import common_controls
     from . import win32_controls
+elif sys.platform == "darwin":
+    from . import ax_wrapper # register "ax" back-end
+    from . import ax_controls
+    from .ax_wrapper import InvalidWindowHandle
+elif sys.platform.startswith('linux'):
+    from . import atspiwrapper  # register "atspi" back-end
+    from . import atspi_controls
+    from .atspiwrapper import InvalidWindowHandle
+else:
+    raise NotImplementedError("Platform {0} is not supported".format(sys.platform))
 
 
 from ..base_wrapper import InvalidElement
