@@ -126,12 +126,11 @@ class ButtonWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def toggle(self):
-        """Switch state of checkable controls in cycle between CHECKED/UNCHECKED or
-        CHECKED/UNCHECKED/INDETERMINATE (if a control is  three-state).
+        """Switch state of checkable controls (yclically).
 
+        Supported states are CHECKED/UNCHECKED or CHECKED/UNCHECKED/INDETERMINATE (if a control is  three-state).
         Usually applied for the check box control.
         """
-
         current_state = self.get_native_property('IsChecked')
         if self.get_native_property('IsThreeState'):
             states = (True, False, None)
@@ -329,10 +328,9 @@ class EditWrapper(wpfwrapper.WPFWrapper):
         lines = self.window_text().splitlines()
         if line_index < len(lines):
             return len(lines[line_index])
-        elif line_index == self.line_count() - 1:
+        if line_index == self.line_count() - 1:
             return 0
-        else:
-            raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
+        raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
 
     # -----------------------------------------------------------
     def get_line(self, line_index):
@@ -340,7 +338,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
         lines = self.window_text().splitlines()
         if line_index < len(lines):
             return lines[line_index]
-        elif line_index == self.line_count() - 1:
+        if line_index == self.line_count() - 1:
             return ""
         else:
             raise IndexError("There are only {0} lines but given index is {1}".format(self.line_count(), line_index))
@@ -645,7 +643,7 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
                     raise findbestmatch.MatchError(items=texts, tofind=button_identifier)
             else:
                 # one of these will be returned for the matching text
-                indices = [i for i in range(0, len(texts))]
+                indices = list(range(0, len(texts)))
 
                 # find which index best matches that text
                 button_index = findbestmatch.find_best_match(button_identifier, texts, indices)
@@ -665,7 +663,6 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
         * **exact** flag specifies if the exact match for the text look up
           has to be applied
         """
-
         self.actions.logSectionStart('Checking "' + self.window_text() +
                                      '" toolbar button "' + str(button_identifier) + '"')
         button = self.button(button_identifier, exact=exact)
@@ -808,7 +805,7 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
             if not item:
                 raise IndexError("Empty item name between '->' separators")
 
-        def next_level_menu(parent_menu, item_name, is_last):
+        def next_level_menu(parent_menu, item_name):
             if item_name.startswith("#"):
                 return self._sub_item_by_idx(parent_menu, int(item_name[1:]))
             return self._sub_item_by_text(parent_menu, item_name, exact)
@@ -818,7 +815,7 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
         # a direct child or a descendant.
         # Sometimes we need to re-discover Menu again
         try:
-            menu = next_level_menu(self, menu_items[0], items_cnt == 1)
+            menu = next_level_menu(self, menu_items[0])
             if items_cnt == 1:
                 return menu
 
@@ -831,7 +828,7 @@ class MenuWrapper(wpfwrapper.WPFWrapper):
                 menu = self.top_level_parent().descendants(control_type="Menu")[0]
 
             for i in range(1, items_cnt):
-                menu = next_level_menu(menu, menu_items[i], items_cnt == i + 1)
+                menu = next_level_menu(menu, menu_items[i])
         except AttributeError:
             raise IndexError()
 
@@ -894,7 +891,6 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
 
         The returned coordinates are always absolute
         """
-        
         # TODO get rectangle of text area
         rect = self.rectangle()
         coords = (rect.left + int(float(rect.width()) / 4.),
@@ -907,11 +903,13 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
         return self.descendants(control_type="TreeItem", depth=depth)
 
     def expand(self):
+        """Display child items of the tree item."""
         self.set_native_property('IsExpanded', True)
         return self
 
     # -----------------------------------------------------------
     def collapse(self):
+        """Hide child items of the tree item."""
         self.set_native_property('IsExpanded', False)
         return self
 
@@ -1027,9 +1025,8 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
                 if isinstance(child_spec, six.string_types):
                     raise IndexError("Item '{0}' does not have a child '{1}'".format(
                                      current_elem.window_text(), child_spec))
-                else:
-                    raise IndexError("Item '{0}' does not have {1} children".format(
-                                     current_elem.window_text(), child_spec + 1))
+                raise IndexError("Item '{0}' does not have {1} children".format(
+                                 current_elem.window_text(), child_spec + 1))
 
         return current_elem
 
@@ -1193,8 +1190,7 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
         selection = self.get_selection()
         if selection:
             return len(selection)
-        else:
-            return 0
+        return 0
 
     # -----------------------------------------------------------
     def texts(self):
@@ -1220,7 +1216,7 @@ class HeaderItemWrapper(wpfwrapper.WPFWrapper):
 
     # -----------------------------------------------------------
     def __init__(self, elem):
-        """Initialize the control"""
+        """Initialize the control."""
         super(HeaderItemWrapper, self).__init__(elem)
 
 
