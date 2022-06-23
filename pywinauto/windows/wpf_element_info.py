@@ -124,7 +124,8 @@ class WPFElementInfo(ElementInfo):
         """Return value of the element (in order to search elements by this property).
 
         Only specified element types (like Edit) are supported.
-        Use :py:meth:`get_native_property` to get value of the property with the specified name."""
+        Use :py:meth:`get_native_property` to get value of the property with the specified name.
+        """
         if self.control_type == 'Edit':
             return self.get_native_property('Text') or self.get_native_property('Password') or ''
         return ''
@@ -266,8 +267,7 @@ class WPFElementInfo(ElementInfo):
         return None
 
     def get_native_properties(self):
-        """Return a dict with names and types of available properties of
-        the .NET object corresponding to the element."""
+        """Return a dict with names and types of available properties of the .NET object related to the element."""
         reply = ConnectionManager().call_action('GetProperties', self._pid, element_id=self._element)
         return reply['value']
 
@@ -302,7 +302,6 @@ class WPFElementInfo(ElementInfo):
             reply = ConnectionManager().call_action('GetFocusedElement', pid)
             if reply['value'] > 0:
                 return cls(reply['value'], pid=pid)
-            else:
-                return None
+            return None
         except InjectedUnsupportedActionError:
             return None

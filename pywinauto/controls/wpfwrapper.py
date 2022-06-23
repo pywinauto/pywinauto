@@ -52,7 +52,6 @@ class WpfMeta(BaseMeta):
 
     def __init__(cls, name, bases, attrs):
         """Register the control types."""
-
         BaseMeta.__init__(cls, name, bases, attrs)
 
         for t in cls._control_types:
@@ -61,7 +60,6 @@ class WpfMeta(BaseMeta):
     @staticmethod
     def find_wrapper(element):
         """Find the correct wrapper for this WPF element."""
-
         # Check for a more specific wrapper in the registry
         try:
             wrapper_match = WpfMeta.control_type_to_cls[element.control_type]
@@ -75,7 +73,7 @@ class WpfMeta(BaseMeta):
 @six.add_metaclass(WpfMeta)
 class WPFWrapper(WinBaseWrapper):
 
-    """Default wrapper for WPF control in the specified process"""
+    """Default wrapper for WPF control in the specified process."""
 
     _control_types = []
 
@@ -220,12 +218,11 @@ class WPFWrapper(WinBaseWrapper):
         val = self.element_info.get_native_property('WindowState')
         if val == 'Normal':
             return self.NORMAL
-        elif val == 'Maximized':
+        if val == 'Maximized':
             return self.MAXIMIZED
-        elif val == 'Minimized':
+        if val == 'Minimized':
             return self.MINIMIZED
-        else:
-            raise ValueError('Unexpected WindowState property value: ' + str(val))
+        raise ValueError('Unexpected WindowState property value: ' + str(val))
 
     # -----------------------------------------------------------
     def is_minimized(self):
