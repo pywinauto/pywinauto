@@ -1126,7 +1126,7 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         menu_items = [p.strip() for p in path.split("->")]
         items_cnt = len(menu_items)
         if items_cnt == 0:
-            raise IndexError()
+            raise IndexError("Menu path has incorrect format, no item identifiers found")
         for item in menu_items:
             if not item:
                 raise IndexError("Empty item name between '->' separators")
@@ -1141,8 +1141,9 @@ class MenuWrapper(uiawrapper.UIAWrapper):
         # a new Menu control is created and placed on the dialog. It can be
         # a direct child or a descendant.
         # Sometimes we need to re-discover Menu again
+        i = 0
         try:
-            menu = next_level_menu(self, menu_items[0], items_cnt == 1)
+            menu = next_level_menu(self, menu_items[i], items_cnt == 1)
             if items_cnt == 1:
                 return menu
 
@@ -1156,8 +1157,8 @@ class MenuWrapper(uiawrapper.UIAWrapper):
 
             for i in range(1, items_cnt):
                 menu = next_level_menu(menu, menu_items[i], items_cnt == i + 1)
-        except(AttributeError):
-            raise IndexError()
+        except (AttributeError, IndexError):
+            raise IndexError('Incorrect menu path, item "{}" (index {}) not found'.format(menu_items[i], i))
 
         return menu
 
