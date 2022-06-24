@@ -576,8 +576,12 @@ class WindowSpecification(object):
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
             if self.backend.name in ('wpf'):
+                if self.app is None and len(self.criteria) > 0 and 'pid' in self.criteria[0]:
+                    pid = self.criteria[0]['pid']
+                else:
+                    pid = self.app.process
                 desktop_wrapper = self.backend.generic_wrapper_class(
-                    self.backend.element_info_class(pid=self.app.process)
+                    self.backend.element_info_class(pid=pid)
                 )
             else:
                 desktop_wrapper = self.backend.generic_wrapper_class(self.backend.element_info_class())
