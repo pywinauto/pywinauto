@@ -5,7 +5,7 @@ What is pywinauto
 
 .. _Contributors: https://github.com/pywinauto/pywinauto/graphs/contributors
 
-Released under the BSD 3-clause license
+Released under the BSD 3-clause license.
 
 
 What is it?
@@ -39,7 +39,7 @@ Manual installation
 .. _Pillow: https://pypi.python.org/pypi/Pillow/2.7.0
 
 To check you have it installed correctly
-Run Python ::
+Run Python::
 
   >>> from pywinauto.application import Application
   >>> app = Application(backend="uia").start("notepad.exe")
@@ -81,10 +81,10 @@ before resolving the dialog. At that point if we can't find a SaveAs dialog with
 a ComboBox5 control then we wait a very short period of time and try again,
 this is repeated up to a maximum time (currently 5 seconds!)
 
-This is to avoid having to use time.sleep or a "wait" function explicitly.
+This is to avoid having to use "time.sleep" or a "wait" function explicitly.
 
 If your application performs long time operation, new dialog can appear or
-disappear later. You can wait for its new state like so ::
+disappear later. You can wait for its new state like so::
 
   app.Open.Open.click() # opening large file
   app.Open.wait_not('visible') # make sure "Open" dialog became invisible
@@ -144,7 +144,7 @@ Why write yet another automation tool if there are so many out there?
 There are loads of reasons :-)
 
 **Takes a different approach:**
-    Most other tools are not object oriented you end  up writing stuff like::
+    Most other tools are not object oriented you end up writing stuff like::
 
         window = findwindow(title = "Untitled - Notepad", class = "Notepad")
         SendKeys(window, "%OF")  # Format -> Font
