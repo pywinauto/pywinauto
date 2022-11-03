@@ -59,6 +59,8 @@ if sys.platform == 'win32':
     import win32api  # noqa: E402
     import pythoncom  # noqa: E402
 
+    from .windows import win32defines
+
 
     def _get_com_threading_mode(module_sys):
         """Set up COM threading model
