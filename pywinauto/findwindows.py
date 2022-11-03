@@ -33,7 +33,7 @@
 from __future__ import unicode_literals
 
 import re
-import sys
+import warnings
 import six
 
 from . import findbestmatch
@@ -151,17 +151,23 @@ def find_elements(**kwargs):
 
     # tell user about new property name for every renamed one
     if hasattr(backend_obj.element_info_class, 'renamed_props'):
-        renamed_erros = []
+        #renamed_erros = []
         for key, value in kwargs.items():
             renamed_prop = backend_obj.element_info_class.renamed_props.get(key, None)
             if renamed_prop is not None:
                 new_key, values_map = renamed_prop
                 if values_map and value in values_map.keys():
-                    renamed_erros.append('"{}={}" -> "{}={}"'.format(key, value, new_key, values_map[value]))
+                    error_msg = '"{}={}" -> "{}={}"'.format(key, value, new_key, values_map[value])
+                    kwargs[new_key] = values_map[value]
                 else:
-                    renamed_erros.append('"{}" -> "{}"'.format(key, new_key))
-        if renamed_erros:
-            raise RenamedKeywordError('[pywinauto>=0.7.0] Some search keywords are renamed: ' + ', '.join(renamed_erros))
+                    error_msg = '"{}" -> "{}"'.format(key, new_key)
+                    kwargs[new_key] = kwargs[key]
+                del kwargs[key]
+                #renamed_erros.append(error_msg)
+                warnings.warn("[pywinauto>=0.7.0] Keyword is renamed: {}".format(error_msg), DeprecationWarning)
+        # TODO: raise error in future releases
+        #if renamed_erros:
+        #    raise RenamedKeywordError('[pywinauto>=0.7.0] Some search keywords are renamed: ' + ', '.join(renamed_erros))
 
     re_props = backend_obj.element_info_class.re_props
     exact_only_props = backend_obj.element_info_class.exact_only_props

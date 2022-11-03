@@ -358,6 +358,15 @@ class Application(BaseApplication):
             except TimeoutError:
                 raise ProcessNotFoundError('Process with PID={} not found!'.format(self.process))
             connected = True
+        elif 'process' in kwargs:
+            warnings.warn("'process' keyword is deprecated, use 'pid' instead", DeprecationWarning)
+            kwargs['pid'] = self.process = kwargs['process']
+            del kwargs['process']
+            try:
+                wait_until(timeout, retry_interval, self.is_process_running, value=True)
+            except TimeoutError:
+                raise ProcessNotFoundError('Process with PID={} not found!'.format(self.process))
+            connected = True
 
         elif 'handle' in kwargs:
 
