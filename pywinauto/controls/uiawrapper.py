@@ -553,7 +553,7 @@ class UIAWrapper(WinBaseWrapper):
             thread.daemon = True
             thread.start()
             thread.join(2.)
-            if thread.isAlive():
+            if thread.is_alive():
                 warnings.warn('Timeout for InvokePattern.Invoke() call was exceeded', RuntimeWarning)
         watchdog_thread = threading.Thread(target=watchdog)
         watchdog_thread.start()
