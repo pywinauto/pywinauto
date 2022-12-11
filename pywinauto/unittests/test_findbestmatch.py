@@ -44,10 +44,11 @@ from pywinauto.windows import win32structures
 
 class TestFindBestMatch(unittest.TestCase):
 
-    def setUp(self):
-        """load the test strings"""
-        self.strings = open(os.path.join(test_path, "testtext.txt"), "rb").readlines()
-        self.strings = (line.decode('utf-8')[:-1] for line in self.strings)
+    # def setUp(self):
+    #     """load the test strings"""
+    #     with open(os.path.join(test_path, "testtext.txt"), "rb") as f:
+    #         self.strings = f.readlines()
+    #         self.strings = (line.decode('utf-8')[:-1] for line in self.strings)
 
     def testclean_text_1(self):
         "Test for _clean_non_chars (alphanumeric symbols)"
