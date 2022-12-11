@@ -573,6 +573,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
         self.set_focus()
 
         # if we have been asked to select a string
+        string_to_select = None
         if isinstance(start, six.text_type):
             string_to_select = start
         elif isinstance(start, six.binary_type):
