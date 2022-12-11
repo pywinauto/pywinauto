@@ -12,20 +12,20 @@ jobs:
       fail-fast: false
       matrix:
         os : [ubuntu-18.04, ubuntu-20.04]
-        python: [ '2.7', '3.6', '3.7', '3.8', '3.9', '3.10' ]
+        python: [ '2.7', '3.7', '3.8', '3.9', '3.10', '3.11' ]
         exclude:
-          - os: ubuntu-18.04
+          - os: ubuntu-20.04
+            python: '2.7'
+          - os: ubuntu-20.04
+            python: '3.7'
+          - os: ubuntu-20.04
             python: '3.8'
           - os: ubuntu-18.04
             python: '3.9'
           - os: ubuntu-18.04
             python: '3.10'
-          - os: ubuntu-20.04
-            python: '2.7'
-          - os: ubuntu-20.04
-            python: '3.6'
-          - os: ubuntu-20.04
-            python: '3.7'
+          - os: ubuntu-18.04
+            python: '3.11'
     env:
       DISPLAY: ':0'
     steps:
@@ -38,25 +38,28 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        sudo apt-get update
+        sudo apt update -y
         sudo apt upgrade
-        sudo apt-get install python3 python3-pip -y
-        sudo apt-get install python-xlib
-        sudo apt-get install python3-xlib
-        sudo apt-get install xsel
-        sudo apt install libjavascriptcoregtk-4.0-18
-        pip install codecov coverage
+        sudo apt install -y --no-install-recommends python-setuptools tk-dev python-tk
+        sudo apt install -y --no-install-recommends python3 python3-pip python3-setuptools
+        sudo apt install -y --no-install-recommends python-xlib
+        sudo apt install -y --no-install-recommends xsel
+        sudo apt install -y libjavascriptcoregtk-4.0-18
+        pip install coverage codecov
         pip install python-xlib --upgrade
         pip install mock --upgrade
         python -m pip install pytest
-        sudo apt-get install build-essential libssl-dev
-        sudo apt-get install qt5-default
-        sudo apt install libxkbcommon-x11-0
-        sudo apt install python3-gi gobject-introspection gir1.2-gtk-3.0
-        sudo apt-get install at-spi2-core
-        sudo apt-get install python3-pyatspi
-        sudo apt install -y xvfb x11-utils libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xdotool
-        pip3 install cmake
+        sudo apt install -y build-essential libssl-dev
+        sudo apt install -y qt5-default
+        sudo apt install -y libxkbcommon-x11-0
+        sudo apt install -y python3-gi gobject-introspection gir1.2-gtk-3.0
+        sudo apt install -y at-spi2-core
+        sudo apt install -y python3-pyatspi
+        sudo apt install -y xvfb x11-utils libxkbcommon-x11-0 \
+            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
+            libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xdotool
+        #pip3 install scikit-build # required for cmake>=3.23.0
+        pip3 install cmake==3.22.6
 
     - name: Install test apps
       run: |
@@ -91,4 +94,4 @@ jobs:
       run: |
         coverage run -m pytest pywinauto/unittests/test_atspi_element_info.py pywinauto/unittests/test_atspi_wrapper.py pywinauto/unittests/test_atspi_controls.py pywinauto/unittests/test_clipboard_linux.py pywinauto/unittests/test_keyboard.py pywinauto/unittests/test_application_linux.py
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v3

@@ -656,7 +656,6 @@ class HwndWrapper(WinBaseWrapper):
         if timeout is None:
             timeout = Timings.sendmessagetimeout_timeout
 
-        result = -1
         try:
             (_, result) = win32gui.SendMessageTimeout(
                     int(self.handle),
