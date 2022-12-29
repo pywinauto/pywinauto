@@ -30,7 +30,7 @@ if sys.platform != 'win32':
             self.app = subprocess.Popen("exec " + _test_app(), shell=True)
             time.sleep(0.1)
             mouse.click(coords=(300, 300))
-            time.sleep(0.1)
+            time.sleep(0.2)
 
         def tearDown(self):
             """Close the application after tests"""
