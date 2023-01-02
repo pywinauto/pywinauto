@@ -48,5 +48,8 @@ else:
     from . import common_controls
     from . import win32_controls
 
+    from . import wpfwrapper
+    from . import wpf_controls
+
 
 from ..base_wrapper import InvalidElement

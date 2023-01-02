@@ -6,7 +6,7 @@
 #
 
 # fetch repository as a zip archive
-shallow_clone: true                 # default is "false"
+shallow_clone: false                 # default is "false"
 
 environment:
 
@@ -72,6 +72,10 @@ install:
   # as well as pywin32, pillow and coverage
   - "powershell ./ci/install.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
+  - cd %APPVEYOR_BUILD_FOLDER%
+  - git submodule init
+  - git submodule update
+
 
   # Install the build dependencies of the project. If some dependencies contain
   # compiled extensions and are not provided as pre-built wheel packages,
@@ -81,7 +85,6 @@ install:
 
   # Enable desktop (for correct screenshots).
   #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-desktop.ps1'))
-
 build: false  # Not a C# project, build stuff at the test step instead.
 
 test_script:

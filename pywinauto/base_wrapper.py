@@ -170,6 +170,8 @@ class BaseWrapper(object):
 
         criteria['backend'] = self.backend.name
         criteria['parent'] = self.element_info
+        if self.backend.name in ('wpf'):
+            criteria['pid'] = self.element_info.pid
         child_specification = WindowSpecification(criteria)
 
         return child_specification

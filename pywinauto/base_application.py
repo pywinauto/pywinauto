@@ -223,6 +223,8 @@ class WindowSpecification(object):
                 if 'backend' not in ctrl_criteria:
                     ctrl_criteria['backend'] = self.backend.name
 
+                if self.app is not None:
+                    ctrl_criteria['pid'] = self.app.process
                 ctrl = self.backend.generic_wrapper_class(findwindows.find_element(**ctrl_criteria))
                 previous_parent = ctrl.element_info
                 ctrls.append(ctrl)
@@ -479,7 +481,6 @@ class WindowSpecification(object):
         new_item = WindowSpecification(self.criteria[0], allow_magic_lookup=self.allow_magic_lookup)
         new_item.criteria.extend(self.criteria[1:])
         new_item.criteria.append(criteria)
-
         return new_item
 
     def __getitem__(self, key):
@@ -574,7 +575,16 @@ class WindowSpecification(object):
             # FIXME - I don't get this part at all, why is it win32-specific and why not keep the same logic as above?
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
-            desktop_wrapper = self.backend.generic_wrapper_class(self.backend.element_info_class())
+            if self.backend.name in ('wpf'):
+                if self.app is None and len(self.criteria) > 0 and 'pid' in self.criteria[0]:
+                    pid = self.criteria[0]['pid']
+                else:
+                    pid = self.app.process
+                desktop_wrapper = self.backend.generic_wrapper_class(
+                    self.backend.element_info_class(pid=pid)
+                )
+            else:
+                desktop_wrapper = self.backend.generic_wrapper_class(self.backend.element_info_class())
             need_to_resolve = (len(self.criteria) == 1 and hasattr(desktop_wrapper, attr_name))
             if hasattr(self.backend, 'dialog_class'):
                 need_to_resolve = need_to_resolve and hasattr(self.backend.dialog_class, attr_name)
