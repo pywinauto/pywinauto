@@ -736,31 +736,65 @@ class KeyAction(object):
         """
         return self._get_key_info()
 
+    def _get_utf_16_surrogate_pair(self):
+        """Return 2 scan codes of utf-16 surrogate pair for utf-32 symbol beyond \uFFFF"""
+        scan_utf32 = ord(self.key)
+        code = (scan_utf32 - 0x10000)
+        return 0xD800 | (code >> 10), 0xDC00 | (code & 0x3FF)
+
     def GetInput(self):
         """Build the INPUT structure for the action"""
+        vk, scan, flags = self._get_key_info()
+
         actions = 1
         # if both up and down
         if self.up and self.down:
             actions = 2
 
+        # utf-32 4 byte symbol requires utf-16 surrogate pair
+        if 0xffff < scan <= 0x10ffff:
+            actions *= 2
+            scan_codes = self._get_utf_16_surrogate_pair()
+        else:
+            scan_codes = (scan, scan)
+
         inputs = (win32structures.INPUT * actions)()
 
-        vk, scan, flags = self._get_key_info()
+        if self.down:
+            if self.up:
+                # reference to the first half of array
+                down_inputs = (win32structures.INPUT * (actions // 2)).from_buffer(inputs)
+            else:
+                # reference to the whole array
+                down_inputs = (win32structures.INPUT * actions).from_buffer(inputs)
+        if self.up:
+            if self.down:
+                # reference to the second half of array
+                up_inputs = (win32structures.INPUT * (actions // 2)).from_buffer(inputs, sizeof(win32structures.INPUT) * (actions // 2))
+            else:
+                # reference to the whole array
+                up_inputs = (win32structures.INPUT * actions).from_buffer(inputs)
 
-        for inp in inputs:
+        def _fill_input_struct(input_instance, scan_code, input_flags):
             inp.type = INPUT_KEYBOARD
 
             inp.ki.wVk = vk
-            inp.ki.wScan = scan
+            inp.ki.wScan = scan_code
             inp.ki.dwFlags |= flags
 
             # it seems to return 0 every time but it's required by MSDN specification
             # so call it just in case
             inp.ki.dwExtraInfo = win32functions.GetMessageExtraInfo()
 
-        # if we are releasing - then let it up
+        if self.down:
+            for i, inp in enumerate(down_inputs):
+                _fill_input_struct(inp, scan_codes[i], flags)
+
         if self.up:
-            inputs[-1].ki.dwFlags |= KEYEVENTF_KEYUP
+            # if we are releasing - then let it up
+            flags |= KEYEVENTF_KEYUP
+            for i, inp in enumerate(up_inputs):
+                _fill_input_struct(inp, scan_codes[i], flags)
 
         return inputs
 
