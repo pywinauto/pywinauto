@@ -511,8 +511,8 @@ class UIAElementInfo(ElementInfo):
             rect.top = bound_rect.top
             rect.right = bound_rect.right
             rect.bottom = bound_rect.bottom
-        except COMError:
-            pass
+        except COMError as e:
+            warnings.warn("Can't get element rectangle due to error: {}".format(e), RuntimeWarning)
         return rect
 
     def dump_window(self):
@@ -548,7 +548,11 @@ class UIAElementInfo(ElementInfo):
         """Check if 2 UIAElementInfo objects describe 1 actual element"""
         if not isinstance(other, UIAElementInfo):
             return False
-        return bool(IUIA().iuia.CompareElements(self.element, other.element))
+        try:
+            return bool(IUIA().iuia.CompareElements(self.element, other.element))
+        except COMError:
+            warnings.warn("Can't compare elements due to error: {}".format(e), RuntimeWarning)
+            return False
 
     def __ne__(self, other):
         """Check if 2 UIAElementInfo objects describe 2 different elements"""

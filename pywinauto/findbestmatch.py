@@ -306,7 +306,7 @@ def get_control_names(control, allcontrols, textcontrols):
     # Todo - I don't like the hardcoded classnames here!
     if cleaned and control.has_title:
         names.append(cleaned)
-        names.append(cleaned + friendly_class_name)
+        names.append(cleaned + six.text_type(friendly_class_name))
     elif control.has_title and friendly_class_name != 'TreeView':
         try:
             for text in control.texts()[1:]:

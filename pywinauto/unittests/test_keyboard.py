@@ -295,6 +295,13 @@ class SendKeysTests(unittest.TestCase):
             received = self.receive_text()
             self.assertEqual('abc', received)
 
+        def test_issue_1278__utf32_surrogate_pair_of_utf16(self):
+            """Make sure that typing Uniocode symbols beyond U+ffff works (issue #1278)"""
+            cherry_symbol = '\ud83c\udf52'.encode('utf-16', errors="surrogatepass").decode("utf-16")
+            send_keys(cherry_symbol)
+            received = self.receive_text()
+            self.assertEqual(cherry_symbol, received)
+
 
 if sys.platform == 'win32':
     class SendKeysModifiersTests(unittest.TestCase):
