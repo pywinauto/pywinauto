@@ -128,7 +128,7 @@ def _build_pattern_ids_dic():
     """
     base_names = [
         'Dock', 'ExpandCollapse', 'GridItem', 'Grid', 'Invoke', 'ItemContainer',
-        'LegacyIAccessible', 'MulipleView', 'RangeValue', 'ScrollItem', 'Scroll',
+        'LegacyIAccessible', 'MultipleView', 'RangeValue', 'ScrollItem', 'Scroll',
         'SelectionItem', 'Selection', 'SynchronizedInput', 'TableItem', 'Table',
         'Text', 'Toggle', 'VirtualizedItem', 'Value', 'Window',
         'Transform',
@@ -211,17 +211,18 @@ scroll_small_increment = IUIA().ui_automation_client.ScrollAmount_SmallIncrement
 vt_empty = IUIA().ui_automation_client.VARIANT.empty.vt
 vt_null = IUIA().ui_automation_client.VARIANT.null.vt
 
+
 def get_elem_interface(element_info, pattern_name):
     """A helper to retrieve an element interface by the specified pattern name
 
     TODO: handle a wrong pattern name
     """
     # Resolve the pattern id and the class to query
-    ptrn_id, cls_name = pattern_ids[pattern_name]
+    ptrn_id, ptrn_cls = pattern_ids[pattern_name]
     # Get the interface
     try:
         cur_ptrn = element_info.GetCurrentPattern(ptrn_id)
-        iface = cur_ptrn.QueryInterface(cls_name)
-    except(ValueError):
+        iface = cur_ptrn.QueryInterface(ptrn_cls)
+    except ValueError:
         raise NoPatternInterfaceError()
     return iface
