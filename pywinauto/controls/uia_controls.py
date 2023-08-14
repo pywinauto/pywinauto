@@ -758,7 +758,7 @@ class ListItemWrapper(uiawrapper.UIAWrapper):
         Only items supporting Toggle pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
         """
-        return self.iface_toggle.ToggleState_On == toggle_state_on
+        return self.iface_toggle.CurrentToggleState == toggle_state_on
 
     def texts(self):
         """Return a list of item texts"""
@@ -1440,7 +1440,7 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
         Only items supporting Toggle pattern should answer.
         Raise NoPatternInterfaceError if the pattern is not supported
         """
-        return (self.iface_toggle.ToggleState_On == toggle_state_on)
+        return (self.iface_toggle.CurrentToggleState == toggle_state_on)
 
     # -----------------------------------------------------------
     def ensure_visible(self):
