@@ -1708,6 +1708,19 @@ if UIA_support:
             self.listbox_datagrid_tab.select()
             listbox_item = self.listbox_datagrid_tab.children(class_name=u"ListBox")[0].get_item(u"CheckItem")
             self.assertRaises(uia_defs.NoPatternInterfaceError, listbox_item.is_checked)
+            # Creating an actual GUI that can be toggled by `ListItemWrapper`s is difficult,
+            # so the `iface_toggle` property was patched for testing purposes.
+            with mock.patch.object(
+                uia_ctls.ListItemWrapper,
+                "iface_toggle",
+                spec=uia_defs.IUIA().ui_automation_client.IUIAutomationTogglePattern,
+            ) as m_toggle:
+                m_toggle.CurrentToggleState = uia_defs.toggle_state_on
+                self.assertTrue(listbox_item.is_checked())
+                m_toggle.CurrentToggleState = uia_defs.toggle_state_off
+                self.assertFalse(listbox_item.is_checked())
+                m_toggle.CurrentToggleState = uia_defs.toggle_state_inderteminate
+                self.assertFalse(listbox_item.is_checked())
 
         def test_texts(self):
             """Test getting texts of ListItem"""
@@ -2143,6 +2156,19 @@ if UIA_support:
 
             # Verify errors handling
             self.assertRaises(uia_defs.NoPatternInterfaceError, itm.is_checked)
+            # Creating an actual GUI that can be toggled by `TreeItemWrapper`s is difficult,
+            # so the `iface_toggle` property was patched for testing purposes.
+            with mock.patch.object(
+                uia_ctls.TreeItemWrapper,
+                "iface_toggle",
+                spec=uia_defs.IUIA().ui_automation_client.IUIAutomationTogglePattern,
+            ) as m_toggle:
+                m_toggle.CurrentToggleState = uia_defs.toggle_state_on
+                self.assertTrue(itm.is_checked())
+                m_toggle.CurrentToggleState = uia_defs.toggle_state_off
+                self.assertFalse(itm.is_checked())
+                m_toggle.CurrentToggleState = uia_defs.toggle_state_inderteminate
+                self.assertFalse(itm.is_checked())
 
             self.assertRaises(RuntimeError,
                               self.ctrl.get_item,
