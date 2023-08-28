@@ -106,7 +106,8 @@ from . import backend as backends
 
 MatchError = findbestmatch.MatchError
 
-from pywinauto.application import Application, WindowSpecification
+from pywinauto.application import Application
+from pywinauto.window_specification import WindowSpecification
 
 
 class Desktop(object):

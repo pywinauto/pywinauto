@@ -13,11 +13,11 @@ import six
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
-from pywinauto.base_application import WindowSpecification  # noqa: E402
+from pywinauto.window_specification import WindowSpecification  # noqa: E402
 from pywinauto.sysinfo import is_x64_Python, UIA_support  # noqa: E402
 from pywinauto.timings import Timings, wait_until  # noqa: E402
 from pywinauto.actionlogger import ActionLogger  # noqa: E402
-from pywinauto import Desktop
+from pywinauto import Desktop  # noqa: E402
 from pywinauto import mouse  # noqa: E402
 from pywinauto import WindowNotFoundError  # noqa: E402
 if UIA_support:

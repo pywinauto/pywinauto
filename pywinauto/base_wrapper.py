@@ -162,7 +162,7 @@ class BaseWrapper(object):
 
         Current wrapper object is used as a parent while searching in the subtree.
         """
-        from .base_application import WindowSpecification
+        from .window_specification import WindowSpecification
         # default to non top level windows because we are usually
         # looking for a control
         if 'top_level_only' not in criteria:

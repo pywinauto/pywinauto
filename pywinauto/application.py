@@ -65,7 +65,7 @@ in almost exactly the same ways. ::
 
 import sys
 
-from .base_application import WindowSpecification  # noqa: W0611
+from .window_specification import WindowSpecification  # noqa: W0611
 
 if sys.platform == 'win32':
     from .windows.application import Application  # noqa: W0611
