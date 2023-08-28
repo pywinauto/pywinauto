@@ -68,8 +68,8 @@ in almost exactly the same ways. ::
 
    :func:`pywinauto.findwindows.find_elements` for the keyword arguments that
    can be passed to both:
-   :meth:`WindowSpecification.child_window<pywinauto.base_application.WindowSpecification.child_window>` and
-   :meth:`WindowSpecification.window<pywinauto.base_application.WindowSpecification.window>`
+   :meth:`WindowSpecification.child_window<pywinauto.window_specification.WindowSpecification.child_window>` and
+   :meth:`WindowSpecification.window<pywinauto.window_specification.WindowSpecification.window>`
 
    :class:`pywinauto.windows.application.Application` for the 'win32' and 'uia' backends
 
