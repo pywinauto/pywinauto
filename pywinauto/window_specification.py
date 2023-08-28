@@ -32,18 +32,17 @@ class WindowSpecification(object):
     .. automethod:: __getattribute__
     .. automethod:: __getitem__
     """
-    WAIT_CRITERIA_MAP = {'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_visible(timeout, retry_interval),
-                         'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_enabled(timeout, retry_interval),
-                         'active': lambda ctrl, timeout, retry_interval: ctrl.wait_active(timeout, retry_interval),
-                         }
+    WAIT_CRITERIA_MAP = {
+        'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_visible(timeout, retry_interval),
+        'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_enabled(timeout, retry_interval),
+        'active': lambda ctrl, timeout, retry_interval: ctrl.wait_active(timeout, retry_interval),
+    }
 
-    WAIT_NOT_CRITERIA_MAP = {'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_not_visible(timeout,
-                                                                                                    retry_interval),
-                             'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_not_enabled(timeout,
-                                                                                                    retry_interval),
-                             'active': lambda ctrl, timeout, retry_interval: ctrl.wait_not_active(timeout,
-                                                                                                  retry_interval),
-                             }
+    WAIT_NOT_CRITERIA_MAP = {
+        'visible': lambda ctrl, timeout, retry_interval: ctrl.wait_not_visible(timeout, retry_interval),
+        'enabled': lambda ctrl, timeout, retry_interval: ctrl.wait_not_enabled(timeout, retry_interval),
+        'active': lambda ctrl, timeout, retry_interval: ctrl.wait_not_active(timeout, retry_interval),
+    }
 
     def __init__(self, search_criteria, allow_magic_lookup=True):
         """
@@ -56,9 +55,11 @@ class WindowSpecification(object):
         if 'backend' not in search_criteria:
             search_criteria['backend'] = backend.registry.active_backend.name
         if 'pid' in search_criteria and 'app' in search_criteria:
-            raise KeyError('Keywords "pid" and "app" cannot be combined (ambiguous). ' \
-                'Use one option at a time: Application object with keyword "app" or ' \
-                'integer process ID with keyword "process".')
+            raise KeyError(
+                'Keywords "pid" and "app" cannot be combined (ambiguous). '
+                'Use one option at a time: Application object with keyword "app" or '
+                'integer process ID with keyword "process".'
+            )
         self.app = search_criteria.get('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
@@ -73,9 +74,11 @@ class WindowSpecification(object):
     def __call__(self, *args, **kwargs):
         """No __call__ so return a useful error"""
         if "best_match" in self.criteria[-1]:
-            raise AttributeError("Neither GUI element (wrapper) " \
+            raise AttributeError(
+                "Neither GUI element (wrapper) "
                 "nor wrapper method '{0}' were found (typo?)".
-                format(self.criteria[-1]['best_match']))
+                format(self.criteria[-1]['best_match'])
+            )
 
         message = (
             "You tried to execute a function call on a WindowSpecification "
@@ -183,10 +186,12 @@ class WindowSpecification(object):
                 timeout,
                 retry_interval,
                 self.__find_base,
-                (findwindows.ElementNotFoundError,
-                 findbestmatch.MatchError,
-                 controls.InvalidWindowHandle,
-                 controls.InvalidElement),
+                (
+                    findwindows.ElementNotFoundError,
+                    findbestmatch.MatchError,
+                    controls.InvalidWindowHandle,
+                    controls.InvalidElement,
+                ),
                 self.criteria,
                 timeout,
                 retry_interval,
@@ -220,10 +225,12 @@ class WindowSpecification(object):
                 timeout,
                 retry_interval,
                 self.__find_all_base,
-                (findwindows.ElementNotFoundError,
-                 findbestmatch.MatchError,
-                 controls.InvalidWindowHandle,
-                 controls.InvalidElement),
+                (
+                    findwindows.ElementNotFoundError,
+                    findbestmatch.MatchError,
+                    controls.InvalidWindowHandle,
+                    controls.InvalidElement
+                ),
                 self.criteria,
                 timeout,
                 retry_interval,
@@ -270,11 +277,13 @@ class WindowSpecification(object):
         start = timestamp()
         try:
             ctrl = self.find(time_left, retry_interval)
-        except (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement,
-                TimeoutError) as e:
+        except (
+            findwindows.ElementNotFoundError,
+            findbestmatch.MatchError,
+            controls.InvalidWindowHandle,
+            controls.InvalidElement,
+            TimeoutError
+        ):
             raise TimeoutError('Timed out: can not find control with the given criteria {}'.format(self.criteria[-1]))
 
         correct_wait_for = wait_for.lower().split()
@@ -347,11 +356,13 @@ class WindowSpecification(object):
             start = timestamp()
             try:
                 ctrl = self.find(time_left, retry_interval)
-            except (findwindows.ElementNotFoundError,
-                    findbestmatch.MatchError,
-                    controls.InvalidWindowHandle,
-                    controls.InvalidElement,
-                    TimeoutError) as e:
+            except (
+                findwindows.ElementNotFoundError,
+                findbestmatch.MatchError,
+                controls.InvalidWindowHandle,
+                controls.InvalidElement,
+                TimeoutError,
+            ):
                 return
             for condition in correct_wait_for:
                 time_left -= timestamp() - start
@@ -404,9 +415,11 @@ class WindowSpecification(object):
             if hasattr(ctrl, '__getitem__'):
                 return ctrl[key]
             else:
-                message = "The control does not have a __getitem__ method " \
-                    "for item access (i.e. ctrl[key]) so maybe you have " \
+                message = (
+                    "The control does not have a __getitem__ method "
+                    "for item access (i.e. ctrl[key]) so maybe you have "
                     "requested this in error?"
+                )
 
                 raise AttributeError(message)
 
@@ -514,11 +527,13 @@ class WindowSpecification(object):
             self.find(timeout, retry_interval)
 
             return True
-        except (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement,
-                TimeoutError):
+        except (
+            findwindows.ElementNotFoundError,
+            findbestmatch.MatchError,
+            controls.InvalidWindowHandle,
+            controls.InvalidElement,
+            TimeoutError,
+        ):
             return False
 
     def not_exists(self, timeout=None, retry_interval=None):
@@ -549,11 +564,13 @@ class WindowSpecification(object):
             wait_until(timeout, retry_interval, self.exists, False)
 
             return True
-        except (findwindows.ElementNotFoundError,
-                findbestmatch.MatchError,
-                controls.InvalidWindowHandle,
-                controls.InvalidElement,
-                TimeoutError):
+        except (
+            findwindows.ElementNotFoundError,
+            findbestmatch.MatchError,
+            controls.InvalidWindowHandle,
+            controls.InvalidElement,
+            TimeoutError
+        ):
             return False
 
     def dump_tree(self, depth=10, max_width=10, filename=None):
@@ -660,10 +677,11 @@ class WindowSpecification(object):
                 if ctrl_text:
                     # transform multi-line text to one liner
                     ctrl_text = repr(ctrl_text)
-                output += indent + u"{class_name} - {text}    {rect}" \
-                                   "".format(class_name=ctrl.friendly_class_name(),
-                                             text=ctrl_text,
-                                             rect=ctrl.rectangle())
+                output += indent + u"{class_name} - {text}    {rect}".format(
+                    class_name=ctrl.friendly_class_name(),
+                    text=ctrl_text,
+                    rect=ctrl.rectangle()
+                )
 
                 if show_best_match_names:
                     output += u'\n' + indent + u'{}'.format(ctrl_id_name_map[ctrl_id])
