@@ -45,8 +45,11 @@ def deprecated(method, deprecated_name=None):
 
     def wrap(*args, **kwargs):
         warnings.simplefilter("default", DeprecationWarning)
-        warnings.warn("Method .{}() is deprecated, use .{}() instead." \
-            "".format(deprecated_name, method.__name__), DeprecationWarning, stacklevel=2)
+        warnings.warn(
+            "Method .{}() is deprecated, use .{}() instead.".format(deprecated_name, method.__name__),
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return method(*args, **kwargs)
 
     return wrap
@@ -56,11 +59,10 @@ if sys.platform == 'win32':
     # Importing only pythoncom can fail with the errors like:
     #     ImportError: No system module 'pywintypes' (pywintypes27.dll)
     # So try to facilitate pywintypes*.dll loading with implicit import of win32api
-    import win32api  # noqa: E402
+    import win32api  # noqa: F401, E402
     import pythoncom  # noqa: E402
 
-    from .windows import win32defines
-
+    from .windows import win32defines  # noqa: F401, E402
 
     def _get_com_threading_mode(module_sys):
         """Set up COM threading model
@@ -84,7 +86,6 @@ if sys.platform == 'win32':
 
         return com_init_mode
 
-
     sys.coinit_flags = _get_com_threading_mode(sys)
 
 
@@ -94,20 +95,21 @@ class WindowNotFoundError(Exception):
     """No window could be found"""
     pass
 
-from . import findwindows
+
+from . import findwindows  # noqa: E402
 
 WindowAmbiguousError = findwindows.WindowAmbiguousError
 ElementNotFoundError = findwindows.ElementNotFoundError
 ElementAmbiguousError = findwindows.ElementAmbiguousError
 
 
-from . import findbestmatch
-from . import backend as backends
+from . import findbestmatch  # noqa: E402
+from . import backend as backends  # noqa: E402
 
 MatchError = findbestmatch.MatchError
 
-from pywinauto.application import Application
-from pywinauto.window_specification import WindowSpecification
+from pywinauto.application import Application  # noqa: F401, E402
+from pywinauto.window_specification import WindowSpecification  # noqa: E402
 
 
 class Desktop(object):
