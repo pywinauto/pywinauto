@@ -13,7 +13,7 @@ from . import controls
 from . import findbestmatch
 from . import findwindows
 
-from . import backend
+from . import backend as backends
 
 from .actionlogger import ActionLogger
 from .timings import Timings, wait_until, TimeoutError, wait_until_passes, timestamp
@@ -53,7 +53,7 @@ class WindowSpecification(object):
         """
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
-            search_criteria['backend'] = backend.registry.active_backend.name
+            search_criteria['backend'] = backends.registry.active_backend.name
         if 'pid' in search_criteria and 'app' in search_criteria:
             raise KeyError(
                 'Keywords "pid" and "app" cannot be combined (ambiguous). '
@@ -63,7 +63,7 @@ class WindowSpecification(object):
         self.app = search_criteria.get('app', None)
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
-        self.backend = backend.registry.backends[search_criteria['backend']]
+        self.backend = backends.registry.backends[search_criteria['backend']]
         self.allow_magic_lookup = allow_magic_lookup
 
         # Non PEP-8 aliases for partial backward compatibility
