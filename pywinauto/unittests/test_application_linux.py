@@ -6,7 +6,7 @@ import subprocess
 import time
 
 sys.path.append(".")
-from pywinauto.application import WindowSpecification  # noqa: E402
+from pywinauto.window_specification import WindowSpecification  # noqa: E402
 if sys.platform.startswith('linux'):
     from pywinauto.controls import atspiwrapper  # register atspi backend
     from pywinauto.linux.application import Application  # noqa: E402
