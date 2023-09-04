@@ -9,6 +9,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     timeout-minutes: 30
     strategy:
+      max-parallel: 1
       fail-fast: false
       matrix:
         os : [ubuntu-18.04, ubuntu-20.04]
@@ -30,9 +31,9 @@ jobs:
       DISPLAY: ':0'
     steps:
     - name: get repo
-      uses: actions/checkout@v1
+      uses: actions/checkout@v3
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
     - name: Install dependencies
