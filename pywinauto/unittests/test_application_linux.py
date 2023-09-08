@@ -7,7 +7,6 @@ import time
 
 sys.path.append(".")
 from pywinauto.application import WindowSpecification  # noqa: E402
-from pywinauto.timings import Timings  # noqa: E402
 if sys.platform.startswith('linux'):
     from pywinauto.controls import atspiwrapper  # register atspi backend
     from pywinauto.linux.application import Application  # noqa: E402
@@ -39,7 +38,6 @@ if sys.platform.startswith('linux'):
             """Set some data and ensure the application is in the state we want"""
             self.subprocess_app = None
             self.app = Application()
-            Timings.defaults()
 
         def tearDown(self):
             """Close the application after tests"""
@@ -53,7 +51,6 @@ if sys.platform.startswith('linux'):
 
         def test_not_connected(self):
             """Verify that it raises when the app is not connected"""
-            Timings.window_find_timeout = 5
             self.assertRaises(AppNotConnected, Application().__getattribute__, 'Hiya')
             self.assertRaises(AppNotConnected, Application().__getitem__, 'Hiya')
             self.assertRaises(AppNotConnected, Application().window_, name='Hiya')
@@ -61,7 +58,6 @@ if sys.platform.startswith('linux'):
 
         def test_start_problem(self):
             """Verify start_ raises on unknown command"""
-            Timings.window_find_timeout = 5
             self.assertRaises(AppStartError, Application().start, 'Hiya')
 
         def test_start(self):
@@ -96,7 +92,6 @@ if sys.platform.startswith('linux'):
             self.assertRaises(ProcessNotFoundError, self.app.cpu_usage, 7.8)
 
             # not connected or not started app
-            Timings.window_find_timeout = 5
             self.assertRaises(AppNotConnected, Application().cpu_usage, 12.3)
 
         def test_is_process_running(self):
