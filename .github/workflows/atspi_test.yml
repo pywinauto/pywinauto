@@ -7,6 +7,7 @@ on:
 jobs:
   Linux:
     runs-on: ${{ matrix.os }}
+    container: ${{ matrix.container }}
     timeout-minutes: 30
     strategy:
       max-parallel: 1
