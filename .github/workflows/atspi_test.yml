@@ -29,35 +29,29 @@ jobs:
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
-    - name: Run apt without sudo
+    - name: Install sudo
       if: ${{ ( matrix.python == '2.7' ) }}
       run: |
-        apt update -y
-        apt upgrade -y
-        apt install -y --no-install-recommends python-setuptools tk-dev python-tk
-        apt install -y --no-install-recommends python3 python3-pip python3-setuptools
-        apt install -y --no-install-recommends python-xlib
-        apt install -y --no-install-recommends xsel
-        apt install -y libjavascriptcoregtk-4.0-18
-        apt install -y build-essential libssl-dev
-        apt install -y qt5-default
-        apt install -y libxkbcommon-x11-0
-        apt install -y python3-gi gobject-introspection gir1.2-gtk-3.0
-        apt install -y at-spi2-core
-        apt install -y python3-pyatspi
-        apt install -y xvfb x11-utils libxkbcommon-x11-0 \
-            libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
-            libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xdotool
-    - name: Run apt with sudo
-      if: ${{ ! ( matrix.python == '2.7' ) }}
+        apt-get update
+        apt-get install -y sudo
+    - name: Install pip3
+      if: ${{ ( matrix.python == '2.7' ) }}
       run: |
+        sudo apt-get install -y python3-pip
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
         sudo apt update -y
-        sudo apt upgrade
+        sudo apt upgrade -y
         sudo apt install -y --no-install-recommends python-setuptools tk-dev python-tk
         sudo apt install -y --no-install-recommends python3 python3-pip python3-setuptools
         sudo apt install -y --no-install-recommends python-xlib
         sudo apt install -y --no-install-recommends xsel
         sudo apt install -y libjavascriptcoregtk-4.0-18
+        pip install coverage codecov
+        pip install python-xlib --upgrade
+        pip install mock --upgrade
+        python -m pip install pytest
         sudo apt install -y build-essential libssl-dev
         sudo apt install -y qt5-default
         sudo apt install -y libxkbcommon-x11-0
@@ -67,13 +61,6 @@ jobs:
         sudo apt install -y xvfb x11-utils libxkbcommon-x11-0 \
             libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
             libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xdotool
-    - name: Pip install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install coverage codecov
-        pip install python-xlib --upgrade
-        pip install mock --upgrade
-        python -m pip install pytest
         #pip3 install scikit-build # required for cmake>=3.23.0
         pip3 install cmake==3.22.6
 
@@ -98,17 +85,7 @@ jobs:
         chmod a+x send_keys_test_app
         cp send_keys_test_app ../
         export XDG_RUNTIME_DIR=/tmp/runtime-runner
-    - name: Remote display start without sudo
-      if: ${{ ( matrix.python == '2.7' ) }}
-      run: |
-        /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
-        sleep 5
-        set +eE
-        apt install -y gdm3
-        service gdm start
-        sleep 5
-    - name: Remote display start with sudo
-      if: ${{ ! ( matrix.python == '2.7' ) }}
+    - name: Remote display start
       run: |
         sudo /usr/bin/Xvfb $DISPLAY -screen 0 1280x1024x24 &
         sleep 5
