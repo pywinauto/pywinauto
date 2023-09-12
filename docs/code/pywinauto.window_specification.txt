@@ -1,0 +1,8 @@
+pywinauto.window_specification module
+---------------------------------
+
+.. automodule:: pywinauto.window_specification
+    :members:
+    :undoc-members:
+    :show-inheritance:
+
