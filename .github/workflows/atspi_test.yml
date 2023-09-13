@@ -7,7 +7,6 @@ on:
 jobs:
   Linux:
     runs-on: ${{ matrix.os }}
-    container: ${{ matrix.container }}
     timeout-minutes: 30
     strategy:
       max-parallel: 1
@@ -15,29 +14,15 @@ jobs:
       matrix:
         os : [ubuntu-20.04]  # python-xlib cannot work with ubuntu-22.04
         python: ['3.7', '3.8', '3.9', '3.10', '3.11']
-        include:
-          - os: ubuntu-20.04
-            python: 2.7
-            container: python:2.7.18-buster
     env:
       DISPLAY: ':0'
     steps:
     - name: get repo
       uses: actions/checkout@v3
     - name: Set up Python
-      if: ${{ ! ( matrix.python == '2.7' ) }}
       uses: actions/setup-python@v4
       with:
         python-version: ${{ matrix.python }}
-    - name: Install sudo
-      if: ${{ ( matrix.python == '2.7' ) }}
-      run: |
-        apt-get update
-        apt-get install -y sudo
-    - name: Install pip3
-      if: ${{ ( matrix.python == '2.7' ) }}
-      run: |
-        sudo apt-get install -y python3-pip
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
