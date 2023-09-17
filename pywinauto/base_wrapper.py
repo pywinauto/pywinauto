@@ -51,7 +51,7 @@ from .mouse import _get_cursor_pos
 from .timings import TimeoutError
 from .timings import Timings
 from .timings import wait_until
-from . import clipboard
+
 
 
 #=========================================================================

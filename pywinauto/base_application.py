@@ -91,6 +91,7 @@ from . import timings
 from . import controls
 from . import findbestmatch
 from . import findwindows
+from . import clipboard
 
 from . import backend
 
@@ -1040,3 +1041,7 @@ class BaseApplication(object):
             retry_interval = Timings.app_exit_retry
 
         wait_until(timeout, retry_interval, self.is_process_running, value=False)
+
+def for_clipboard_import():
+    """A function to allow the clipboard import."""
+    pass
