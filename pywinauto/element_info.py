@@ -166,21 +166,6 @@ class ElementInfo(object):
         else:
             return elements
 
-    def get_descendants_with_depth(self, depth=None, **kwargs):
-        """Return a list of all descendant children of the element with the specified depth"""
-        descendants = []
-
-        def walk_the_tree(root, depth, **kwargs):
-            if depth == 0:
-                return
-            for child in root.children(**kwargs):
-                descendants.append(child)
-                next_depth = None if depth is None else depth - 1
-                walk_the_tree(child, next_depth, **kwargs)
-
-        walk_the_tree(self, depth, **kwargs)
-        return descendants
-
     def descendants(self, **kwargs):
         """Return descendants of the element"""
         raise NotImplementedError()
