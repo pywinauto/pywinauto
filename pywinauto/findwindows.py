@@ -152,7 +152,8 @@ def find_elements(**kwargs):
     # tell user about new property name for every renamed one
     if hasattr(backend_obj.element_info_class, 'renamed_props'):
         #renamed_erros = []
-        for key, value in list(kwargs.items()):
+        items = list(kwargs.items())
+        for key, value in items:
             renamed_prop = backend_obj.element_info_class.renamed_props.get(key, None)
             if renamed_prop is not None:
                 new_key, values_map = renamed_prop
