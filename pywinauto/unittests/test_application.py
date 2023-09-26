@@ -647,21 +647,25 @@ class ApplicationTestCases(unittest.TestCase):
 
         self.assertRaises(ValueError, app.windows_, **{'backend' : 'uia'})
 
-        title = app.window(name="Untitled - Notepad")
-        title_re = app.window(name_re="Untitled[ -]+Notepad")
+        name = app.window(name="Untitled - Notepad")
+        name_re = app.window(name_re="Untitled[ -]+Notepad")
+        title = app.window(title="Untitled - Notepad")
+        title_re = app.window(title_re="Untitled[ -]+Notepad")
         classname = app.window(class_name="Notepad")
         classname_re = app.window(class_name_re="Not..ad")
-        handle = app.window(handle=title.handle)
+        handle = app.window(handle=name.handle)
         bestmatch = app.window(best_match="Untiotled Notepad")
 
-        self.assertNotEqual(title.handle, None)
-        self.assertNotEqual(title.handle, 0)
+        self.assertNotEqual(name.handle, None)
+        self.assertNotEqual(name.handle, 0)
 
-        self.assertEqual(title.handle, title_re.handle)
-        self.assertEqual(title.handle, classname.handle)
-        self.assertEqual(title.handle, classname_re.handle)
-        self.assertEqual(title.handle, handle.handle)
-        self.assertEqual(title.handle, bestmatch.handle)
+        self.assertEqual(name.handle, name_re.handle)
+        self.assertEqual(name.handle, title.handle)
+        self.assertEqual(name.handle, title_re.handle)
+        self.assertEqual(name.handle, classname.handle)
+        self.assertEqual(name.handle, classname_re.handle)
+        self.assertEqual(name.handle, handle.handle)
+        self.assertEqual(name.handle, bestmatch.handle)
 
         app.UntitledNotepad.menu_select("File->Exit")
 
