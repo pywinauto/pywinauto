@@ -488,11 +488,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def parent(self):
         """Return parent of the element"""
-        parent_elem = IUIA().iuia.ControlViewWalker.GetParentElement(self._element)
-        if parent_elem:
-            return UIAElementInfo(parent_elem)
-        else:
-            return None
+        return UIATreeWalker("control").get_parent(self)
 
     def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
         """Find all elements according to the given tree scope and conditions"""
