@@ -678,3 +678,71 @@ class UIAElementInfo(ElementInfo):
         """Return current active element"""
         ae = IUIA().get_focused_element()
         return cls(ae)
+
+
+class _UIAChildrenTree(object):
+    def __init__(self, walker, element, cache_enable):
+        self._walker = walker
+        self._element = element
+        self._cache_enable = cache_enable
+
+    def __iter__(self):
+        try:
+            elem = self._walker.GetFirstChildElement(self._element)
+            while elem:
+                yield UIAElementInfo(elem, self._cache_enable)
+                elem = self._walker.GetNextSiblingElement(elem)
+        except (COMError, ValueError) as e:
+            warnings.warn("Can't get elements due to error: {}".format(e), RuntimeWarning)
+
+    def __reversed__(self):
+        try:
+            elem = self._walker.GetLastChildElement(self._element)
+            while elem:
+                yield UIAElementInfo(elem, self._cache_enable)
+                elem = self._walker.GetPreviousSiblingElement(elem)
+        except (COMError, ValueError) as e:
+            warnings.warn("Can't get elements due to error: {}".format(e), RuntimeWarning)
+
+
+class UIATreeWalker(object):
+    """UI tree walker wrapper for IUIAutomation API"""
+    def __init__(self, condition, cache_enable=False):
+        """
+        Create an instance of UIATreeWalker.
+
+        * **condition** is either a valid UIACondition or literal string('raw', 'content', 'control')
+        * **cache_enable** is optional for caching of UIA elements attributes during walk.
+        """
+        if isinstance(condition, UIACondition):
+            self._walker = IUIA().iuia.CreateTreeWalker(condition.condition)
+        elif condition == "raw":
+            self._walker = IUIA().raw_tree_walker
+        elif condition == "content":
+            self._walker = IUIA().content_tree_walker
+        elif condition == "control":
+            self._walker = IUIA().control_tree_walker
+        else:
+            raise TypeError
+        self._cache_enable = cache_enable
+
+    @property
+    def walker(self):
+        """Return TreeWalker's instance"""
+        return self._walker
+
+    @property
+    def condition(self):
+        """Return condition of walker"""
+        return UIACondition(self._walker.condition)
+
+    def walk(self, element):
+        """Iterate over children of the element satisfying the condition"""
+        return _UIAChildrenTree(self._walker, element.element, self._cache_enable)
+
+    def get_parent(self, element):
+        """Return parent of the element satisfying the condition"""
+        elem = self._walker.GetParentElement(element.element)
+        if elem:
+            return UIAElementInfo(elem, self._cache_enable)
+        return None

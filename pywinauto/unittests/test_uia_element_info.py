@@ -11,7 +11,7 @@ from pywinauto.sysinfo import UIA_support  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 
 if UIA_support:
-    from pywinauto.windows.uia_element_info import UIAElementInfo, UIACondition
+    from pywinauto.windows.uia_element_info import UIAElementInfo, UIACondition, UIATreeWalker
     from pywinauto.windows.uia_defines import IUIA
 
 mfc_samples_folder = os.path.join(
@@ -344,6 +344,54 @@ if UIA_support:
                 UIAElementInfo.use_raw_view_walker = True
                 next(self.ctrl.iter_descendants(depth=3))
                 self.assertEqual(mock_create.call_count, 1)
+
+
+    class UIATreeWalkerTests(unittest.TestCase):
+        def setUp(self):
+            Timings.slow()
+            self.app = Application(backend="uia")
+            self.app = self.app.start(wpf_app_1)
+            self.dlg = self.app.WPFSampleApplication
+            self.handle = self.dlg.handle
+            self.ctrl = UIAElementInfo(self.handle)
+
+        def tearDown(self):
+            self.app.kill()
+
+        def test_raw_tree_walker_wrapper(self):
+            walker = UIATreeWalker("raw")
+            self.assertIs(walker.walker, IUIA().raw_tree_walker)
+            self.assertEqual(walker.get_parent(self.ctrl), UIAElementInfo())
+            forward_ordered = list(walker.walk(self.ctrl))
+            reverse_ordered = list(reversed(walker.walk(self.ctrl)))
+            self.assertEqual(forward_ordered, list(reversed(reverse_ordered)))
+
+        def test_control_tree_walker_wrapper(self):
+            walker = UIATreeWalker("control")
+            self.assertIs(walker.walker, IUIA().control_tree_walker)
+            self.assertEqual(walker.get_parent(self.ctrl), UIAElementInfo())
+            forward_ordered = list(walker.walk(self.ctrl))
+            reverse_ordered = list(reversed(walker.walk(self.ctrl)))
+            self.assertEqual(forward_ordered, list(reversed(reverse_ordered)))
+
+        def test_content_tree_walker_wrapper(self):
+            walker = UIATreeWalker("content")
+            self.assertIs(walker.walker, IUIA().content_tree_walker)
+            self.assertEqual(walker.get_parent(self.ctrl), UIAElementInfo())
+            forward_ordered = list(walker.walk(self.ctrl))
+            reverse_ordered = list(reversed(walker.walk(self.ctrl)))
+            self.assertEqual(forward_ordered, list(reversed(reverse_ordered)))
+
+        def test_create_tree_walker_wrapper(self):
+            walker = UIATreeWalker(UIACondition.create_property('Name', 'Alpha'))
+            self.assertIsInstance(walker.condition, UIACondition)
+            first_elem = next(iter(walker.walk(self.ctrl)))
+            last_elem = next(reversed(walker.walk(self.ctrl)))
+            self.assertEqual(first_elem, last_elem)
+            self.assertEqual(first_elem.name, 'Alpha')
+            self.assertEqual(last_elem.name, 'Alpha')
+            self.assertIsNone(walker.get_parent(self.ctrl))
+
 
 if __name__ == "__main__":
     if UIA_support:
