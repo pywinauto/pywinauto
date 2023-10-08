@@ -1,12 +1,15 @@
 pywin32==301 ; python_version == '3.6' and sys_platform == "win32"
 pywin32 ; python_version != '3.6' and sys_platform == "win32"
 six
-pillow>=6.2.0
+pillow>=6.2.0 ; python_version != '3.9'
+pillow==9.5.0 ; python_version == '3.9'
 coverage
-nose
+nose ; python_version <= '3.8'
+nose2 ; python_version >= '3.9'
 codecov
 rst2pdf
 Sphinx
 mock==2.0.0
 codacy-coverage
-PyQt5==5.15.4 ; python_version >= '3.6'
+PyQt5==5.15.4 ; python_version >= '3.6' and python_version <= '3.8'
+PyQt5 ; python_version >= '3.9'
