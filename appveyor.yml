@@ -16,46 +16,55 @@ environment:
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python35"
       PYTHON_VERSION: "3.5"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python37"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python37-x64"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python38-x64"
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python39"
       PYTHON_VERSION: "3.9"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
     - PYTHON: "C:\\Python310-x64"
       PYTHON_VERSION: "3.10"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
     - PYTHON: "C:\\Python311-x64"
       PYTHON_VERSION: "3.11"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
 #init:
   # Enable RDP.
