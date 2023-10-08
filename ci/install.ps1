@@ -84,12 +84,6 @@ function UpdateConda ($python_home) {
     Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
 }
 
-function InstallComtypes ($python_home) {
-    $pip_path = $python_home + "\Scripts\pip.exe"
-    $args = "install comtypes"
-    Start-Process -FilePath "$pip_path" -ArgumentList $args -Wait -Passthru
-}
-
 function main () {
     try {
         $CurrentResolution = Get-DisplayResolution
@@ -104,9 +98,6 @@ function main () {
     Write-Host "PYTHON_ARCH=" $env:PYTHON_ARCH
     Write-Host "UIA_SUPPORT=" $env:UIA_SUPPORT
 
-    if ($env:UIA_SUPPORT -eq "YES") {
-        InstallComtypes $env:PYTHON
-    }
     #InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
     #UpdateConda $env:PYTHON
     #InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage nose"
