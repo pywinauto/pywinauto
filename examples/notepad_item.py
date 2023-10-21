@@ -34,6 +34,8 @@ from __future__ import unicode_literals
 from __future__ import print_function
 
 from pywinauto import application
+from pywinauto.unittests.test_actionlogger import _notepad_exe
+from pywinauto.unittests.test_hwndwrapper import NotepadRegressionTests
 
 #from pywinauto import tests
 #from pywinauto.findbestmatch import MatchError
@@ -104,4 +106,13 @@ app['Notepad']['Edit'].set_edit_text("I am typing s\xe4me text to Notepad"
 # exit notepad
 app['NotepadDialog'].menu_select("File->Exit")
 app['Notepad']['No'].close_click()
+
+# Save the text
+_notepad_exe.menu_select("File->Save")
+save_dialog = app.SaveAs
+save_dialog.Edit.type_keys("C:\\path\\to\\your\\savedfile.txt")
+save_dialog.Save.click()
+
+# Close Notepad
+NotepadRegressionTests.menu_select("File->Exit")
 
