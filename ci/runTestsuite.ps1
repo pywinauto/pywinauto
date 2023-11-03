@@ -41,6 +41,11 @@ function run {
     $input = "nosetests.xml"
     $output = "transformed.xml"
     
+    # Show file extensions
+    Set-ItemProperty -LiteralPath "HKCU:Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0" -Force
+    Stop-Process -Name Explorer -Force
+    Start-Sleep -Seconds 10
+
     #nosetests  --all-modules --with-xunit pywinauto/unittests
     # --traverse-namespace is required for python 3.8 https://stackoverflow.com/q/58556183
     $pyver = [System.Version]::new($env:PYTHON_VERSION)
