@@ -22,7 +22,7 @@ There are 2 potential issues:
   * If RDP is disconnected, the desktop is locked out.
 
 In both cases any GUI automation jobs will fail (if you don't use some tricks described below).
-The workarounds are well described in TestComplete documetation:
+The workarounds are well described in TestComplete documentation:
 
   * `Running Tests in Minimized Remote Desktop Windows`_
   * `Disconnecting From Remote Desktop While Running Automated Tests`_
@@ -132,7 +132,7 @@ Jenkins master and nodes configuration is beyond the scope of this document so w
 assume that a Jenkins master is running on some OS and drives a Jenkins node running
 whatever Windows flavour you want to test on.
 
-To run GUI tests the application under test needs to be connected to a `Desktop`_; thìs
+To run GUI tests the application under test needs to be connected to a `Desktop`_; this
 in turn means that an interactive `Station`_ must be available.
 
 The simplest solution is to setup a dedicated machine and configure windows to
