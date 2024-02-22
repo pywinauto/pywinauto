@@ -1,121 +1,106 @@
-# Sample script to install Miniconda under Windows
-# Authors: Olivier Grisel, Jonathan Helmus and Kyle Kastner, Robert McGibbon
-# License: CC0 1.0 Universal: http://creativecommons.org/publicdomain/zero/1.0/
+param(
+    [string]$PythonPath = "C:\Python34-x64",
+    [string]$PythonVersion = "3.4",
+    [int]$PythonArch = 64,
+    [string]$UIASupport = "NO"
+)
 
-$MINICONDA_URL = "http://repo.continuum.io/miniconda/"
+$MinicondaUrl = "http://repo.continuum.io/miniconda/"
 
+function DownloadMiniconda($pythonVersion, $platformSuffix) {
+    $webClient = New-Object System.Net.WebClient
+    $filename = if ($pythonVersion -match "3.4") { "Miniconda3-3.8.3-Windows-$platformSuffix.exe" } else { "Miniconda-3.8.3-Windows-$platformSuffix.exe" }
+    $url = "$MinicondaUrl$filename"
 
-function DownloadMiniconda ($python_version, $platform_suffix) {
-    $webclient = New-Object System.Net.WebClient
-    if ($python_version -match "3.4") {
-        $filename = "Miniconda3-3.8.3-Windows-" + $platform_suffix + ".exe"
-    } else {
-        $filename = "Miniconda-3.8.3-Windows-" + $platform_suffix + ".exe"
-    }
-    $url = $MINICONDA_URL + $filename
+    $basePath = Join-Path $pwd.Path ""
+    $filePath = Join-Path $basePath $filename
 
-    $basedir = $pwd.Path + "\"
-    $filepath = $basedir + $filename
-    if (Test-Path $filename) {
-        Write-Host "Reusing" $filepath
-        return $filepath
+    if (Test-Path $filePath) {
+        Write-Host "Reusing $filePath"
+        return $filePath
     }
 
     # Download and retry up to 3 times in case of network transient errors.
-    Write-Host "Downloading" $filename "from" $url
-    $retry_attempts = 2
-    for($i=0; $i -lt $retry_attempts; $i++){
+    Write-Host "Downloading $filename from $url"
+    $retryAttempts = 2
+    for ($i = 0; $i -lt $retryAttempts; $i++) {
         try {
-            $webclient.DownloadFile($url, $filepath)
+            $webClient.DownloadFile($url, $filePath)
             break
-        }
-        Catch [Exception]{
+        } Catch [Exception] {
             Start-Sleep 1
         }
-   }
-   if (Test-Path $filepath) {
-       Write-Host "File saved at" $filepath
-   } else {
-       # Retry once to get the error message if any at the last try
-       $webclient.DownloadFile($url, $filepath)
-   }
-   return $filepath
+    }
+    if (Test-Path $filePath) {
+        Write-Host "File saved at $filePath"
+    } else {
+        # Retry once to get the error message if any at the last try
+        $webClient.DownloadFile($url, $filePath)
+    }
+    return $filePath
 }
 
-function InstallMiniconda ($python_version, $architecture, $python_home) {
-    Write-Host "Installing Python" $python_version "for" $architecture "bit architecture to" $python_home
-    if (Test-Path $python_home) {
-        Write-Host $python_home "already exists, skipping."
+function InstallMiniconda($pythonVersion, $architecture, $pythonHome) {
+    Write-Host "Installing Python $pythonVersion for $architecture-bit architecture to $pythonHome"
+    if (Test-Path $pythonHome) {
+        Write-Host "$pythonHome already exists, skipping."
         return $false
     }
-    if ($architecture -match "32") {
-        $platform_suffix = "x86"
+    $platformSuffix = if ($architecture -eq 32) { "x86" } else { "x86_64" }
+    $filePath = DownloadMiniconda $pythonVersion $platformSuffix
+    Write-Host "Installing $filePath to $pythonHome"
+    $installLog = Join-Path $pythonHome ".log"
+    $args = "/S /D=$pythonHome"
+    Write-Host "$filePath $args"
+    Start-Process -FilePath $filePath -ArgumentList $args -Wait -Passthru
+    if (Test-Path $pythonHome) {
+        Write-Host "Python $pythonVersion ($architecture-bit) installation complete"
     } else {
-        $platform_suffix = "x86_64"
-    }
-
-    $filepath = DownloadMiniconda $python_version $platform_suffix
-    Write-Host "Installing" $filepath "to" $python_home
-    $install_log = $python_home + ".log"
-    $args = "/S /D=$python_home"
-    Write-Host $filepath $args
-    Start-Process -FilePath $filepath -ArgumentList $args -Wait -Passthru
-    if (Test-Path $python_home) {
-        Write-Host "Python $python_version ($architecture) installation complete"
-    } else {
-        Write-Host "Failed to install Python in $python_home"
-        Get-Content -Path $install_log
+        Write-Host "Failed to install Python in $pythonHome"
+        Get-Content -Path $installLog
         Exit 1
     }
 }
 
-function InstallCondaPackages ($python_home, $spec) {
-    $conda_path = $python_home + "\Scripts\conda.exe"
-    $args = "install --yes " + $spec
+function InstallCondaPackages($pythonHome, $spec) {
+    $condaPath = Join-Path $pythonHome "Scripts\conda.exe"
+    $args = "install --yes $spec"
     Write-Host ("conda " + $args)
-    Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
+    Start-Process -FilePath "$condaPath" -ArgumentList $args -Wait -Passthru
 }
 
-function UpdateConda ($python_home) {
-    $conda_path = $python_home + "\Scripts\conda.exe"
+function UpdateConda($pythonHome) {
+    $condaPath = Join-Path $pythonHome "Scripts\conda.exe"
     Write-Host "Updating conda..."
     $args = "update --yes conda"
-    Write-Host $conda_path $args
-    Start-Process -FilePath "$conda_path" -ArgumentList $args -Wait -Passthru
+    Write-Host "$condaPath $args"
+    Start-Process -FilePath "$condaPath" -ArgumentList $args -Wait -Passthru
 }
 
-function InstallComtypes ($python_home) {
-    $pip_path = $python_home + "\Scripts\pip.exe"
+function InstallComtypes($pythonHome) {
+    $pipPath = Join-Path $pythonHome "Scripts\pip.exe"
     $args = "install comtypes"
-    Start-Process -FilePath "$pip_path" -ArgumentList $args -Wait -Passthru
+    Start-Process -FilePath "$pipPath" -ArgumentList $args -Wait -Passthru
 }
 
-function main () {
+function main() {
     try {
-        $CurrentResolution = Get-DisplayResolution
-        Write-Host "Current resolution: " $CurrentResolution
-    }
-    Catch [Exception]{
+        $currentResolution = Get-DisplayResolution
+        Write-Host "Current resolution: $currentResolution"
+    } Catch [Exception] {
         Write-Host "Can't print current resolution. Get-DisplayResolution cmd is not available"
     }
 
-    # fallback for running the script locally
-    if ( !(Test-Path $env:PYTHON) ) {
-        Write-Host "No PYTHON vars, setup default values"
-        $env:PYTHON="C:\\Python34-x64"
-        $env:PYTHON_VERSION="3.4"
-        $env:PYTHON_ARCH="64"     
-    }
-    Write-Host "PYTHON=" $env:PYTHON
-    Write-Host "PYTHON_VERSION=" $env:PYTHON_VERSION
-    Write-Host "PYTHON_ARCH=" $env:PYTHON_ARCH
+    Write-Host "PYTHON=$PythonPath"
+    Write-Host "PYTHON_VERSION=$PythonVersion"
+    Write-Host "PYTHON_ARCH=$PythonArch"
 
-    if ($env:UIA_SUPPORT -eq "YES") {
-        InstallComtypes $env:PYTHON
+    if ($UIASupport -eq "YES") {
+        InstallComtypes $PythonPath
     }
-    #InstallMiniconda $env:PYTHON_VERSION $env:PYTHON_ARCH $env:PYTHON
-    #UpdateConda $env:PYTHON
-    #InstallCondaPackages $env:PYTHON "pywin32 Pillow coverage nose"
+    # InstallMiniconda $PythonVersion $PythonArch $PythonPath
+    # UpdateConda $PythonPath
+    # InstallCondaPackages $PythonPath "pywin32 Pillow coverage nose"
 }
 
 main
