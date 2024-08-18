@@ -37,6 +37,9 @@ import abc
 import locale
 import re
 import sys
+import ctypes
+import win32gui
+from PIL import Image
 
 import six
 
@@ -531,39 +534,29 @@ class BaseWrapper(object):
         return len(self.element_info.children(process=self.process_id()))
 
     #-----------------------------------------------------------
-    def capture_as_image(self, rect=None):
-        """
-        Return a PIL image of the control.
+    def capture_and_crop(self):
+        """Capture the window as an image and crop using the RECT bounds."""
+        
+        # Get the window title and rect bounds
+        window_title = self.window_text()
+        hwnd = win32gui.FindWindow(None, window_title)  # Directly use win32gui here
+        
+        rect = ctypes.wintypes.RECT()
+        DWMWA_EXTENDED_FRAME_BOUNDS = 9
+        ctypes.windll.dwmapi.DwmGetWindowAttribute(
+            ctypes.wintypes.HWND(hwnd),  # Use the hwnd variable here
+            ctypes.wintypes.DWORD(DWMWA_EXTENDED_FRAME_BOUNDS),
+            ctypes.byref(rect),
+            ctypes.sizeof(rect)
+        )
 
-        See PIL documentation to know what you can do with the resulting
-        image.
-        """
-        control_rectangle = self.rectangle()
-        if not (control_rectangle.width() and control_rectangle.height()):
-            return None
+        # Capture the full image
+        img = self.capture_as_image()
 
-        # PIL is optional so check first
-        if not ImageGrab:
-            print("PIL does not seem to be installed. "
-                  "PIL is required for capture_as_image")
-            self.actions.log("PIL does not seem to be installed. "
-                             "PIL is required for capture_as_image")
-            return None
+        # Crop the image using the rect bounds
+        cropped_img = img.crop((rect.left, rect.top, rect.right, rect.bottom))
 
-        if rect:
-            control_rectangle = rect
-
-        # get the control rectangle in a way that PIL likes it
-        left = control_rectangle.left
-        right = control_rectangle.right
-        top = control_rectangle.top
-        bottom = control_rectangle.bottom
-        box = (left, top, right, bottom)
-
-        # TODO: maybe check the number of monitors on Linux
-
-        # grab the image and get raw data as a string
-        return ImageGrab.grab(box)
+        return cropped_img
 
     #-----------------------------------------------------------
     def get_properties(self):
