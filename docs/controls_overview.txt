@@ -7,7 +7,7 @@ Windows have many controls, buttons, lists, etc
 
 All Controls
 ------------
-These functions are aviailable to all controls.
+These functions are available to all controls.
 
   * capture_as_image_
   * click_
