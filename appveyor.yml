@@ -11,55 +11,77 @@ shallow_clone: true                 # default is "false"
 environment:
 
   matrix:
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7"
+    - PYTHON: "C:\\Python38"
+      PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7"
+    - PYTHON: "C:\\Python38"
+      PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7"
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7"
+    - PYTHON: "C:\\Python38-x64"
+      PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5"
+    - PYTHON: "C:\\Python39"
+      PYTHON_VERSION: "3.9"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
-    - PYTHON: "C:\\Python35-x64"
-      PYTHON_VERSION: "3.5"
+    - PYTHON: "C:\\Python39-x64"
+      PYTHON_VERSION: "3.9"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
-    - PYTHON: "C:\\Python36"
-      PYTHON_VERSION: "3.6"
+    - PYTHON: "C:\\Python310"
+      PYTHON_VERSION: "3.10"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
-    - PYTHON: "C:\\Python36-x64"
-      PYTHON_VERSION: "3.6"
+    - PYTHON: "C:\\Python310-x64"
+      PYTHON_VERSION: "3.10"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
-    - PYTHON: "C:\\Python37"
-      PYTHON_VERSION: "3.7"
+    - PYTHON: "C:\\Python311"
+      PYTHON_VERSION: "3.11"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7"
+    - PYTHON: "C:\\Python311-x64"
+      PYTHON_VERSION: "3.11"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+
+    - PYTHON: "C:\\Python312"
+      PYTHON_VERSION: "3.12"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+
+    - PYTHON: "C:\\Python312-x64"
+      PYTHON_VERSION: "3.12"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
 #init:
   # Enable RDP.
@@ -74,6 +96,7 @@ install:
 
   # install the appropriate Miniconda (Py2/Py3, 32/64 bit),
   # as well as pywin32, pillow and coverage
+  - "%PYTHON%\\python.exe -m pip install --upgrade pip"
   - "powershell ./ci/install.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
@@ -97,7 +120,7 @@ after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - codecov
   - coverage xml
-  - python-codacy-coverage -d %APPVEYOR_BUILD_FOLDER%  -c %APPVEYOR_REPO_COMMIT% -r coverage.xml
+  # - python-codacy-coverage -d %APPVEYOR_BUILD_FOLDER%  -c %APPVEYOR_REPO_COMMIT% -r coverage.xml
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
