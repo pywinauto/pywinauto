@@ -700,7 +700,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.fast()
+        Timings.slow()
 
         self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
@@ -712,12 +712,14 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         """Close the application after tests"""
         self.dlg.send_message(win32defines.WM_CLOSE)
         self.app.kill()
+        Timings.defaults()
 
     def testCheckBoxes(self):
         """Make sure tree view item method is_checked() works as expected"""
         self.dlg.set_focus()
         self.dlg.TVS_CHECKBOXES.uncheck_by_click()
         self.dlg.TVS_CHECKBOXES.check_by_click()
+        self.dlg.wait('enabled')
         birds = self.ctrl.get_item(r'\Birds')
         self.ctrl.set_focus() # to make sure focus is not lost by any accident event
         birds.click(where='check')
@@ -1256,7 +1258,7 @@ class RebarTestCases(unittest.TestCase):
         A findbestmatch proc does well here with guessing the title
         even though the app is started with a short title "RebarTest".
         """
-        Timings.fast()
+        Timings.slow()
         app = Application()
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
         mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
@@ -1268,6 +1270,7 @@ class RebarTestCases(unittest.TestCase):
     def tearDown(self):
         """Close the application after tests"""
         self.app.kill(soft=True)
+        Timings.defaults()
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (ReBar)"""
@@ -1309,7 +1312,9 @@ class RebarTestCases(unittest.TestCase):
         """Make sure we can click on Menu Bar items by indexed path"""
         self.assertRaises(TypeError, self.dlg.MenuBar.menu_bar_click_input, '#one->#0', self.app)
 
+        self.dlg.wait('enabled')
         self.dlg.MenuBar.menu_bar_click_input('#1->#0->#0', self.app)
+        self.dlg.wait('enabled')
         self.app.Customize.CloseButton.click()
         self.app.Customize.wait_not('visible')
 

@@ -161,7 +161,7 @@ class TaskbarTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.defaults()
+        Timings.slow()
 
         self.tm = _ready_timeout
         app = Application(backend='win32')
@@ -187,6 +187,8 @@ class TaskbarTestCases(unittest.TestCase):
                 app.kill()
         except(ProcessNotFoundError):
             l.log("No more leftovers. All good.")
+
+        Timings.defaults()
 
     def testTaskbar(self):
         # just make sure it's found
