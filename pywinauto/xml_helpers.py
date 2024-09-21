@@ -100,7 +100,7 @@ def _set_node_props(element, name, value):
                 raise MemoryError
 
             #print('type(value) = ' + str(type(value)))
-            image_data = base64.encodestring(bz2.compress(value.tobytes())).decode('utf-8')
+            image_data = base64.encodebytes(bz2.compress(value.tobytes())).decode('utf-8')
             _set_node_props(
                 element,
                 name + "_IMG",
