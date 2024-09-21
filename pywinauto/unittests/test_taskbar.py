@@ -237,17 +237,16 @@ class TaskbarTestCases(unittest.TestCase):
         is_x64_Python() and sys.version_info >= (3, 9),
         "Error on AppVeyor CI pipeline"
     )
+    @unittest.skipIf(
+        is_x64_Python() != is_x64_OS(),
+        "a 32-bit Python process can't interact with "
+        "a 64-bit explorer process (taskbar) and vice versa"
+    )
     def testClickVisibleIcon(self):
         """
         Test minimizing a sample app into the visible area of the tray
         and restoring the app back
         """
-
-        if is_x64_Python() != is_x64_OS():
-            # We don't run this test for mixed cases:
-            # a 32-bit Python process can't interact with
-            # a 64-bit explorer process (taskbar) and vice versa
-            return
 
         # Make sure that the hidden icons area is disabled
         orig_hid_state = _toggle_notification_area_icons(
@@ -291,17 +290,16 @@ class TaskbarTestCases(unittest.TestCase):
         is_x64_Python() and sys.version_info >= (3, 9),
         "Error on AppVeyor CI pipeline"
     )
+    @unittest.skipIf(
+        is_x64_Python() != is_x64_OS(),
+        "a 32-bit Python process can't interact with "
+        "a 64-bit explorer process (taskbar) and vice versa"
+    )
     def testClickHiddenIcon(self):
         """
         Test minimizing a sample app into the hidden area of the tray
         and restoring the app back
         """
-
-        if is_x64_Python() != is_x64_OS():
-            # We don't run this test for mixed cases:
-            # a 32-bit Python process can't interact with
-            # a 64-bit explorer process (taskbar) and vice versa
-            return
 
         # Make sure that the hidden icons area is enabled
         orig_hid_state = _toggle_notification_area_icons(
