@@ -37,7 +37,7 @@ htmlcov/
 .tox/
 .coverage
 .cache
-nosetests.xml
+results.xml
 coverage.xml
 Coverage_report/*
 

@@ -237,8 +237,8 @@ if UIA_support:
                                   button.scroll, "left", "page")
 
             # Check an exception on a control without horizontal scroll bar
-            tab = self.dlg.Tree_and_List_Views.set_focus()
-            listview = tab.children(class_name=u"ListView")[0]
+            tab = self.dlg.Tree_and_List_Views.select()
+            listview = self.dlg.child_window(auto_id="lvVegs", control_type="DataGrid").wait('ready')
             six.assertRaisesRegex(self, AttributeError, "not horizontally scrollable",
                                   listview.scroll, "right", "line")
 

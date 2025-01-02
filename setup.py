@@ -56,33 +56,28 @@ sys.path.append(setup_path())
 #    if not os.path.exists(setup_path("docs")):
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
-if sys.platform == 'win32':
-    install_requires = ['six', 'comtypes']
-    try:
-        import win32api # check if it was already installed manually
-    except ImportError:
-        install_requires.append('pywin32')
+install_requires = ['six']
 
+if sys.platform == 'win32':
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.linux"]
 else:
-    install_requires = ['six', 'python-xlib']
     packages = ["pywinauto", "pywinauto.linux"]
 
 setup(name='pywinauto',
-    version = '0.6.8',
+    version = '0.6.9',
     description = 'A set of Python modules to automate the Microsoft Windows GUI',
     keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
-    url = "http://pywinauto.github.io/",
+    url = "https://github.com/pywinauto/pywinauto",
     author = 'Mark Mc Mahon and Contributors',
     author_email = 'pywinauto-users@lists.sourceforge.net',
     long_description = """
 At it's simplest it allows you to send mouse and keyboard
-actions to windows dialogs and controls, but It has support for more complex
+actions to windows dialogs and controls, but it has support for more complex
 controls also.
 
 Useful links
 -------------
-- Home page: http://pywinauto.github.io/
+- Home page: https://github.com/pywinauto/pywinauto
 - Docs Intro: https://pywinauto.readthedocs.io/en/latest/
 - Getting Started Guide: https://pywinauto.readthedocs.io/en/latest/getting_started.html
 - StackOverflow tag: https://stackoverflow.com/questions/tagged/pywinauto
@@ -110,4 +105,17 @@ Useful links
         'Topic :: Software Development :: Quality Assurance',
         ],
     install_requires=install_requires,
+    extras_require={
+        ':python_version <= "3.6"': [
+            'comtypes<=1.2.1',
+            'pywin32<=227',
+        ],
+        ':python_version > "3.6" and sys_platform == "win32"': [
+            'comtypes',
+            'pywin32',
+        ],
+        ':platform_system == "Linux"': [
+            'python-xlib',
+        ],
+    },
     )

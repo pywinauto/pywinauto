@@ -1,8 +1,14 @@
-pywin32
+docutils<0.18
+pywin32<=227; python_version <= '3.6'
+pywin32>=300; python_version > '3.6' and platform_system == 'Windows'
 six
-Pillow==5.2.0
+Pillow==5.2.0; python_version <= '3.9'
+Pillow==11.1.0; python_version > '3.9'
 coverage
-nose
+pytest==4.6.11; python_version <= '3.6'
+pytest; python_version > '3.6'
+pytest-cov==2.12.1; python_version <= '3.6'
+pytest-cov; python_version > '3.6'
 codecov
 rst2pdf
 Sphinx
