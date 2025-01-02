@@ -14,12 +14,12 @@ environment:
     - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
-      UIA_SUPPORT: "YES"
+      UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python27"
       PYTHON_VERSION: "2.7"
       PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
+      UIA_SUPPORT: "YES"
 
     - PYTHON: "C:\\Python27-x64"
       PYTHON_VERSION: "2.7"
@@ -41,11 +41,6 @@ environment:
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "NO"
 
-    - PYTHON: "C:\\Python36"
-      PYTHON_VERSION: "3.6"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
-
     - PYTHON: "C:\\Python36-x64"
       PYTHON_VERSION: "3.6"
       PYTHON_ARCH: "64"
@@ -61,6 +56,12 @@ environment:
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
 
+    - PYTHON: "C:\\Python312-x64"
+      PYTHON_VERSION: "3.12"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
+
 #init:
   # Enable RDP.
   #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
@@ -72,8 +73,7 @@ install:
   #- ECHO "Notepad location "
   #- ps: "ls C:\\Windows\\System32\\notepad.exe"
 
-  # install the appropriate Miniconda (Py2/Py3, 32/64 bit),
-  # as well as pywin32, pillow and coverage
+  # install the appropriate pywin32, pillow and coverage
   - "powershell ./ci/install.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
@@ -81,6 +81,8 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
+  - "%CMD_IN_ENV% python -m pip install --upgrade pip"
+  - "%CMD_IN_ENV% python -m pip install wheel"
   - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
 
   # Enable desktop (for correct screenshots).
@@ -97,7 +99,7 @@ after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - codecov
   - coverage xml
-  - python-codacy-coverage -d %APPVEYOR_BUILD_FOLDER%  -c %APPVEYOR_REPO_COMMIT% -r coverage.xml
+  # - python-codacy-coverage -d %APPVEYOR_BUILD_FOLDER%  -c %APPVEYOR_REPO_COMMIT% -r coverage.xml
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
