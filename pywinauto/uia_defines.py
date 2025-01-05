@@ -232,6 +232,6 @@ def get_elem_interface(element_info, pattern_name):
     try:
         cur_ptrn = element_info.GetCurrentPattern(ptrn_id)
         iface = cur_ptrn.QueryInterface(cls_name)
-    except(ValueError):
+    except (ValueError, comtypes.COMError):
         raise NoPatternInterfaceError()
     return iface

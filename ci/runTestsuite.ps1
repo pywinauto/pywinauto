@@ -25,9 +25,21 @@ function run {
     Write-Output $env:APPVEYOR_BUILD_FOLDER
 
     cd $env:APPVEYOR_BUILD_FOLDER
-    $results = "results.xml"
 
-    pytest --junit-xml=$results --tb=native --capture=sys --show-capture=no -v --verbosity=3 --cache-clear --durations=15 --ignore=testall.py --log-level=DEBUG --cov-report html:Coverage_report --cov=pywinauto pywinauto\unittests
+    if ($env:APPVEYOR_BUILD_WORKER_IMAGE -match "Visual Studio 2019") {
+        # Show file extensions
+        Set-ItemProperty -LiteralPath "HKCU:Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0" -Force
+        Stop-Process -Name Explorer -Force
+        Start-Sleep -Seconds 10
+    }
+
+    $faulthandler_opt = "-p no:faulthandler"
+    if ($env:PYTHON_VERSION -match "2.7" -or $env:PYTHON_VERSION -match "3.5" -or $env:PYTHON_VERSION -match "3.6") {
+        $faulthandler_opt = ""
+    }
+
+    $results = "results.xml"
+    pytest --junit-xml=$results --tb=native --capture=sys --show-capture=no $faulthandler_opt -v --verbosity=3 --cache-clear --durations=15 --ignore=testall.py --log-level=DEBUG --cov-report html:Coverage_report --cov=pywinauto pywinauto\unittests
     $success = $?
     Write-Output "result code of pytest: $success"
 

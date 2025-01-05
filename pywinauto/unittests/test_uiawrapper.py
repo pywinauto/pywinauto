@@ -470,30 +470,30 @@ if UIA_support:
                 assert_regex = self.assertRegexpMatches
 
             wrp = self.dlg.OK.wrapper_object()
-            assert_regex(wrp.__str__(), "^uia_controls\.ButtonWrapper - 'OK', Button$")
-            assert_regex(wrp.__repr__(), "^<uia_controls\.ButtonWrapper - 'OK', Button, [0-9-]+>$")
+            assert_regex(wrp.__str__(), r"^uia_controls\.ButtonWrapper - 'OK', Button$")
+            assert_regex(wrp.__repr__(), r"^<uia_controls\.ButtonWrapper - 'OK', Button, [0-9-]+>$")
 
             wrp = self.dlg.CheckBox.wrapper_object()
-            assert_regex(wrp.__str__(), "^uia_controls\.ButtonWrapper - 'CheckBox', CheckBox$", )
-            assert_regex(wrp.__repr__(), "^<uia_controls\.ButtonWrapper - 'CheckBox', CheckBox, [0-9-]+>$", )
+            assert_regex(wrp.__str__(), r"^uia_controls\.ButtonWrapper - 'CheckBox', CheckBox$", )
+            assert_regex(wrp.__repr__(), r"^<uia_controls\.ButtonWrapper - 'CheckBox', CheckBox, [0-9-]+>$", )
 
             wrp = self.dlg.child_window(class_name="TextBox").wrapper_object()
-            assert_regex(wrp.__str__(), "^uia_controls\.EditWrapper - '', Edit$")
-            assert_regex(wrp.__repr__(), "^<uia_controls\.EditWrapper - '', Edit, [0-9-]+>$")
+            assert_regex(wrp.__str__(), r"^uia_controls\.EditWrapper - '', Edit$")
+            assert_regex(wrp.__repr__(), r"^<uia_controls\.EditWrapper - '', Edit, [0-9-]+>$")
             assert_regex(wrp.element_info.__str__(), "^uia_element_info.UIAElementInfo - '', TextBox$")
             assert_regex(wrp.element_info.__repr__(), "^<uia_element_info.UIAElementInfo - '', TextBox, None>$")
 
             wrp = self.dlg.TabControl.wrapper_object()
-            assert_regex(wrp.__str__(), "^uia_controls\.TabControlWrapper - '', TabControl$")
-            assert_regex(wrp.__repr__(), "^<uia_controls\.TabControlWrapper - '', TabControl, [0-9-]+>$")
+            assert_regex(wrp.__str__(), r"^uia_controls\.TabControlWrapper - '', TabControl$")
+            assert_regex(wrp.__repr__(), r"^<uia_controls\.TabControlWrapper - '', TabControl, [0-9-]+>$")
 
             wrp = self.dlg.MenuBar.wrapper_object()
-            assert_regex(wrp.__str__(), "^uia_controls\.MenuWrapper - 'System', Menu$")
-            assert_regex(wrp.__repr__(), "^<uia_controls\.MenuWrapper - 'System', Menu, [0-9-]+>$")
+            assert_regex(wrp.__str__(), r"^uia_controls\.MenuWrapper - 'System', Menu$")
+            assert_regex(wrp.__repr__(), r"^<uia_controls\.MenuWrapper - 'System', Menu, [0-9-]+>$")
 
             wrp = self.dlg.Slider.wrapper_object()
-            assert_regex(wrp.__str__(), "^uia_controls\.SliderWrapper - '', Slider$")
-            assert_regex(wrp.__repr__(), "^<uia_controls\.SliderWrapper - '', Slider, [0-9-]+>$")
+            assert_regex(wrp.__str__(), r"^uia_controls\.SliderWrapper - '', Slider$")
+            assert_regex(wrp.__repr__(), r"^<uia_controls\.SliderWrapper - '', Slider, [0-9-]+>$")
 
             wrp = self.dlg.TestLabel.wrapper_object()
             assert_regex(wrp.__str__(),
@@ -502,8 +502,8 @@ if UIA_support:
                          "^<uia_controls.StaticWrapper - 'TestLabel', Static, [0-9-]+>$")
 
             wrp = self.dlg.wrapper_object()
-            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog$")
-            assert_regex(wrp.__repr__(), "^<uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog, [0-9-]+>$")
+            assert_regex(wrp.__str__(), r"^uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog$")
+            assert_regex(wrp.__repr__(), r"^<uiawrapper\.UIAWrapper - 'WPF Sample Application', Dialog, [0-9-]+>$")
 
             # ElementInfo.__str__
             assert_regex(wrp.element_info.__str__(),
@@ -514,17 +514,17 @@ if UIA_support:
             # mock a failure in window_text() method
             orig = wrp.window_text
             wrp.window_text = mock.Mock(return_value="")  # empty text
-            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '', Dialog$")
-            assert_regex(wrp.__repr__(), "^<uiawrapper\.UIAWrapper - '', Dialog, [0-9-]+>$")
+            assert_regex(wrp.__str__(), r"^uiawrapper\.UIAWrapper - '', Dialog$")
+            assert_regex(wrp.__repr__(), r"^<uiawrapper\.UIAWrapper - '', Dialog, [0-9-]+>$")
             wrp.window_text.return_value = u'\xd1\xc1\\\xa1\xb1\ua000'  # unicode string
-            assert_regex(wrp.__str__(), "^uiawrapper\.UIAWrapper - '.+', Dialog$")
+            assert_regex(wrp.__str__(), r"^uiawrapper\.UIAWrapper - '.+', Dialog$")
             wrp.window_text = orig  # restore the original method
 
             # mock a failure in element_info.name property (it's based on _get_name())
             orig = wrp.element_info._get_name
             wrp.element_info._get_name = mock.Mock(return_value=None)
-            assert_regex(wrp.element_info.__str__(), "^uia_element_info\.UIAElementInfo - 'None', Window$")
-            assert_regex(wrp.element_info.__repr__(), "^<uia_element_info\.UIAElementInfo - 'None', Window, [0-9-]+>$")
+            assert_regex(wrp.element_info.__str__(), r"^uia_element_info\.UIAElementInfo - 'None', Window$")
+            assert_regex(wrp.element_info.__repr__(), r"^<uia_element_info\.UIAElementInfo - 'None', Window, [0-9-]+>$")
             wrp.element_info._get_name = orig
 
         def test_pretty_print_encode_error(self):
@@ -1868,7 +1868,8 @@ if UIA_support:
             self.app = Application(backend='uia')
             self.app = self.app.start(wpf_app_1)
             self.dlg = self.app.WPFSampleApplication
-            tab_itm = self.dlg.TreeAndListViews.set_focus()
+            tab_itm = self.dlg.TreeAndListViews.select()
+            tab_itm.set_focus()
             self.ctrl = tab_itm.children(control_type="Tree")[0]
 
         def tearDown(self):
@@ -2017,14 +2018,16 @@ if UIA_support:
             itm_from = self.ctrl.get_item(r'\Date Elements\Months')
             itm_from.collapse()
             r = itm_from.rectangle()
-            coords_from = (int(r.left + (r.width() / 4.0)),
+            coords_from = (int(r.left + (r.width() / 3.0)),
                            int(r.top + (r.height() / 2.0)))
 
             r = self.ctrl.get_item(r'\Date Elements\Weeks').rectangle()
-            coords_to = (int(r.left + (r.width() / 4.0)),
+            coords_to = (int(r.left + (r.width() / 3.0)),
                          int(r.top + (r.height() / 2.0)))
 
             self.ctrl.drag_mouse_input(coords_to, coords_from)
+            tab_itm = self.dlg.TreeAndListViews.select()
+            tab_itm.set_focus()
             itm = self.ctrl.get_item(r'\Date Elements\Weeks\Months')
             self.assertEqual(itm.window_text(), 'Months')
 
