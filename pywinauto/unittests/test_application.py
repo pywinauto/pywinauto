@@ -884,7 +884,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
             self.dlgspec.class_name())
 
         # Check handling 'parent' as a WindowSpecification
-        spec = self.ctrlspec.child_window(parent=self.dlgspec)
+        spec = self.ctrlspec.child_window(parent=self.dlgspec, found_index=0)
         self.assertEqual(spec.class_name(), "Edit")
 
     def test_non_magic_getattr(self):
