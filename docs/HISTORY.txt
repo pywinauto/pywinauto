@@ -2,6 +2,13 @@
 Change Log
 ==========
 
+0.6.9 Last Python 2.7 Compatible Version
+--------------------------------------------------------------------
+06-January-2025
+
+ * The last Python 2.7 compatible release with pinned dependencies.
+
+
 0.6.8 Bug Fixes
 --------------------------------------------------------------------
 27-October-2019

@@ -40,7 +40,16 @@ from xml.etree.cElementTree import ElementTree
 import six
 import ctypes
 import re
-import bz2, base64
+import bz2
+import sys
+
+if sys.version_info >= (3, 9):
+    from base64 import encodebytes
+    from base64 import decodebytes
+else:
+    from base64 import encodestring as encodebytes
+    from base64 import decodestring as decodebytes
+
 try:
     import PIL.Image
     PIL_imported = True
@@ -100,7 +109,7 @@ def _set_node_props(element, name, value):
                 raise MemoryError
 
             #print('type(value) = ' + str(type(value)))
-            image_data = base64.encodestring(bz2.compress(value.tobytes())).decode('utf-8')
+            image_data = encodebytes(bz2.compress(value.tobytes())).decode('utf-8')
             _set_node_props(
                 element,
                 name + "_IMG",
@@ -408,7 +417,7 @@ def _read_xml_structure(control_element):
 
             # get image Attribs
             img = _get_attributes(elem)
-            data = bz2.decompress(base64.decodestring(img['data'].encode('utf-8')))
+            data = bz2.decompress(decodebytes(img['data'].encode('utf-8')))
 
             if PIL_imported is False:
                 raise RuntimeError('PIL is not installed!')

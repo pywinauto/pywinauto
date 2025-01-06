@@ -1,55 +1,49 @@
 # Credits to: 
 # https://github.com/originell/jpype/appveyor/runTestsuite.ps1
 #
-function xslt_transform($xml, $xsl, $output)
-{
-	trap [Exception]
-	{
-	    Write-Host $_.Exception
-	}
-	
-	$xslt = New-Object System.Xml.Xsl.XslCompiledTransform
-	$xslt.Load($xsl)
-	$xslt.Transform($xml, $output)
-}
-
 function upload($file) {
     trap [Exception]
     {
-        Write-Host $_.Exception
+        Write-Output $_.Exception
     }
-    Write-Host "Uploading: " $file
+    Write-Output "Uploading: $file"
 
     $wc = New-Object 'System.Net.WebClient'
-    $wc.UploadFile("https://ci.appveyor.com/api/testresults/xunit/$($env:APPVEYOR_JOB_ID)", $file)
+    $wc.UploadFile("https://ci.appveyor.com/api/testresults/junit/$($env:APPVEYOR_JOB_ID)", $file)
 
     $test_report_dir = ".\TestResultsReport"
     md -Force $test_report_dir | Out-Null
     $revid = $($env:APPVEYOR_REPO_COMMIT).Substring(0, 8)
     $rep_dest = "$test_report_dir\$($env:APPVEYOR_JOB_ID)-$revid-$($env:PYTHON_VERSION)-$($env:PYTHON_ARCH)-UIA$($env:UIA_SUPPORT)-result.xml"
 
-    Write-Host "Copying test report to: " $rep_dest
+    Write-Output "Copying test report to: $rep_dest"
     cp $file $rep_dest
     Push-AppveyorArtifact $rep_dest
 }
 
 function run {
-    Write-Host $env:APPVEYOR_BUILD_FOLDER
+    Write-Output $env:APPVEYOR_BUILD_FOLDER
 
     cd $env:APPVEYOR_BUILD_FOLDER
-    $stylesheet =  "./ci/transform_xunit_to_appveyor.xsl"
-    $input = "nosetests.xml"
-    $output = "transformed.xml"
-    
-    #nosetests  --all-modules --with-xunit pywinauto/unittests
-    # --traverse-namespace is required for python 3.8 https://stackoverflow.com/q/58556183
-    nosetests --nologcapture --traverse-namespace --exclude=testall --with-xunit --with-coverage --cover-html --cover-html-dir=Coverage_report --cover-package=pywinauto --verbosity=3 pywinauto\unittests
+
+    if ($env:APPVEYOR_BUILD_WORKER_IMAGE -match "Visual Studio 2019") {
+        # Show file extensions
+        Set-ItemProperty -LiteralPath "HKCU:Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0" -Force
+        Stop-Process -Name Explorer -Force
+        Start-Sleep -Seconds 10
+    }
+
+    $faulthandler_opt = "-p no:faulthandler"
+    if ($env:PYTHON_VERSION -match "2.7" -or $env:PYTHON_VERSION -match "3.5" -or $env:PYTHON_VERSION -match "3.6") {
+        $faulthandler_opt = ""
+    }
+
+    $results = "results.xml"
+    pytest --junit-xml=$results --tb=native --capture=sys --show-capture=no $faulthandler_opt -v --verbosity=3 --cache-clear --durations=15 --ignore=testall.py --log-level=DEBUG --cov-report html:Coverage_report --cov=pywinauto pywinauto\unittests
     $success = $?
-    Write-Host "result code of nosetests:" $success
+    Write-Output "result code of pytest: $success"
 
-    xslt_transform $input $stylesheet $output
-
-    upload $output
+    upload $results
 
     # return exit code of testsuite
     if ( -not $success) {

@@ -12,50 +12,101 @@ environment:
 
   matrix:
 
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
-
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
-
-    - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "YES"
-
     - PYTHON: "C:\\Python37"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    - PYTHON: "C:\\Python37"
+      PYTHON_VERSION: "3.7"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python37-x64"
       PYTHON_VERSION: "3.7"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    - PYTHON: "C:\\Python37-x64"
+      PYTHON_VERSION: "3.7"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+
+    - PYTHON: "C:\\Python38"
+      PYTHON_VERSION: "3.8"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
     - PYTHON: "C:\\Python38-x64"
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
+      UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    - PYTHON: "C:\\Python39"
+    - PYTHON: "C:\\Python39-x64"
       PYTHON_VERSION: "3.9"
-      PYTHON_ARCH: "32"
+      PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python310"
+      PYTHON_VERSION: "3.10"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
     - PYTHON: "C:\\Python310-x64"
       PYTHON_VERSION: "3.10"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
     - PYTHON: "C:\\Python311-x64"
       PYTHON_VERSION: "3.11"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python312"
+      PYTHON_VERSION: "3.12"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python312-x64"
+      PYTHON_VERSION: "3.12"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python313"
+      PYTHON_VERSION: "3.13"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python313"
+      PYTHON_VERSION: "3.13"
+      PYTHON_ARCH: "32"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python313-x64"
+      PYTHON_VERSION: "3.13"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "NO"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python313-x64"
+      PYTHON_VERSION: "3.13"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
 #init:
   # Enable RDP.
@@ -68,8 +119,7 @@ install:
   #- ECHO "Notepad location "
   #- ps: "ls C:\\Windows\\System32\\notepad.exe"
 
-  # install the appropriate Miniconda (Py2/Py3, 32/64 bit),
-  # as well as pywin32, pillow and coverage
+  # install the appropriate pywin32, pillow and coverage
   - "powershell ./ci/install.ps1"
   - "SET PATH=%PYTHON%;%PYTHON%\\Scripts;%PATH%"
 
@@ -77,6 +127,8 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
+  - "%CMD_IN_ENV% python -m pip install --upgrade pip"
+  - "%CMD_IN_ENV% python -m pip install wheel"
   - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
 
   # Enable desktop (for correct screenshots).
@@ -93,7 +145,7 @@ after_test:
   # Generate coverage report on codecov.io (token is not required for AppVeyor)
   - codecov
   - coverage xml
-  #- python-codacy-coverage -d %APPVEYOR_BUILD_FOLDER%  -c %APPVEYOR_REPO_COMMIT% -r coverage.xml
+  # - python-codacy-coverage -d %APPVEYOR_BUILD_FOLDER%  -c %APPVEYOR_REPO_COMMIT% -r coverage.xml
 
 artifacts:
   # Archive the generated coverage report in the ci.appveyor.com build report.
