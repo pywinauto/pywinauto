@@ -32,6 +32,7 @@
 """Tests for taskbar.py"""
 
 import unittest
+import platform
 import sys
 import os
 
@@ -49,6 +50,17 @@ from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.controls.common_controls import ToolbarWrapper  # noqa: E402
 from pywinauto import mouse  # noqa: E402
 from pywinauto import Desktop  # noqa: E402
+
+
+def win_build_number():
+    if sys.platform == 'win32':
+        return int(platform.version().split('.')[-1])
+    raise NotImplementedError('Can get Windows build number only on Windows')
+
+def is_win_server2016_or_before():
+    if sys.platform == 'win32':
+        return win_build_number() < 16299
+    return False
 
 #pywinauto.actionlogger.enable()
 mfc_samples_folder = os.path.join(
@@ -213,6 +225,7 @@ class TaskbarTestCases(unittest.TestCase):
     def testSystemTray(self):
         taskbar.SystemTray.wait('visible', timeout=self.tm)  # just make sure it's found
 
+    @unittest.skipIf(not is_win_server2016_or_before(), "TODO: re-write test for Win 11 and WinServer 2019+")
     def testClock(self):
         "Test opening/closing of a system clock applet"
 
@@ -230,6 +243,7 @@ class TaskbarTestCases(unittest.TestCase):
         taskbar.Clock.type_keys("{ESC}", set_foreground=False)
         ClockWindow.wait_not('visible', timeout=self.tm)
 
+    @unittest.skipIf(not is_win_server2016_or_before(), "TODO: re-write test for Win 11 and WinServer 2019+")
     def testClickVisibleIcon(self):
         """
         Test minimizing a sample app into the visible area of the tray
@@ -280,6 +294,7 @@ class TaskbarTestCases(unittest.TestCase):
         _toggle_notification_area_icons(show_all=orig_hid_state,
                                         debug_img="%s_02" % (self.id()))
 
+    @unittest.skipIf(not is_win_server2016_or_before(), "TODO: re-write test for Win 11 and WinServer 2019+")
     def testClickHiddenIcon(self):
         """
         Test minimizing a sample app into the hidden area of the tray
@@ -321,6 +336,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         dlg2.send_message(win32defines.WM_CLOSE)
 
+    @unittest.skipIf(not is_win_server2016_or_before(), "TODO: re-write test for Win 11 and WinServer 2019+")
     def testClickCustomizeButton(self):
         "Test click on the 'show hidden icons' button"
 
