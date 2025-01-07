@@ -36,9 +36,8 @@ import subprocess
 import six
 
 from ctypes import c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
-    create_string_buffer, cdll, pointer
+    create_string_buffer, cdll, pointer, c_void_p, CFUNCTYPE
 from functools import wraps
-from collections import namedtuple
 
 from ..base_types import Structure
 from ..base_types import PointIteratorMixin
@@ -811,40 +810,6 @@ class AtspiStateSet(object):
         self._set_by_name(self._pointer, buffer, status)
 
 
-class AtspiDocument(object):
-
-    """
-    Access to ATSPI Document Interface
-    """
-
-    _get_locale = IATSPI().get_iface_func("atspi_document_get_locale")
-    _get_locale.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
-    _get_locale.restype = c_char_p
- 
-    _get_attribute_value = IATSPI().get_iface_func("atspi_document_get_document_attribute_value")
-    _get_attribute_value.argtypes = [POINTER(_AtspiDocument), c_char_p, POINTER(POINTER(_GError))]
-    _get_attribute_value.restype = c_char_p
-  
-    _get_attributes = IATSPI().get_iface_func("atspi_document_get_document_attributes")
-    _get_attributes.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
-    _get_attributes.restype = c_void_p
-
-    def __init__(self, pointer):
-        self._pointer = pointer
-
-    @g_error_handler
-    def get_locale(self, g_error_pointer=None):
-        """
-        Gets the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
-
-        Returns a string compliant with the POSIX standard for locale description.
-        """
-        error = _GError()
-        pp = POINTER(POINTER(_GError))(error)
-        # TODO: handle _GError
-        return self._get_locale(self._pointer, pp)
-
-
 class AtspiAction(object):
 
     """Access to ATSPI Action Interface"""
@@ -1129,6 +1094,56 @@ class AtspiValue(object):
     @g_error_handler
     def set_current_value(self, new_value, g_error_pointer=None):
         return self._set_current_value(self._pointer, new_value, g_error_pointer)
+
+
+class AtspiDocument(object):
+
+    """Access to ATSPI Document Interface"""
+
+    _get_locale = IATSPI().get_iface_func("atspi_document_get_locale")
+    _get_locale.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
+    _get_locale.restype = c_char_p
+
+    _get_attribute_value = IATSPI().get_iface_func("atspi_document_get_document_attribute_value")
+    _get_attribute_value.argtypes = [POINTER(_AtspiDocument), c_char_p, POINTER(POINTER(_GError))]
+    _get_attribute_value.restype = c_char_p
+
+    _get_attributes = IATSPI().get_iface_func("atspi_document_get_document_attributes")
+    _get_attributes.argtypes = [POINTER(_AtspiDocument), POINTER(POINTER(_GError))]
+    _get_attributes.restype = c_void_p
+
+    def __init__(self, pointer):
+        """Init the ATSPI Document Interface"""
+        self._pointer = pointer
+
+    @g_error_handler
+    def get_locale(self, g_error_pointer=None):
+        """
+        Get the locale associated with the document's content, e.g. the locale for LOCALE_TYPE_MESSAGES.
+
+        Return a string compliant with the POSIX standard for locale description.
+        """
+        return self._get_locale(self._pointer, g_error_pointer)
+
+    @g_error_handler
+    def get_attribute_value(self, attrib, g_error_pointer=None):
+        """
+        Get the value of a single attribute, if specified for the document as a whole.
+
+        Return a string corresponding to the value of the specified attribute,
+        or an empty string if the attribute is unspecified for the object.
+        """
+        return self._get_attribute_value(self._pointer, c_char_p(attrib.encode()), g_error_pointer)
+
+    @g_error_handler
+    def get_attributes(self, g_error_pointer=None):
+        """
+        Get all constant attributes for the document as a whole.
+
+        Return a dictionary containing the constant attributes of the document, as name-value pairs
+        """
+        res = self._get_attributes(self._pointer, g_error_pointer)
+        return GHashTable.ghash2dic(res)
 
 
 class AtspiImage(object):

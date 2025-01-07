@@ -625,7 +625,7 @@ class ApplicationTestCases(unittest.TestCase):
         self.assertRaises(ValueError, app.windows_, **{'backend' : 'uia'})
 
         notepad_handle = app.UntitledNotepad.handle
-        self.assertEqual(app.windows_(visible=True), [notepad_handle])
+        self.assertEqual(app.windows(visible=True), [notepad_handle])
 
         app.UntitledNotepad.menu_select("Help->About Notepad")
 
@@ -1392,11 +1392,6 @@ if UIA_support:
                 self.desktop.window(backend='uia', name='MFC_samplesDialog')
             with self.assertRaises(ValueError):
                 self.desktop.window(backend='win32', name='MFC_samplesDialog')
-
-        def tearDown(self):
-            """Close the application after tests"""
-            self.desktop.window(title='Common Controls Sample', process=self.app.process).SendMessage(
-                win32defines.WM_CLOSE)
 
         def test_get_list_of_windows_uia(self):
             """Test that method .windows() returns a non-empty list of windows"""

@@ -2,8 +2,9 @@ docutils<0.18
 pywin32<=227; python_version <= '3.6' and platform_system == 'Windows'
 pywin32>=300; python_version > '3.6' and platform_system == 'Windows'
 six
-Pillow==6.2.0; python_version <= '3.9'
-Pillow==11.1.0; python_version > '3.9'
+Pillow==6.2.0; python_version <= '3.7'
+Pillow==10.3.0; python_version == '3.8'
+Pillow==11.1.0; python_version > '3.8'
 coverage
 pytest==4.6.11; python_version <= '3.6'
 pytest; python_version > '3.6'
@@ -14,4 +15,6 @@ rst2pdf
 Sphinx
 mock==2.0.0
 codacy-coverage
-PyQt5==5.15.4 ; python_version >= '3.6'
+PyQt5==5.15.9; python_version >= '3.6'
+PyQt5-sip==12.15.0; python_version >= '3.9' and python_version < '3.10'
+PyQt5-sip; python_version >= '3.10'

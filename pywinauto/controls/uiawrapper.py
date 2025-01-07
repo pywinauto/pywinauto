@@ -649,7 +649,13 @@ class UIAWrapper(WinBaseWrapper):
         Usually applied for controls like: a radio button, a tree view item
         or a list item.
         """
-        self.iface_selection_item.Select()
+        try:
+            self.iface_selection_item.Select()
+        except comtypes.COMError:
+            # retry
+            time.sleep(Timings.after_tabselect_wait)
+            self.iface_selection_item.Select()
+
         if not self.is_selected():
             warnings.warn("SelectionItem.Select failed, trying LegacyIAccessible.DoDefaultAction", RuntimeWarning)
             self.iface_legacy_iaccessible.DoDefaultAction()

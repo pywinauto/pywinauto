@@ -3124,10 +3124,10 @@ class UpDownWrapper(hwndwrapper.HwndWrapper):
         for _ in range(3):
             result = win32structures.DWORD_PTR(0)
             win32functions.SendMessageTimeout(self,
-                                              win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
-                                              win32defines.SMTO_NORMAL,
-                                              int(Timings.after_updownchange_wait * 1000),
-                                              ctypes.byref(result))
+                win32defines.UDM_SETPOS, 0, win32functions.MakeLong(0, new_pos),
+                win32defines.SMTO_NORMAL,
+                int(Timings.after_updownchange_wait * 1000),
+                ctypes.byref(result))
             win32functions.WaitGuiThreadIdle(self.handle)
             time.sleep(Timings.after_updownchange_wait)
             if self.get_value() == new_pos:

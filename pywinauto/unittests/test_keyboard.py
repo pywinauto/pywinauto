@@ -44,7 +44,7 @@ sys.path.append(".")
 from pywinauto.application import Application
 if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError
-    from pywinauto.keyboard import KeyAction, PauseAction
+    from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
 else:
     from pywinauto import mouse

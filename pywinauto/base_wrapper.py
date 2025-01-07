@@ -708,13 +708,6 @@ class BaseWrapper(object):
         """
         raise NotImplementedError()
 
-        _perform_click_input(button, coords, double, button_down, button_up,
-                             wheel_dist=wheel_dist, pressed=pressed,
-                             key_down=key_down, key_up=key_up)
-
-        if message:
-            self.actions.log(message)
-
     #-----------------------------------------------------------
     def double_click_input(self, button ="left", coords = (None, None)):
         """Double click at the specified coordinates"""

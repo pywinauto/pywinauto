@@ -36,12 +36,14 @@ import unittest
 import sys
 import ctypes
 sys.path.append(".")
-from pywinauto.windows.win32structures import Structure, POINT, RECT  # noqa: E402
-from pywinauto.windows.win32functions import MakeLong, HiWord, LoWord
+from pywinauto.windows.win32structures import Structure  # noqa: E402
+from pywinauto.windows.win32structures import POINT  # noqa: E402
+from pywinauto.windows.win32structures import RECT  # noqa: E402
+from pywinauto.windows.win32functions import MakeLong, HiWord, LoWord  # noqa: E402
 
 
 class Win32FunctionsTestCases(unittest.TestCase):
-    "Unit tests for the win32function methods"
+    """Unit tests for the win32function methods"""
 
     def testMakeLong(self):
         data = (
@@ -58,27 +60,27 @@ class Win32FunctionsTestCases(unittest.TestCase):
             self.assertEqual(result, MakeLong(hi, lo))
 
     def testMakeLong_zero(self):
-        "test that makelong(0,0)"
+        """test that makelong(0,0)"""
         self.assertEqual(0, MakeLong(0, 0))
 
     def testMakeLong_lowone(self):
-        "Make sure MakeLong() function works with low word == 1"
+        """Make sure MakeLong() function works with low word == 1"""
         self.assertEqual(1, MakeLong(0, 1))
 
     def testMakeLong_highone(self):
-        "Make sure MakeLong() function works with high word == 1"
+        """Make sure MakeLong() function works with high word == 1"""
         self.assertEqual(0x10000, MakeLong(1, 0))
 
     def testMakeLong_highbig(self):
-        "Make sure MakeLong() function works with big numder in high word"
+        """Make sure MakeLong() function works with big numder in high word"""
         self.assertEqual(0xffff0000, MakeLong(0xffff, 0))
 
     def testMakeLong_lowbig(self):
-        "Make sure MakeLong() function works with big numder in low word"
+        """Make sure MakeLong() function works with big numder in low word"""
         self.assertEqual(0xffff, MakeLong(0, 0xffff))
 
     def testMakeLong_big(self):
-        "Make sure MakeLong() function works with big numders in 2 words"
+        """Make sure MakeLong() function works with big numders in 2 words"""
         self.assertEqual(0xffffffff, MakeLong(0xffff, 0xffff))
 
     def testLowWord_zero(self):

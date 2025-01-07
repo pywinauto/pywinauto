@@ -31,45 +31,13 @@
 
 """Implementation of Application class for MS Windows platform."""
 
-When starting to automate an application you must initialize an instance
-of the Application class. Then you must :func:`Application.start` that
-application or :func:`Application.connect()` to a running instance of that
-application.
-
-Once you have an Application instance you can access dialogs in that
-application either by using one of the methods below. ::
-
-   dlg = app.YourDialogTitle
-   dlg = app.child_window(title="your title", classname="your class", ...)
-   dlg = app['Your Dialog Title']
-
-Similarly once you have a dialog you can get a control from that dialog
-in almost exactly the same ways. ::
-
-  ctrl = dlg.YourControlTitle
-  ctrl = dlg.child_window(title="Your control", classname="Button", ...)
-  ctrl = dlg["Your control"]
-
-.. note::
-
-   For attribute access of controls and dialogs you do not have to
-   have the title of the control exactly, it does a best match of the
-   available dialogs or controls.
-
-.. seealso::
-
-   :func:`pywinauto.findwindows.find_elements` for the keyword arguments that
-   can be passed to both: :func:`Application.window` and
-   :func:`WindowSpecification.child_window`
-"""
 from __future__ import print_function
 
-import os
+import os.path
 import pickle
 import time
 import warnings
 import multiprocessing
-import codecs
 
 import win32process
 import win32api
@@ -333,7 +301,7 @@ class Application(BaseApplication):
 
         The action is performed according to only one of parameters
 
-        :param process: a process ID of the target
+        :param pid: a process ID of the target
         :param handle: a window handle of the target
         :param path: a path used to launch the target
         :param timeout: a timeout for process start (relevant if path is specified)
@@ -341,7 +309,7 @@ class Application(BaseApplication):
         .. seealso::
 
            :func:`pywinauto.findwindows.find_elements` - the keyword arguments that
-           are also can be used instead of **process**, **handle** or **path**
+           are also can be used instead of **pid**, **handle** or **path**
         """
         timeout = Timings.app_connect_timeout
         retry_interval = Timings.app_connect_retry
@@ -351,8 +319,8 @@ class Application(BaseApplication):
             retry_interval = kwargs['retry_interval']
 
         connected = False
-        if 'process' in kwargs:
-            self.process = kwargs['process']
+        if 'pid' in kwargs:
+            self.process = kwargs['pid']
             try:
                 wait_until(timeout, retry_interval, self.is_process_running, value=True)
             except TimeoutError:
@@ -391,8 +359,12 @@ class Application(BaseApplication):
 
         elif kwargs:
             kwargs['backend'] = self.backend.name
-            if 'visible_only' not in kwargs:
-                kwargs['visible_only'] = False
+            # XXX: vryabov
+            # if 'found_index' not in kwargs:
+            #     kwargs['found_index'] = 0
+
+            #if 'visible_only' not in kwargs:
+            #    kwargs['visible_only'] = False
             if 'timeout' in kwargs:
                 del kwargs['timeout']
                 self.process = wait_until_passes(
@@ -668,8 +640,6 @@ def assert_valid_process(process_id):
             'finished with exit code = {}'.format(process_id, exit_code))
 
     return process_handle
-
-AssertValidProcess = assert_valid_process  # just in case
 
 
 #=========================================================================

@@ -35,7 +35,6 @@ Win32 API functions to perform custom marshalling
 from __future__ import print_function
 
 import sys
-import win32api
 
 from ctypes import wintypes
 from ctypes import c_void_p
@@ -44,6 +43,7 @@ from ctypes import sizeof
 from ctypes import byref
 from ctypes import c_size_t
 from ctypes import WinError
+
 import win32api
 
 from ..windows import win32functions

@@ -1,9 +1,9 @@
 name: atspi CI
 on:
   push:
-    branches: [ "atspi" ]
+    branches: [ "atspi", "master" ]
   pull_request:
-    branches: [ "atspi" ]
+    branches: [ "atspi", "master" ]
 jobs:
   Linux:
     runs-on: ${{ matrix.os }}

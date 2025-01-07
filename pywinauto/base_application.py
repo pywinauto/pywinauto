@@ -152,6 +152,7 @@ class WindowSpecification(object):
         Initialize the class
 
         :param search_criteria: the criteria to match a dialog
+        :param allow_magic_lookup: whether attribute access must turn into child_window(best_match=...) search as fallback
         """
         # kwargs will contain however to find this window
         if 'backend' not in search_criteria:
@@ -164,6 +165,7 @@ class WindowSpecification(object):
         self.criteria = [search_criteria, ]
         self.actions = ActionLogger()
         self.backend = backend.registry.backends[search_criteria['backend']]
+        self.allow_magic_lookup = allow_magic_lookup
 
         # Non PEP-8 aliases for partial backward compatibility
         self.wrapper_object = deprecated(self.find, deprecated_name='wrapper_object')
@@ -171,17 +173,17 @@ class WindowSpecification(object):
         self.window = deprecated(self.by, deprecated_name='window')
 
     def __call__(self, *args, **kwargs):
-        """No __call__ so return a usefull error"""
+        """No __call__ so return a useful error"""
         if "best_match" in self.criteria[-1]:
-            raise AttributeError(
-                "WindowSpecification class has no '{0}' method".
+            raise AttributeError("Neither GUI element (wrapper) " \
+                "nor wrapper method '{0}' were found (typo?)".
                 format(self.criteria[-1]['best_match']))
 
         message = (
             "You tried to execute a function call on a WindowSpecification "
             "instance. You probably have a typo for one of the methods of "
-            "this class.\n"
-            "The criteria leading up to this is: " + str(self.criteria))
+            "this class or of the targeted wrapper object.\n"
+            "The criteria leading up to this are: " + str(self.criteria))
 
         raise AttributeError(message)
 
@@ -474,7 +476,7 @@ class WindowSpecification(object):
         if 'top_level_only' not in criteria:
             criteria['top_level_only'] = False
 
-        new_item = WindowSpecification(self.criteria[0])
+        new_item = WindowSpecification(self.criteria[0], allow_magic_lookup=self.allow_magic_lookup)
         new_item.criteria.extend(self.criteria[1:])
         new_item.criteria.append(criteria)
 
@@ -495,6 +497,7 @@ class WindowSpecification(object):
         """
         # if we already have 2 levels of criteria (dlg, control)
         # then resolve the control and do a getitem on it for the
+        # attribute and return it
         if len(self.criteria) >= 2:
 
             ctrl = self.find()
@@ -512,7 +515,7 @@ class WindowSpecification(object):
 
         # if we get here then we must have only had one criteria so far
         # so create a new :class:`WindowSpecification` for this control
-        new_item = WindowSpecification(self.criteria[0])
+        new_item = WindowSpecification(self.criteria[0], allow_magic_lookup=self.allow_magic_lookup)
 
         # add our new criteria
         new_item.criteria.append({"best_match": key})
@@ -533,6 +536,21 @@ class WindowSpecification(object):
         Otherwise delegate functionality to :func:`__getitem__` - which
         sets the appropriate criteria for the control.
         """
+        allow_magic_lookup = object.__getattribute__(self, "allow_magic_lookup")  # Beware of recursions here!
+        if not allow_magic_lookup:
+            try:
+                return object.__getattribute__(self, attr_name)
+            except AttributeError:
+                wrapper_object = self.find()
+                try:
+                    return getattr(wrapper_object, attr_name)
+                except AttributeError:
+                    message = (
+                        'Attribute "%s" exists neither on %s object nor on'
+                        'targeted %s element wrapper (typo? or set allow_magic_lookup to True?)' %
+                        (attr_name, self.__class__, wrapper_object.__class__))
+                    raise AttributeError(message)
+
         if attr_name in ['__dict__', '__members__', '__methods__', '__class__', '__name__']:
             return object.__getattribute__(self, attr_name)
 
@@ -542,7 +560,7 @@ class WindowSpecification(object):
         if attr_name in self.__dict__:
             return self.__dict__[attr_name]
 
-        # if we already have 2 levels of criteria (dlg, conrol)
+        # if we already have 2 levels of criteria (dlg, control)
         # this third must be an attribute so resolve and get the
         # attribute and return it
         if len(self.criteria) >= 2:
@@ -554,6 +572,7 @@ class WindowSpecification(object):
             except AttributeError:
                 return self.by(best_match=attr_name)
         else:
+            # FIXME - I don't get this part at all, why is it win32-specific and why not keep the same logic as above?
             # if we have been asked for an attribute of the dialog
             # then resolve the window and return the attribute
             desktop_wrapper = self.backend.generic_wrapper_class(self.backend.element_info_class())
@@ -891,7 +910,7 @@ class BaseApplication(object):
         else:
             criteria['name'] = windows[0].name
 
-        return WindowSpecification(criteria)
+        return WindowSpecification(criteria, allow_magic_lookup=self.allow_magic_lookup)
 
     def active(self):
         """Return WindowSpecification for an active window of the application"""
@@ -952,6 +971,11 @@ class BaseApplication(object):
         if 'backend' in kwargs:
             raise ValueError('Using another backend than set in the app constructor is not allowed!')
         kwargs['backend'] = self.backend.name
+        if kwargs.get('top_level_only') is None:
+            kwargs['top_level_only'] = True
+            # TODO: figure out how to eliminate this workaround
+            if self.backend.name == 'win32':
+                kwargs['visible'] = True
 
         if not self.process:
             raise AppNotConnected("Please use start or connect before trying "

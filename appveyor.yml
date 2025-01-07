@@ -12,23 +12,29 @@ environment:
 
   matrix:
 
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7"
+    - PYTHON: "C:\\Python39"
+      PYTHON_VERSION: "3.9"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7"
+    - PYTHON: "C:\\Python310-x64"
+      PYTHON_VERSION: "3.10"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
-    - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5"
-      PYTHON_ARCH: "32"
+    - PYTHON: "C:\\Python311-x64"
+      PYTHON_VERSION: "3.11"
+      PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
+
+    - PYTHON: "C:\\Python312-x64"
+      PYTHON_VERSION: "3.12"
+      PYTHON_ARCH: "64"
+      UIA_SUPPORT: "YES"
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
 
     - PYTHON: "C:\\Python37"
       PYTHON_VERSION: "3.7"
@@ -48,32 +54,9 @@ environment:
       UIA_SUPPORT: "YES"
       APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
 
-    - PYTHON: "C:\\Python39"
-      PYTHON_VERSION: "3.9"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-
-    - PYTHON: "C:\\Python310-x64"
-      PYTHON_VERSION: "3.10"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-
-    - PYTHON: "C:\\Python312-x64"
-      PYTHON_VERSION: "3.12"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2019
-
-    - PYTHON: "C:\\Python311-x64"
-      PYTHON_VERSION: "3.11"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
-
-#init:
+init:
   # Enable RDP.
-  #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
 
 install:
   # Some listings for debug only
@@ -95,7 +78,7 @@ install:
   - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
 
   # Enable desktop (for correct screenshots).
-  #- ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-desktop.ps1'))
+  - ps: iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-desktop.ps1'))
 
 build: false  # Not a C# project, build stuff at the test step instead.
 
@@ -118,7 +101,7 @@ artifacts:
 #  - TODO: 
 #
 
-#on_failure:
+on_failure:
   # Collect screenshots.
-  #- "7z a screenshots.zip %APPVEYOR_BUILD_FOLDER%\\scr-*.jpg"
-  #- "appveyor PushArtifact screenshots.zip"
+  - "7z a screenshots.zip %APPVEYOR_BUILD_FOLDER%\\scr-*.jpg"
+  - "appveyor PushArtifact screenshots.zip"
