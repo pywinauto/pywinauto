@@ -62,6 +62,7 @@ class Application(BaseApplication):
         if backend not in registry.backends:
             raise ValueError('Backend "{0}" is not registered!'.format(backend))
         self.backend = registry.backends[backend]
+        self.allow_magic_lookup = allow_magic_lookup
 
     def start(self, cmd_line, timeout=None, retry_interval=None,
               create_new_console=False, wait_for_idle=True, work_dir=None):

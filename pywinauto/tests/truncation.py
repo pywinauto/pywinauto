@@ -421,8 +421,8 @@ def _DialogTruncInfo(win):
     # if it has the system menu but is a small caption
     # then the only button it can have is the close button
     if win.has_style(win32defines.WS_SYSMENU) and \
-        (win.HasExStyle(win32defines.WS_EX_PALETTEWINDOW) or
-         win.HasExStyle(win32defines.WS_EX_TOOLWINDOW)):
+        (win.has_exstyle(win32defines.WS_EX_PALETTEWINDOW) or
+         win.has_exstyle(win32defines.WS_EX_TOOLWINDOW)):
         newRect.right -= 15
 
 
@@ -434,12 +434,12 @@ def _DialogTruncInfo(win):
         buttons.append('close')
 
         # account for Icon if it is not disabled
-        if not win.HasExStyle(win32defines.WS_EX_DLGMODALFRAME):
+        if not win.has_exstyle(win32defines.WS_EX_DLGMODALFRAME):
             newRect.left += 19 # icon
 
 
         # account for context sensitive help if set
-        if win.HasExStyle(win32defines.WS_EX_CONTEXTHELP) and not ( \
+        if win.has_exstyle(win32defines.WS_EX_CONTEXTHELP) and not ( \
             win.has_style(win32defines.WS_MAXIMIZEBOX) and \
             win.has_style(win32defines.WS_MINIMIZEBOX)):
 

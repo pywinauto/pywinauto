@@ -35,12 +35,16 @@ import time
 import comtypes
 import six
 
-from pywinauto.windows import uia_element_info
-from .. import findbestmatch
-from .. import timings
+from pywinauto import findbestmatch
+from pywinauto import timings
 
-from .. import uia_defines as uia_defs
-from . import uiawrapper
+from pywinauto.controls import uiawrapper
+from pywinauto.controls import win32_controls
+from pywinauto.controls import common_controls
+
+from pywinauto.windows import uia_element_info
+from pywinauto.windows import uia_defines as uia_defs
+
 from pywinauto.windows.uia_defines import IUIA
 from pywinauto.windows.uia_defines import NoPatternInterfaceError
 from pywinauto.windows.uia_defines import toggle_state_on
@@ -962,7 +966,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                     get_elem_interface(com_elem, "VirtualizedItem").Realize()
                 except NoPatternInterfaceError:
                     pass
-                itm = uiawrapper.UIAWrapper(UIAElementInfo(com_elem))
+                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
             except (NoPatternInterfaceError, ValueError, AttributeError):
                 list_items = self.children(content_only=True)
                 itm = list_items[self.__resolve_row_index(row)]
@@ -1233,7 +1237,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
                 for btn_num in range(btn_count):
                     relative_point = self.win32_wrapper.get_button_rect(btn_num).mid_point()
                     button_coord_x, button_coord_y = self.client_to_screen(relative_point)
-                    btn_elem_info = UIAElementInfo.from_point(button_coord_x, button_coord_y)
+                    btn_elem_info = uia_element_info.UIAElementInfo.from_point(button_coord_x, button_coord_y)
                     button = uiawrapper.UIAWrapper(btn_elem_info)
                     if button.element_info.rectangle not in rectangles:
                         cc.append(button)
@@ -1241,7 +1245,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
             else:
                 # Qt5 toolbar doesn't reply on TB_BUTTONCOUNT window message
                 for btn in self.win32_wrapper.children():
-                    cc.append(uiawrapper.UIAWrapper(UIAElementInfo(btn.handle)))
+                    cc.append(uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(btn.handle)))
         else:
             cc = self.children()
         return cc

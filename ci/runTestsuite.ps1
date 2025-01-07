@@ -39,7 +39,8 @@ function run {
     }
 
     $results = "results.xml"
-    pytest --junit-xml=$results --tb=native --capture=sys --show-capture=no $faulthandler_opt -v --verbosity=3 --cache-clear --durations=15 --ignore=testall.py --log-level=DEBUG --cov-report html:Coverage_report --cov=pywinauto pywinauto\unittests
+    $ignored = "--ignore=testall.py" # " --ignore=test_application_linux.py --ignore-glob=test_*atspi*.py"
+    pytest --junit-xml=$results --tb=native --capture=no --show-capture=stdout $faulthandler_opt -v --verbosity=3 --cache-clear --durations=15 $ignored --log-level=DEBUG --cov-report html:Coverage_report --cov=pywinauto pywinauto\unittests\test_uiawrapper.py
     $success = $?
     Write-Output "result code of pytest: $success"
 

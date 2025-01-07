@@ -34,8 +34,6 @@
 from ctypes import LibraryLoader
 from ctypes import WinDLL
 from ctypes import wintypes
-from pywinauto.windows import win32defines, win32structures
-from pywinauto.actionlogger import ActionLogger
 from ctypes import c_short
 from ctypes import WINFUNCTYPE
 from ctypes import c_void_p
@@ -45,6 +43,9 @@ from ctypes import byref
 from ctypes import POINTER
 from ctypes import c_ubyte
 from ctypes import c_size_t
+
+from pywinauto.windows import win32defines, win32structures
+from pywinauto.actionlogger import ActionLogger
 
 # Quote: "If you want cached libs without polluting ctypes.cdll or
 # ctypes.windll, just create your own instance such as
@@ -225,7 +226,13 @@ VkKeyScanExW.argtypes = [
     wintypes.HKL,
 ]
 GetMessageExtraInfo = windll.user32.GetMessageExtraInfo
+GetMessageExtraInfo.restype = wintypes.LPARAM
 MapVirtualKeyW = windll.user32.MapVirtualKeyW
+MapVirtualKeyW.restype = wintypes.UINT
+MapVirtualKeyW.argtypes = [
+    wintypes.UINT,
+    wintypes.UINT,
+]
 # menu functions
 DrawMenuBar = windll.user32.DrawMenuBar
 DrawMenuBar.restype = wintypes.BOOL

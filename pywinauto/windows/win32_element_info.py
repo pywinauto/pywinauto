@@ -206,7 +206,6 @@ class HwndElementInfo(ElementInfo):
         """Dump a window as a set of properties"""
         return handleprops.dumpwindow(self.handle)
 
-    # ------------------------------------------------------------
     def __hash__(self):
         """Return a unique hash value based on the element's handle"""
         return hash(self.handle)
