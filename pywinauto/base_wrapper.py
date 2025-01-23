@@ -702,6 +702,14 @@ class BaseWrapper(object):
         if not self.is_visible():
             raise ElementNotVisible()
 
+    # -----------------------------------------------------------
+    def click(self):
+        """Click the element by using Invoke pattern"""
+        self.invoke()
+
+        # Return itself so that action can be chained
+        return self
+
     #-----------------------------------------------------------
     def click_input(
         self,
