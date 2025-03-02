@@ -2240,7 +2240,7 @@ if UIA_support:
             print(f'7) elapsed {default_timer() - start}')
             # save_screenshot('test_tv_drag_n_drop__after_last')
 
-            time.sleep(10.0)
+            time.sleep(1.0)
             tab_itm = self.dlg.TreeAndListViews.select()
             tab_itm.set_focus()
             itm = self.ctrl.get_item(r'\Date Elements\Weeks\Months')

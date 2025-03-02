@@ -269,7 +269,7 @@ class WinBaseWrapper(BaseWrapper):
             release_coords = dst
         self.actions.log('Drag mouse from coordinates {0} to {1}'.format(press_coords, release_coords))
 
-        time.sleep(win32gui.GetDoubleClickTime() / 1000.0)
+        time.sleep(win32gui.GetDoubleClickTime() / 1000.0 + Timings.before_drag_wait)
         self.press_mouse_input(button, press_coords, pressed, absolute=absolute)
         time.sleep(Timings.before_drag_wait)
 
