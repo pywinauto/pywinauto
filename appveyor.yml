@@ -12,50 +12,40 @@ environment:
 
   matrix:
 
-    - PYTHON: "C:\\Python27"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
+    # - PYTHON: "C:\\Python38"
+    #   PYTHON_VERSION: "3.8"
+    #   PYTHON_ARCH: "32"
+    #   UIA_SUPPORT: "NO"
 
-    - PYTHON: "C:\\Python27-x64"
-      PYTHON_VERSION: "2.7"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
-
-    - PYTHON: "C:\\Python35"
-      PYTHON_VERSION: "3.5"
+    - PYTHON: "C:\\Python38"
+      PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "32"
       UIA_SUPPORT: "YES"
 
-    - PYTHON: "C:\\Python37"
-      PYTHON_VERSION: "3.7"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "NO"
-
-    - PYTHON: "C:\\Python37-x64"
-      PYTHON_VERSION: "3.7"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
+    # - PYTHON: "C:\\Python38-x64"
+    #   PYTHON_VERSION: "3.8"
+    #   PYTHON_ARCH: "64"
+    #   UIA_SUPPORT: "NO"
 
     - PYTHON: "C:\\Python38-x64"
       PYTHON_VERSION: "3.8"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
 
-    - PYTHON: "C:\\Python39"
-      PYTHON_VERSION: "3.9"
-      PYTHON_ARCH: "32"
-      UIA_SUPPORT: "YES"
+    # - PYTHON: "C:\\Python39"
+    #   PYTHON_VERSION: "3.9"
+    #   PYTHON_ARCH: "32"
+    #   UIA_SUPPORT: "YES"
 
-    - PYTHON: "C:\\Python310-x64"
-      PYTHON_VERSION: "3.10"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
+    # - PYTHON: "C:\\Python310-x64"
+    #   PYTHON_VERSION: "3.10"
+    #   PYTHON_ARCH: "64"
+    #   UIA_SUPPORT: "YES"
 
-    - PYTHON: "C:\\Python311-x64"
-      PYTHON_VERSION: "3.11"
-      PYTHON_ARCH: "64"
-      UIA_SUPPORT: "YES"
+    # - PYTHON: "C:\\Python311-x64"
+    #   PYTHON_VERSION: "3.11"
+    #   PYTHON_ARCH: "64"
+    #   UIA_SUPPORT: "YES"
 
 #init:
   # Enable RDP.
@@ -77,6 +67,8 @@ install:
   # compiled extensions and are not provided as pre-built wheel packages,
   # pip will build them from source using the MSVC compiler matching the
   # target Python version and architecture
+  - "%CMD_IN_ENV% python -m pip install --upgrade pip"
+  - "%CMD_IN_ENV% python -m pip install wheel"
   - "%CMD_IN_ENV% pip install -r dev-requirements.txt"
 
   # Enable desktop (for correct screenshots).
