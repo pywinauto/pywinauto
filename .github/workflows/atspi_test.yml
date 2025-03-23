@@ -11,21 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os : [ubuntu-18.04, ubuntu-20.04]
-        python: [ '2.7', '3.7', '3.8', '3.9', '3.10', '3.11' ]
+        os : [ubuntu-22.04, ubuntu-24.04]
+        python: [ '3.10', '3.11', '3.12', '3.13' ]
         exclude:
-          - os: ubuntu-20.04
-            python: '2.7'
-          - os: ubuntu-20.04
-            python: '3.7'
-          - os: ubuntu-20.04
-            python: '3.8'
-          - os: ubuntu-18.04
-            python: '3.9'
-          - os: ubuntu-18.04
+          - os: ubuntu-24.04
             python: '3.10'
-          - os: ubuntu-18.04
+          - os: ubuntu-24.04
             python: '3.11'
+          - os: ubuntu-24.04
+            python: '3.12'
+          - os: ubuntu-22.04
+            python: '3.13'
     env:
       DISPLAY: ':0'
     steps:
@@ -37,29 +33,27 @@ jobs:
         python-version: ${{ matrix.python }}
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
+        python3 -m pip install --upgrade pip
         sudo apt update -y
-        sudo apt upgrade
-        sudo apt install -y --no-install-recommends python-setuptools tk-dev python-tk
-        sudo apt install -y --no-install-recommends python3 python3-pip python3-setuptools
-        sudo apt install -y --no-install-recommends python-xlib
+        sudo apt upgrade -y
+        sudo apt install -y --no-install-recommends python3-setuptools tk-dev python3-tk
+        sudo apt install -y --no-install-recommends python3 python3-pip
         sudo apt install -y --no-install-recommends xsel
-        sudo apt install -y libjavascriptcoregtk-4.0-18
-        pip install coverage codecov
-        pip install python-xlib --upgrade
-        pip install mock --upgrade
-        python -m pip install pytest
+        pip3 install coverage codecov
+        pip3 install python-xlib --upgrade
+        pip3 install mock --upgrade
+        pip3 install pytest --upgrade
         sudo apt install -y build-essential libssl-dev
-        sudo apt install -y qt5-default
+        sudo apt install -y qtbase5-dev qt5-qmake
         sudo apt install -y libxkbcommon-x11-0
         sudo apt install -y python3-gi gobject-introspection gir1.2-gtk-3.0
+        sudo apt install -y libgtk-3-dev
         sudo apt install -y at-spi2-core
         sudo apt install -y python3-pyatspi
-        sudo apt install -y xvfb x11-utils libxkbcommon-x11-0 \
+        sudo apt install -y xvfb x11-utils \
             libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 \
             libxcb-render-util0 libxcb-xinerama0 libxcb-xfixes0 xdotool
-        #pip3 install scikit-build # required for cmake>=3.23.0
-        pip3 install cmake==3.22.6
+        pip3 install cmake --upgrade
 
     - name: Install test apps
       run: |

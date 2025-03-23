@@ -195,7 +195,7 @@ if sys.platform.startswith("linux"):
             self.assertEqual(self.app_info.description(), "")
 
         def test_can_get_framework_id(self):
-            dpkg_output = subprocess.check_output(["dpkg", "-s", "libgtk-3-0"]).decode(encoding='UTF-8')
+            dpkg_output = subprocess.check_output(["dpkg", "-s", "libgtk-3-dev"]).decode(encoding='UTF-8')
             version_line = None
             for line in dpkg_output.split("\n"):
                 if line.startswith("Version"):
