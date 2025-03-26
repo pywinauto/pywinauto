@@ -118,6 +118,35 @@ if UIA_support:
             """Test whether a list of descendants with invalid depth raises exception"""
             self.assertRaises(Exception, self.ctrl.descendants, depth='qwerty')
 
+        def test_default_depth_with_criteria_descendants(self):
+            """Test whether a list of descendants with default depth and same criteria of the element is equal"""
+            self.assertEqual(
+                len(self.ctrl.descendants(depth=None, control_type="RadioButton")),
+                len(self.ctrl.descendants(control_type="RadioButton")),
+            )
+
+        def test_default_and_specified_depth_level_with_criteria_descendants(self):
+            """Test whether specifying a depth level will find fewer elements than without specifying it"""
+            self.assertLess(
+                len(self.ctrl.descendants(control_type="Text", depth=2)),
+                len(self.ctrl.descendants(control_type="Text")),
+            )
+
+        def test_depth_level_one_with_criteria_descendants(self):
+            """Test whether a list of descendants with depth=1 and same criteria of the element is equal to children"""
+            self.assertEqual(
+                self.ctrl.children(control_type="ToolBar"), self.ctrl.descendants(control_type="ToolBar", depth=1)
+            )
+
+        def test_depth_level_more_than_one_with_criteria_descendants(self):
+            """Test whether an element not found with smaller depth levels is found with larger levels"""
+            # There is no element with `control_type='ScrollBar'` with depth level less than three
+            nothing = next(iter(self.ctrl.descendants(control_type="Slider", depth=2)), None)
+            self.assertIsNone(nothing)
+            slider = next(iter(self.ctrl.descendants(control_type="Slider", depth=3)), None)
+            self.assertIsNotNone(slider)
+            self.assertIn(slider, self.ctrl.descendants())
+
         def test_descendants_generator(self):
             """Test whether descendant generator iterates over correct elements"""
             descendants = [desc for desc in self.ctrl.iter_descendants(depth=3)]
