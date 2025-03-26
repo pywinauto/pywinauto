@@ -462,7 +462,7 @@ class UIAElementInfo(ElementInfo):
         """Return a list of only immediate children of the element
 
          * **kwargs** is a criteria to reduce a list by process,
-           class_name, control_type, content_only and/or title.
+           class_name, control_type, content_only and/or name.
         """
         if UIAElementInfo.use_raw_view_walker:
             return list(self.iter_children(**kwargs))
@@ -475,7 +475,7 @@ class UIAElementInfo(ElementInfo):
         """Return a list of all descendant children of the element
 
          * **kwargs** is a criteria to reduce a list by process,
-           class_name, control_type, content_only and/or title.
+           class_name, control_type, content_only and/or name.
         """
         if UIAElementInfo.use_raw_view_walker:
             return list(self.iter_descendants(**kwargs))
