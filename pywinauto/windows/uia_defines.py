@@ -217,11 +217,11 @@ def get_elem_interface(element_info, pattern_name):
     TODO: handle a wrong pattern name
     """
     # Resolve the pattern id and the class to query
-    ptrn_id, cls_name = pattern_ids[pattern_name]
+    ptrn_id, ptrn_cls = pattern_ids[pattern_name]
     # Get the interface
     try:
         cur_ptrn = element_info.GetCurrentPattern(ptrn_id)
-        iface = cur_ptrn.QueryInterface(cls_name)
+        iface = cur_ptrn.QueryInterface(ptrn_cls)
     except (ValueError, comtypes.COMError):
         raise NoPatternInterfaceError()
     return iface
