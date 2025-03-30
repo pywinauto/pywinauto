@@ -37,18 +37,36 @@ import ctypes  # noqa: E402
 import logging  # noqa: E402
 
 
-try:
-    # Disable 'INFO' logs from comtypes
-    log = logging.getLogger('comtypes')
-    log.setLevel('WARNING')
-    import comtypes  # noqa: E402
-    import comtypes.client
-    comtypes.client.GetModule('UIAutomationCore.dll')
-    UIA_support = True
-except OSError:
-    UIA_support = False
-except ImportError:
-    UIA_support = False
+def _is_uia_support():
+    # type: () -> bool
+    try:
+        # Disable 'INFO' logs from comtypes
+        log = logging.getLogger('comtypes')
+        log.setLevel('WARNING')
+        import comtypes
+    except ImportError:
+        return False
+    import comtypes.typeinfo
+    try:
+        # Attempt to load `ITypeLib`, and if a typelib-string is not valid,
+        # then raise `OSError: [WinError -2147312566] ...`.
+        # 0x80029c4a or -2147312566 is `TYPE_E_CANTLOADLIBRARY`.`
+        tlib = comtypes.typeinfo.LoadTypeLibEx('UIAutomationCore.dll')
+    except OSError:
+        return False
+    from _ctypes import COMError
+    try:
+        # Attempt to retrieve the library name from `ITypeLib`, and if a
+        # `COMError`` was raised or the name is not `'UIAutomationClient'`,
+        # `comtypes.gen.UIAutomationClient` cannot be imported.
+        if tlib.GetDocumentation(-1)[0] != 'UIAutomationClient':
+            return False
+    except COMError:
+        return False
+    return True
+
+
+UIA_support = _is_uia_support()
 
 
 def os_arch():
