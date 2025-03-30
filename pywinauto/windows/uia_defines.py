@@ -128,7 +128,7 @@ def _build_pattern_ids_dic():
     """
     base_names = [
         'Dock', 'ExpandCollapse', 'GridItem', 'Grid', 'Invoke', 'ItemContainer',
-        'LegacyIAccessible', 'MulipleView', 'RangeValue', 'ScrollItem', 'Scroll',
+        'LegacyIAccessible', 'MultipleView', 'RangeValue', 'ScrollItem', 'Scroll',
         'SelectionItem', 'Selection', 'SynchronizedInput', 'TableItem', 'Table',
         'Text', 'Toggle', 'VirtualizedItem', 'Value', 'Window',
         'Transform',
