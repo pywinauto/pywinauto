@@ -145,7 +145,7 @@ if sys.platform.startswith("linux"):
             self.desktop_info = AtspiElementInfo()
             self.app = Application()
             self.app.start(_test_app())
-            time.sleep(1)
+            time.sleep(3)
             self.app_info = self.get_app(app_name)
             self.app2 = None
 
