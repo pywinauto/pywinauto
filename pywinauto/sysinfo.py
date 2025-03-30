@@ -57,7 +57,7 @@ def _is_uia_support():
     from _ctypes import COMError
     try:
         # Attempt to retrieve the library name from `ITypeLib`, and if a
-        # `COMError`` was raised or the name is not `'UIAutomationClient'`,
+        # `COMError` was raised or the name is not `'UIAutomationClient'`,
         # `comtypes.gen.UIAutomationClient` cannot be imported.
         if tlib.GetDocumentation(-1)[0] != 'UIAutomationClient':
             return False
