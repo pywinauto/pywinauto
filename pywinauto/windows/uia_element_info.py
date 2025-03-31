@@ -480,13 +480,31 @@ class UIAElementInfo(ElementInfo):
         if UIAElementInfo.use_raw_view_walker:
             return list(self.iter_descendants(**kwargs))
         else:
+            cache_enable = kwargs.pop('cache_enable', False)
             depth = kwargs.pop('depth', None)
             if depth is None:
-                cache_enable = kwargs.pop('cache_enable', False)
                 cond = IUIA().build_condition(**kwargs)
                 return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+            if depth == 1:
+                return self.children(cache_enable=cache_enable, **kwargs)
             else:
-                return self.get_descendants_with_depth(depth=depth, **kwargs)
+                if kwargs:
+                    cond = IUIA().build_condition(**kwargs)
+                    elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
+                    return ElementInfo.filter_with_depth(elements, self, depth)
+                else:
+                    descendants = []
+
+                    def walk_the_tree(parent, depth_):
+                        # type: (UIAElementInfo, int) -> None
+                        if depth_ == 0:
+                            return
+                        for child in parent.children(cache_enable=cache_enable):
+                            descendants.append(child)
+                            walk_the_tree(child, depth_ - 1)
+
+                    walk_the_tree(self, depth)
+                    return descendants
 
     @property
     def visible(self):
