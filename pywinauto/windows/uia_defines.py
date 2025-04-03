@@ -173,8 +173,8 @@ def _get_ptrn_names(base):
         ('UIA_TextPattern2Id', 'IUIAutomationTextPattern2')
     """
     stem, v2 = (base[:-2], "2") if base.endswith("V2") else (base, "")
-    cls_name = "IUIAutomation" + stem + "Pattern" + v2
-    id_name = "UIA_" + stem + "Pattern" + v2 + "Id"
+    cls_name = f"IUIAutomation{stem}Pattern{v2}"
+    id_name = f"UIA_{stem}Pattern{v2}Id"
     return id_name, cls_name
 
 
