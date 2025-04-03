@@ -449,8 +449,7 @@ class UIAElementInfo(ElementInfo):
                 if depth is not None:
                     kwargs["depth"] = depth - 1
                 for c in child.iter_descendants(**kwargs, cache_enable=cache_enable):
-                    if is_element_satisfying_criteria(c._element, **kwargs):
-                        yield c
+                    yield c
         else:
             for child in self.iter_children(**kwargs, cache_enable=cache_enable):
                 yield child
