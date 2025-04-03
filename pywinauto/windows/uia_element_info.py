@@ -429,7 +429,7 @@ class UIAElementInfo(ElementInfo):
             tree_walker = IUIA().iuia.CreateTreeWalker(cond)
             element = tree_walker.GetFirstChildElement(self._element)
             while element:
-                yield UIAElementInfo(element)
+                yield UIAElementInfo(element, cache_enable)
                 element = tree_walker.GetNextSiblingElement(element)
 
     def iter_descendants(self, **kwargs):
@@ -448,15 +448,15 @@ class UIAElementInfo(ElementInfo):
                     yield child
                 if depth is not None:
                     kwargs["depth"] = depth - 1
-                for c in child.iter_descendants(**kwargs):
+                for c in child.iter_descendants(**kwargs, cache_enable=cache_enable):
                     if is_element_satisfying_criteria(c._element, **kwargs):
                         yield c
         else:
-            for child in self.iter_children(**kwargs):
+            for child in self.iter_children(**kwargs, cache_enable=cache_enable):
                 yield child
                 if depth is not None:
                     kwargs["depth"] = depth - 1
-                for c in child.iter_descendants(**kwargs):
+                for c in child.iter_descendants(**kwargs, cache_enable=cache_enable):
                     yield c
 
     def children(self, **kwargs):
