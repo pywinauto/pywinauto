@@ -148,25 +148,35 @@ def _build_pattern_ids_dic():
 
     # Loop over the all base names and try to retrieve control patterns
     for ptrn_name in base_names:
-
-        # Construct a class name and check if it is supported by comtypes
-        v2 = ""
-        name = ptrn_name
-        if ptrn_name.endswith("V2"):
-            name = ptrn_name[:-2]
-            v2 = "2"
-        cls_name = ''.join(['IUIAutomation', name, 'Pattern', v2])
+        ptrn_id_name, cls_name = _get_ptrn_names(ptrn_name)
         if hasattr(IUIA().ui_automation_client, cls_name):
             klass = getattr(IUIA().ui_automation_client, cls_name)
-
-            # Contruct a pattern ID name and get the ID value
-            ptrn_id_name = 'UIA_' + name + 'Pattern' + v2 + 'Id'
             ptrn_id = getattr(IUIA().UIA_dll, ptrn_id_name)
-
             # Update the registry of known patterns
             ptrn_ids_dic[ptrn_name] = (ptrn_id, klass)
 
     return ptrn_ids_dic
+
+
+def _get_ptrn_names(base):
+    # type: (str) -> tuple[str, str]
+    """Return the id name and class name corresponding to each pattern's base name.
+
+    Examples:
+        >>> _get_ptrn_names('Grid')
+        ('UIA_GridPatternId', 'IUIAutomationGridPattern')
+        >>> _get_ptrn_names('GridItem')
+        ('UIA_GridItemPatternId', 'IUIAutomationGridItemPattern')
+        >>> _get_ptrn_names('Text')
+        ('UIA_TextPatternId', 'IUIAutomationTextPattern')
+        >>> _get_ptrn_names('TextV2')
+        ('UIA_TextPattern2Id', 'IUIAutomationTextPattern2')
+    """
+    stem, v2 = (base[:-2], "2") if base.endswith("V2") else (base, "")
+    cls_name = "IUIAutomation" + stem + "Pattern" + v2
+    id_name = "UIA_" + stem + "Pattern" + v2 + "Id"
+    return id_name, cls_name
+
 
 pattern_ids = _build_pattern_ids_dic()
 
