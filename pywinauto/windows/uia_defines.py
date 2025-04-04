@@ -138,7 +138,7 @@ def _build_pattern_ids_dic():
         'TextEdit',
 
         # Windows 10 and later
-        'CustomNavigation'
+        'CustomNavigation', 'SelectionV2',
     ]
 
     ptrn_ids_dic = {}
