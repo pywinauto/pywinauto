@@ -134,7 +134,7 @@ def _build_pattern_ids_dic():
         'Transform',
 
         # Windows 8 and later
-        'Annotation', 'Drag', 'Drop', 'ObjectModel', 'Spreadsheet',
+        'Annotation', 'Drag', 'DropTarget', 'ObjectModel', 'Spreadsheet',
         'SpreadsheetItem', 'Styles', 'TextChild', 'TextV2', 'TransformV2',
 
         # Windows 8.1 and later
