@@ -786,18 +786,22 @@ if UIA_support:
             for t in combo_box.texts():
                 self.assertEqual((t in ref_texts), True)
 
-            # Mock a 0 pointer to COM element
-            combo_box.iface_item_container.FindItemByProperty = mock.Mock(return_value=0)
-            self.assertEqual(combo_box.texts(), ref_texts)
+            # Mock a empty container
+            patch_empty = mock.patch.object(UIAElementInfo, "item_container", [])
+            with patch_empty:
+                self.assertEqual(combo_box.texts(), ref_texts)
+
+            error_prop = mock.PropertyMock(side_effect=uia_defs.NoPatternInterfaceError())
 
             # Mock a combobox without "ItemContainer" pattern
-            combo_box.iface_item_container.FindItemByProperty = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())
-            self.assertEqual(combo_box.texts(), ref_texts)
-
+            patch_container_error = mock.patch.object(UIAElementInfo, "item_container", error_prop)
             # Mock a combobox without "ExpandCollapse" pattern
-            # Expect empty texts
-            combo_box.iface_expand_collapse.Expand = mock.Mock(side_effect=uia_defs.NoPatternInterfaceError())
-            self.assertEqual(combo_box.texts(), [])
+            patch_expand_collapse_error = mock.patch.object(UIAWrapper, "iface_expand_collapse", error_prop)
+
+            with patch_container_error:
+                self.assertEqual(combo_box.texts(), ref_texts)
+                with patch_expand_collapse_error:
+                    self.assertEqual(combo_box.texts(), [])
 
         def test_combobox_select(self):
             """Test select related methods for the combo box control"""

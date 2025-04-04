@@ -31,11 +31,12 @@
 
 """Implementation of the class to deal with an UI element (based on UI Automation API)"""
 
-from comtypes import COMError
+from comtypes import COMError, POINTER
 from six import integer_types, text_type, string_types
 from ctypes.wintypes import tagPOINT
 import warnings
 
+from . import uia_defines as uia_defs
 from .uia_defines import IUIA
 from .uia_defines import get_elem_interface, NoPatternInterfaceError
 
@@ -507,6 +508,10 @@ class UIAElementInfo(ElementInfo):
                     return descendants
 
     @property
+    def item_container(self):
+        return _ItemContainer(get_elem_interface(self._element, "ItemContainer"))
+
+    @property
     def visible(self):
         """Check if the element is visible"""
         return self._get_visible()
@@ -577,3 +582,40 @@ class UIAElementInfo(ElementInfo):
         """Return current active element"""
         ae = IUIA().get_focused_element()
         return cls(ae)
+
+
+class _ItemContainer(object):
+    """UI item container wrapper"""
+    def __init__(self, iface):
+        self._iface = iface  # IUIAutomationItemContainerPattern
+
+    def __iter__(self):
+        elem = self.find()
+        while elem.element:
+            yield elem
+            elem = self.find(elem)
+
+    def find(self, start_after=None, propid=None, value=None):
+        """Return the matching element in the container
+
+        * **start_after** Specifies the element after which the search begins.
+                          Defaults to search all elements.
+        * **propid** Specifies the property identifier.
+                     Defaults to return the next item after **start_after** element.
+        * **value** Specifies the property value.
+                    Defaults to return the next item after **start_after** element.
+
+        if all parameters are not specified, returns the first item.
+        if the **propid** is specified, the **value** must be specified.
+        """
+        if start_after is None:
+            # create a null com pointer
+            com_elem = POINTER(IUIA().ui_automation_client.IUIAutomationElement)()
+        elif isinstance(start_after, UIAElementInfo):
+            com_elem = start_after.element
+        else:
+            raise TypeError("UIAElementInfo type or None is expected")
+        propid = propid if propid is not None else 0
+        value = value if value is not None else uia_defs.vt_empty
+        itm = self._iface.FindItemByProperty(com_elem, propid, value)
+        return UIAElementInfo(itm)

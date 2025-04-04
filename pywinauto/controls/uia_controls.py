@@ -935,14 +935,14 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
             # Try to find item using FindItemByProperty
             # That way we can get access to virtualized (unloaded) items
             try:
-                com_elem = self.iface_item_container.FindItemByProperty(0, IUIA().UIA_dll.UIA_NamePropertyId, row)
+                elem = self.element_info.item_container.find(propid=IUIA().UIA_dll.UIA_NamePropertyId, value=row)
                 # Try to load element using VirtualizedItem pattern
                 try:
-                    get_elem_interface(com_elem, "VirtualizedItem").Realize()
-                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                    get_elem_interface(elem.element, "VirtualizedItem").Realize()
+                    itm = uiawrapper.UIAWrapper(elem)
                 except NoPatternInterfaceError:
                     # Item doesn't support VirtualizedItem pattern - item is already on screen or com_elem is NULL
-                    itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                    itm = uiawrapper.UIAWrapper(elem)
             except (NoPatternInterfaceError, ValueError):
                 # com_elem is NULL pointer or item doesn't support ItemContainer pattern
                 # Get DataGrid row
@@ -958,15 +958,15 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         elif isinstance(row, six.integer_types):
             # Get the item by a row index
             try:
-                com_elem = 0
-                for _ in range(0, self.__resolve_row_index(row) + 1):
-                    com_elem = self.iface_item_container.FindItemByProperty(com_elem, 0, uia_defs.vt_empty)
+                elem = self.element_info.item_container.find()
+                for _ in range(0, self.__resolve_row_index(row)):
+                    elem = self.element_info.item_container.find(elem)
                 # Try to load element using VirtualizedItem pattern
                 try:
-                    get_elem_interface(com_elem, "VirtualizedItem").Realize()
+                    get_elem_interface(elem.element, "VirtualizedItem").Realize()
                 except NoPatternInterfaceError:
                     pass
-                itm = uiawrapper.UIAWrapper(uia_element_info.UIAElementInfo(com_elem))
+                itm = uiawrapper.UIAWrapper(elem)
             except (NoPatternInterfaceError, ValueError, AttributeError):
                 list_items = self.children(content_only=True)
                 itm = list_items[self.__resolve_row_index(row)]

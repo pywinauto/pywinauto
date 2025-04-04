@@ -864,12 +864,9 @@ class UIAWrapper(WinBaseWrapper):
         """Get texts through the ItemContainer interface"""
         texts = []
         try:
-            com_elem = self.iface_item_container.FindItemByProperty(0, 0, uia_defs.vt_empty)
-            while com_elem:
-                itm = UIAWrapper(UIAElementInfo(com_elem))
-                texts.append(itm.texts())
-                com_elem = self.iface_item_container.FindItemByProperty(com_elem, 0, uia_defs.vt_empty)
-        except (uia_defs.NoPatternInterfaceError):
+            for elem in self.element_info.item_container:
+                texts.append(UIAWrapper(elem).texts())
+        except uia_defs.NoPatternInterfaceError:
             pass
         return texts
 
