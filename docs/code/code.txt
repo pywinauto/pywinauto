@@ -13,6 +13,7 @@ Main User Modules
    :maxdepth: 1
    
    pywinauto.base_application.txt
+   pywinauto.window_specification.txt
    pywinauto.windows.application.txt
    pywinauto.linux.application.txt
    pywinauto.findbestmatch.txt
