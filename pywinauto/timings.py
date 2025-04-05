@@ -113,7 +113,6 @@ The Following are the individual timing settings that can be adjusted:
 
 """
 
-import six
 import time
 import operator
 from functools import wraps
@@ -298,10 +297,7 @@ class TimeoutError(RuntimeError):
 
 
 #=========================================================================
-if six.PY3:
-    _clock_func = time.perf_counter
-else:
-    _clock_func = time.clock
+_clock_func = time.perf_counter
 
 
 def timestamp():

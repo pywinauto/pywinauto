@@ -38,8 +38,6 @@ import locale
 import re
 import sys
 
-import six
-
 try:
     from PIL import ImageGrab
 except ImportError:
@@ -83,8 +81,7 @@ class ElementNotActive(RuntimeError):
     pass
 
 #=========================================================================
-@six.add_metaclass(abc.ABCMeta)
-class BaseMeta(abc.ABCMeta):
+class BaseMeta(abc.ABCMeta, metaclass=abc.ABCMeta):
 
     """Abstract metaclass for Wrapper objects"""
 
@@ -94,8 +91,7 @@ class BaseMeta(abc.ABCMeta):
         raise NotImplementedError()
 
 #=========================================================================
-@six.add_metaclass(BaseMeta)
-class BaseWrapper(object):
+class BaseWrapper(object, metaclass=BaseMeta):
     """
     Abstract wrapper for elements.
 
@@ -141,7 +137,7 @@ class BaseWrapper(object):
         """
         self.backend = active_backend
         if element_info:
-            #if isinstance(element_info, six.integer_types):
+            #if isinstance(element_info, int):
             #    element_info = self.backend.element_info_class(element_info)
 
             self._element_info = element_info
@@ -182,13 +178,6 @@ class BaseWrapper(object):
         type_name = module + "." + self.__class__.__name__
         title = self.window_text()
         class_name = self.friendly_class_name()
-        if six.PY2:
-            if hasattr(sys.stdout, 'encoding') and sys.stdout.encoding is not None:
-                # some frameworks override sys.stdout without encoding attribute (Tee Stream),
-                # some users replace sys.stdout with file descriptor which can have None encoding
-                title = title.encode(sys.stdout.encoding, errors='backslashreplace')
-            else:
-                title = title.encode(locale.getpreferredencoding(), errors='backslashreplace')
         return type_name, title, class_name
 
     def __repr__(self):
@@ -205,10 +194,7 @@ class BaseWrapper(object):
         debugging purposes helping to distinguish between the runtime objects.
         """
         type_name, title, class_name = self.__repr_texts()
-        if six.PY2:
-            return b"<{0} - '{1}', {2}, {3}>".format(type_name, title, class_name, self.__hash__())
-        else:
-            return "<{0} - '{1}', {2}, {3}>".format(type_name, title, class_name, self.__hash__())
+        return "<{0} - '{1}', {2}, {3}>".format(type_name, title, class_name, self.__hash__())
 
     def __str__(self):
         """Pretty print representation of the wrapper object
@@ -222,10 +208,7 @@ class BaseWrapper(object):
         to prepare a window specification to access the control
         """
         type_name, title, class_name = self.__repr_texts()
-        if six.PY2:
-            return b"{0} - '{1}', {2}".format(type_name, title, class_name)
-        else:
-            return "{0} - '{1}', {2}".format(type_name, title, class_name)
+        return "{0} - '{1}', {2}".format(type_name, title, class_name)
 
     #------------------------------------------------------------
     @property
