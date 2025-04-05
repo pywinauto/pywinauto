@@ -32,8 +32,6 @@
 """Package of tests that can be run on controls or lists of controls"""
 from __future__ import print_function
 
-import six
-
 
 def run_tests(controls, tests_to_run = None, test_visible_only = True):
     """Run the tests"""
@@ -66,8 +64,8 @@ def get_bug_as_string(bug):
     header = ["BugType:", str(bug_type), str(is_in_ref)]
 
     for i in info:
-        header.append(six.text_type(i))
-        header.append(six.text_type(info[i]))
+        header.append(str(i))
+        header.append(str(info[i]))
 
     lines = []
     lines.append(" ".join(header))
@@ -97,7 +95,7 @@ def print_bugs(bugs):
         print("BugType:", bug_type, is_in_ref)
 
         for i in info:
-            print(six.text_type(i).encode('utf-8'), six.text_type(info[i]).encode('utf-8'))
+            print(str(i).encode('utf-8'), str(info[i]).encode('utf-8'))
         print()
 
         for i, ctrl in enumerate(ctrls):
