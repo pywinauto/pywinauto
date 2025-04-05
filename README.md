@@ -87,10 +87,8 @@ Properties.wait_not('visible') # make sure the dialog is closed
 * Windows:
   - [pyWin32](https://github.com/mhammond/pywin32/)
   - [comtypes](https://github.com/enthought/comtypes)
-  - [six](https://pypi.python.org/pypi/six)
 * Linux:
   - [python-xlib](https://github.com/python-xlib/python-xlib)
-  - [six](https://pypi.python.org/pypi/six)
 * Optional packages:
   - Install [Pillow](https://pypi.python.org/pypi/Pillow) (by `pip install -U Pillow`) to be able to call `capture_as_image()` method for making a control's snapshot.
 
