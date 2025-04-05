@@ -56,7 +56,7 @@ sys.path.append(setup_path())
 #    if not os.path.exists(setup_path("docs")):
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
-install_requires = ['six']
+install_requires = []
 
 if sys.platform == 'win32':
     packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.windows"]
