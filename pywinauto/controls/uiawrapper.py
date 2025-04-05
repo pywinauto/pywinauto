@@ -34,7 +34,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import six
 import time
 import warnings
 import comtypes
@@ -167,8 +166,7 @@ class UiaMeta(BaseMeta):
 
 
 # =========================================================================
-@six.add_metaclass(UiaMeta)
-class UIAWrapper(WinBaseWrapper):
+class UIAWrapper(WinBaseWrapper, metaclass=UiaMeta):
 
     """
     Default wrapper for User Interface Automation (UIA) controls.
@@ -716,10 +714,10 @@ class UIAWrapper(WinBaseWrapper):
         The action can be applied for dirrent controls with items:
         ComboBox, TreeView, Tab control
         """
-        if isinstance(item, six.integer_types):
+        if isinstance(item, int):
             item_index = item
             title = None
-        elif isinstance(item, six.string_types):
+        elif isinstance(item, str):
             item_index = 0
             title = item
         else:
