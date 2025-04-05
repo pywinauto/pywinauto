@@ -41,7 +41,6 @@ import win32gui
 import win32ui
 import win32api
 import win32con
-import six
 
 from ..windows.win32structures import RECT
 
@@ -60,8 +59,7 @@ from ..base_wrapper import BaseMeta
 
 
 #=========================================================================
-@six.add_metaclass(BaseMeta)
-class WinBaseWrapper(BaseWrapper):
+class WinBaseWrapper(BaseWrapper, metaclass=BaseMeta):
     """
     Abstract wrapper for elements.
 
@@ -202,7 +200,7 @@ class WinBaseWrapper(BaseWrapper):
         if use_log:
             ctrl_text = self.window_text()
             if ctrl_text is None:
-                ctrl_text = six.text_type(ctrl_text)
+                ctrl_text = str(ctrl_text)
             if button.lower() == 'move':
                 message = 'Moved mouse over ' + self.friendly_class_name() + \
                           ' "' + ctrl_text + '" to screen point ('
@@ -326,13 +324,13 @@ class WinBaseWrapper(BaseWrapper):
             # TODO: UIA stuff maybe
             pass
 
-        if isinstance(keys, six.text_type):
+        if isinstance(keys, str):
             aligned_keys = keys
-        elif isinstance(keys, six.binary_type):
+        elif isinstance(keys, bytes):
             aligned_keys = keys.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            aligned_keys = six.text_type(keys)
+            aligned_keys = str(keys)
 
         # Play the keys to the active window
         keyboard.send_keys(

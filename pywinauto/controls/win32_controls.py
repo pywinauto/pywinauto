@@ -36,7 +36,6 @@ import time
 import ctypes
 import win32gui
 import locale
-import six
 
 from . import hwndwrapper
 
@@ -265,17 +264,11 @@ def _get_multiple_text_items(wrapper, count_msg, item_len_msg, item_get_msg):
     for i in range(0, num_items):
         text_len = wrapper.send_message (item_len_msg, i, 0)
 
-        if six.PY3:
-            text = ctypes.create_unicode_buffer(text_len + 1)
-        else:
-            text = ctypes.create_string_buffer(text_len + 1)
+        text = ctypes.create_unicode_buffer(text_len + 1)
 
         wrapper.send_message(item_get_msg, i, ctypes.byref(text))
 
-        if six.PY3:
-            texts.append(text.value.replace('\u200e', ''))
-        else:
-            texts.append(text.value.decode(locale.getpreferredencoding(), 'ignore').replace('?', ''))
+        texts.append(text.value.replace('\u200e', ''))
 
     return texts
 
@@ -349,7 +342,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
         """Get the index for the item with this 'ident'"""
-        if isinstance(ident, six.integer_types):
+        if isinstance(ident, int):
 
             if ident >= self.item_count():
                 raise IndexError(('Combobox has {0} items, you requested ' + \
@@ -360,7 +353,7 @@ class ComboBoxWrapper(hwndwrapper.HwndWrapper):
                 # convert it to a positive index
                 ident = (self.item_count() + ident)
 
-        elif isinstance(ident, six.string_types):
+        elif isinstance(ident, str):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
             ident = self.item_texts().index(ident)
@@ -514,7 +507,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
     #-----------------------------------------------------------
     def _get_item_index(self, ident):
         """Return the index of the item 'ident'"""
-        if isinstance(ident, six.integer_types):
+        if isinstance(ident, int):
 
             if ident >= self.item_count():
                 raise IndexError(('ListBox has {0} items, you requested ' + \
@@ -524,7 +517,7 @@ class ListBoxWrapper(hwndwrapper.HwndWrapper):
             if ident < 0:
                 ident = (self.item_count() + ident)
 
-        elif isinstance(ident, six.string_types):
+        elif isinstance(ident, str):
             # todo - implement fuzzy lookup for ComboBox items
             # todo - implement appdata lookup for combobox items
             ident = self.item_texts().index(ident) #-1
@@ -721,7 +714,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         text_len = self.line_length(line_index)
         # create a buffer and set the length at the start of the buffer
         text = ctypes.create_unicode_buffer(text_len+3)
-        text[0] = six.unichr(text_len)
+        text[0] = chr(text_len)
 
         # retrieve the line itself
         win32functions.SendMessage(self, win32defines.EM_GETLINE, line_index, ctypes.byref(text))
@@ -791,7 +784,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
             start, end = self.selection_indices()
             if pos_start is None:
                 pos_start = start
-            if pos_end is None and not isinstance(start, six.string_types):
+            if pos_end is None and not isinstance(start, str):
                 pos_end = end
 
             # set the selection if either start or end has
@@ -800,24 +793,15 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         else:
             self.select()
 
-        if isinstance(text, six.text_type):
-            if six.PY3:
-                aligned_text = text
-            else:
-                aligned_text = text.encode(locale.getpreferredencoding())
-        elif isinstance(text, six.binary_type):
-            if six.PY3:
-                aligned_text = text.decode(locale.getpreferredencoding())
-            else:
-                aligned_text = text
+        if isinstance(text, str):
+            aligned_text = text
+        elif isinstance(text, bytes):
+            aligned_text = text.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            if six.PY3:
-                aligned_text = six.text_type(text)
-            else:
-                aligned_text = six.binary_type(text)
+            aligned_text = str(text)
 
-        if isinstance(aligned_text, six.text_type):
+        if isinstance(aligned_text, str):
             buffer = ctypes.create_unicode_buffer(aligned_text, size=len(aligned_text) + 1)
         else:
             buffer = ctypes.create_string_buffer(aligned_text, size=len(aligned_text) + 1)
@@ -828,7 +812,7 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
 
-        if isinstance(aligned_text, six.text_type):
+        if isinstance(aligned_text, str):
             self.actions.log('Set text to the edit box: ' + aligned_text)
         else:
             self.actions.log(b'Set text to the edit box: ' + aligned_text)
@@ -851,13 +835,13 @@ class EditWrapper(hwndwrapper.HwndWrapper):
         win32functions.SetFocus(self)
 
         # if we have been asked to select a string
-        if isinstance(start, six.text_type):
+        if isinstance(start, str):
             string_to_select = start
             start = self.text_block().index(string_to_select)
 
             if end is None:
                 end = start + len(string_to_select)
-        elif isinstance(start, six.binary_type):
+        elif isinstance(start, bytes):
             string_to_select = start.decode(locale.getpreferredencoding())
             start = self.text_block().index(string_to_select)
 

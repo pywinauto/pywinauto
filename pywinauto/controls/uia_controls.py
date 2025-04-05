@@ -33,7 +33,6 @@
 import locale
 import time
 import comtypes
-import six
 
 from pywinauto import findbestmatch
 from pywinauto import timings
@@ -313,7 +312,7 @@ class ComboBoxWrapper(uiawrapper.UIAWrapper):
                 list_view = children_lst[0]
                 list_view.get_item(item).select()
                 # do health check and apply workaround for Qt5 combo box if necessary
-                if isinstance(item, six.string_types):
+                if isinstance(item, str):
                     item_wrapper = list_view.children(name=item)[0]
                     item_value = item_wrapper.window_text()
                     if self.element_info.framework_id == 'Win32':
@@ -528,28 +527,19 @@ class EditWrapper(uiawrapper.UIAWrapper):
             start, end = self.selection_indices()
             if pos_start is None:
                 pos_start = start
-            if pos_end is None and not isinstance(start, six.string_types):
+            if pos_end is None and not isinstance(start, str):
                 pos_end = end
         else:
             pos_start = 0
             pos_end = len(self.window_text())
 
-        if isinstance(text, six.text_type):
-            if six.PY3:
-                aligned_text = text
-            else:
-                aligned_text = text.encode(locale.getpreferredencoding())
-        elif isinstance(text, six.binary_type):
-            if six.PY3:
-                aligned_text = text.decode(locale.getpreferredencoding())
-            else:
-                aligned_text = text
+        if isinstance(text, str):
+            aligned_text = text
+        elif isinstance(text, bytes):
+            aligned_text = text.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            if six.PY3:
-                aligned_text = six.text_type(text)
-            else:
-                aligned_text = six.binary_type(text)
+            aligned_text = str(text)
 
         # Calculate new text value
         current_text = self.window_text()
@@ -560,7 +550,7 @@ class EditWrapper(uiawrapper.UIAWrapper):
         #win32functions.WaitGuiThreadIdle(self)
         #time.sleep(Timings.after_editsetedittext_wait)
 
-        if isinstance(aligned_text, six.text_type):
+        if isinstance(aligned_text, str):
             self.actions.log('Set text to the edit box: ' + aligned_text)
         else:
             self.actions.log(b'Set text to the edit box: ' + aligned_text)
@@ -578,12 +568,12 @@ class EditWrapper(uiawrapper.UIAWrapper):
 
         # if we have been asked to select a string
         string_to_select = None
-        if isinstance(start, six.text_type):
+        if isinstance(start, str):
             string_to_select = start
-        elif isinstance(start, six.binary_type):
+        elif isinstance(start, bytes):
             string_to_select = start.decode(locale.getpreferredencoding())
-        elif isinstance(start, six.integer_types):
-            if isinstance(end, six.integer_types) and start > end:
+        elif isinstance(start, int):
+            if isinstance(end, int) and start > end:
                 start, end = end, start
             string_to_select = self.window_text()[start:end]
 
@@ -690,9 +680,9 @@ class SliderWrapper(uiawrapper.UIAWrapper):
         """Set position of slider's thumb"""
         if isinstance(value, float):
             value_to_set = value
-        elif isinstance(value, six.integer_types):
+        elif isinstance(value, int):
             value_to_set = value
-        elif isinstance(value, six.text_type):
+        elif isinstance(value, str):
             value_to_set = float(value)
         else:
             raise ValueError("value should be either string or number")
@@ -802,13 +792,13 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
 
     def __update_row_header(self):
         try:
-            self.row_header = all(isinstance(six.next(row.iter_children()), HeaderWrapper) for row in self.children())
+            self.row_header = all(isinstance(next(row.iter_children()), HeaderWrapper) for row in self.children())
         except StopIteration:
             self.row_header = False
 
     def __update_col_header(self):
         try:
-            self.col_header = all(isinstance(col, HeaderWrapper) for col in six.next(self.iter_children()).children())
+            self.col_header = all(isinstance(col, HeaderWrapper) for col in next(self.iter_children()).children())
         except StopIteration:
             self.col_header = False
 
@@ -904,7 +894,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
         Mostly: TextBlock, ImageControl, EditControl, DataItem
         or even another layer of data items (Group, DataGrid)
         """
-        if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
+        if not isinstance(row, int) or not isinstance(column, int):
             raise TypeError("row and column must be numbers")
 
         if self.iface_grid_support:
@@ -931,7 +921,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
           with the text of a cell in the row you want returned.
         """
         # Verify arguments
-        if isinstance(row, six.string_types):
+        if isinstance(row, str):
             # Try to find item using FindItemByProperty
             # That way we can get access to virtualized (unloaded) items
             try:
@@ -955,7 +945,7 @@ class ListViewWrapper(uiawrapper.UIAWrapper):
                         itm = itm.parent()
                 except IndexError:
                     raise ValueError("Element '{0}' not found".format(row))
-        elif isinstance(row, six.integer_types):
+        elif isinstance(row, int):
             # Get the item by a row index
             try:
                 com_elem = 0
@@ -1262,7 +1252,7 @@ class ToolbarWrapper(uiawrapper.UIAWrapper):
         cc = self.buttons()
         texts = [c.window_text() for c in cc]
 
-        if isinstance(button_identifier, six.string_types):
+        if isinstance(button_identifier, str):
             self.actions.log('Toolbar buttons: ' + str(texts))
 
             if exact:
@@ -1456,7 +1446,7 @@ class TreeItemWrapper(uiawrapper.UIAWrapper):
         with the best match for the string.
         """
         cc = self.children(control_type='TreeItem')
-        if isinstance(child_spec, six.string_types):
+        if isinstance(child_spec, str):
             texts = [c.window_text() for c in cc]
             if exact:
                 if child_spec in texts:
@@ -1554,7 +1544,7 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
             return None
 
         # Ensure the path is absolute
-        if isinstance(path, six.string_types):
+        if isinstance(path, str):
             if not path.startswith("\\"):
                 raise RuntimeError(
                     "Only absolute paths allowed - "
@@ -1590,7 +1580,7 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
                 current_elem.expand()
                 current_elem = current_elem.get_child(child_spec, exact)
             except IndexError:
-                if isinstance(child_spec, six.string_types):
+                if isinstance(child_spec, str):
                     raise IndexError("Item '{0}' does not have a child '{1}'".format(
                                      current_elem.window_text(), child_spec))
                 else:
