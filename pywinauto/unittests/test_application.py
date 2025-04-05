@@ -45,7 +45,6 @@ import warnings
 from threading import Thread
 import ctypes
 import mock
-import six
 
 sys.path.append(".")
 from pywinauto import Desktop
@@ -1523,7 +1522,7 @@ class DesktopWin32WindowSpecificationTests(unittest.TestCase):
         self.assertIsInstance(dlg, TrackbarWrapper)
 
         pos = dlg.get_position()
-        self.assertIsInstance(pos, six.integer_types)
+        self.assertIsInstance(pos, int)
 
         with self.assertRaises(AttributeError):
             getattr(self.desktop_no_magic, self.window_title.replace(" ", "_"))

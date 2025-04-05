@@ -82,7 +82,6 @@ The identifier for this test/bug is "CompareToRefFont"
 
 testname = "CompareToRefFont"
 
-import six
 from pywinauto.windows import win32structures
 
 _font_attribs = [field[0] for field in win32structures.LOGFONTW._fields_]
@@ -110,8 +109,8 @@ def CompareToRefFontTest(windows):
                     [win, ],
                     {
                         "ValueType": font_attrib,
-                        "Ref": six.text_type(ref_value),
-                        "Loc": six.text_type(loc_value),
+                        "Ref": str(ref_value),
+                        "Loc": str(loc_value),
                     },
                     testname,
                     0,)
