@@ -9,7 +9,6 @@ import collections
 import unittest
 
 import mock
-import six
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
@@ -347,14 +346,14 @@ if UIA_support:
             # Check an exception on a non-scrollable control
             button = self.dlg.by(class_name="Button",
                                  name="OK").find()
-            six.assertRaisesRegex(self, AttributeError, "not scrollable",
-                                  button.scroll, "left", "page")
+            with self.assertRaisesRegex(AttributeError, "not scrollable"):
+                button.scroll("left", "page")
 
             # Check an exception on a control without horizontal scroll bar
             tab = self.dlg.Tree_and_List_Views.select()
             listview = self.dlg.child_window(auto_id="lvVegs", control_type="DataGrid").wait('ready')
-            six.assertRaisesRegex(self, AttributeError, "not horizontally scrollable",
-                                  listview.scroll, "right", "line")
+            with self.assertRaisesRegex(AttributeError, "not horizontally scrollable"):
+                listview.scroll("right", "line")
 
             # Check exceptions on wrong arguments
             self.assertRaises(ValueError, listview.scroll, "bbbb", "line")
@@ -376,8 +375,8 @@ if UIA_support:
             # Check an exception on a control without vertical scroll bar
             tab = self.dlg.ListBox_and_Grid.set_focus()
             datagrid = tab.children(class_name=u"DataGrid")[0]
-            six.assertRaisesRegex(self, AttributeError, "not vertically scrollable",
-                                  datagrid.scroll, "down", "page")
+            with self.assertRaisesRegex(AttributeError, "not vertically scrollable"):
+                datagrid.scroll("down", "page")
 
         # def testVerifyActionable(self):
         #    self.assertRaises()
@@ -611,10 +610,7 @@ if UIA_support:
 
         def test_pretty_print(self):
             """Test __str__ and __repr__ methods for UIA based controls"""
-            if six.PY3:
-                assert_regex = self.assertRegex
-            else:
-                assert_regex = self.assertRegexpMatches
+            assert_regex = self.assertRegex
 
             wrp = self.dlg.OK.find()
             assert_regex(wrp.__str__(), r"^uia_controls\.ButtonWrapper - 'OK', Button$")

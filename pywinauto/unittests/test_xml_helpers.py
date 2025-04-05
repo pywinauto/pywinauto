@@ -34,7 +34,6 @@
 import os
 import sys
 import unittest
-import six
 sys.path.append(".")
 
 from pywinauto.xml_helpers import WriteDialogToFile
@@ -76,7 +75,7 @@ class XMLHelperTestCases(unittest.TestCase):
         """Test writing/reading a dictionary with some escape sequences"""
         test_string = []
         for i in range(0, 50000):
-            test_string.append(six.unichr(i))
+            test_string.append(chr(i))
 
         test_string = "".join(test_string)
 

@@ -41,7 +41,6 @@ from datetime import datetime
 import os
 import win32api
 import win32gui
-import six
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
@@ -1154,7 +1153,7 @@ class ToolbarTestCases(unittest.TestCase):
     def testTexts(self):
         """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
-            self.assertEqual(isinstance(txt, six.string_types), True)
+            self.assertIsInstance(txt, str)
 
     def testGetProperties(self):
         """Test getting the properties for the toolbar control"""
@@ -1284,7 +1283,7 @@ class RebarTestCases(unittest.TestCase):
     def testTexts(self):
         """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
-            self.assertEqual(isinstance(txt, six.string_types), True)
+            self.assertIsInstance(txt, str)
 
     def testBandCount(self):
         """Make sure band_count() returns 2"""

@@ -45,7 +45,6 @@ import win32gui
 import win32con
 import win32process
 import win32event
-import six
 import pywintypes
 import warnings
 
@@ -124,7 +123,7 @@ class HwndMeta(BaseMeta):
     @staticmethod
     def find_wrapper(element):
         """Find the correct wrapper for this native element"""
-        if isinstance(element, six.integer_types):
+        if isinstance(element, int):
             element = HwndElementInfo(element)
         class_name = element.class_name
 
@@ -150,8 +149,7 @@ class HwndMeta(BaseMeta):
         return wrapper_match
 
 #====================================================================
-@six.add_metaclass(HwndMeta)
-class HwndWrapper(WinBaseWrapper):
+class HwndWrapper(WinBaseWrapper, metaclass=HwndMeta):
 
     """
     Default wrapper for controls.
@@ -188,7 +186,7 @@ class HwndWrapper(WinBaseWrapper):
         If the handle is not valid then an InvalidWindowHandle error
         is raised.
         """
-        if isinstance(element_info, six.integer_types):
+        if isinstance(element_info, int):
             element_info = HwndElementInfo(element_info)
         if hasattr(element_info, "element_info"):
             element_info = element_info.element_info
@@ -888,7 +886,7 @@ class HwndWrapper(WinBaseWrapper):
         if append:
             text = self.window_text() + text
 
-        text = ctypes.c_wchar_p(six.text_type(text))
+        text = ctypes.c_wchar_p(str(text))
         self.post_message(win32defines.WM_SETTEXT, 0, text)
         win32functions.WaitGuiThreadIdle(self.handle)
 
@@ -910,10 +908,10 @@ class HwndWrapper(WinBaseWrapper):
         rect = self.rectangle()
 
         #ret = win32functions.TextOut(
-        #    dc, rect.left, rect.top, six.text_type(text), len(text))
+        #    dc, rect.left, rect.top, str(text), len(text))
         ret = win32functions.DrawText(
             dc,
-            six.text_type(text),
+            str(text),
             len(text),
             ctypes.byref(rect),
             win32defines.DT_SINGLELINE)
@@ -1634,7 +1632,7 @@ def _perform_click(
     ctrl.verify_actionable()
     ctrl_text = ctrl.window_text()
     if ctrl_text is None:
-        ctrl_text = six.text_type(ctrl_text)
+        ctrl_text = str(ctrl_text)
 
     ctrl_friendly_class_name = ctrl.friendly_class_name()
 

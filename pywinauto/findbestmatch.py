@@ -34,7 +34,6 @@ from __future__ import unicode_literals
 
 import re
 import difflib
-import six
 #import ctypes
 #import ldistance
 #levenshtein_distance = ctypes.cdll.levenshtein.levenshtein_distance
@@ -89,7 +88,7 @@ def _get_match_ratios(texts, match_against):
             ratio_calc.set_seq2(text)
 
             # try using the levenshtein distance instead
-            #lev_dist = levenshtein_distance(six.text_type(match_against), six.text_type(text))
+            #lev_dist = levenshtein_distance(str(match_against), str(text))
             #ratio = 1 - lev_dist / 10.0
             #ratios[text] = ratio
 
@@ -434,7 +433,7 @@ class UniqueDict(dict):
                 _cache[(text, search_text)] = ratio
 
             # try using the levenshtein distance instead
-            #lev_dist = levenshtein_distance(six.text_type(search_text), six.text_type(text))
+            #lev_dist = levenshtein_distance(str(search_text), str(text))
             #ratio = 1 - lev_dist / 10.0
             #ratios[text_] = ratio
             #print "%5s" %("%0.2f"% ratio), search_text, `text`
@@ -504,7 +503,7 @@ def find_best_control_matches(search_text, controls):
 #        for name in ctrl_names:
 #            name_control_map[name] = ctrl
 
-    search_text = six.text_type(search_text)
+    search_text = str(search_text)
 
     best_ratio, best_texts = name_control_map.find_best_matches(search_text)
 

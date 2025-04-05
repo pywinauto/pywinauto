@@ -36,7 +36,6 @@ import os
 import sys
 import time
 import unittest
-import six
 import mock
 import ctypes
 
@@ -300,10 +299,8 @@ if sys.platform.startswith("linux"):
 
             expected_err_msg = "GError with code: {0}, message: '{1}'".format(
                                gerror.code, gerror.message.decode(encoding='UTF-8'))
-            six.assertRaisesRegex(self,
-                                  GErrorException,
-                                  expected_err_msg,
-                                  self.wrp.locale)
+            with self.assertRaisesRegex(GErrorException, expected_err_msg):
+                self.wrp.locale()
 
         @mock.patch.object(AtspiDocument, '_get_attribute_value')
         def test_document_get_attribute_value_success(self, mock_get_attribute_value):

@@ -85,8 +85,6 @@ import codecs
 import collections
 import warnings
 
-import six
-
 from . import timings
 from . import controls
 from . import findbestmatch
@@ -796,23 +794,17 @@ class WindowSpecification(object):
                                    u'to see all children.\n'.format(max_width)
                 output += indent + u'**********'
 
-            if six.PY3:
-                log_func(output)
-            else:
-                log_func(output.encode(locale.getpreferredencoding(), errors='backslashreplace'))
+            log_func(output)
 
             if current_depth <= depth:
                 for child_elem in element_node.children:
                     print_identifiers(child_elem, current_depth + 1, log_func)
 
         if filename is None:
-            if six.PY3:
-                try:
-                    encoding = sys.stdout.encoding
-                except AttributeError:
-                    encoding = sys.getdefaultencoding()
-            else:
-                encoding = locale.getpreferredencoding()
+            try:
+                encoding = sys.stdout.encoding
+            except AttributeError:
+                encoding = sys.getdefaultencoding()
             print(u'# -*- coding: {} -*-'.format(encoding))
             print_identifiers(elements_tree)
         else:

@@ -32,7 +32,6 @@
 """Tests for handleprops.py"""
 
 import unittest
-import six
 import os
 import platform
 import sys
@@ -221,10 +220,10 @@ class HandlepropsTestCases(unittest.TestCase):
     def test_font(self):
         """Make sure font() function works"""
         dlgfont = font(self.dlghandle)
-        self.assertEqual(True, isinstance(dlgfont.lfFaceName, six.string_types))
+        self.assertIsInstance(dlgfont.lfFaceName, str)
 
         editfont = font(self.edit_handle)
-        self.assertEqual(True, isinstance(editfont.lfFaceName, six.string_types))
+        self.assertIsInstance(editfont.lfFaceName, str)
 
         # handle.props font should return DEFAULT font for an invalid handle
         # Check only for a returned type as the default font can vary

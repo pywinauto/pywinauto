@@ -26,7 +26,6 @@ Manual installation
 
   - pyWin32_
   - comtypes_
-  - six_
   - *(optional)* Pillow_ (to make screenshots)
 
 - Download latest pywinauto from https://github.com/pywinauto/pywinauto/releases
@@ -35,7 +34,6 @@ Manual installation
 
 .. _pyWin32: https://github.com/mhammond/pywin32/releases
 .. _comtypes: https://github.com/enthought/comtypes/releases
-.. _six: https://pypi.python.org/pypi/six
 .. _Pillow: https://pypi.python.org/pypi/Pillow/2.7.0
 
 To check you have it installed correctly

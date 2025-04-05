@@ -33,7 +33,6 @@
 """Wrap various Linux ATSPI windows controls. To be used with 'atspi' backend"""
 
 import locale
-import six
 
 from . import atspiwrapper
 from ..import findbestmatch
@@ -148,7 +147,7 @@ class ComboBoxWrapper(atspiwrapper.AtspiWrapper):
         self.expand()
         children_lst = self.children(control_type='Menu')
         if len(children_lst) > 0:
-            if isinstance(item, six.string_types):
+            if isinstance(item, str):
                 if self.selected_text() != item:
                     item = children_lst[0].children(name=item)[0]
                     item.click()
@@ -236,28 +235,19 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
             start, end = self.selection_indices()
             if pos_start is None:
                 pos_start = start
-            if pos_end is None and not isinstance(start, six.string_types):
+            if pos_end is None and not isinstance(start, str):
                 pos_end = end
         else:
             pos_start = 0
             pos_end = len(self.window_text())
 
-        if isinstance(text, six.text_type):
-            if six.PY3:
-                aligned_text = text
-            else:
-                aligned_text = text.encode(locale.getpreferredencoding())
-        elif isinstance(text, six.binary_type):
-            if six.PY3:
-                aligned_text = text.decode(locale.getpreferredencoding())
-            else:
-                aligned_text = text
+        if isinstance(text, str):
+            aligned_text = text
+        elif isinstance(text, bytes):
+            aligned_text = text.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            if six.PY3:
-                aligned_text = six.text_type(text)
-            else:
-                aligned_text = six.binary_type(text)
+            aligned_text = str(text)
 
         # Calculate new text value
         current_text = self.window_text()
@@ -279,12 +269,12 @@ class EditWrapper(atspiwrapper.AtspiWrapper):
 
         # if we have been asked to select a string
         string_to_select = False
-        if isinstance(start, six.text_type):
+        if isinstance(start, str):
             string_to_select = start
-        elif isinstance(start, six.binary_type):
+        elif isinstance(start, bytes):
             string_to_select = start.decode(locale.getpreferredencoding())
-        elif isinstance(start, six.integer_types):
-            if isinstance(end, six.integer_types) and start > end:
+        elif isinstance(start, int):
+            if isinstance(end, int) and start > end:
                 start, end = end, start
 
         if string_to_select:
@@ -523,9 +513,9 @@ class ScrollBarWrapper(atspiwrapper.AtspiWrapper):
         """Set position of slider's thumb"""
         if isinstance(value, float):
             value_to_set = value
-        elif isinstance(value, six.integer_types):
+        elif isinstance(value, int):
             value_to_set = value
-        elif isinstance(value, six.text_type):
+        elif isinstance(value, str):
             value_to_set = float(value)
         else:
             raise ValueError("value should be either string or number")

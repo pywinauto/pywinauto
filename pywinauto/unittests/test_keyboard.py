@@ -224,10 +224,7 @@ class SendKeysTests(unittest.TestCase):
     #    extended_chars = b"\x81\x82\x83\xa1\xe1\xff"
     #    for char in extended_chars:
 
-    #        if six.PY3:
-    #            c = str(char)
-    #        else:
-    #            c = char.decode(locale.getpreferredencoding()) #'cp850')
+    #        c = str(char)
     #        send_keys(c, pause = .01)
     #        received = self.receive_text()[-1]
 

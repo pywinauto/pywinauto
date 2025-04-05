@@ -80,7 +80,7 @@ The identifier for this test/bug is "Translation" """
 testname = "Translation"
 
 import re
-import six
+
 
 #-----------------------------------------------------------------------------
 def TranslationTest(windows):
@@ -94,7 +94,7 @@ def TranslationTest(windows):
         untranTitles, untranIndices = _GetUntranslations(win)
 
         if untranTitles:
-            indicesAsString = ",".join([six.text_type(idx) for idx in untranIndices])
+            indicesAsString = ",".join([str(idx) for idx in untranIndices])
 
             bugs.append((
                 [win,],

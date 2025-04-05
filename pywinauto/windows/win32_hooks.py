@@ -49,7 +49,6 @@ The fork of this code (at some moment) was used in
 standalone library pyhooked 0.8 maintained by Ethan Smith.
 """
 
-import six
 from ctypes import wintypes
 from ctypes import windll
 from ctypes import CFUNCTYPE
@@ -420,9 +419,9 @@ class Hook(object):
         key_code = kbd.vkCode
         if key_code == VK_PACKET:
             scan_code = kbd.scanCode
-            current_key = six.unichr(scan_code)
+            current_key = chr(scan_code)
         elif key_code in self.ID_TO_KEY:
-            current_key = six.u(self.ID_TO_KEY[key_code])
+            current_key = self.ID_TO_KEY[key_code]
         else:
             al = ActionLogger()
             al.log("_process_kbd_data, bad key_code: {0}".format(key_code))

@@ -70,7 +70,6 @@ The identifier for this test/bug is "MiscValues"
 
 testname = "MiscValues"
 
-import six
 
 def MiscValuesTest(windows):
     """Return the bugs from checking miscelaneous values of a control"""
@@ -107,8 +106,8 @@ def MiscValuesTest(windows):
                 [win, ],
                 {
                     "ValueType": diff,
-                    "Ref": six.text_type(vals[1]),
-                    "Loc": six.text_type(vals[0]),
+                    "Ref": str(vals[1]),
+                    "Loc": str(vals[0]),
                 },
                 testname,
                 0,)

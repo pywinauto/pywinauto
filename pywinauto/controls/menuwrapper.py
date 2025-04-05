@@ -43,7 +43,6 @@ import time
 import win32gui
 import win32gui_struct
 import locale
-import six
 
 from functools import wraps
 from ..windows import win32defines, win32functions, win32structures
@@ -149,7 +148,7 @@ class MenuItem(object):
     FriendlyClassName = deprecated(friendly_class_name)
 
     #def __print__(self, ctrl, menu, index):
-    #    print('Menu ' + six.text_type(ctrl) + '; ' + six.text_type(menu) + '; ' + six.text_type(index))
+    #    print('Menu ' + str(ctrl) + '; ' + str(menu) + '; ' + str(index))
 
     def rectangle(self):
         """Get the rectangle of the menu item"""
@@ -211,8 +210,6 @@ class MenuItem(object):
     def text(self):
         """Return the text of this menu item"""
         item_info = self._read_item()
-        if six.PY2:
-            item_info.text = item_info.text.decode(locale.getpreferredencoding())
 
         # OWNERDRAW case try to get string from BCMenu
         if item_info.fType & 256 and not item_info.text:
@@ -362,10 +359,7 @@ class MenuItem(object):
 
     def __repr__(self):
         """Return a representation of the object as a string"""
-        if six.PY3:
-            return "<MenuItem " + self.text() + ">"
-        else:
-            return b"<MenuItem {}>".format(self.text().encode(locale.getpreferredencoding(), errors='backslashreplace'))
+        return "<MenuItem " + self.text() + ">"
 
 #    def check(self):
 #        item = self._read_item()
@@ -471,7 +465,7 @@ class Menu(object):
         * **exact** is True means exact matching for item text,
                        False means best matching.
         """
-        if isinstance(index, six.string_types):
+        if isinstance(index, str):
             if self.ctrl.appdata is not None:
                 menu_appdata = self.ctrl.appdata['menu_items']
             else:

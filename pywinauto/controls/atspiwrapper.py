@@ -34,8 +34,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import six
-
 from .. import backend
 from ..base_wrapper import BaseWrapper
 from ..base_wrapper import BaseMeta
@@ -89,8 +87,7 @@ class AtspiMeta(BaseMeta):
 
 
 # =========================================================================
-@six.add_metaclass(AtspiMeta)
-class AtspiWrapper(BaseWrapper):
+class AtspiWrapper(BaseWrapper, metaclass=AtspiMeta):
 
     """
     Default wrapper for User Interface Automation (Atspi) controls.

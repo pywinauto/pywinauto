@@ -31,7 +31,6 @@
 
 """Definition of cross-platform types and structures"""
 
-import six
 from ctypes import Structure as Struct
 from ctypes import memmove
 from ctypes import addressof
@@ -173,11 +172,10 @@ class RectExtMixin(object):
         else:
             #if not isinstance(other, (int, long)):
             #    print type(self), type(other), other
-            long_int = six.integer_types[-1]
-            self.left = long_int(other)
-            self.right = long_int(right)
-            self.top = long_int(top)
-            self.bottom = long_int(bottom)
+            self.left = int(other)
+            self.right = int(right)
+            self.top = int(top)
+            self.bottom = int(bottom)
 
     # ----------------------------------------------------------------
     def __str__(self):
