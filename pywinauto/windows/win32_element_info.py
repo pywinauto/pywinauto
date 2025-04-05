@@ -32,7 +32,6 @@
 """Implementation of the class to deal with a native element (window with a handle)"""
 
 import ctypes
-import six
 import win32gui
 
 from pywinauto.windows import win32functions
@@ -43,8 +42,8 @@ from pywinauto.windows.remote_memory_block import RemoteMemoryBlock
 
 
 def _register_win_msg(msg_name):
-    msg_id = win32functions.RegisterWindowMessage(six.text_type(msg_name))
-    if not isinstance(msg_id, six.integer_types):
+    msg_id = win32functions.RegisterWindowMessage(str(msg_name))
+    if not isinstance(msg_id, int):
         return -1 # return dummy value if win32functions is mocked (on ReadTheDocs)
     if msg_id > 0:
         return msg_id

@@ -32,7 +32,6 @@
 """Implementation of the class to deal with an UI element (based on UI Automation API)"""
 
 from comtypes import COMError
-from six import integer_types, text_type, string_types
 from ctypes.wintypes import tagPOINT
 import warnings
 
@@ -60,9 +59,9 @@ def is_element_satisfying_criteria(element, process=None, class_name=None, name=
     """Check if element satisfies filter criteria"""
     is_appropriate_control_type = True
     if control_type:
-        if isinstance(control_type, string_types):
+        if isinstance(control_type, str):
             is_appropriate_control_type = element.CurrentControlType == IUIA().known_control_types[control_type]
-        elif not isinstance(control_type, integer_types):
+        elif not isinstance(control_type, int):
             raise TypeError('control_type must be string or integer')
         else:
             is_appropriate_control_type = element.CurrentControlType == control_type
@@ -110,7 +109,7 @@ class UIAElementInfo(ElementInfo):
         If handle_or_elem is None create an instance for UI root element.
         """
         if handle_or_elem is not None:
-            if isinstance(handle_or_elem, integer_types):
+            if isinstance(handle_or_elem, int):
                 # Create instane of UIAElementInfo from a handle
                 self._element = IUIA().iuia.ElementFromHandle(handle_or_elem)
             elif isinstance(handle_or_elem, IUIA().ui_automation_client.IUIAutomationElement):
@@ -127,9 +126,9 @@ class UIAElementInfo(ElementInfo):
         """Return an actual class name of the element"""
         try:
             cn = self._element.CurrentClassName
-            return text_type('') if cn is None else cn
+            return str('') if cn is None else cn
         except COMError:
-            return text_type('')  # probably element already doesn't exist
+            return str('')  # probably element already doesn't exist
 
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
@@ -167,9 +166,9 @@ class UIAElementInfo(ElementInfo):
         """Return an actual name of the element"""
         try:
             n = self._element.CurrentName
-            return text_type('') if n is None else n
+            return str('') if n is None else n
         except COMError:
-            return text_type('')  # probably element already doesn't exist
+            return str('')  # probably element already doesn't exist
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
@@ -305,84 +304,84 @@ class UIAElementInfo(ElementInfo):
         """Return access key for the element. Most preferred way to get keyboard shortcut"""
         try:
             val = self._element.CurrentAccessKey
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except COMError:
             # probably element already doesn't exist
-            return text_type('')
+            return str('')
 
     @property
     def accelerator(self):
         """Return accelerator key for the element (try to use access_key property in case of empty value) """
         try:
             val = self._element.CurrentAcceleratorKey
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except COMError:
             # probably element already doesn't exist
-            return text_type('')
+            return str('')
 
     @property
     def value(self):
         """Return value of the element from ValuePattern (in order to search elements by this property)"""
         try:
             val = get_elem_interface(self._element, "Value").CurrentValue
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except (NoPatternInterfaceError, COMError):
             # COMError also can be raised in case of attempt to get value of password EditBox
-            return text_type('')
+            return str('')
 
     @property
     def legacy_action(self):
         """Return DefaultAction value of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentDefaultAction
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return text_type('')
+            return str('')
 
     @property
     def legacy_descr(self):
         """Return description of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentDescription
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return text_type('')
+            return str('')
 
     @property
     def legacy_help(self):
         """Return help string of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentHelp
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return text_type('')
+            return str('')
 
     @property
     def legacy_name(self):
         """Return name of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentName
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return text_type('')
+            return str('')
 
     @property
     def legacy_shortcut(self):
         """Return keyboard shortcut of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentKeyboardShortcut
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return text_type('')
+            return str('')
 
     @property
     def legacy_value(self):
         """Return value of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentValue
-            return text_type('') if val is None else val
+            return str('') if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return text_type('')
+            return str('')
 
     @property
     def parent(self):
@@ -436,7 +435,7 @@ class UIAElementInfo(ElementInfo):
         """Iterate over descendants of the element"""
         cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop("depth", None)
-        if not isinstance(depth, (integer_types, type(None))) or isinstance(depth, integer_types) and depth < 0:
+        if not isinstance(depth, (int, type(None))) or isinstance(depth, int) and depth < 0:
             raise Exception("Depth must be an integer")
 
         if depth == 0:

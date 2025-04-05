@@ -33,14 +33,11 @@
 
 import comtypes
 import comtypes.client
-import six
 
 from ..backend import Singleton
 
 
-
-@six.add_metaclass(Singleton)
-class IUIA(object):
+class IUIA(object, metaclass=Singleton):
 
     """Singleton class to store global COM objects from UIAutomationCore.dll"""
 
@@ -91,7 +88,7 @@ class IUIA(object):
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ClassNamePropertyId, class_name))
 
         if control_type:
-            if isinstance(control_type, six.string_types):
+            if isinstance(control_type, str):
                 control_type = self.known_control_types[control_type]
             elif not isinstance(control_type, int):
                 raise TypeError('control_type must be string or integer')

@@ -33,7 +33,6 @@
 """Windows branch of the keyboard module
 
 """
-import six
 
 from ctypes import wintypes
 from ctypes import windll
@@ -596,9 +595,9 @@ class KeyboardHook(object):
         key_code = kbd.vkCode
         if key_code == VK_PACKET:
             scan_code = kbd.scanCode
-            current_key = six.unichr(scan_code)
+            current_key = chr(scan_code)
         elif key_code in self.ID_TO_KEY:
-            current_key = six.u(self.ID_TO_KEY[key_code])
+            current_key = self.ID_TO_KEY[key_code]
         else:
             al = ActionLogger()
             al.log("_process_data, bad key_code: {0}".format(key_code))
@@ -717,8 +716,8 @@ class KeyAction(object):
 
     def __init__(self, key, down=True, up=True):
         self.key = key
-        if isinstance(self.key, six.string_types):
-            self.key = six.text_type(key)
+        if isinstance(self.key, str):
+            self.key = str(key)
         self.down = down
         self.up = up
 
@@ -994,7 +993,7 @@ def parse_keys(string,
                 should_escape_next_keys = True
             current_keys = handle_code(code, vk_packet)
             if current_key_event is not None:
-                if isinstance(current_keys[0].key, six.string_types):
+                if isinstance(current_keys[0].key, str):
                     current_keys[0] = EscapedKeyAction(current_keys[0].key)
 
                 if current_key_event.strip() == 'up':
