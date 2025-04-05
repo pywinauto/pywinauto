@@ -34,7 +34,6 @@ from __future__ import unicode_literals
 
 import re
 import warnings
-import six
 
 from . import findbestmatch
 from . import WindowNotFoundError
@@ -90,7 +89,7 @@ def find_element(**kwargs):
         exception = ElementAmbiguousError(
             "There are {0} elements that match the criteria {1}".format(
                 len(elements),
-                six.text_type(kwargs),
+                str(kwargs),
             )
         )
 
@@ -181,7 +180,7 @@ def find_elements(**kwargs):
 
     if isinstance(parent, backend_obj.generic_wrapper_class):
         parent = parent.element_info
-    elif isinstance(parent, six.integer_types):
+    elif isinstance(parent, int):
         # check if parent is a handle of element (in case of searching native controls)
         parent = backend_obj.element_info_class(parent)
     elif parent and not isinstance(parent, backend_obj.element_info_class):
