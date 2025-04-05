@@ -126,9 +126,9 @@ class UIAElementInfo(ElementInfo):
         """Return an actual class name of the element"""
         try:
             cn = self._element.CurrentClassName
-            return str('') if cn is None else cn
+            return "" if cn is None else cn
         except COMError:
-            return str('')  # probably element already doesn't exist
+            return ""  # probably element already doesn't exist
 
     def _get_cached_class_name(self):
         """Return a cached class name of the element"""
@@ -166,9 +166,9 @@ class UIAElementInfo(ElementInfo):
         """Return an actual name of the element"""
         try:
             n = self._element.CurrentName
-            return str('') if n is None else n
+            return "" if n is None else n
         except COMError:
-            return str('')  # probably element already doesn't exist
+            return ""  # probably element already doesn't exist
 
     def _get_cached_name(self):
         """Return a cached name of the element"""
@@ -304,84 +304,84 @@ class UIAElementInfo(ElementInfo):
         """Return access key for the element. Most preferred way to get keyboard shortcut"""
         try:
             val = self._element.CurrentAccessKey
-            return str('') if val is None else val
+            return "" if val is None else val
         except COMError:
             # probably element already doesn't exist
-            return str('')
+            return ""
 
     @property
     def accelerator(self):
         """Return accelerator key for the element (try to use access_key property in case of empty value) """
         try:
             val = self._element.CurrentAcceleratorKey
-            return str('') if val is None else val
+            return "" if val is None else val
         except COMError:
             # probably element already doesn't exist
-            return str('')
+            return ""
 
     @property
     def value(self):
         """Return value of the element from ValuePattern (in order to search elements by this property)"""
         try:
             val = get_elem_interface(self._element, "Value").CurrentValue
-            return str('') if val is None else val
+            return "" if val is None else val
         except (NoPatternInterfaceError, COMError):
             # COMError also can be raised in case of attempt to get value of password EditBox
-            return str('')
+            return ""
 
     @property
     def legacy_action(self):
         """Return DefaultAction value of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentDefaultAction
-            return str('') if val is None else val
+            return "" if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return str('')
+            return ""
 
     @property
     def legacy_descr(self):
         """Return description of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentDescription
-            return str('') if val is None else val
+            return "" if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return str('')
+            return ""
 
     @property
     def legacy_help(self):
         """Return help string of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentHelp
-            return str('') if val is None else val
+            return "" if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return str('')
+            return ""
 
     @property
     def legacy_name(self):
         """Return name of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentName
-            return str('') if val is None else val
+            return "" if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return str('')
+            return ""
 
     @property
     def legacy_shortcut(self):
         """Return keyboard shortcut of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentKeyboardShortcut
-            return str('') if val is None else val
+            return "" if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return str('')
+            return ""
 
     @property
     def legacy_value(self):
         """Return value of the element from LegacyIAccessible pattern"""
         try:
             val = get_elem_interface(self._element, "LegacyIAccessible").CurrentValue
-            return str('') if val is None else val
+            return "" if val is None else val
         except (NoPatternInterfaceError, COMError):
-            return str('')
+            return ""
 
     @property
     def parent(self):
