@@ -41,7 +41,6 @@ from Xlib import X
 from Xlib.ext.xtest import fake_input
 import Xlib.XK
 import time
-import six
 
 _display = Display()
 
@@ -311,7 +310,7 @@ class KeyAction(object):
 
     def run(self):
         """Do a single keyboard action using xlib"""
-        if isinstance(self.key, six.string_types):
+        if isinstance(self.key, str):
             key = self.key
             self.key = Xlib.XK.string_to_keysym(self.key)
             if self.key == 0:
@@ -320,7 +319,7 @@ class KeyAction(object):
             if self.key == 0:
                 raise RuntimeError('Key {} not found!'.format(self.key))
             self.is_shifted = key.isupper() or key in '~!@#$%^&*()_+{}|:"<>?'
-        elif not isinstance(self.key, six.integer_types):
+        elif not isinstance(self.key, int):
             raise TypeError('self.key = {} is not a string or integer'.format(self.key))
 
         self._key_modifiers(self.ctrl, (self.shift or self.is_shifted),

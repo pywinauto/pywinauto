@@ -33,7 +33,6 @@
 """Low-level interface to Linux ATSPI"""
 
 import subprocess
-import six
 
 from ctypes import c_int, c_bool, c_char_p, c_char, POINTER, c_uint, c_uint32, c_uint64, c_double, c_short, \
     create_string_buffer, cdll, pointer, c_void_p, CFUNCTYPE
@@ -433,8 +432,7 @@ def _find_library(libs_list):
         return libs_list[-1]
 
 
-@six.add_metaclass(Singleton)
-class IATSPI(object):
+class IATSPI(object, metaclass=Singleton):
 
     """Python wrapper around C functions from ATSPI library"""
 
