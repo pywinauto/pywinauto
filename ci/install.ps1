@@ -94,10 +94,7 @@ function InstallPython ($python_version, $architecture, $python_home) {
 function InstallComtypes ($python_home, $python_version) {
     $pip_path = "$python_home\Scripts\pip.exe"
     Write-Output "pip_path = $pip_path"
-    $pip_args = "install comtypes"
-    if ($python_version -match "2.7" -or $python_version -match "3.5" -or $python_version -match "3.6") {
-        $pip_args = "install comtypes<=1.2.1"
-    }
+    $pip_args = "install https://github.com/junkmd/comtypes/archive/refs/heads/cpython-gh-100926.zip"
     Start-Process -FilePath $pip_path -ArgumentList $pip_args -Wait -Passthru
 }
 
