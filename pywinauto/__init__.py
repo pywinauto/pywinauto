@@ -60,6 +60,7 @@ if sys.platform == 'win32':
     import pythoncom  # noqa: E402
 
     from .windows import win32defines
+    from . import clipboard
 
 
     def _get_com_threading_mode(module_sys):
