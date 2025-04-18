@@ -5,7 +5,7 @@ import os
 import sys
 
 docs_folder = os.path.dirname(__file__)
-pywin_folder = os.path.dirname(docs_folder)
+pywin_folder = os.path.dirname(docs_folder);
 
 sys.path.append(pywin_folder)
 pywin_folder = os.path.join(pywin_folder, "pywinauto")
