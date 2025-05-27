@@ -4,7 +4,7 @@ How To's
 
 Definitions
 -----------
-Some important defitions may be helpful for beginners.
+Some important definitions may be helpful for beginners.
 
  * **Dialog** is a window containing several other GUI elements/controls like
    buttons, edit boxes etc. Dialog is not necessarily a main window. Message
