@@ -145,7 +145,7 @@ if (len(sys.argv) < 3):
 Usage: python wireshark.py <capture_time (seconds)> <network_connection_name>
 Example: python wireshark.py 5 Ethernet
 It will capture all the packets from "Ethernet" interface during 5 seconds.''')
-    exit()
+    sys.exit()
 else:
     t_interval = int(sys.argv[1])
     interface_name = sys.argv[2]
