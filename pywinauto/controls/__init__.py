@@ -30,6 +30,9 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import sys
 """Controls package"""
+
+import pywinauto.qt # register "qt" backend
+
 if sys.platform.startswith('linux'):
     from . import atspiwrapper  # register "atspi" back-end
     from . import atspi_controls
