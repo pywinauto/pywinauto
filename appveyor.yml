@@ -52,7 +52,7 @@ environment:
       PYTHON_VERSION: "3.12"
       PYTHON_ARCH: "64"
       UIA_SUPPORT: "YES"
-      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2022
 
 init:
   # Enable RDP.

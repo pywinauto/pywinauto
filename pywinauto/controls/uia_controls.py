@@ -1543,12 +1543,12 @@ class TreeViewWrapper(uiawrapper.UIAWrapper):
         if not self.item_count():
             return None
 
-        # Ensure the path is absolute
+        # Handle path format - support both absolute and relative paths
         if isinstance(path, str):
+            # If path doesn't start with \, treat it as a relative path from root
             if not path.startswith("\\"):
-                raise RuntimeError(
-                    "Only absolute paths allowed - "
-                    "please start the path with \\")
+                # For Windows 11 compatibility, allow relative paths
+                path = "\\" + path
             path = path.split("\\")[1:]
 
         current_elem = None

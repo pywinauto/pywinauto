@@ -105,6 +105,11 @@ Useful links
         'Programming Language :: Python :: 3.5',
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',
@@ -117,9 +122,13 @@ Useful links
             'comtypes<=1.2.1',
             'pywin32<=227',
         ],
-        ':python_version > "3.6" and sys_platform == "win32"': [
+        ':python_version > "3.6" and python_version < "3.12" and sys_platform == "win32"': [
             'comtypes',
             'pywin32',
+        ],
+        ':python_version >= "3.12" and sys_platform == "win32"': [
+            'comtypes>=1.3.0',
+            'pywin32>=306',
         ],
         ':platform_system == "Linux"': [
             'python-xlib',
