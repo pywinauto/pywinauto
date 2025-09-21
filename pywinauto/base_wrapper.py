@@ -362,7 +362,7 @@ class BaseWrapper(object, metaclass=BaseMeta):
         If you want to raise an exception immediately if an element is
         not active then you can use the ``BaseWrapper.verify_active()``.
         """
-        return self.element_info.active
+        raise NotImplementedError
 
     # -----------------------------------------------------------
     def was_maximized(self):
