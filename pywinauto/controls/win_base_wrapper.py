@@ -394,14 +394,25 @@ class WinBaseWrapper(BaseWrapper, metaclass=BaseMeta):
                 raise TypeError("capture_as_image() takes rect of type {} while incorrect type {} is given"
                                 .format(RECT, type(rect)))
             control_rectangle = rect
+        else:
+            hwnd = self.handle
+            dwmwa_rect = ctypes.wintypes.RECT()
+            DWMWA_EXTENDED_FRAME_BOUNDS = 9
+            ctypes.windll.dwmapi.DwmGetWindowAttribute(
+                ctypes.wintypes.HWND(hwnd),
+                ctypes.wintypes.DWORD(DWMWA_EXTENDED_FRAME_BOUNDS),
+                ctypes.byref(dwmwa_rect),
+                ctypes.sizeof(dwmwa_rect)
+            )
+            control_rectangle = RECT(dwmwa_rect.left, dwmwa_rect.top, dwmwa_rect.right, dwmwa_rect.bottom)   
 
         # get the control rectangle in a way that PIL likes it
-        width = control_rectangle.width()
-        height = control_rectangle.height()
-        left = control_rectangle.left
-        right = control_rectangle.right
-        top = control_rectangle.top
-        bottom = control_rectangle.bottom
+        left = control_rectangle.left + 1
+        right = control_rectangle.right - 1
+        top = control_rectangle.top + 1
+        bottom = control_rectangle.bottom - 1 
+        width = right - left
+        height = bottom - top
         box = (left, top, right, bottom)
 
         # check the number of monitors connected
@@ -432,5 +443,6 @@ class WinBaseWrapper(BaseWrapper, metaclass=BaseMeta):
             pil_img_obj = ImageGrab.grab(box)
 
         return pil_img_obj
+
 
 #====================================================================
