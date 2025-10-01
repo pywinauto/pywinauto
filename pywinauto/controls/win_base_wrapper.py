@@ -408,7 +408,7 @@ class WinBaseWrapper(BaseWrapper, metaclass=BaseMeta):
 
         # get the control rectangle in a way that PIL likes it
         left = control_rectangle.left + 1
-        right = control_rectangle.right - 1d
+        right = control_rectangle.right - 1
         top = control_rectangle.top + 1
         bottom = control_rectangle.bottom - 1
         width = right - left
