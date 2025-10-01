@@ -404,13 +404,13 @@ class WinBaseWrapper(BaseWrapper, metaclass=BaseMeta):
                 ctypes.byref(dwmwa_rect),
                 ctypes.sizeof(dwmwa_rect)
             )
-            control_rectangle = RECT(dwmwa_rect.left, dwmwa_rect.top, dwmwa_rect.right, dwmwa_rect.bottom)   
+            control_rectangle = RECT(dwmwa_rect.left, dwmwa_rect.top, dwmwa_rect.right, dwmwa_rect.bottom)
 
         # get the control rectangle in a way that PIL likes it
         left = control_rectangle.left + 1
         right = control_rectangle.right - 1
         top = control_rectangle.top + 1
-        bottom = control_rectangle.bottom - 1 
+        bottom = control_rectangle.bottom - 1
         width = right - left
         height = bottom - top
         box = (left, top, right, bottom)
