@@ -407,12 +407,12 @@ class WinBaseWrapper(BaseWrapper, metaclass=BaseMeta):
             control_rectangle = RECT(dwmwa_rect.left, dwmwa_rect.top, dwmwa_rect.right, dwmwa_rect.bottom)
 
         # get the control rectangle in a way that PIL likes it
-        left = control_rectangle.left + 1
-        right = control_rectangle.right - 1
-        top = control_rectangle.top + 1
-        bottom = control_rectangle.bottom - 1
-        width = right - left
-        height = bottom - top
+        left = control_rectangle.left
+        right = control_rectangle.right
+        top = control_rectangle.top
+        bottom = control_rectangle.bottom
+        width = control_rectangle.width()
+        height = control_rectangle.height()
         box = (left, top, right, bottom)
 
         # check the number of monitors connected
