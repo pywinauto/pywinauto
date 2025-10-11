@@ -152,6 +152,29 @@ if UIA_support:
             descendants = [desc for desc in self.ctrl.iter_descendants(depth=3)]
             self.assertSequenceEqual(self.ctrl.descendants(depth=3), descendants)
 
+        def test_cache_enabled_children(self):
+            """Test whether `cache_enable=True` are propagated to children"""
+            children = self.ctrl.children(cache_enable=True)
+            for c in children:
+                self.assertEqual(c._get_class_name, c._get_cached_class_name)
+
+        def test_cache_enabled_children_generator(self):
+            """Test whether `cache_enable=True` are propagated to children generator"""
+            children = self.ctrl.iter_children(cache_enable=True)
+            for c in children:
+                self.assertEqual(c._get_class_name, c._get_cached_class_name)
+
+        def test_cache_enabled_descendants(self):
+            """Test whether `cache_enable=True` are propagated to descendants"""
+            descendants = self.ctrl.descendants(cache_enable=True)
+            for d in descendants:
+                self.assertEqual(d._get_class_name, d._get_cached_class_name)
+
+        def test_cache_enabled_descendants_generator(self):
+            """Test whether `cache_enable=True` are propagated to descendants generator"""
+            descendants = self.ctrl.iter_descendants(cache_enable=True)
+            for d in descendants:
+                self.assertEqual(d._get_class_name, d._get_cached_class_name)
 
     class UIAElementInfoRawViewWalkerTests(UIAElementInfoTests):
 
