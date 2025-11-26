@@ -78,7 +78,7 @@ class IUIA(object, metaclass=Singleton):
             self.known_control_type_ids[type_id] = ctrl_type
 
     def build_condition(self, process=None, class_name=None, name=None, control_type=None,
-                        content_only=None):
+                        content_only=None, auto_id=None):
         """Build UIA filtering conditions"""
         conditions = []
         if process:
@@ -97,6 +97,9 @@ class IUIA(object, metaclass=Singleton):
         if name:
             # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, name))
+
+        if auto_id:
+            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_AutomationIdPropertyId, auto_id))
 
         if isinstance(content_only, bool):
             conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,
