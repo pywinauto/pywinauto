@@ -115,7 +115,7 @@ Useful links
     extras_require={
         ':python_version <= "3.6"': [
             'comtypes<=1.2.1',
-            'pywin32<=227',
+            'pywin32<=311',
         ],
         ':python_version > "3.6" and sys_platform == "win32"': [
             'comtypes',
