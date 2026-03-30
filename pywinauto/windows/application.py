@@ -33,8 +33,8 @@
 
 from __future__ import print_function
 
+import json
 import os.path
-import pickle
 import time
 import warnings
 import multiprocessing
@@ -288,8 +288,8 @@ class Application(BaseApplication):
         # load the match history if a file was specifed
         # and it exists
         if datafilename and os.path.exists(datafilename):
-            with open(datafilename, "rb") as datafile:
-                self.match_history = pickle.load(datafile)
+            with open(datafilename, "r", encoding="utf-8") as datafile:
+                self.match_history = json.load(datafile)
             self.use_history = True
 
     def __iter__(self):
@@ -541,8 +541,8 @@ class Application(BaseApplication):
 
     def WriteAppData(self, filename):
         """Should not be used - part of application data implementation"""
-        with open(filename, "wb") as f:
-            pickle.dump(self.match_history, f)
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(self.match_history, f)
 
     def GetMatchHistoryItem(self, index):
         """Should not be used - part of application data implementation"""
