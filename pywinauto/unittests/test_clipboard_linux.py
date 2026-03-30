@@ -27,7 +27,7 @@ if sys.platform != 'win32':
 
         def setUp(self):
             """Start the application set some data and ensure the application is in the state we want it."""
-            self.app = subprocess.Popen("exec " + _test_app(), shell=True)
+            self.app = subprocess.Popen([_test_app()])
             time.sleep(0.1)
             mouse.click(coords=(300, 300))
             time.sleep(0.2)
