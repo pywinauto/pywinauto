@@ -39,7 +39,6 @@ sys.path.append(".")
 from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.findwindows import find_window, find_windows
-from pywinauto.findwindows import find_elements
 from pywinauto.findwindows import WindowNotFoundError
 from pywinauto.findwindows import WindowAmbiguousError
 from pywinauto.timings import Timings
@@ -94,6 +93,8 @@ class FindWindowsTestCases(unittest.TestCase):
 
     def test_find_elements_parent_windowspec_win32(self):
         """WindowSpecification parents should work for win32 searches."""
+        from pywinauto.findwindows import find_elements
+
         # Baseline: resolve parent to element_info explicitly
         parent_elem_info = self.dlg.find().element_info
         elems_via_elem_info = find_elements(pid=self.app.process,
@@ -114,6 +115,8 @@ class FindWindowsTestCases(unittest.TestCase):
 
     def test_find_elements_parent_windowspec_default_backend(self):
         """WindowSpecification parents should work on the active backend."""
+        from pywinauto.findwindows import find_elements
+
         parent_elem_info = self.dlg.find().element_info
         elems_via_elem_info = find_elements(pid=self.app.process,
                                             class_name='Edit',
@@ -130,6 +133,8 @@ class FindWindowsTestCases(unittest.TestCase):
 
     def test_find_elements_parent_windowspec_uia(self):
         """WindowSpecification parents should work for UIA searches."""
+        from pywinauto.findwindows import find_elements
+
         try:
             app_uia = Application(backend='uia').connect(
                 process=self.app.process
