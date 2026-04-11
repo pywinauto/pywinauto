@@ -98,8 +98,7 @@ class FindWindowsTestCases(unittest.TestCase):
                           pid=self.app.process, class_name='FakeClassName', found_index=1)
 
     def test_find_elements_parent_windowspec_win32(self):
-        """WindowSpecification parents should work for win32 searches."""
-
+        """Ensure WindowSpecification parents work for win32 searches."""
         # Baseline: resolve parent to element_info explicitly
         parent_elem_info = self.dlg.find().element_info
         elems_via_elem_info = self._find_elements(pid=self.app.process,
@@ -119,8 +118,7 @@ class FindWindowsTestCases(unittest.TestCase):
                          [e.handle for e in elems_via_elem_info])
 
     def test_find_elements_parent_windowspec_default_backend(self):
-        """WindowSpecification parents should work on the active backend."""
-
+        """Ensure WindowSpecification parents work on the active backend."""
         parent_elem_info = self.dlg.find().element_info
         elems_via_elem_info = self._find_elements(pid=self.app.process,
                                                   class_name='Edit',
@@ -136,8 +134,7 @@ class FindWindowsTestCases(unittest.TestCase):
                          [e.handle for e in elems_via_elem_info])
 
     def test_find_elements_parent_windowspec_uia(self):
-        """WindowSpecification parents should work for UIA searches."""
-
+        """Ensure WindowSpecification parents work for UIA searches."""
         try:
             app_uia = Application(backend='uia').connect(
                 process=self.app.process
