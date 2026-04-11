@@ -93,13 +93,14 @@ class FindWindowsTestCases(unittest.TestCase):
                           pid=self.app.process, class_name='FakeClassName', found_index=1)
 
     def test_find_elements_parent_windowspec_win32(self):
-        """find_elements should accept WindowSpecification as parent (issue #1313) for win32 backend"""
+        """WindowSpecification parents should work for win32 searches."""
         # Baseline: resolve parent to element_info explicitly
+        parent_elem_info = self.dlg.find().element_info
         elems_via_elem_info = find_elements(pid=self.app.process,
                                             backend='win32',
                                             class_name='Edit',
                                             top_level_only=False,
-                                            parent=self.dlg.find().element_info)
+                                            parent=parent_elem_info)
 
         # Regression: WindowSpecification should be accepted directly
         elems_via_windowspec = find_elements(pid=self.app.process,
@@ -112,11 +113,12 @@ class FindWindowsTestCases(unittest.TestCase):
                          [e.handle for e in elems_via_elem_info])
 
     def test_find_elements_parent_windowspec_default_backend(self):
-        """find_elements should accept WindowSpecification as parent when using the active backend"""
+        """WindowSpecification parents should work on the active backend."""
+        parent_elem_info = self.dlg.find().element_info
         elems_via_elem_info = find_elements(pid=self.app.process,
                                             class_name='Edit',
                                             top_level_only=False,
-                                            parent=self.dlg.find().element_info)
+                                            parent=parent_elem_info)
 
         elems_via_windowspec = find_elements(pid=self.app.process,
                                              class_name='Edit',
@@ -127,12 +129,16 @@ class FindWindowsTestCases(unittest.TestCase):
                          [e.handle for e in elems_via_elem_info])
 
     def test_find_elements_parent_windowspec_uia(self):
-        """find_elements should accept WindowSpecification as parent (issue #1313) for UIA backend"""
+        """WindowSpecification parents should work for UIA searches."""
         try:
-            app_uia = Application(backend='uia').connect(process=self.app.process)
+            app_uia = Application(backend='uia').connect(
+                process=self.app.process
+            )
         except ValueError as exc:
             if 'not registered' in str(exc):
-                self.skipTest("UIA backend is unavailable in this test environment")
+                self.skipTest(
+                    "UIA backend is unavailable in this test environment"
+                )
             raise
         dlg_uia = app_uia.CommonControlsSample
 
@@ -148,7 +154,8 @@ class FindWindowsTestCases(unittest.TestCase):
                                              top_level_only=False,
                                              parent=dlg_uia)
 
-        # UIA element_info doesn't always expose a stable .handle, so compare by runtime_id
+        # UIA element_info doesn't always expose a stable .handle.
+        # Compare the resolved runtime_id values instead.
         self.assertEqual([e.runtime_id for e in elems_via_windowspec],
                          [e.runtime_id for e in elems_via_elem_info])
 
