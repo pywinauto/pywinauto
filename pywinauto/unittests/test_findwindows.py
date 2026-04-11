@@ -39,6 +39,7 @@ sys.path.append(".")
 from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.findwindows import find_window, find_windows
+from pywinauto.findwindows import find_elements
 from pywinauto.findwindows import WindowNotFoundError
 from pywinauto.findwindows import WindowAmbiguousError
 from pywinauto.timings import Timings
@@ -90,6 +91,46 @@ class FindWindowsTestCases(unittest.TestCase):
 
         self.assertRaises(WindowNotFoundError, find_windows,
                           pid=self.app.process, class_name='FakeClassName', found_index=1)
+
+    def test_find_elements_parent_windowspec_win32(self):
+        """find_elements should accept WindowSpecification as parent (issue #1313) for win32 backend"""
+        # Baseline: resolve parent to element_info explicitly
+        elems_via_elem_info = find_elements(pid=self.app.process,
+                                            backend='win32',
+                                            class_name='Edit',
+                                            top_level_only=False,
+                                            parent=self.dlg.find().element_info)
+
+        # Regression: WindowSpecification should be accepted directly
+        elems_via_windowspec = find_elements(pid=self.app.process,
+                                             backend='win32',
+                                             class_name='Edit',
+                                             top_level_only=False,
+                                             parent=self.dlg)
+
+        self.assertEqual([e.handle for e in elems_via_windowspec],
+                         [e.handle for e in elems_via_elem_info])
+
+    def test_find_elements_parent_windowspec_uia(self):
+        """find_elements should accept WindowSpecification as parent (issue #1313) for UIA backend"""
+        app_uia = Application(backend='uia').connect(process=self.app.process)
+        dlg_uia = app_uia.CommonControlsSample
+
+        elems_via_elem_info = find_elements(pid=self.app.process,
+                                            backend='uia',
+                                            control_type='Edit',
+                                            top_level_only=False,
+                                            parent=dlg_uia.find().element_info)
+
+        elems_via_windowspec = find_elements(pid=self.app.process,
+                                             backend='uia',
+                                             control_type='Edit',
+                                             top_level_only=False,
+                                             parent=dlg_uia)
+
+        # UIA element_info doesn't always expose a stable .handle, so compare by runtime_id
+        self.assertEqual([e.runtime_id for e in elems_via_windowspec],
+                         [e.runtime_id for e in elems_via_elem_info])
 
 
 if __name__ == "__main__":
