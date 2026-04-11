@@ -36,6 +36,7 @@ import unittest
 
 import sys, os
 sys.path.append(".")
+from pywinauto.backend import registry
 from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.findwindows import find_window, find_windows
@@ -111,6 +112,7 @@ class FindWindowsTestCases(unittest.TestCase):
         self.assertEqual([e.handle for e in elems_via_windowspec],
                          [e.handle for e in elems_via_elem_info])
 
+    @unittest.skipUnless('uia' in registry.backends, "UIA backend is unavailable in this test environment")
     def test_find_elements_parent_windowspec_uia(self):
         """find_elements should accept WindowSpecification as parent (issue #1313) for UIA backend"""
         app_uia = Application(backend='uia').connect(process=self.app.process)
