@@ -111,6 +111,21 @@ class FindWindowsTestCases(unittest.TestCase):
         self.assertEqual([e.handle for e in elems_via_windowspec],
                          [e.handle for e in elems_via_elem_info])
 
+    def test_find_elements_parent_windowspec_default_backend(self):
+        """find_elements should accept WindowSpecification as parent when using the active backend"""
+        elems_via_elem_info = find_elements(pid=self.app.process,
+                                            class_name='Edit',
+                                            top_level_only=False,
+                                            parent=self.dlg.find().element_info)
+
+        elems_via_windowspec = find_elements(pid=self.app.process,
+                                             class_name='Edit',
+                                             top_level_only=False,
+                                             parent=self.dlg)
+
+        self.assertEqual([e.handle for e in elems_via_windowspec],
+                         [e.handle for e in elems_via_elem_info])
+
     def test_find_elements_parent_windowspec_uia(self):
         """find_elements should accept WindowSpecification as parent (issue #1313) for UIA backend"""
         try:
