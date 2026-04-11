@@ -39,7 +39,6 @@ sys.path.append(".")
 from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.findwindows import find_window, find_windows
-from pywinauto.findwindows import find_elements  # noqa: E402
 from pywinauto.findwindows import WindowNotFoundError
 from pywinauto.findwindows import WindowAmbiguousError
 from pywinauto.timings import Timings
@@ -70,6 +69,12 @@ class FindWindowsTestCases(unittest.TestCase):
         """Close the application after tests"""
         self.app.kill()
 
+    @staticmethod
+    def _find_elements(*args, **kwargs):
+        # pylint: disable-msg=C0415
+        from pywinauto.findwindows import find_elements
+        return find_elements(*args, **kwargs)
+
     def test_find_window(self):
         """Test if function find_window() works as expected including raising the exceptions"""
         ctrl = self.dlg.OK.find()
@@ -97,18 +102,18 @@ class FindWindowsTestCases(unittest.TestCase):
 
         # Baseline: resolve parent to element_info explicitly
         parent_elem_info = self.dlg.find().element_info
-        elems_via_elem_info = find_elements(pid=self.app.process,
-                                            backend='win32',
-                                            class_name='Edit',
-                                            top_level_only=False,
-                                            parent=parent_elem_info)
+        elems_via_elem_info = self._find_elements(pid=self.app.process,
+                                                  backend='win32',
+                                                  class_name='Edit',
+                                                  top_level_only=False,
+                                                  parent=parent_elem_info)
 
         # Regression: WindowSpecification should be accepted directly
-        elems_via_windowspec = find_elements(pid=self.app.process,
-                                             backend='win32',
-                                             class_name='Edit',
-                                             top_level_only=False,
-                                             parent=self.dlg)
+        elems_via_windowspec = self._find_elements(pid=self.app.process,
+                                                   backend='win32',
+                                                   class_name='Edit',
+                                                   top_level_only=False,
+                                                   parent=self.dlg)
 
         self.assertEqual([e.handle for e in elems_via_windowspec],
                          [e.handle for e in elems_via_elem_info])
@@ -117,15 +122,15 @@ class FindWindowsTestCases(unittest.TestCase):
         """WindowSpecification parents should work on the active backend."""
 
         parent_elem_info = self.dlg.find().element_info
-        elems_via_elem_info = find_elements(pid=self.app.process,
-                                            class_name='Edit',
-                                            top_level_only=False,
-                                            parent=parent_elem_info)
+        elems_via_elem_info = self._find_elements(pid=self.app.process,
+                                                  class_name='Edit',
+                                                  top_level_only=False,
+                                                  parent=parent_elem_info)
 
-        elems_via_windowspec = find_elements(pid=self.app.process,
-                                             class_name='Edit',
-                                             top_level_only=False,
-                                             parent=self.dlg)
+        elems_via_windowspec = self._find_elements(pid=self.app.process,
+                                                   class_name='Edit',
+                                                   top_level_only=False,
+                                                   parent=self.dlg)
 
         self.assertEqual([e.handle for e in elems_via_windowspec],
                          [e.handle for e in elems_via_elem_info])
@@ -144,18 +149,19 @@ class FindWindowsTestCases(unittest.TestCase):
                 )
             raise
         dlg_uia = app_uia.CommonControlsSample
+        dlg_uia_elem_info = dlg_uia.find().element_info
 
-        elems_via_elem_info = find_elements(pid=self.app.process,
-                                            backend='uia',
-                                            control_type='Edit',
-                                            top_level_only=False,
-                                            parent=dlg_uia.find().element_info)
+        elems_via_elem_info = self._find_elements(pid=self.app.process,
+                                                  backend='uia',
+                                                  control_type='Edit',
+                                                  top_level_only=False,
+                                                  parent=dlg_uia_elem_info)
 
-        elems_via_windowspec = find_elements(pid=self.app.process,
-                                             backend='uia',
-                                             control_type='Edit',
-                                             top_level_only=False,
-                                             parent=dlg_uia)
+        elems_via_windowspec = self._find_elements(pid=self.app.process,
+                                                   backend='uia',
+                                                   control_type='Edit',
+                                                   top_level_only=False,
+                                                   parent=dlg_uia)
 
         # UIA element_info doesn't always expose a stable .handle.
         # Compare the resolved runtime_id values instead.
