@@ -2,7 +2,28 @@
 
 from pywinauto.element_info import ElementInfo
 from pywinauto.windows.win32structures import RECT
-from injectlib.api import ConnectionManager
+from injectlib.api import ConnectionManager, InjectedNotFoundError, InjectedUnsupportedActionError
+
+
+def is_element_satisfying_criteria(element, process=None, class_name=None, name=None, control_type=None,
+                                   auto_id=None, visible=None, enabled=None, **kwargs):
+    """Check if element satisfies pywinauto search criteria."""
+    if control_type is not None:
+        if isinstance(control_type, str):
+            if element.control_type != control_type:
+                return False
+        else:
+            raise TypeError('control_type must be string')
+
+    def is_none_or_equals(criteria, prop):
+        return criteria is None or prop == criteria
+
+    return is_none_or_equals(process, element.process_id) \
+        and is_none_or_equals(class_name, element.class_name) \
+        and is_none_or_equals(name, element.name) \
+        and is_none_or_equals(auto_id, element.auto_id) \
+        and is_none_or_equals(visible, element.visible) \
+        and is_none_or_equals(enabled, element.enabled)
 
 
 class PIDNotFound(Exception):
@@ -14,10 +35,12 @@ class PIDNotFound(Exception):
 class QtElementInfo(ElementInfo):
     """ElementInfo implementation for Qt applications automated via injected DLL."""
 
-    re_props = ["class_name", "name", "control_type"]
-    exact_only_props = ["pid", "enabled", "visible", "rectangle", "auto_id"]
+    re_props = ["class_name", "name", "control_type", "auto_id", "value"]
+    exact_only_props = ["pid", "enabled", "visible", "rectangle", "handle", "control_id",
+                        "framework_id", "runtime_id"]
     search_order = ["control_type", "class_name", "pid", "visible", "enabled", "name",
-                    "auto_id", "rectangle"]
+                    "auto_id", "rectangle", "handle", "control_id", "framework_id",
+                    "runtime_id", "value"]
     assert set(re_props + exact_only_props) == set(search_order)
 
     def __init__(self, elem_id=None, pid=None, info=None):
@@ -35,6 +58,7 @@ class QtElementInfo(ElementInfo):
         self._visible = True
         self._enabled = True
         self._auto_id = ""
+        self._value = None
         self._rectangle = RECT()
 
         # root element requested
@@ -81,6 +105,7 @@ class QtElementInfo(ElementInfo):
         self._control_type = info.get("control_type", "")
         self._pid = info.get("pid", self._pid)
         self._auto_id = info.get("auto_id", "")
+        self._value = info.get("value", None)
         self._visible = info.get("visible", True)
         self._enabled = info.get("enabled", True)
         rect = info.get("rect", [0, 0, 0, 0])
@@ -104,28 +129,49 @@ class QtElementInfo(ElementInfo):
 
     def children(self, **kwargs):
         """Return immediate children of the element."""
+        return list(self.iter_children(**kwargs))
+
+    def iter_children(self, **kwargs):
+        """Iterate over immediate child elements."""
         process = kwargs.get("process")
         if process is not None and self._pid is None:
             self._pid = process
 
         if self.id is None:
-            return [QtElementInfo(0, pid=self._pid)]
-
-        if self.id == 0:
-            items = self._call_injected_server("GetRoots")["value"]
+            items = [QtElementInfo(0, pid=self._pid)]
         else:
-            items = self._call_injected_server("GetChildren", element_id=self.id)["value"]
+            if self.id == 0:
+                raw_items = self._call_injected_server("GetRoots")["value"]
+            else:
+                raw_items = self._call_injected_server("GetChildren", element_id=self.id)["value"]
+            items = [QtElementInfo(item["id"], pid=self._pid, info=item) for item in raw_items]
 
-        return [QtElementInfo(item["id"], pid=self._pid, info=item) for item in items]
-
-    def iter_children(self, **kwargs):
-        """Iterate over immediate child elements."""
-        for child in self.children(**kwargs):
-            yield child
+        for element in items:
+            if is_element_satisfying_criteria(element, **kwargs):
+                yield element
 
     def descendants(self, **kwargs):
         """Return all descendant elements."""
         return list(self.iter_descendants(**kwargs))
+
+    def iter_descendants(self, **kwargs):
+        """Iterate over all descendant elements."""
+        depth = kwargs.pop("depth", None)
+        process = kwargs.pop("process", None)
+        if not isinstance(depth, (int, type(None))) or isinstance(depth, int) and depth < 0:
+            raise Exception("Depth must be an integer")
+
+        if depth == 0:
+            return
+        for child in self.iter_children(process=process):
+            if is_element_satisfying_criteria(child, **kwargs):
+                yield child
+            next_kwargs = dict(kwargs)
+            if depth is not None:
+                next_kwargs["depth"] = depth - 1
+            for descendant in child.iter_descendants(process=process, **next_kwargs):
+                if is_element_satisfying_criteria(descendant, **kwargs):
+                    yield descendant
 
     def set_cache_strategy(self, cached=None):
         pass  # TODO: implement a cache strategy for Qt elements
@@ -138,6 +184,11 @@ class QtElementInfo(ElementInfo):
     @property
     def control_id(self):
         """Return id from injected server element id."""
+        return self.id
+
+    @property
+    def runtime_id(self):
+        """Return runtime id."""
         return self.id
 
     @property
@@ -154,7 +205,16 @@ class QtElementInfo(ElementInfo):
 
     @property
     def parent(self):
-        raise NotImplementedError()
+        """Return parent element."""
+        if self.id is None or self.id == 0:
+            return None
+        try:
+            parent_info = self._call_injected_server("GetParent", element_id=self.id)["value"]
+        except (InjectedNotFoundError, InjectedUnsupportedActionError):
+            return None
+        if not parent_info:
+            return QtElementInfo(0, pid=self._pid)
+        return QtElementInfo(parent_info["id"], pid=self._pid, info=parent_info)
 
     def click(self):
         """Invoke a semantic click action on this Qt element."""
@@ -164,10 +224,78 @@ class QtElementInfo(ElementInfo):
         """Set text or value for this Qt element."""
         self._call_injected_server("SetText", element_id=self.id, text=text)
 
+    def set_focus(self):
+        """Set keyboard focus to this element."""
+        self._call_injected_server("SetFocus", element_id=self.id)
+
+    def select(self, item=None):
+        """Select this element or child item."""
+        params = {"element_id": self.id}
+        if item is not None:
+            if isinstance(item, int):
+                params["index"] = item
+            else:
+                params["text"] = item
+        self._call_injected_server("Select", **params)
+
+    def toggle(self):
+        """Toggle this element."""
+        self._call_injected_server("Toggle", element_id=self.id)
+
+    def expand(self):
+        """Expand this element."""
+        self._call_injected_server("Expand", element_id=self.id)
+
+    def collapse(self):
+        """Collapse this element."""
+        self._call_injected_server("Collapse", element_id=self.id)
+
+    def items(self):
+        """Return item texts exposed by this control."""
+        try:
+            return self._call_injected_server("GetItems", element_id=self.id)["value"]
+        except InjectedUnsupportedActionError:
+            return []
+
+    def get_native_property(self, name, error_if_not_exists=False):
+        """Return native Qt property."""
+        try:
+            return self._call_injected_server("GetProperty", element_id=self.id, name=name)["value"]
+        except InjectedNotFoundError as exc:
+            if error_if_not_exists:
+                raise exc
+        return None
+
+    def set_native_property(self, name, value):
+        """Set native Qt property."""
+        self._call_injected_server("SetProperty", element_id=self.id, name=name, value=value)
+
+    def invoke_method(self, name):
+        """Invoke a no-argument Qt method."""
+        self._call_injected_server("InvokeMethod", element_id=self.id, name=name)
+
+    def set_value(self, value):
+        """Set value for a value-like Qt control."""
+        self._call_injected_server("SetValue", element_id=self.id, value=value)
+
     @property
     def rich_text(self):
         """Return rich text for the element."""
+        value = self.value
+        if value not in (None, "") and self.control_type in ("Edit", "Spinner"):
+            return str(value)
         return self.name
+
+    @property
+    def value(self):
+        """Return value-like text for the element."""
+        if self.id in (None, 0):
+            return self._value or ""
+        try:
+            reply = self._call_injected_server("GetValue", element_id=self.id)
+            return reply["value"]
+        except InjectedUnsupportedActionError:
+            return self._value or ""
 
     @property
     def class_name(self):
@@ -207,3 +335,39 @@ class QtElementInfo(ElementInfo):
     def enabled(self):
         """Return whether the element is enabled."""
         return self._enabled
+
+    def __hash__(self):
+        """Return a stable hash for the runtime element."""
+        return hash((self._pid, self.id))
+
+    def __eq__(self, other):
+        """Check if two QtElementInfo objects describe the same runtime element."""
+        if not isinstance(other, QtElementInfo):
+            return False
+        return self._pid == other._pid and self.id == other.id
+
+    def __ne__(self, other):
+        """Check if two QtElementInfo objects describe different runtime elements."""
+        return not (self == other)
+
+    @classmethod
+    def get_active(cls, app_or_pid):
+        """Return current focused Qt element."""
+        from pywinauto.application import Application
+
+        if isinstance(app_or_pid, int):
+            pid = app_or_pid
+        elif isinstance(app_or_pid, Application):
+            pid = app_or_pid.process
+        else:
+            raise TypeError("QtElementInfo.get_active requires an integer pid or Application instance")
+
+        ConnectionManager().register_backend(pid, "qt", "qt_srv")
+        try:
+            reply = ConnectionManager().call_action("GetFocusedElement", pid)
+            info = reply["value"]
+            if info:
+                return cls(info["id"], pid=pid, info=info)
+            return None
+        except InjectedUnsupportedActionError:
+            return None
