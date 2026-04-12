@@ -1,4 +1,4 @@
 [submodule "pywinauto/windows/injected"]
 	path = pywinauto/windows/injected
-	url = https://github.com/pywinauto/injected.git
-	branch = master
+	url = https://github.com/Makarov-AA/injected.git
+	branch = fix-wpf-backend

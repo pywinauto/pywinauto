@@ -35,7 +35,7 @@ from six import integer_types, string_types
 from pywinauto.handleprops import dumpwindow
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
-from .injected.api import ConnectionManager, InjectedNotFoundError, InjectedUnsupportedActionError
+from .injected.src.injected.api import ConnectionManager, InjectedNotFoundError, InjectedUnsupportedActionError
 
 
 def is_element_satisfying_criteria(element, process=None, class_name=None, name=None, control_type=None,
