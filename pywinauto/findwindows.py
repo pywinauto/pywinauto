@@ -140,6 +140,16 @@ def find_elements(**kwargs):
         backend = registry.active_backend.name
     backend_obj = registry.backends[backend]
 
+    # Allow passing WindowSpecification as a parent (issue #1313).
+    # Resolve it early to keep the rest of this function working with element_info.
+    if parent is not None:
+        try:
+            from .base_application import WindowSpecification
+        except Exception:  # pragma: no cover
+            WindowSpecification = ()
+        if isinstance(parent, WindowSpecification):
+            parent = parent.find().element_info
+
     if handle is not None:
         # TODO: uncomment later
         #if not kwargs:
