@@ -47,7 +47,7 @@ class MouseTests(unittest.TestCase):
             self.dlg = self.app.mousebuttons
         else:
             self.display = Display()
-            self.app = subprocess.Popen("exec " + _test_app(), shell=True)
+            self.app = subprocess.Popen([_test_app()])
             time.sleep(1)
 
     def tearDown(self):
