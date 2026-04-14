@@ -43,6 +43,15 @@ class QtElementInfo(ElementInfo):
                     "runtime_id", "value"]
     assert set(re_props + exact_only_props) == set(search_order)
 
+    renamed_props = {
+        "title": ("name", None),
+        "title_re": ("name_re", None),
+        "process": ("pid", None),
+        "visible_only": ("visible", {True: True, False: None}),
+        "enabled_only": ("enabled", {True: True, False: None}),
+        "top_level_only": ("depth", {True: 1, False: None}),
+    }
+
     def __init__(self, elem_id=None, pid=None, info=None):
         """Create Qt element info from an injected server element id.
 
@@ -131,6 +140,55 @@ class QtElementInfo(ElementInfo):
         """Return immediate children of the element."""
         return list(self.iter_children(**kwargs))
 
+    def _matched_win32_pids(self, **kwargs):
+        """Return pids for native top-level windows matched by the win32 backend."""
+
+        win32_keys = ("name", "name_re", "class_name", "class_name_re", "visible", "enabled")
+        if not any(kwargs.get(key) is not None for key in win32_keys[:4]):
+            return []
+
+        win32_criteria = {"backend": "win32", "top_level_only": True}
+        for key in win32_keys:
+            if kwargs.get(key) is not None:
+                win32_criteria[key] = kwargs[key]
+
+        from pywinauto import findwindows
+        try:
+            win32_elements = findwindows.find_elements(**win32_criteria)
+        except (findwindows.ElementNotFoundError, findwindows.ElementAmbiguousError):
+            return []
+
+        pids = []
+        seen_pids = set()
+        for element in win32_elements:
+            pid = element.process_id
+            if pid not in seen_pids:
+                seen_pids.add(pid)
+                pids.append(pid)
+        return pids
+
+    def _top_level_elements_from_win32_matches(self, **kwargs):
+        """Return Qt top-level elements for windows preselected through win32."""
+        # Qt backend needs a process id before it can inject Qt server DLL.
+        # When user starts from "Desktop(backend="qt")" there is no pid yet.
+        # This method asks win32 for matching top-level windows, then creates Qt element
+        # roots only for the matched pids.
+
+        elements = []
+        for pid in self._matched_win32_pids(**kwargs):
+            try:
+                app_node = QtElementInfo(0, pid=pid)
+                children = []
+                window_children = []
+                for child in app_node.iter_children():
+                    children.append(child)
+                    if child.control_type == "Window":
+                        window_children.append(child)
+                elements.extend(window_children or children)
+            except Exception:
+                continue
+        return elements
+
     def iter_children(self, **kwargs):
         """Iterate over immediate child elements."""
         process = kwargs.get("process")
@@ -138,7 +196,10 @@ class QtElementInfo(ElementInfo):
             self._pid = process
 
         if self.id is None:
-            items = [QtElementInfo(0, pid=self._pid)]
+            if self._pid is None:
+                items = self._top_level_elements_from_win32_matches(**kwargs)
+            else:
+                items = [QtElementInfo(0, pid=self._pid)]
         else:
             if self.id == 0:
                 raw_items = self._call_injected_server("GetRoots")["value"]
@@ -178,8 +239,11 @@ class QtElementInfo(ElementInfo):
 
     @property
     def handle(self):
-        """Return id from server temporary."""
-        return self.id
+        """Return native window handle.
+
+        Qt backend elements are identified by injected runtime ids, not HWNDs.
+        """
+        return None
 
     @property
     def control_id(self):

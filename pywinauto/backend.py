@@ -39,7 +39,7 @@ class BackEnd(object):
 
     """Minimal back-end description (name & 2 required base classes)"""
 
-    def __init__(self, name, element_info_class, generic_wrapper_class):
+    def __init__(self, name, element_info_class, generic_wrapper_class, can_list_top_windows=True):
         """Init back-end description"""
         self.name = name
         if not issubclass(element_info_class, ElementInfo):
@@ -48,6 +48,7 @@ class BackEnd(object):
             raise TypeError('element_info_class should be a class derived from BaseWrapper')
         self.element_info_class = element_info_class
         self.generic_wrapper_class = generic_wrapper_class
+        self.can_list_top_windows = can_list_top_windows
 
 
 class BackendsRegistry(object):
@@ -100,9 +101,9 @@ def activate(name):
 
     registry.active_backend = registry.backends[name]
 
-def register(name, element_info_class, generic_wrapper_class):
+def register(name, element_info_class, generic_wrapper_class, can_list_top_windows=True):
     """Register a new backend"""
-    registry.backends[name] = BackEnd(name, element_info_class, generic_wrapper_class)
+    registry.backends[name] = BackEnd(name, element_info_class, generic_wrapper_class, can_list_top_windows)
 
 
 class Singleton(type):

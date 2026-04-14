@@ -145,6 +145,8 @@ class Desktop(object):
 
     def __getitem__(self, key):
         """Allow describe top-level window as Desktop()['Window Caption']"""
+        if not self.backend.can_list_top_windows:
+            return self.window(best_match=key, name=key)
         return self.window(best_match=key)
 
     def __getattribute__(self, attr_name):
