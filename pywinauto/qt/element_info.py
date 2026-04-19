@@ -72,6 +72,7 @@ class QtElementInfo(ElementInfo):
 
         # root element requested
         if self.id is None:
+            self._pid = None
             self._class_name = "QtDesktop"
             self._name = "--root--"
             self._control_type = "Desktop"
@@ -80,16 +81,6 @@ class QtElementInfo(ElementInfo):
 
         # set injectlib Qt backend for ConnectionManager
         self._ensure_injectlib_backend_registered()
-
-        # Main window requested
-        if self.id == 0:
-            app_info = self._call_injected_server("GetAppInfo")["value"]
-            self._class_name = "QtApplication"
-            self._name = app_info["app_name"]
-            self._control_type = "Application"
-            self._pid = app_info["pid"]
-            self._auto_id = "MainApp"
-            return
 
         if info is None:
             info = self._call_injected_server("GetElementInfo", element_id=self.id)["value"]
@@ -167,8 +158,8 @@ class QtElementInfo(ElementInfo):
                 pids.append(pid)
         return pids
 
-    def _top_level_elements_from_win32_matches(self, **kwargs):
-        """Return Qt top-level elements for windows preselected through win32."""
+    def _top_window_elements_from_win32_matches(self, **kwargs):
+        """Return Qt top-level windows preselected through win32."""
         # Qt backend needs a process id before it can inject Qt server DLL.
         # When user starts from "Desktop(backend="qt")" there is no pid yet.
         # This method asks win32 for matching top-level windows, then creates Qt element
@@ -177,14 +168,7 @@ class QtElementInfo(ElementInfo):
         elements = []
         for pid in self._matched_win32_pids(**kwargs):
             try:
-                app_node = QtElementInfo(0, pid=pid)
-                children = []
-                window_children = []
-                for child in app_node.iter_children():
-                    children.append(child)
-                    if child.control_type == "Window":
-                        window_children.append(child)
-                elements.extend(window_children or children)
+                elements.extend(self.children(process=pid))
             except Exception:
                 continue
         return elements
@@ -192,19 +176,16 @@ class QtElementInfo(ElementInfo):
     def iter_children(self, **kwargs):
         """Iterate over immediate child elements."""
         process = kwargs.get("process")
-        if process is not None and self._pid is None:
-            self._pid = process
 
         if self.id is None:
-            if self._pid is None:
-                items = self._top_level_elements_from_win32_matches(**kwargs)
+            if process is None:
+                items = self._top_window_elements_from_win32_matches(**kwargs)
             else:
-                items = [QtElementInfo(0, pid=self._pid)]
+                ConnectionManager().register_backend(process, "qt", "qt_srv")
+                raw_items = ConnectionManager().call_action("GetRoots", process)["value"]
+                items = [QtElementInfo(item["id"], pid=process, info=item) for item in raw_items]
         else:
-            if self.id == 0:
-                raw_items = self._call_injected_server("GetRoots")["value"]
-            else:
-                raw_items = self._call_injected_server("GetChildren", element_id=self.id)["value"]
+            raw_items = self._call_injected_server("GetChildren", element_id=self.id)["value"]
             items = [QtElementInfo(item["id"], pid=self._pid, info=item) for item in raw_items]
 
         for element in items:
@@ -270,14 +251,14 @@ class QtElementInfo(ElementInfo):
     @property
     def parent(self):
         """Return parent element."""
-        if self.id is None or self.id == 0:
+        if self.id is None:
             return None
         try:
             parent_info = self._call_injected_server("GetParent", element_id=self.id)["value"]
         except (InjectedNotFoundError, InjectedUnsupportedActionError):
             return None
         if not parent_info:
-            return QtElementInfo(0, pid=self._pid)
+            return None
         return QtElementInfo(parent_info["id"], pid=self._pid, info=parent_info)
 
     def click(self):

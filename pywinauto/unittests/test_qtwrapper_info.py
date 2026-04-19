@@ -1,0 +1,342 @@
+# -*- coding: utf-8 -*-
+"""Tests for Qt wrappers."""
+
+from __future__ import unicode_literals
+
+import os
+import sys
+import time
+import unittest
+
+sys.path.append(".")
+from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.base_application import WindowSpecification  # noqa: E402
+from pywinauto.timings import Timings  # noqa: E402
+
+import pywinauto.controls.qt_controls as qt_ctls  # noqa: E402
+import pywinauto.controls.qtwrapper as qtwrapper  # noqa: E402
+from pywinauto.controls.qtwrapper import QtWrapper  # noqa: E402
+
+
+qt_samples_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\Qt5_samples")
+qt_styles_app = os.path.join(qt_samples_folder, "styles.exe")
+qt_interview_app = os.path.join(qt_samples_folder, "interview.exe")
+
+
+def _set_timings():
+    """Setup timings for Qt related tests."""
+    Timings.defaults()
+    Timings.window_find_timeout = 20
+
+
+class QtWrapperTests(unittest.TestCase):
+
+    """Unit tests for QtWrapper class."""
+
+    def setUp(self):
+        """Start Qt sample application."""
+        _set_timings()
+
+        self.app = Application(backend="qt")
+        self.app = self.app.start(qt_styles_app)
+        time.sleep(2)
+
+        self.dlg = self.app.window()
+        self.root = self.dlg.find(timeout=10)
+
+    def tearDown(self):
+        """Close application after tests."""
+        self.app.kill()
+
+    def test_window_specification_binding(self):
+        """Test that statement combobox = app.MainWindow.ComboBox works for 'qt' backend"""
+        combo_spec = self.dlg.ComboBox
+        self.assertTrue(isinstance(combo_spec, WindowSpecification))
+        self.assertTrue(combo_spec.app, self.app)
+
+    def test_get_active_qt(self):
+        """Test setting focus and getting focused Qt wrapper."""
+        combo = self.dlg.by(control_type="ComboBox").find(timeout=10)
+        self.assertTrue(isinstance(combo, qt_ctls.ComboBoxWrapper))
+        combo.set_focus()
+
+        focused_element = self.root.get_active()
+        self.assertTrue(type(focused_element) is QtWrapper or
+                        issubclass(type(focused_element), QtWrapper))
+        self.assertEqual(focused_element, combo)
+
+    def test_keyboard_focus_and_active_state(self):
+        """Test Qt wrapper keyboard focus."""
+        edit = self.dlg.by(control_type="Edit",
+                           class_name="QLineEdit",
+                           name="s3cRe7").find(timeout=10)
+        self.assertTrue(isinstance(edit, qt_ctls.EditWrapper))
+
+        self.assertTrue(edit.is_keyboard_focusable())
+        self.assertEqual(edit.set_focus(), edit)
+        self.assertTrue(edit.has_keyboard_focus())
+        self.assertTrue(edit.is_active())
+        self.assertTrue(self.root.is_active())
+
+    def test_find_controls_by_class_name_and_title(self):
+        """Test getting Qt controls by class name and title."""
+        combo = self.dlg.by(class_name="QComboBox",
+                            name="NorwegianWood").find(timeout=10)
+        self.assertTrue(isinstance(combo, qt_ctls.ComboBoxWrapper))
+        self.assertEqual(combo.window_text(), "NorwegianWood")
+
+        self.assertTrue(isinstance(self.root, qt_ctls.WindowWrapper))
+        self.assertEqual(self.root.class_name(), "WidgetGallery")
+        self.assertEqual(self.root.window_text(), "Styles")
+        self.assertEqual(self.root.friendly_class_name(), "Window")
+
+    def test_basic_wrapper_properties(self):
+        """Test generic Qt wrapper properties."""
+        pane = self.root
+
+        self.assertTrue(isinstance(pane, qt_ctls.WindowWrapper))
+        self.assertEqual(pane.class_name(), "WidgetGallery")
+        self.assertEqual(pane.window_text(), "Styles")
+        self.assertIsNone(pane.handle)
+        self.assertEqual(pane.process_id(), self.app.process)
+        self.assertTrue(pane.is_visible())
+        self.assertTrue(pane.is_enabled())
+        self.assertEqual(pane.friendly_class_name(), "Window")
+        self.assertEqual(pane.element_info.automation_id, "")
+        self.assertNotEqual(pane.control_id(), 0)
+
+    def test_parent_and_children(self):
+        """Test Qt wrapper parent and children traversal."""
+        pane = self.root
+        combo = self.dlg.by(control_type="ComboBox").find(timeout=10)
+
+        self.assertTrue(isinstance(pane, qt_ctls.WindowWrapper))
+        self.assertTrue(isinstance(combo, qt_ctls.ComboBoxWrapper))
+        self.assertIsNone(pane.parent())
+        self.assertEqual(combo.top_level_parent(), self.root)
+        self.assertIn(combo, pane.children())
+        self.assertEqual(pane.children_texts()[:4],
+                         ["&Style:", "NorwegianWood",
+                          "&Use style's standard palette", "&Disable widgets"])
+
+    def test_texts_and_descendants(self):
+        """Test text collection and descendant iteration."""
+        self.assertEqual(self.root.texts(), ["Styles"])
+
+        descendants = self.root.descendants(control_type="RadioButton")
+        for item in descendants:
+            self.assertTrue(isinstance(item, qt_ctls.ButtonWrapper))
+        self.assertEqual([item.window_text() for item in descendants],
+                         ["Radio button 1", "Radio button 2", "Radio button 3"])
+        self.assertSequenceEqual(self.root.descendants(depth=2),
+                                 [item for item in self.root.iter_descendants(depth=2)])
+
+    def test_native_properties(self):
+        """Test native Qt property get/set wrappers."""
+        checkbox = self.dlg.by(name="&Disable widgets").find(timeout=10)
+        self.assertTrue(isinstance(checkbox, qt_ctls.ButtonWrapper))
+        self.assertEqual(checkbox.get_native_property("checked"), False)
+
+        checkbox.set_native_property("checked", True)
+        self.assertEqual(checkbox.get_native_property("checked"), True)
+
+    def test_edit_wrapper(self):
+        """Test Qt edit wrapper text functionality."""
+        edit = self.dlg.by(control_type="Edit",
+                           class_name="QLineEdit",
+                           name="s3cRe7").find(timeout=10)
+        self.assertTrue(isinstance(edit, qt_ctls.EditWrapper))
+
+        self.assertEqual(edit.window_text(), "s3cRe7")
+        self.assertEqual(edit.get_value(), "s3cRe7")
+        self.assertEqual(edit.line_count(), 1)
+        self.assertEqual(edit.texts(), ["s3cRe7"])
+
+        edit.set_edit_text("secret")
+        self.assertEqual(edit.window_text(), "secret")
+        edit.set_window_text("42", append=True)
+        self.assertEqual(edit.window_text(), "secret42")
+        edit.set_edit_text("AB", pos_start=1, pos_end=4)
+        self.assertEqual(edit.window_text(), "sABet42")
+
+    def test_generic_value_and_selection_methods(self):
+        """Test generic Qt wrapper value and selection methods directly."""
+        slider = self.dlg.by(control_type="Slider",
+                             class_name="QSlider").find(timeout=10)
+        radio = self.dlg.by(name="Radio button 2").find(timeout=10)
+
+        self.assertTrue(isinstance(slider, qt_ctls.SliderWrapper))
+        self.assertTrue(isinstance(radio, qt_ctls.ButtonWrapper))
+        self.assertEqual(qtwrapper.QtWrapper.get_value(slider), "40")
+        self.assertEqual(qtwrapper.QtWrapper.set_value(slider, 46), slider)
+        self.assertEqual(qtwrapper.QtWrapper.get_value(slider), "46")
+
+        self.assertEqual(qtwrapper.QtWrapper.select(radio), radio)
+        self.assertTrue(qtwrapper.QtWrapper.is_selected(radio))
+
+    def test_button_wrappers(self):
+        """Test Qt button, checkbox, and radio wrappers."""
+        button = self.dlg.by(name="Default Push Button").find(timeout=10)
+        self.assertTrue(isinstance(button, qt_ctls.ButtonWrapper))
+        self.assertEqual(button.click(), button)
+
+        checkbox = self.dlg.by(name="&Disable widgets").find(timeout=10)
+        self.assertTrue(isinstance(checkbox, qt_ctls.ButtonWrapper))
+        self.assertEqual(checkbox.get_toggle_state(), qt_ctls.ButtonWrapper.UNCHECKED)
+        self.assertEqual(checkbox.toggle(), checkbox)
+        self.assertEqual(checkbox.get_toggle_state(), qt_ctls.ButtonWrapper.CHECKED)
+        self.assertTrue(checkbox.is_checked())
+        checkbox.uncheck()
+        self.assertFalse(checkbox.is_checked())
+        checkbox.check()
+        self.assertTrue(checkbox.is_checked())
+
+        radio = self.dlg.by(name="Radio button 2").find(timeout=10)
+        self.assertTrue(isinstance(radio, qt_ctls.ButtonWrapper))
+        self.assertFalse(radio.is_selected())
+        self.assertEqual(radio.select(), radio)
+        self.assertTrue(radio.is_selected())
+
+    def test_combo_box_wrapper(self):
+        """Test Qt combo box wrapper."""
+        combo = self.dlg.by(control_type="ComboBox").find(timeout=10)
+
+        self.assertTrue(isinstance(combo, qt_ctls.ComboBoxWrapper))
+        self.assertEqual(combo.item_count(), 4)
+        self.assertEqual(combo.texts(),
+                         ["NorwegianWood", "Windows", "Fusion", "windowsvista"])
+        self.assertEqual(combo.selected_index(), 0)
+        self.assertEqual(combo.selected_text(), "NorwegianWood")
+        self.assertFalse(combo.is_editable())
+
+        combo.select("Fusion")
+        self.assertEqual(combo.selected_text(), "Fusion")
+        combo.select(0)
+        self.assertEqual(combo.selected_text(), "NorwegianWood")
+        self.assertEqual(combo.expand(), combo)
+        self.assertEqual(combo.collapse(), combo)
+
+    def test_tab_control_wrapper(self):
+        """Test Qt tab control wrapper."""
+        tab = self.dlg.by(control_type="TabControl",
+                          class_name="QTabWidget").find(timeout=10)
+
+        self.assertTrue(isinstance(tab, qt_ctls.TabControlWrapper))
+        self.assertEqual(tab.tab_count(), 2)
+        self.assertEqual(tab.get_selected_tab(), 0)
+        self.assertEqual(tab.texts(), ["&Table", "Text &Edit"])
+
+        tab.select("Text &Edit")
+        self.assertEqual(tab.get_selected_tab(), 1)
+        tab.select(0)
+        self.assertEqual(tab.get_selected_tab(), 0)
+
+    def test_slider_spinner_and_progress_wrappers(self):
+        """Test Qt value-like wrappers."""
+        spinner = self.dlg.by(control_type="Spinner",
+                              class_name="QSpinBox").find(timeout=10)
+        self.assertTrue(isinstance(spinner, qt_ctls.SliderWrapper))
+        self.assertEqual(spinner.min_value(), 0)
+        self.assertEqual(spinner.max_value(), 99)
+        self.assertEqual(spinner.value(), "50")
+        spinner.set_value(55)
+        self.assertEqual(spinner.value(), "55")
+
+        slider = self.dlg.by(control_type="Slider",
+                             class_name="QSlider").find(timeout=10)
+        self.assertTrue(isinstance(slider, qt_ctls.SliderWrapper))
+        self.assertEqual(slider.min_value(), 0)
+        self.assertEqual(slider.max_value(), 99)
+        self.assertEqual(slider.value(), "40")
+        slider.set_value(45)
+        self.assertEqual(slider.value(), "45")
+
+        progress = self.dlg.by(control_type="ProgressBar").find(timeout=10)
+        self.assertTrue(isinstance(progress, qt_ctls.SliderWrapper))
+        self.assertGreaterEqual(int(progress.value()), 0)
+        self.assertGreater(progress.max_value(), progress.min_value())
+
+    def test_table_wrapper(self):
+        """Test Qt table wrapper."""
+        table = self.dlg.by(control_type="Table").find(timeout=10)
+
+        self.assertTrue(isinstance(table, qt_ctls.TableWrapper))
+        self.assertEqual(table.row_count(), 10)
+        self.assertEqual(table.column_count(), 10)
+        self.assertEqual(table.item_count(), 100)
+
+    def test_window_wrapper(self):
+        """Test Qt window wrapper."""
+        window = self.root
+
+        self.assertTrue(isinstance(window, qt_ctls.WindowWrapper))
+        self.assertTrue(window.is_dialog())
+        self.assertEqual(window.close(), window)
+        self.app.wait_for_process_exit(timeout=5, retry_interval=0.2)
+        self.assertFalse(self.app.is_process_running())
+
+
+class QtInterviewWrapperTests(unittest.TestCase):
+
+    """Unit tests for Qt item-view wrappers with interview sample."""
+
+    def setUp(self):
+        """Start Qt interview sample application."""
+        _set_timings()
+
+        self.app = Application(backend="qt")
+        self.app = self.app.start(qt_interview_app)
+        time.sleep(2)
+
+        self.dlg = self.app.window()
+        self.root = self.dlg.find(timeout=10)
+
+    def tearDown(self):
+        """Close application after tests."""
+        self.app.kill()
+
+    def test_list_view_wrapper(self):
+        """Test Qt list view wrapper."""
+        list_view = self.dlg.by(control_type="List").find(timeout=10)
+
+        self.assertTrue(isinstance(list_view, qt_ctls.ListViewWrapper))
+        self.assertEqual(list_view.class_name(), "QListView")
+        self.assertEqual(list_view.item_count(), 1000)
+        self.assertEqual(list_view.texts()[:5],
+                         ["Item 0:0", "Item 1:0", "Item 2:0",
+                          "Item 3:0", "Item 4:0"])
+        self.assertEqual(list_view.select(1), list_view)
+        self.assertSequenceEqual(list_view.get_items(), list_view.children())
+        self.assertSequenceEqual(list_view.items(), list_view.children())
+
+    def test_tree_view_wrapper(self):
+        """Test Qt tree view wrapper."""
+        tree_view = self.dlg.by(control_type="Tree").find(timeout=10)
+
+        self.assertTrue(isinstance(tree_view, qt_ctls.TreeViewWrapper))
+        self.assertEqual(tree_view.class_name(), "QTreeView")
+        self.assertEqual(tree_view.item_count(depth=1), len(tree_view.children()))
+        self.assertEqual(tree_view.item_count(), len(tree_view.descendants()))
+        self.assertSequenceEqual(tree_view.roots(), tree_view.children())
+
+    def test_tree_view_expand_collapse(self):
+        """Test Qt tree view expand/collapse wrapper."""
+        tree_view = self.dlg.by(control_type="Tree").find(timeout=10)
+
+        self.assertEqual(tree_view.expand(), tree_view)
+        self.assertEqual(tree_view.collapse(), tree_view)
+
+    def test_model_table_wrapper(self):
+        """Test Qt table view wrapper with a model-based table."""
+        table = self.dlg.by(control_type="Table").find(timeout=10)
+
+        self.assertTrue(isinstance(table, qt_ctls.TableWrapper))
+        self.assertEqual(table.class_name(), "QTableView")
+        self.assertEqual(table.row_count(), 1000)
+        self.assertEqual(table.column_count(), 10)
+        self.assertEqual(table.item_count(), 10000)
+
+
+if __name__ == "__main__":
+    unittest.main()
