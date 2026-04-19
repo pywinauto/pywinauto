@@ -51,8 +51,8 @@ from pywinauto import mouse  # noqa: E402
 
 import pywinauto.controls.wpf_controls as wpf_ctls
 from pywinauto.controls.wpfwrapper import WPFWrapper
-from pywinauto.windows.injected.api import InjectedBaseError
-from pywinauto.windows.injected.channel import InjectedBrokenPipeError
+from pywinauto.windows.injected.src.injected.api import InjectedBaseError
+from pywinauto.windows.injected.src.injected.channel import InjectedBrokenPipeError
 
 wpf_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\WPF_samples")
@@ -198,7 +198,7 @@ class WPFWrapperTests(unittest.TestCase):
         props_dict = self.dlg.get_native_properties()
         self.assertTrue(type(props_dict) is dict)
         self.assertIn('Name', props_dict)
-        self.assertEquals(props_dict['Name'], 'String')
+        self.assertEqual(props_dict['Name'], 'String')
         self.assertGreater(len(props_dict), 25)
 
     def test_children(self):
@@ -1200,13 +1200,13 @@ class GridListViewWrapperTests(unittest.TestCase):
         hdr_itm = listview.get_header_controls()[1]
         # HeaderItem of ListView
         self.assertTrue(isinstance(hdr_itm, wpf_ctls.HeaderItemWrapper))
-        self.assertEquals('Name', hdr_itm.element_info.name)
+        self.assertEqual('Name', hdr_itm.element_info.name)
 
         # DataGrid
         self.listbox_datagrid_tab.set_focus()
         datagrid = self.listbox_datagrid_tab.descendants(class_name=u"DataGrid")[0]
         grid_hdr_item = datagrid.get_header_controls()[2]
-        self.assertEquals('B', grid_hdr_item.element_info.name)
+        self.assertEqual('B', grid_hdr_item.element_info.name)
         self.assertTrue(isinstance(grid_hdr_item, wpf_ctls.HeaderItemWrapper))
 
     def test_get_column(self):
