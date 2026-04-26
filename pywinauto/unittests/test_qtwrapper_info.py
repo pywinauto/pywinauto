@@ -7,6 +7,8 @@ import os
 import sys
 import time
 import unittest
+from contextlib import redirect_stdout
+from io import StringIO
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
@@ -16,6 +18,7 @@ from pywinauto.timings import Timings  # noqa: E402
 import pywinauto.controls.qt_controls as qt_ctls  # noqa: E402
 import pywinauto.controls.qtwrapper as qtwrapper  # noqa: E402
 from pywinauto.controls.qtwrapper import QtWrapper  # noqa: E402
+from injectlib.api import InjectedBaseError  # noqa: E402
 
 
 qt_samples_folder = os.path.join(
@@ -90,6 +93,11 @@ class QtWrapperTests(unittest.TestCase):
         self.assertEqual(self.root.class_name(), "WidgetGallery")
         self.assertEqual(self.root.window_text(), "Styles")
         self.assertEqual(self.root.friendly_class_name(), "Window")
+
+        group = self.dlg.by(class_name="QGroupBox",
+                            name="Group 1").find(timeout=10)
+        self.assertEqual(group.class_name(), "QGroupBox")
+        self.assertEqual(group.window_text(), "Group 1")
 
     def test_basic_wrapper_properties(self):
         """Test generic Qt wrapper properties."""
@@ -217,6 +225,28 @@ class QtWrapperTests(unittest.TestCase):
         self.assertEqual(combo.expand(), combo)
         self.assertEqual(combo.collapse(), combo)
 
+    def test_expanded_combo_popup_is_child_and_dump_tree_works(self):
+        """Test expanded combo popup is a child and doesn't break dump_tree."""
+        combo = self.dlg.by(control_type="ComboBox").find(timeout=10)
+        combo.expand()
+        time.sleep(1)
+
+        self.assertEqual(len(combo.children()), 1)
+
+        with redirect_stdout(StringIO()):
+            self.dlg.dump_tree(depth=None, max_width=None)
+
+    def test_group_box_name_appears_in_dump_tree(self):
+        """Test QGroupBox title is exposed in dump_tree output."""
+        output = StringIO()
+
+        with redirect_stdout(output):
+            self.dlg.dump_tree(depth=None, max_width=None)
+
+        content = output.getvalue()
+        self.assertIn("GroupBox - 'Group 1'", content)
+        self.assertIn(".by(name='Group 1', class_name='QGroupBox'", content)
+
     def test_tab_control_wrapper(self):
         """Test Qt tab control wrapper."""
         tab = self.dlg.by(control_type="TabControl",
@@ -265,6 +295,29 @@ class QtWrapperTests(unittest.TestCase):
         self.assertEqual(table.row_count(), 10)
         self.assertEqual(table.column_count(), 10)
         self.assertEqual(table.item_count(), 100)
+        self.assertEqual(len(table.texts()), 10)
+        self.assertEqual([len(row) for row in table.texts()], [10] * 10)
+
+        original_text = table.cell_text(0, 0)
+        original_value = table.cell_value(0, 0)
+        self.assertTrue(original_text == "" or isinstance(original_text, str))
+        self.assertTrue(original_value is None or isinstance(original_value, str))
+
+        rect = table.cell_rectangle(0, 0)
+        self.assertGreater(rect.width(), 0)
+        self.assertGreater(rect.height(), 0)
+
+        self.assertEqual(table.select(0, 0), table)
+        self.assertTrue(table.is_cell_selected(0, 0))
+        self.assertEqual(table.click(0, 0), table)
+        self.assertTrue(table.is_cell_selected(0, 0))
+
+        self.assertEqual(table.set_cell_value(0, 0, "changed"), table)
+        self.assertEqual(table.cell_text(0, 0), "changed")
+        self.assertEqual(table.cell_value(0, 0), "changed")
+
+        self.assertRaises(IndexError, table.cell_text, -1, 0)
+        self.assertRaises(IndexError, table.cell_text, 0, 10)
 
     def test_window_wrapper(self):
         """Test Qt window wrapper."""
@@ -324,8 +377,47 @@ class QtInterviewWrapperTests(unittest.TestCase):
         """Test Qt tree view expand/collapse wrapper."""
         tree_view = self.dlg.by(control_type="Tree").find(timeout=10)
 
-        self.assertEqual(tree_view.expand(), tree_view)
-        self.assertEqual(tree_view.collapse(), tree_view)
+        self.assertIsNone(tree_view.expand())
+        self.assertIsNone(tree_view.collapse())
+
+    def test_tree_view_expand_collapse_specific_item(self):
+        """Test Qt tree view expand/collapse for a model item path."""
+        tree_view = self.dlg.by(control_type="Tree").find(timeout=10)
+
+        self.assertTrue(tree_view.is_collapsed((1,)))
+        self.assertEqual(tree_view.item_text((1,)), "Item 1:0")
+        self.assertEqual(tree_view.item_text(r"\Item 1:0"), "Item 1:0")
+        self.assertIsNone(tree_view.expand((1,)))
+        self.assertTrue(tree_view.is_expanded((1,)))
+        self.assertIsNone(tree_view.collapse((1,)))
+        self.assertTrue(tree_view.is_collapsed((1,)))
+
+        self.assertIsNone(tree_view.expand(r"\Item 1:0"))
+        self.assertTrue(tree_view.is_expanded(r"\Item 1:0"))
+        self.assertIsNone(tree_view.collapse(r"\Item 1:0"))
+        self.assertTrue(tree_view.is_collapsed(r"\Item 1:0"))
+        self.assertRaises(InjectedBaseError, tree_view.expand, r"\__missing__")
+
+    def test_tree_view_expand_collapse_deep_item(self):
+        """Test Qt tree view expand/collapse for a deeper model item path."""
+        tree_view = self.dlg.by(control_type="Tree").find(timeout=10)
+
+        tree_view.expand((2,))
+        tree_view.expand((2, 2))
+        self.assertEqual(tree_view.item_text((2, 2, 2)), "Item 2:0")
+        self.assertTrue(tree_view.is_collapsed((2, 2, 2)))
+        self.assertIsNone(tree_view.expand((2, 2, 2)))
+        self.assertTrue(tree_view.is_expanded((2, 2, 2)))
+        self.assertIsNone(tree_view.collapse((2, 2, 2)))
+        self.assertTrue(tree_view.is_collapsed((2, 2, 2)))
+
+        tree_view.expand(r"\Item 2:0")
+        tree_view.expand(r"\Item 2:0\Item 2:0")
+        self.assertEqual(tree_view.item_text(r"\Item 2:0\Item 2:0\Item 2:0"), "Item 2:0")
+        self.assertIsNone(tree_view.expand(r"\Item 2:0\Item 2:0\Item 2:0"))
+        self.assertTrue(tree_view.is_expanded(r"\Item 2:0\Item 2:0\Item 2:0"))
+        self.assertIsNone(tree_view.collapse(r"\Item 2:0\Item 2:0\Item 2:0"))
+        self.assertTrue(tree_view.is_collapsed(r"\Item 2:0\Item 2:0\Item 2:0"))
 
     def test_model_table_wrapper(self):
         """Test Qt table view wrapper with a model-based table."""

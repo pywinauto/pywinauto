@@ -265,6 +265,43 @@ class QtElementInfo(ElementInfo):
         """Invoke a semantic click action on this Qt element."""
         self._call_injected_server("Click", element_id=self.id)
 
+    def get_cell_info(self, row, column):
+        """Return model-index cell details for a table-like Qt element."""
+        return self._call_injected_server(
+            "GetCellInfo",
+            element_id=self.id,
+            row=row,
+            column=column,
+        )["value"]
+
+    def click_cell(self, row, column):
+        """Click a model-index cell in a table-like Qt element."""
+        self._call_injected_server(
+            "ClickCell",
+            element_id=self.id,
+            row=row,
+            column=column,
+        )
+
+    def select_cell(self, row, column):
+        """Select a model-index cell in a table-like Qt element."""
+        self._call_injected_server(
+            "SelectCell",
+            element_id=self.id,
+            row=row,
+            column=column,
+        )
+
+    def set_cell_value(self, row, column, value):
+        """Set a model-index cell edit value in a table-like Qt element."""
+        return self._call_injected_server(
+            "SetCellValue",
+            element_id=self.id,
+            row=row,
+            column=column,
+            value=value,
+        )["value"]
+
     def set_text(self, text):
         """Set text or value for this Qt element."""
         self._call_injected_server("SetText", element_id=self.id, text=text)
@@ -287,13 +324,69 @@ class QtElementInfo(ElementInfo):
         """Toggle this element."""
         self._call_injected_server("Toggle", element_id=self.id)
 
-    def expand(self):
-        """Expand this element."""
-        self._call_injected_server("Expand", element_id=self.id)
+    def _normalize_tree_path(self, path):
+        """Normalize a tree item path to JSON-safe path segments."""
+        # Path examples: r"\Item 0:0\Item 1:0", ("Item 0:0", "Item 1:0"), (0, 1).
+        if path is None:
+            return None
+        if isinstance(path, str):
+            if not path.startswith("\\"):
+                raise RuntimeError(
+                    "Only absolute paths allowed - "
+                    "please start the path with \\")
+            path = path.split("\\")[1:]
+        elif not isinstance(path, (list, tuple)):
+            raise TypeError("tree path must be a string, list, tuple or None")
 
-    def collapse(self):
-        """Collapse this element."""
-        self._call_injected_server("Collapse", element_id=self.id)
+        if not path:
+            raise ValueError("tree path must not be empty")
+
+        normalized = []
+        for segment in path:
+            if not isinstance(segment, (int, str)):
+                raise TypeError("tree path segments must be integers or strings")
+            normalized.append(segment)
+        return normalized
+
+    def expand(self, path=None):
+        """Expand this element or a tree item addressed by path."""
+        # Path examples: r"\Item 0:0", ("Item 0:0", "Item 1:0"), (0, 1).
+        params = {"element_id": self.id}
+        normalized_path = self._normalize_tree_path(path)
+        if normalized_path is not None:
+            params["path"] = normalized_path
+        self._call_injected_server("Expand", **params)
+
+    def collapse(self, path=None):
+        """Collapse this element or a tree item addressed by path."""
+        # Path examples: r"\Item 0:0", ("Item 0:0", "Item 1:0"), (0, 1).
+        params = {"element_id": self.id}
+        normalized_path = self._normalize_tree_path(path)
+        if normalized_path is not None:
+            params["path"] = normalized_path
+        self._call_injected_server("Collapse", **params)
+
+    def is_expanded(self, path):
+        """Return whether a tree item addressed by path is expanded."""
+        # Path examples: r"\Item 0:0", ("Item 0:0", "Item 1:0"), (0, 1).
+        return self._call_injected_server(
+            "IsExpanded",
+            element_id=self.id,
+            path=self._normalize_tree_path(path),
+        )["value"]
+
+    def is_collapsed(self, path):
+        """Return whether a tree item addressed by path is collapsed."""
+        return not self.is_expanded(path)
+
+    def item_text(self, path):
+        """Return display text for a tree item addressed by path."""
+        # Path examples: r"\Item 0:0", ("Item 0:0", "Item 1:0"), (0, 1).
+        return self._call_injected_server(
+            "GetItemText",
+            element_id=self.id,
+            path=self._normalize_tree_path(path),
+        )["value"]
 
     def items(self):
         """Return item texts exposed by this control."""
