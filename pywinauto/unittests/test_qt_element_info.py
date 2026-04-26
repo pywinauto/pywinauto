@@ -12,12 +12,13 @@ sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.qt.element_info import PIDNotFound, QtElementInfo  # noqa: E402
-from injectlib.api import InjectedNotFoundError  # noqa: E402
+from injectlib.api import InjectedBaseError, InjectedNotFoundError  # noqa: E402
 
 
 qt_samples_folder = os.path.join(
     os.path.dirname(__file__), r"..\..\apps\Qt5_samples")
 qt_styles_app = os.path.join(qt_samples_folder, "styles.exe")
+qt_interview_app = os.path.join(qt_samples_folder, "interview.exe")
 
 
 def _set_timings():
@@ -143,7 +144,16 @@ class QtElementInfoTests(unittest.TestCase):
 
         panes = self.ctrl.children(control_type="GroupBox")
         self.assertEqual(len(panes), 3)
+        self.assertEqual([pane.name for pane in panes],
+                         ["Group 1", "Group 2", "Group 3"])
         self.assertEqual(panes[0].class_name, "QGroupBox")
+
+        group = self.root.by(name="Group 1",
+                             control_type="GroupBox").find(timeout=10)
+        self.assertEqual(group.element_info.class_name, "QGroupBox")
+        self.assertEqual(group.element_info.name, "Group 1")
+        self.assertEqual(group.element_info.value, "Group 1")
+        self.assertEqual(group.element_info.rich_text, "Group 1")
 
         edits = self.ctrl.descendants(control_type="Edit", class_name="QLineEdit")
         self.assertEqual(len(edits), 3)
@@ -204,6 +214,64 @@ class QtElementInfoTests(unittest.TestCase):
 
         active = self.ctrl.get_active(self.app.process)
         self.assertEqual(active, combo.element_info)
+
+    def test_expanded_combo_popup_is_child_not_root(self):
+        """Test expanded combo popup remains a child and not a top-level root."""
+        combo = self.root.by(control_type="ComboBox").find(timeout=10)
+        combo.expand()
+        time.sleep(1)
+
+        children = [
+            child for child in combo.element_info.children()
+            if child.class_name == "QComboBoxPrivateContainer"
+        ]
+        self.assertEqual(len(children), 1)
+        self.assertEqual(children[0].parent, combo.element_info)
+
+        desktop_root = QtElementInfo()
+        roots = desktop_root.children(process=self.app.process)
+        self.assertEqual(len(roots), 1)
+        self.assertEqual(roots[0].name, "Styles")
+        self.assertEqual(roots[0].class_name, "WidgetGallery")
+        self.assertNotIn("QComboBoxPrivateContainer",
+                         [root.class_name for root in roots])
+
+
+class QtInterviewElementInfoTests(unittest.TestCase):
+
+    """Unit tests for QtElementInfo with the Qt interview sample."""
+
+    def setUp(self):
+        """Start the Qt interview sample application."""
+        _set_timings()
+
+        self.app = Application(backend="qt")
+        self.app = self.app.start(qt_interview_app)
+        time.sleep(2)
+
+        self.root = self.app.window().find(timeout=10)
+
+    def tearDown(self):
+        """Close the application after tests."""
+        self.app.kill()
+
+    def test_tree_expand_collapse_specific_item_path(self):
+        """Test direct tree item path expand/collapse calls."""
+        tree = self.root.by(control_type="Tree").find(timeout=10).element_info
+
+        self.assertTrue(tree.is_collapsed((0,)))
+        self.assertEqual(tree.item_text((0,)), "Item 0:0")
+        self.assertEqual(tree.item_text(r"\Item 0:0"), "Item 0:0")
+        tree.expand((0,))
+        self.assertTrue(tree.is_expanded((0,)))
+        tree.collapse((0,))
+        self.assertTrue(tree.is_collapsed((0,)))
+
+        tree.expand(r"\Item 0:0")
+        self.assertTrue(tree.is_expanded(r"\Item 0:0"))
+        tree.collapse(r"\Item 0:0")
+        self.assertTrue(tree.is_collapsed(r"\Item 0:0"))
+        self.assertRaises(InjectedBaseError, tree.expand, r"\__missing__")
 
 
 if __name__ == "__main__":
