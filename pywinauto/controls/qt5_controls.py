@@ -1,13 +1,13 @@
 # -*- coding: utf-8 -*-
-"""Wrap various Qt controls. To be used with the 'qt' backend."""
+"""Wrap various Qt controls. To be used with the 'qt5' backend."""
 
 from __future__ import unicode_literals
 
 from ..windows.win32structures import RECT
-from . import qtwrapper
+from . import qt5wrapper
 
 
-class WindowWrapper(qtwrapper.QtWrapper):
+class WindowWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap a Qt top-level window."""
 
@@ -23,14 +23,14 @@ class WindowWrapper(qtwrapper.QtWrapper):
         return self
 
 
-class PaneWrapper(qtwrapper.QtWrapper):
+class PaneWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap generic Qt container controls."""
 
     _control_types = ['Pane', 'GroupBox']
 
 
-class ButtonWrapper(qtwrapper.QtWrapper):
+class ButtonWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap Qt button, checkbox, and radio button controls."""
 
@@ -78,7 +78,7 @@ class ButtonWrapper(qtwrapper.QtWrapper):
         return self.is_checked()
 
 
-class EditWrapper(qtwrapper.QtWrapper):
+class EditWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap a Qt edit control."""
 
@@ -119,7 +119,7 @@ class EditWrapper(qtwrapper.QtWrapper):
         return self.window_text().splitlines() or ['']
 
 
-class ComboBoxWrapper(qtwrapper.QtWrapper):
+class ComboBoxWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap a Qt combobox."""
 
@@ -161,7 +161,7 @@ class ComboBoxWrapper(qtwrapper.QtWrapper):
         return bool(self.get_native_property('editable'))
 
 
-class TabControlWrapper(qtwrapper.QtWrapper):
+class TabControlWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap Qt tab controls."""
 
@@ -185,7 +185,7 @@ class TabControlWrapper(qtwrapper.QtWrapper):
         return self
 
 
-class SliderWrapper(qtwrapper.QtWrapper):
+class SliderWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap Qt slider, scrollbar, spinbox, and progress controls."""
 
@@ -210,7 +210,7 @@ class SliderWrapper(qtwrapper.QtWrapper):
         return self
 
 
-class ListViewWrapper(qtwrapper.QtWrapper):
+class ListViewWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap Qt list controls."""
 
@@ -236,7 +236,7 @@ class ListViewWrapper(qtwrapper.QtWrapper):
         return self
 
 
-class TreeViewWrapper(qtwrapper.QtWrapper):
+class TreeViewWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap Qt tree controls."""
 
@@ -275,7 +275,7 @@ class TreeViewWrapper(qtwrapper.QtWrapper):
         return self.element_info.item_text(path)
 
 
-class TableWrapper(qtwrapper.QtWrapper):
+class TableWrapper(qt5wrapper.Qt5Wrapper):
 
     """Wrap Qt table controls."""
 

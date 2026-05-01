@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Basic wrapping of Qt elements."""
+"""Common wrapping for Qt elements."""
 
 from __future__ import unicode_literals
 
@@ -8,7 +8,7 @@ from ..base_wrapper import BaseMeta
 from .win_base_wrapper import WinBaseWrapper
 
 
-class QtMeta(BaseMeta):
+class BaseQtMeta(BaseMeta):
 
     """Metaclass for Qt wrapper objects."""
 
@@ -18,28 +18,30 @@ class QtMeta(BaseMeta):
         """Register the control types."""
         BaseMeta.__init__(cls, name, bases, attrs)
 
+        registry = type(cls).control_type_to_cls
         for control_type in cls._control_types:
-            QtMeta.control_type_to_cls[control_type] = cls
+            registry[control_type] = cls
 
-    @staticmethod
-    def find_wrapper(element):
+    def find_wrapper(cls, element):
         """Find the most specific wrapper for this Qt element."""
-        return QtMeta.control_type_to_cls.get(element.control_type, QtWrapper)
+        registry = type(cls).control_type_to_cls
+        return registry.get(element.control_type, cls)
 
 
-class QtWrapper(WinBaseWrapper, metaclass=QtMeta):
+class BaseQtWrapper(WinBaseWrapper, metaclass=BaseQtMeta):
 
     """Default wrapper for Qt controls."""
 
     _control_types = []
+    backend_name = None
 
     def __new__(cls, element_info):
         """Construct a Qt control wrapper."""
-        return super(QtWrapper, cls)._create_wrapper(cls, element_info, QtWrapper)
+        return super(BaseQtWrapper, cls)._create_wrapper(cls, element_info, cls)
 
     def __init__(self, element_info):
         """Initialize the control."""
-        WinBaseWrapper.__init__(self, element_info, backend.registry.backends['qt'])
+        WinBaseWrapper.__init__(self, element_info, backend.registry.backends[self.backend_name])
 
     def friendly_class_name(self):
         """Return a pywinauto-friendly class name."""
