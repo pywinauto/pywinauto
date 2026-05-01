@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Tests for QtElementInfo."""
+"""Tests for Qt5ElementInfo."""
 
 from __future__ import unicode_literals
 
@@ -11,7 +11,7 @@ import unittest
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
-from pywinauto.qt.element_info import PIDNotFound, QtElementInfo  # noqa: E402
+from pywinauto.qt5.element_info import PIDNotFound, Qt5ElementInfo  # noqa: E402
 from injectlib.api import InjectedBaseError, InjectedNotFoundError  # noqa: E402
 
 
@@ -27,15 +27,15 @@ def _set_timings():
     Timings.window_find_timeout = 20
 
 
-class QtElementInfoTests(unittest.TestCase):
+class Qt5ElementInfoTests(unittest.TestCase):
 
-    """Unit tests for the QtElementInfo class."""
+    """Unit tests for the Qt5ElementInfo class."""
 
     def setUp(self):
         """Start the Qt sample application."""
         _set_timings()
 
-        self.app = Application(backend="qt")
+        self.app = Application(backend="qt5")
         self.app = self.app.start(qt_styles_app)
         time.sleep(2)
 
@@ -68,17 +68,17 @@ class QtElementInfoTests(unittest.TestCase):
 
     def test_synthetic_desktop_root_properties(self):
         """Test synthetic Qt desktop root properties."""
-        desktop_root = QtElementInfo()
+        desktop_root = Qt5ElementInfo()
 
         self.assertIsNone(desktop_root.control_id)
         self.assertIsNone(desktop_root.runtime_id)
         self.assertIsNone(desktop_root.process_id)
         self.assertEqual(desktop_root.name, "--root--")
-        self.assertEqual(desktop_root.class_name, "QtDesktop")
+        self.assertEqual(desktop_root.class_name, "Qt5Desktop")
         self.assertEqual(desktop_root.control_type, "Desktop")
         self.assertEqual(desktop_root.framework_id, "Qt")
-        self.assertEqual(desktop_root.auto_id, "QtDesktop")
-        self.assertEqual(desktop_root.automation_id, "QtDesktop")
+        self.assertEqual(desktop_root.auto_id, "Qt5Desktop")
+        self.assertEqual(desktop_root.automation_id, "Qt5Desktop")
         self.assertIsNone(desktop_root.handle)
         self.assertIsNone(desktop_root.parent)
         self.assertEqual(desktop_root.value, "")
@@ -86,7 +86,7 @@ class QtElementInfoTests(unittest.TestCase):
 
     def test_pid_not_found(self):
         """Test Qt element creation without a required target process id."""
-        self.assertRaises(PIDNotFound, QtElementInfo, 1)
+        self.assertRaises(PIDNotFound, Qt5ElementInfo, 1)
 
     def test_children(self):
         """Test immediate children of the top-level Qt window."""
@@ -160,7 +160,7 @@ class QtElementInfoTests(unittest.TestCase):
 
     def test_desktop_finds_top_window(self):
         """Test Qt root finds window through win32 top-level search."""
-        desktop_root = QtElementInfo()
+        desktop_root = Qt5ElementInfo()
 
         self.assertIsNone(desktop_root.process_id)
         self.assertEqual(desktop_root.control_type, "Desktop")
@@ -176,7 +176,7 @@ class QtElementInfoTests(unittest.TestCase):
 
     def test_desktop_pid_for_children(self):
         """Test searching for desktop children with a specified process id."""
-        desktop_root = QtElementInfo()
+        desktop_root = Qt5ElementInfo()
 
         children = desktop_root.children(process=self.app.process)
         self.assertIsNone(desktop_root.process_id)
@@ -228,7 +228,7 @@ class QtElementInfoTests(unittest.TestCase):
         self.assertEqual(len(children), 1)
         self.assertEqual(children[0].parent, combo.element_info)
 
-        desktop_root = QtElementInfo()
+        desktop_root = Qt5ElementInfo()
         roots = desktop_root.children(process=self.app.process)
         self.assertEqual(len(roots), 1)
         self.assertEqual(roots[0].name, "Styles")
@@ -237,15 +237,15 @@ class QtElementInfoTests(unittest.TestCase):
                          [root.class_name for root in roots])
 
 
-class QtInterviewElementInfoTests(unittest.TestCase):
+class Qt5InterviewElementInfoTests(unittest.TestCase):
 
-    """Unit tests for QtElementInfo with the Qt interview sample."""
+    """Unit tests for Qt5ElementInfo with the Qt interview sample."""
 
     def setUp(self):
         """Start the Qt interview sample application."""
         _set_timings()
 
-        self.app = Application(backend="qt")
+        self.app = Application(backend="qt5")
         self.app = self.app.start(qt_interview_app)
         time.sleep(2)
 

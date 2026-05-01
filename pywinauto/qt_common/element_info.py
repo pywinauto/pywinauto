@@ -1,4 +1,4 @@
-"""Qt backend implementation with injectlib pipe calls."""
+"""Common Qt backend implementation with injectlib pipe calls."""
 
 from pywinauto.element_info import ElementInfo
 from pywinauto.windows.win32structures import RECT
@@ -32,8 +32,14 @@ class PIDNotFound(Exception):
     pass
 
 
-class QtElementInfo(ElementInfo):
-    """ElementInfo implementation for Qt applications automated via injected DLL."""
+class BaseQtElementInfo(ElementInfo):
+    """Base ElementInfo implementation for Qt applications automated via injected DLL."""
+
+    pywinauto_backend_name = None
+    injectlib_backend_name = None
+    injectlib_dll_name = None
+    desktop_class_name = "QtDesktop"
+    desktop_auto_id = "QtDesktop"
 
     re_props = ["class_name", "name", "control_type", "auto_id", "value"]
     exact_only_props = ["pid", "enabled", "visible", "rectangle", "handle", "control_id",
@@ -73,13 +79,12 @@ class QtElementInfo(ElementInfo):
         # root element requested
         if self.id is None:
             self._pid = None
-            self._class_name = "QtDesktop"
+            self._class_name = self.desktop_class_name
             self._name = "--root--"
             self._control_type = "Desktop"
-            self._auto_id = "QtDesktop"
+            self._auto_id = self.desktop_auto_id
             return
 
-        # set injectlib Qt backend for ConnectionManager
         self._ensure_injectlib_backend_registered()
 
         if info is None:
@@ -89,8 +94,13 @@ class QtElementInfo(ElementInfo):
     def _ensure_injectlib_backend_registered(self):
         """Ensure that injectlib Qt backend is registered for element's process id."""
         if self._pid is None:
-            raise PIDNotFound("Qt backend requires a process id before injection")
-        ConnectionManager().register_backend(self._pid, "qt", "qt_srv")
+            raise PIDNotFound("{0} backend requires a process id before injection".format(
+                self.pywinauto_backend_name or "Qt"))
+        ConnectionManager().register_backend(
+            self._pid,
+            self.injectlib_backend_name,
+            self.injectlib_dll_name,
+        )
 
     def _call_injected_server(self, action_name, **params):
         """Send an action to injected Qt DLL through ConnectionManager."""
@@ -161,7 +171,7 @@ class QtElementInfo(ElementInfo):
     def _top_window_elements_from_win32_matches(self, **kwargs):
         """Return Qt top-level windows preselected through win32."""
         # Qt backend needs a process id before it can inject Qt server DLL.
-        # When user starts from "Desktop(backend="qt")" there is no pid yet.
+        # When user starts from "Desktop(backend=...)" there is no pid yet.
         # This method asks win32 for matching top-level windows, then creates Qt element
         # roots only for the matched pids.
 
@@ -181,12 +191,16 @@ class QtElementInfo(ElementInfo):
             if process is None:
                 items = self._top_window_elements_from_win32_matches(**kwargs)
             else:
-                ConnectionManager().register_backend(process, "qt", "qt_srv")
+                ConnectionManager().register_backend(
+                    process,
+                    self.injectlib_backend_name,
+                    self.injectlib_dll_name,
+                )
                 raw_items = ConnectionManager().call_action("GetRoots", process)["value"]
-                items = [QtElementInfo(item["id"], pid=process, info=item) for item in raw_items]
+                items = [self.__class__(item["id"], pid=process, info=item) for item in raw_items]
         else:
             raw_items = self._call_injected_server("GetChildren", element_id=self.id)["value"]
-            items = [QtElementInfo(item["id"], pid=self._pid, info=item) for item in raw_items]
+            items = [self.__class__(item["id"], pid=self._pid, info=item) for item in raw_items]
 
         for element in items:
             if is_element_satisfying_criteria(element, **kwargs):
@@ -259,7 +273,7 @@ class QtElementInfo(ElementInfo):
             return None
         if not parent_info:
             return None
-        return QtElementInfo(parent_info["id"], pid=self._pid, info=parent_info)
+        return self.__class__(parent_info["id"], pid=self._pid, info=parent_info)
 
     def click(self):
         """Invoke a semantic click action on this Qt element."""
@@ -480,7 +494,7 @@ class QtElementInfo(ElementInfo):
 
     def __eq__(self, other):
         """Check if two QtElementInfo objects describe the same runtime element."""
-        if not isinstance(other, QtElementInfo):
+        if not isinstance(other, self.__class__):
             return False
         return self._pid == other._pid and self.id == other.id
 
@@ -498,9 +512,10 @@ class QtElementInfo(ElementInfo):
         elif isinstance(app_or_pid, Application):
             pid = app_or_pid.process
         else:
-            raise TypeError("QtElementInfo.get_active requires an integer pid or Application instance")
+            raise TypeError("{0}.get_active requires an integer pid or Application instance".format(
+                cls.__name__))
 
-        ConnectionManager().register_backend(pid, "qt", "qt_srv")
+        ConnectionManager().register_backend(pid, cls.injectlib_backend_name, cls.injectlib_dll_name)
         try:
             reply = ConnectionManager().call_action("GetFocusedElement", pid)
             info = reply["value"]
