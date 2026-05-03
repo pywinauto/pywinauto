@@ -32,7 +32,9 @@ import sys
 """Controls package"""
 
 import pywinauto.qt5 # register "qt5" backend
+import pywinauto.qt6 # register "qt6" backend
 from . import qt5_controls
+from . import qt6_controls
 
 if sys.platform.startswith('linux'):
     from . import atspiwrapper  # register "atspi" back-end
