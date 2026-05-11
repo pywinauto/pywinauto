@@ -5,6 +5,7 @@ include setup.cfg
 include setup.py
 
 include pywinauto\controls\*.py
+include pywinauto\qt\*.py
 include pywinauto\tests\*.py
 include pywinauto\unittests\*.py
 include pywinauto\linux\*.py
