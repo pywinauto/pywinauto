@@ -31,8 +31,7 @@
 import sys
 """Controls package"""
 
-import pywinauto.qt5 # register "qt5" backend
-import pywinauto.qt6 # register "qt6" backend
+import pywinauto.qt  # register "qt5" and "qt6" backends
 from . import qt5_controls
 from . import qt6_controls
 

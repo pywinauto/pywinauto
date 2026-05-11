@@ -11,7 +11,7 @@ import unittest
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
-from pywinauto.qt5.element_info import PIDNotFound, Qt5ElementInfo  # noqa: E402
+from pywinauto.qt.qt5_element_info import PIDNotFound, Qt5ElementInfo  # noqa: E402
 from injectlib.api import InjectedBaseError, InjectedNotFoundError  # noqa: E402
 
 

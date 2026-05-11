@@ -1,6 +1,6 @@
-"""Qt5 backend implementation."""
+"""Qt5 backend element info implementation."""
 
-from pywinauto.qt_common.element_info import BaseQtElementInfo, PIDNotFound
+from pywinauto.qt.common_element_info import BaseQtElementInfo, PIDNotFound
 
 
 class Qt5ElementInfo(BaseQtElementInfo):
