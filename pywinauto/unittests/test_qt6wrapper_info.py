@@ -11,6 +11,7 @@ import unittest
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.base_application import WindowSpecification  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 
 from pywinauto.controls.qt6_controls import (  # noqa: E402
@@ -41,6 +42,18 @@ def _set_timings():
     Timings.window_find_timeout = 20
 
 
+def _assert_sample_running(test_case, app, app_path):
+    """Fail with a clear message if a Qt6 sample exits before injection."""
+    test_case.assertTrue(
+        app.is_process_running(),
+        "Qt6 sample exited before root lookup: path={!r}, pid={!r}".format(
+            app_path,
+            app.process,
+        ),
+    )
+
+
+@unittest.skipIf(not is_x64_Python(), "Qt6 MSVC test samples are 64-bit only")
 class Qt6WrapperTests(unittest.TestCase):
 
     """Unit tests for Qt6Wrapper class."""
@@ -52,6 +65,7 @@ class Qt6WrapperTests(unittest.TestCase):
         self.app = Application(backend="qt6")
         self.app = self.app.start(qt_gallery_app)
         time.sleep(2)
+        _assert_sample_running(self, self.app, qt_gallery_app)
 
         self.dlg = self.app.window()
         self.root = self.dlg.find(timeout=10)
@@ -156,6 +170,7 @@ class Qt6WrapperTests(unittest.TestCase):
         self.assertFalse(self.app.is_process_running())
 
 
+@unittest.skipIf(not is_x64_Python(), "Qt6 MSVC test samples are 64-bit only")
 class Qt6EditableTreeModelTests(unittest.TestCase):
 
     """Behavior tests for the Qt6 editable tree model sample."""
@@ -167,6 +182,7 @@ class Qt6EditableTreeModelTests(unittest.TestCase):
         self.app = Application(backend="qt6")
         self.app = self.app.start(qt_tree_app)
         time.sleep(2)
+        _assert_sample_running(self, self.app, qt_tree_app)
 
         self.root = self.app.window().find(timeout=10)
         self.tree_view = self.root.by(
@@ -215,6 +231,7 @@ class Qt6EditableTreeModelTests(unittest.TestCase):
         self.assertTrue(self.tree_view.is_expanded(r"\Getting Started\Launching Designer"))
 
 
+@unittest.skipIf(not is_x64_Python(), "Qt6 MSVC test samples are 64-bit only")
 class Qt6SpreadsheetTests(unittest.TestCase):
 
     """Behavior tests for the Qt6 spreadsheet sample."""
@@ -226,6 +243,7 @@ class Qt6SpreadsheetTests(unittest.TestCase):
         self.app = Application(backend="qt6")
         self.app = self.app.start(qt_spreadsheet_app)
         time.sleep(2)
+        _assert_sample_running(self, self.app, qt_spreadsheet_app)
 
         self.root = self.app.window().find(timeout=10)
         self.table = self.root.by(

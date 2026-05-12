@@ -10,6 +10,7 @@ import unittest
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.qt.qt6_element_info import PIDNotFound, Qt6ElementInfo  # noqa: E402
 from injectlib.api import InjectedBaseError, InjectedNotFoundError  # noqa: E402
@@ -27,6 +28,18 @@ def _set_timings():
     Timings.window_find_timeout = 20
 
 
+def _assert_sample_running(test_case, app, app_path):
+    """Fail with a clear message if a Qt6 sample exits before injection."""
+    test_case.assertTrue(
+        app.is_process_running(),
+        "Qt6 sample exited before root lookup: path={!r}, pid={!r}".format(
+            app_path,
+            app.process,
+        ),
+    )
+
+
+@unittest.skipIf(not is_x64_Python(), "Qt6 MSVC test samples are 64-bit only")
 class Qt6ElementInfoTests(unittest.TestCase):
 
     """Unit tests for Qt6ElementInfo class."""
@@ -38,6 +51,7 @@ class Qt6ElementInfoTests(unittest.TestCase):
         self.app = Application(backend="qt6")
         self.app = self.app.start(qt_gallery_app)
         time.sleep(2)
+        _assert_sample_running(self, self.app, qt_gallery_app)
 
         self.root = self.app.window().find(timeout=10)
         self.ctrl = self.root.element_info
@@ -133,6 +147,7 @@ class Qt6ElementInfoTests(unittest.TestCase):
         self.assertEqual(active, combo.element_info)
 
 
+@unittest.skipIf(not is_x64_Python(), "Qt6 MSVC test samples are 64-bit only")
 class Qt6TreeElementInfoTests(unittest.TestCase):
 
     """Unit tests for Qt6ElementInfo with Qt editable tree model sample."""
@@ -144,6 +159,7 @@ class Qt6TreeElementInfoTests(unittest.TestCase):
         self.app = Application(backend="qt6")
         self.app = self.app.start(qt_tree_app)
         time.sleep(2)
+        _assert_sample_running(self, self.app, qt_tree_app)
 
         self.root = self.app.window().find(timeout=10)
         self.tree = self.root.by(control_type="Tree",

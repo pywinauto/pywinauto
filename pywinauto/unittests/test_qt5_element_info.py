@@ -10,13 +10,15 @@ import unittest
 
 sys.path.append(".")
 from pywinauto.windows.application import Application  # noqa: E402
+from pywinauto.sysinfo import is_x64_Python  # noqa: E402
 from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.qt.qt5_element_info import PIDNotFound, Qt5ElementInfo  # noqa: E402
 from injectlib.api import InjectedBaseError, InjectedNotFoundError  # noqa: E402
 
 
+qt_samples_folder_name = "Qt5_samples" if is_x64_Python() else "Qt5_samples_x86"
 qt_samples_folder = os.path.join(
-    os.path.dirname(__file__), r"..\..\apps\Qt5_samples")
+    os.path.dirname(__file__), r"..\..\apps", qt_samples_folder_name)
 qt_styles_app = os.path.join(qt_samples_folder, "styles.exe")
 qt_interview_app = os.path.join(qt_samples_folder, "interview.exe")
 
