@@ -43,6 +43,9 @@ jobs:
         pip3 install python-xlib --upgrade
         pip3 install mock --upgrade
         pip3 install pytest --upgrade
+        # pywinauto registers Qt backends while importing controls, so AT-SPI
+        # tests need injectlib available even when they don't exercise Qt.
+        pip3 install https://github.com/Makarov-AA/injected/releases/download/0.0.3/injectlib-0.0.3-py2.py3-none-any.whl
         sudo apt install -y build-essential libssl-dev
         sudo apt install -y qtbase5-dev qt5-qmake
         sudo apt install -y libxkbcommon-x11-0
