@@ -63,3 +63,7 @@ target/
 
 # Unit tests screenshots
 __main__.*.jpg
+
+# Keep standalone Linux Qt samples.
+!apps/Qt5_samples_linux/**
+!apps/Qt6_samples_linux/**

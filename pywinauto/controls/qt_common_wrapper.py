@@ -3,9 +3,14 @@
 
 from __future__ import unicode_literals
 
+import sys
+
 from .. import backend
-from ..base_wrapper import BaseMeta
-from .win_base_wrapper import WinBaseWrapper
+from ..base_wrapper import BaseMeta, BaseWrapper
+if sys.platform == "win32":
+    from .win_base_wrapper import WinBaseWrapper as QtBaseWrapper
+else:
+    QtBaseWrapper = BaseWrapper
 
 
 class BaseQtMeta(BaseMeta):
@@ -28,7 +33,7 @@ class BaseQtMeta(BaseMeta):
         return registry.get(element.control_type, cls)
 
 
-class BaseQtWrapper(WinBaseWrapper, metaclass=BaseQtMeta):
+class BaseQtWrapper(QtBaseWrapper, metaclass=BaseQtMeta):
 
     """Default wrapper for Qt controls."""
 
@@ -41,7 +46,7 @@ class BaseQtWrapper(WinBaseWrapper, metaclass=BaseQtMeta):
 
     def __init__(self, element_info):
         """Initialize the control."""
-        WinBaseWrapper.__init__(self, element_info, backend.registry.backends[self.backend_name])
+        QtBaseWrapper.__init__(self, element_info, backend.registry.backends[self.backend_name])
 
     def friendly_class_name(self):
         """Return a pywinauto-friendly class name."""
