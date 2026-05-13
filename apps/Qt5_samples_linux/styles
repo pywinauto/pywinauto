@@ -1,0 +1,10 @@
+#!/usr/bin/env sh
+set -eu
+appdir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+export QT_QPA_PLATFORM="${QT_QPA_PLATFORM:-xcb}"
+export QT_LINUX_ACCESSIBILITY_ALWAYS_ON="${QT_LINUX_ACCESSIBILITY_ALWAYS_ON:-1}"
+export QT_ACCESSIBILITY="${QT_ACCESSIBILITY:-1}"
+export XDG_RUNTIME_DIR="${XDG_RUNTIME_DIR:-/tmp/runtime-$(id -u)}"
+mkdir -p "$XDG_RUNTIME_DIR"
+chmod 700 "$XDG_RUNTIME_DIR" 2>/dev/null || true
+exec "$appdir/bin/styles" "$@"

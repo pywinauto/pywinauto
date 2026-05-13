@@ -1,7 +1,9 @@
 """Common Qt backend implementation with injectlib pipe calls."""
 
+import sys
+
 from pywinauto.element_info import ElementInfo
-from pywinauto.windows.win32structures import RECT
+from pywinauto.qt.rect import RECT
 from injectlib.api import ConnectionManager, InjectedNotFoundError, InjectedUnsupportedActionError
 
 
@@ -141,6 +143,12 @@ class BaseQtElementInfo(ElementInfo):
         """Return immediate children of the element."""
         return list(self.iter_children(**kwargs))
 
+    def _matched_native_pids(self, **kwargs):
+        """Return pids for native top-level windows matched by the platform backend."""
+        if sys.platform == "win32":
+            return self._matched_win32_pids(**kwargs)
+        return self._matched_atspi_pids(**kwargs)
+
     def _matched_win32_pids(self, **kwargs):
         """Return pids for native top-level windows matched by the win32 backend."""
 
@@ -168,15 +176,67 @@ class BaseQtElementInfo(ElementInfo):
                 pids.append(pid)
         return pids
 
-    def _top_window_elements_from_win32_matches(self, **kwargs):
-        """Return Qt top-level windows preselected through win32."""
+    def _matched_atspi_pids(self, **kwargs):
+        """Return pids for Linux top-level applications/windows matched through AT-SPI."""
+        if not any(kwargs.get(key) is not None for key in ("name", "class_name", "control_type")):
+            return []
+
+        try:
+            from pywinauto import findwindows
+            from pywinauto.linux.atspi_element_info import AtspiElementInfo
+        except Exception as exc:
+            raise RuntimeError(
+                "Qt no-pid discovery on Linux requires AT-SPI pid discovery: {0}".format(exc))
+
+        criteria = {"backend": "atspi"}
+        for key in ("name", "name_re", "visible", "enabled"):
+            if kwargs.get(key) is not None:
+                criteria[key] = kwargs[key]
+        if kwargs.get("class_name") in ("Application", "Frame", "Window"):
+            criteria["class_name"] = kwargs["class_name"]
+        if kwargs.get("control_type") in ("Application", "Frame", "Window"):
+            criteria["control_type"] = kwargs["control_type"]
+
+        pids = []
+        seen_pids = set()
+        try:
+            atspi_elements = findwindows.find_elements(top_level_only=True, **criteria)
+        except (findwindows.ElementNotFoundError, findwindows.ElementAmbiguousError):
+            atspi_elements = []
+
+        try:
+            applications = AtspiElementInfo().children()
+        except Exception as exc:
+            raise RuntimeError(
+                "Qt no-pid discovery on Linux could not enumerate AT-SPI applications: {0}".format(exc))
+
+        child_criteria = dict(criteria)
+        child_criteria.pop("backend", None)
+        child_criteria.pop("name_re", None)
+        # AT-SPI exposes top-level applications first; visible Qt windows can be
+        # immediate children, for example app "styles" with dialog "Styles".
+        for application in applications:
+            try:
+                atspi_elements.extend(application.children(**child_criteria))
+            except Exception:
+                pass
+
+        for element in atspi_elements:
+            pid = element.process_id
+            if pid and pid not in seen_pids:
+                seen_pids.add(pid)
+                pids.append(pid)
+        return pids
+
+    def _top_window_elements_from_native_matches(self, **kwargs):
+        """Return Qt top-level windows preselected through native platform backend."""
         # Qt backend needs a process id before it can inject Qt server DLL.
         # When user starts from "Desktop(backend=...)" there is no pid yet.
-        # This method asks win32 for matching top-level windows, then creates Qt element
-        # roots only for the matched pids.
+        # This method asks the native backend for matching top-level windows,
+        # then creates Qt element roots only for the matched pids.
 
         elements = []
-        for pid in self._matched_win32_pids(**kwargs):
+        for pid in self._matched_native_pids(**kwargs):
             try:
                 elements.extend(self.children(process=pid))
             except Exception:
@@ -189,7 +249,7 @@ class BaseQtElementInfo(ElementInfo):
 
         if self.id is None:
             if process is None:
-                items = self._top_window_elements_from_win32_matches(**kwargs)
+                items = self._top_window_elements_from_native_matches(**kwargs)
             else:
                 ConnectionManager().register_backend(
                     process,

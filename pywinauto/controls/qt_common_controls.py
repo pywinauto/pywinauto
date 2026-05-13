@@ -3,7 +3,7 @@
 
 from __future__ import unicode_literals
 
-from ..windows.win32structures import RECT
+from ..qt.rect import RECT
 
 
 class CommonWindowWrapper(object):
