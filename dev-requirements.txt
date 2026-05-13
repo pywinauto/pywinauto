@@ -17,3 +17,4 @@ codacy-coverage
 PyQt5==5.15.9; python_version >= '3.6'
 PyQt5-sip==12.15.0; python_version >= '3.9' and python_version < '3.10'
 PyQt5-sip; python_version >= '3.10'
+injectlib @ https://github.com/Makarov-AA/injected/releases/download/0.0.3/injectlib-0.0.3-py2.py3-none-any.whl ; sys_platform == "win32"

@@ -30,6 +30,11 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 import sys
 """Controls package"""
+
+import pywinauto.qt  # register "qt5" and "qt6" backends
+from . import qt5_controls
+from . import qt6_controls
+
 if sys.platform.startswith('linux'):
     from . import atspiwrapper  # register "atspi" back-end
     from . import atspi_controls

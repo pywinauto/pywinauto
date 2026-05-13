@@ -1,0 +1,59 @@
+name: Qt Linux CI
+on:
+  push:
+    branches: ["master" ]
+  pull_request:
+    branches: ["master" ]
+jobs:
+  Linux:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+    - name: get repo
+      uses: actions/checkout@v1
+
+    - name: Set up Python
+      uses: actions/setup-python@v1
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        sudo apt update -y
+        sudo apt install -y --no-install-recommends \
+          dbus-x11 xvfb \
+          python3 python3-pip python3-setuptools \
+          at-spi2-core libxkbcommon-x11-0 \
+          libqt5widgets5 libqt5gui5 libqt5core5a libqt5dbus5 \
+          libqt6widgets6 libqt6gui6 libqt6core6 libqt6dbus6 libqt6printsupport6 qt6-qpa-plugins
+        pip3 install mock python-xlib pytest
+        pip3 install https://github.com/Makarov-AA/injected/releases/download/0.0.3/injectlib-0.0.3-py2.py3-none-any.whl
+
+    - name: Run Qt Linux tests
+      run: |
+        xvfb-run -a dbus-run-session -- bash -lc '
+          # Bare Xvfb starts without a desktop accessibility session. Let a
+          # real Qt app trigger AT-SPI first, then close it
+          QT_QPA_PLATFORM=xcb apps/Qt5_samples_linux/interview >/tmp/qt-a11y-warmup.log 2>&1 &
+          warmup_pid=$!
+          runtime_dir=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+          for _ in $(seq 1 30); do
+            test -S "$runtime_dir/at-spi/bus_0" && break
+            kill -0 "$warmup_pid" 2>/dev/null || {
+              cat /tmp/qt-a11y-warmup.log
+              exit 1
+            }
+            sleep 1
+          done
+          test -S "$runtime_dir/at-spi/bus_0"
+          sleep 2
+          kill "$warmup_pid" 2>/dev/null || true
+          wait "$warmup_pid" 2>/dev/null || true
+
+          PYTHONPATH=$PWD QT_QPA_PLATFORM=xcb python3 -m unittest \
+            pywinauto.unittests.test_qt5_linux_element_info \
+            pywinauto.unittests.test_qt5_linux_wrapper \
+            pywinauto.unittests.test_qt6_linux_element_info \
+            pywinauto.unittests.test_qt6_linux_wrapper
+        '

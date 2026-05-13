@@ -59,9 +59,13 @@ sys.path.append(setup_path())
 install_requires = []
 
 if sys.platform == 'win32':
-    packages = ["pywinauto", "pywinauto.tests", "pywinauto.controls", "pywinauto.windows"]
+    packages = ["pywinauto",
+                "pywinauto.tests",
+                "pywinauto.controls",
+                "pywinauto.windows",
+                "pywinauto.qt"]
 elif sys.platform.startswith('linux'):
-    packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
+    packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls", "pywinauto.qt"]
 elif sys.platform == 'darwin':
     packages = ["pywinauto", "pywinauto.controls"]
 else:
