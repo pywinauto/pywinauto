@@ -26,7 +26,7 @@ function run {
 
     cd $env:APPVEYOR_BUILD_FOLDER
 
-    if ($env:APPVEYOR_BUILD_WORKER_IMAGE -match "Visual Studio 2019") {
+    if ($env:APPVEYOR_BUILD_WORKER_IMAGE -match "Visual Studio 2019|Visual Studio 2022") {
         # Show file extensions
         Set-ItemProperty -LiteralPath "HKCU:Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced" -Name "HideFileExt" -Value "0" -Force
         Stop-Process -Name Explorer -Force
