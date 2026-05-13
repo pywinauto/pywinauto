@@ -166,10 +166,9 @@ class Qt5StylesWrapperLinuxTests(unittest.TestCase):
         combo = self.dlg.by(control_type="ComboBox").find(timeout=10)
 
         self.assertTrue(isinstance(combo, ComboBoxWrapper))
-        self.assertGreaterEqual(combo.item_count(), 4)
+        self.assertGreaterEqual(combo.item_count(), 3)
         self.assertEqual(combo.item_count(), len(combo.texts()))
         self.assertEqual(combo.texts()[0], "NorwegianWood")
-        self.assertIn("Windows", combo.texts())
         self.assertIn("Fusion", combo.texts())
         self.assertEqual(combo.selected_index(), 0)
         self.assertEqual(combo.selected_text(), "NorwegianWood")

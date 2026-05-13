@@ -14,11 +14,10 @@ class POINT(Structure, PointIteratorMixin):
     ]
 
 
-RectExtMixin._POINT = POINT
-
-
 class RECT(RectExtMixin, Structure):
     """Screen rectangle."""
+
+    _POINT = POINT
 
     _fields_ = [
         ("left", c_int),
@@ -31,4 +30,4 @@ class RECT(RectExtMixin, Structure):
         RectExtMixin.__init__(self, other, top, right, bottom)
 
 
-RectExtMixin._RECT = RECT
+RECT._RECT = RECT

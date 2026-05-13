@@ -32,11 +32,21 @@ jobs:
 
     - name: Run Qt Linux tests
       run: |
-        dbus-run-session -- xvfb-run -a bash -lc '
+        xvfb-run -a dbus-run-session -- bash -lc '
           # Bare Xvfb starts without a desktop accessibility session. Let a
           # real Qt app trigger AT-SPI first, then close it
-          apps/Qt5_samples_linux/interview >/tmp/qt-a11y-warmup.log 2>&1 &
+          QT_QPA_PLATFORM=xcb apps/Qt5_samples_linux/interview >/tmp/qt-a11y-warmup.log 2>&1 &
           warmup_pid=$!
+          runtime_dir=${XDG_RUNTIME_DIR:-/run/user/$(id -u)}
+          for _ in $(seq 1 30); do
+            test -S "$runtime_dir/at-spi/bus_0" && break
+            kill -0 "$warmup_pid" 2>/dev/null || {
+              cat /tmp/qt-a11y-warmup.log
+              exit 1
+            }
+            sleep 1
+          done
+          test -S "$runtime_dir/at-spi/bus_0"
           sleep 2
           kill "$warmup_pid" 2>/dev/null || true
           wait "$warmup_pid" 2>/dev/null || true
