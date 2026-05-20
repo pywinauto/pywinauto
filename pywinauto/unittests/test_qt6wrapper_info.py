@@ -17,6 +17,7 @@ from pywinauto.timings import Timings  # noqa: E402
 from pywinauto.controls.qt6_controls import (  # noqa: E402
     ButtonWrapper,
     ComboBoxWrapper,
+    EditWrapper,
     ListViewWrapper,
     PaneWrapper,
     SliderWrapper,
@@ -34,6 +35,13 @@ qt_samples_folder = os.path.join(
 qt_gallery_app = os.path.join(qt_samples_folder, "gallery.exe")
 qt_tree_app = os.path.join(qt_samples_folder, "editabletreemodel.exe")
 qt_spreadsheet_app = os.path.join(qt_samples_folder, "spreadsheet.exe")
+qt_quick_samples_folder = os.path.join(
+    os.path.dirname(__file__), r"..\..\apps\Qt6_quick_samples")
+qt_quick_mousearea_app = os.path.join(
+    qt_quick_samples_folder, "mousearea", "mouseareaexample.exe")
+qt_quick_widget_opengl_app = os.path.join(
+    qt_quick_samples_folder, "qquickwidgetversuswindow_opengl",
+    "qquickwidgetversuswindow_opengl.exe")
 
 
 def _set_timings():
@@ -274,6 +282,127 @@ class Qt6SpreadsheetTests(unittest.TestCase):
         self.assertEqual(self.table.cell_value(0, 0), "changed")
         self.assertRaises(IndexError, self.table.cell_text, -1, 0)
         self.assertRaises(IndexError, self.table.cell_text, 0, 6)
+
+
+@unittest.skipUnless(
+    is_x64_Python(),
+    "Qt6 Quick mousearea sample is available only for the x64 test bundle")
+class Qt6QuickMouseAreaWrapperTests(unittest.TestCase):
+
+    """Unit tests for Qt6 Quick QML item discovery and interaction."""
+
+    def setUp(self):
+        """Start pure Qt6 Quick sample application."""
+        _set_timings()
+
+        self.app = Application(backend="qt6")
+        self.app = self.app.start(qt_quick_mousearea_app)
+        time.sleep(2)
+        _assert_sample_running(self, self.app, qt_quick_mousearea_app)
+
+        self.dlg = self.app.window(class_name="QQuickView")
+        self.root = self.dlg.find(timeout=10)
+
+    def tearDown(self):
+        """Close application after tests."""
+        self.app.kill()
+
+    def test_qml_items_are_exposed_as_qt_elements(self):
+        """Test that pure QML scene items are visible to the Qt6 backend."""
+        self.assertTrue(isinstance(self.root, WindowWrapper))
+        self.assertEqual(self.root.class_name(), "QQuickView")
+
+        descendants = self.root.descendants()
+        class_names = [item.class_name() for item in descendants]
+        self.assertIn("QQuickRootItem", class_names)
+        self.assertIn("QQuickRectangle", class_names)
+        self.assertIn("QQuickMouseArea_QML_0", class_names)
+        self.assertIn("QQuickMouseArea", class_names)
+
+        texts = self.root.descendants(control_type="Text")
+        self.assertIn("Click", [item.window_text() for item in texts])
+        self.assertIn("Drag", [item.window_text() for item in texts])
+
+    def test_qml_mouse_area_click_changes_qml_state(self):
+        """Test clicking a Qt6 QML MouseArea through the Qt backend."""
+        mouse_area = self.dlg.by(class_name="QQuickMouseArea_QML_0").find(timeout=10)
+        mouse_area.click()
+        time.sleep(1)
+
+        texts = [item.window_text()
+                 for item in self.root.descendants(control_type="Text")]
+        self.assertIn("Pressed (LeftButton shift=false)", texts)
+        self.assertIn("Clicked (wasHeld=false)", texts)
+
+    def test_qml_native_property_can_be_changed(self):
+        """Test reading and writing native properties on Qt6 QQuickItem."""
+        mouse_area = self.dlg.by(class_name="QQuickMouseArea_QML_0").find(timeout=10)
+        self.assertTrue(mouse_area.get_native_property("enabled"))
+
+        mouse_area.set_native_property("enabled", False)
+        time.sleep(0.5)
+        self.assertFalse(mouse_area.get_native_property("enabled"))
+
+        mouse_area.set_native_property("enabled", True)
+        time.sleep(0.5)
+        self.assertTrue(mouse_area.get_native_property("enabled"))
+
+
+@unittest.skipUnless(
+    is_x64_Python(),
+    "Qt6 Quick qquickwidgetversuswindow sample is available only for the x64 test bundle")
+class Qt6QuickWidgetOpenGLWrapperTests(unittest.TestCase):
+
+    """Unit tests for mixed QWidget and Qt6 Quick sample application."""
+
+    def setUp(self):
+        """Start mixed QWidget/Qt Quick sample application."""
+        _set_timings()
+
+        self.app = Application(backend="qt6")
+        self.app = self.app.start(qt_quick_widget_opengl_app)
+        time.sleep(2)
+        _assert_sample_running(self, self.app, qt_quick_widget_opengl_app)
+
+    def tearDown(self):
+        """Close application after tests."""
+        self.app.kill()
+
+    def _window_by_class(self, class_name):
+        """Return a top-level test window by Qt class name."""
+        for window in self.app.windows():
+            if window.class_name() == class_name:
+                return window
+        self.fail("Top-level window with class '{}' was not found".format(class_name))
+
+    def test_qwidget_shell_still_exposes_controls(self):
+        """Test QWidget discovery still works in a mixed Qt6 Quick app."""
+        widget_root = self._window_by_class("QWidget")
+
+        self.assertEqual(widget_root.children_texts()[:3],
+                         ["Type", "Multisample (4x)",
+                          "QQuickWidget status: Ready"])
+        descendant_texts = [item.window_text()
+                            for item in widget_root.descendants()]
+        self.assertIn("QQuickWidget (indirect through framebuffer objects)",
+                      descendant_texts)
+        self.assertIn("QQuickView in a window container (direct)",
+                      descendant_texts)
+        self.assertIn("Show widget overlay", descendant_texts)
+        self.assertTrue(widget_root.by(class_name="QQuickWidget").exists(timeout=10))
+
+    def test_qml_text_input_can_be_edited(self):
+        """Test editing a QML TextInput exposed under the offscreen Quick window."""
+        quick_root = self._window_by_class("QQuickWidgetOffscreenWindow")
+        edit = quick_root.by(class_name="QQuickTextInput").find(timeout=10)
+
+        self.assertTrue(isinstance(edit, EditWrapper))
+        self.assertEqual(edit.window_text(), "Hello Qt")
+
+        edit.set_edit_text("Backend Qt6Quick")
+        time.sleep(1)
+        self.assertEqual(edit.window_text(), "Backend Qt6Quick")
+        self.assertEqual(edit.get_value(), "Backend Qt6Quick")
 
 
 if __name__ == "__main__":
