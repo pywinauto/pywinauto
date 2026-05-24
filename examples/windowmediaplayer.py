@@ -33,7 +33,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-#import os
 import time
 import sys
 
@@ -52,26 +51,24 @@ def windows_media():
     app = application.Application()
 
     try:
-        app.start(   # connect_(path =
-            r"C:\Program Files\Windows Media Player\wmplayer.exe")
+        app.start(r"C:\Program Files (x86)\Windows Media Player\wmplayer.exe")
     except application.ProcessNotFoundError:
-        print("You must first start Windows Media "\
-            "Player before running this script")
+        print("You must first start Windows Media Player before running this script")
         sys.exit()
 
-    app.WindowsMediaPlayer.menu_select("View->GoTo->Library")
+    # Wait for Window media player displays
+    time.sleep(3)
+    app.WindowsMediaPlayer.menu_select("View->Library")
+    # Wait for the window library bar displays
+    time.sleep(1)
     app.WindowsMediaPlayer.menu_select("View->Choose Columns")
-
-    #for ctrl in app.ChooseColumns.children():
-    #    print ctrl.class_name()
-
 
     print("Is it checked already:", app.ChooseColumsn.ListView.is_checked(1))
 
-    # Check an Item in the listview
+    # Check an Item in the list view
     app.ChooseColumns.ListView.check(1)
     time.sleep(.5)
-    print("Shold be checked now:", app.ChooseColumsn.ListView.is_checked(1))
+    print("Should be checked now:", app.ChooseColumsn.ListView.is_checked(1))
 
     # Uncheck it
     app.ChooseColumns.ListView.uncheck(1)
@@ -83,6 +80,22 @@ def windows_media():
     time.sleep(.5)
 
     app.ChooseColumsn.Cancel.click()
+    time.sleep(.5)
+
+    # Open a media file
+    app.WindowsMediaPlayer.menu_select("File->Open")
+
+    # Select and play a song
+    song_path = "#push your path"
+    window = app.Open
+    window.Wait('ready')
+    edit = window.Edit
+    edit.type_keys(song_path)
+    button = window[u'&Open']
+    button.Click()
+
+    # Let the music plays
+    time.sleep(20)
 
     app.WindowsMediaPlayer.menu_select("File->Exit")
 
@@ -93,6 +106,7 @@ def main():
     windows_media()
 
     print("Total time taken:", time.time() - start)
+
 
 if __name__ == "__main__":
     main()
