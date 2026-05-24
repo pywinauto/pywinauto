@@ -35,12 +35,113 @@ from comtypes import COMError
 from ctypes.wintypes import tagPOINT
 import warnings
 
-from .uia_defines import IUIA
+from .uia_defines import IUIA, property_condition_flags, property_ids
 from .uia_defines import get_elem_interface, NoPatternInterfaceError
 
 from pywinauto.handleprops import dumpwindow, controlid
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
+
+
+class UIACondition(object):
+    """Helper for filtering when searching for elements in the UI Automation tree"""
+    def __init__(self, condition):
+        if not isinstance(condition, IUIA().UIA_dll.IUIAutomationCondition):
+            # IUIAutomation*Condition.GetChild(ren) could be returned (sequence of) IUnknown
+            condition = condition.QueryInterface(IUIA().UIA_dll.IUIAutomationCondition)
+        self._condition = condition
+
+    @property
+    def condition(self):
+        """Return the pointer of IUIAutomationCondition"""
+        return self._condition
+
+    @property
+    def condition_ex(self):
+        """Return the pointer of IUIAutomationCondition inheritance"""
+        cond = self._condition
+        try:
+            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationAndCondition)
+        except COMError:
+            pass
+        try:
+            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationOrCondition)
+        except COMError:
+            pass
+        try:
+            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationNotCondition)
+        except COMError:
+            pass
+        try:
+            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
+        except COMError:
+            pass
+        try:
+            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationBoolCondition)
+        except COMError:
+            raise TypeError
+
+    @classmethod
+    def create_property(cls, propid, value, flags=None):
+        """Create a condition filtering by property, value and optional flags"""
+        if isinstance(propid, string_types):
+            propid = property_ids[propid]
+        elif not isinstance(propid, integer_types):
+            raise TypeError('propid must be string or integer')
+        if isinstance(flags, string_types):
+            flags = property_condition_flags[flags]
+        elif not isinstance(flags, (integer_types, type(None))):
+            raise TypeError('flags must be string, integer or None')
+        if flags is None:
+            cond = IUIA().iuia.CreatePropertyCondition(propid, value)
+        else:
+            cond = IUIA().iuia.CreatePropertyConditionEx(propid, value, flags)
+        return cls(cond)
+
+    @classmethod
+    def create_control_type(cls, value):
+        """Create a condition filtering by control type"""
+        if isinstance(value, string_types):
+            value = IUIA().known_control_types[value]
+        elif not isinstance(value, integer_types):
+            raise TypeError('control_type must be string or integer')
+        return cls.create_property('ControlType', value)
+
+    @classmethod
+    def create_bool(cls, value):
+        """Create a condition filtering by boolean value"""
+        if value:
+            return cls(IUIA().true_condition)
+        return cls(IUIA().false_condition)
+
+    @classmethod
+    def from_array(cls, operator_type, condition_array):
+        """Create a condition from array"""
+        if operator_type == "and":
+            return cls(IUIA().iuia.CreateAndConditionFromArray([c.condition for c in condition_array]))
+        elif operator_type == "or":
+            return cls(IUIA().iuia.CreateOrConditionFromArray([c.condition for c in condition_array]))
+        raise TypeError("operator_type must be 'and' or 'or'")
+
+    def __and__(self, other):
+        cond = IUIA().iuia.CreateAndCondition(self._condition, other.condition)
+        return type(self)(cond)
+
+    def __iand__(self, other):
+        # type: (UIACondition) -> UIACondition
+        return self & other
+
+    def __or__(self, other):
+        cond = IUIA().iuia.CreateOrCondition(self._condition, other.condition)
+        return type(self)(cond)
+
+    def __ior__(self, other):
+        # type: (UIACondition) -> UIACondition
+        return self | other
+
+    def __invert__(self):
+        cond = IUIA().iuia.CreateNotCondition(self._condition)
+        return type(self)(cond)
 
 
 def elements_from_uia_array(ptrs, cache_enable=False):
@@ -386,11 +487,7 @@ class UIAElementInfo(ElementInfo):
     @property
     def parent(self):
         """Return parent of the element"""
-        parent_elem = IUIA().iuia.ControlViewWalker.GetParentElement(self._element)
-        if parent_elem:
-            return UIAElementInfo(parent_elem)
-        else:
-            return None
+        return UIATreeWalker("control").get_parent(self)
 
     def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
         """Find all elements according to the given tree scope and conditions"""
@@ -576,3 +673,71 @@ class UIAElementInfo(ElementInfo):
         """Return current active element"""
         ae = IUIA().get_focused_element()
         return cls(ae)
+
+
+class _UIAChildrenTree(object):
+    def __init__(self, walker, element, cache_enable):
+        self._walker = walker
+        self._element = element
+        self._cache_enable = cache_enable
+
+    def __iter__(self):
+        try:
+            elem = self._walker.GetFirstChildElement(self._element)
+            while elem:
+                yield UIAElementInfo(elem, self._cache_enable)
+                elem = self._walker.GetNextSiblingElement(elem)
+        except (COMError, ValueError) as e:
+            warnings.warn("Can't get elements due to error: {}".format(e), RuntimeWarning)
+
+    def __reversed__(self):
+        try:
+            elem = self._walker.GetLastChildElement(self._element)
+            while elem:
+                yield UIAElementInfo(elem, self._cache_enable)
+                elem = self._walker.GetPreviousSiblingElement(elem)
+        except (COMError, ValueError) as e:
+            warnings.warn("Can't get elements due to error: {}".format(e), RuntimeWarning)
+
+
+class UIATreeWalker(object):
+    """UI tree walker wrapper for IUIAutomation API"""
+    def __init__(self, condition, cache_enable=False):
+        """
+        Create an instance of UIATreeWalker.
+
+        * **condition** is either a valid UIACondition or literal string('raw', 'content', 'control')
+        * **cache_enable** is optional for caching of UIA elements attributes during walk.
+        """
+        if isinstance(condition, UIACondition):
+            self._walker = IUIA().iuia.CreateTreeWalker(condition.condition)
+        elif condition == "raw":
+            self._walker = IUIA().raw_tree_walker
+        elif condition == "content":
+            self._walker = IUIA().content_tree_walker
+        elif condition == "control":
+            self._walker = IUIA().control_tree_walker
+        else:
+            raise TypeError
+        self._cache_enable = cache_enable
+
+    @property
+    def walker(self):
+        """Return TreeWalker's instance"""
+        return self._walker
+
+    @property
+    def condition(self):
+        """Return condition of walker"""
+        return UIACondition(self._walker.condition)
+
+    def walk(self, element):
+        """Iterate over children of the element satisfying the condition"""
+        return _UIAChildrenTree(self._walker, element.element, self._cache_enable)
+
+    def get_parent(self, element):
+        """Return parent of the element satisfying the condition"""
+        elem = self._walker.GetParentElement(element.element)
+        if elem:
+            return UIAElementInfo(elem, self._cache_enable)
+        return None
