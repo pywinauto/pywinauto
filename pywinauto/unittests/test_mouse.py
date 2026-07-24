@@ -130,6 +130,12 @@ class MouseTests(unittest.TestCase):
 
     # TODO: make the feature and the tests cross-platform (duration param)
     if sys.platform == "win32":
+        def test_vertical_scroll_fractional_distance(self):
+            mouse.click(coords=(self.__get_pos(50)))
+            mouse.scroll(self.__get_pos(50), 0.5)
+            data = self.__get_text()
+            self.assertTrue("UP" in data)
+
         def test_mouse_can_move_cursor(self):
             coord = (0, 1)
             mouse.move(coord)

@@ -318,8 +318,7 @@ def _perform_click_input(
 
     dw_data = 0
     if button.lower() == 'wheel':
-        wheel_dist = wheel_dist * 120
-        dw_data = wheel_dist
+        dw_data = int(wheel_dist * 120)
 
     if button.lower() == 'move':
         x_res = win32functions.GetSystemMetrics(win32defines.SM_CXSCREEN)
