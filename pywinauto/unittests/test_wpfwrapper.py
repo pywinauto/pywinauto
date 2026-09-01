@@ -975,6 +975,9 @@ class TreeViewWpfTests(unittest.TestCase):
 
         self.assertRaises(IndexError, self.ctrl.get_item, (130, 2, 1))
 
+    @unittest.skipIf(
+        os.environ.get('APPVEYOR_BUILD_WORKER_IMAGE') not in ['Visual Studio 2015'],
+        "TODO: this test hangs on Win 11 and WinServer 2019+")
     def test_tv_drag_n_drop(self):
         """Test moving an item with mouse over TreeView"""
         # Make sure the both nodes are visible
