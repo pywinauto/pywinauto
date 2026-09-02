@@ -523,10 +523,6 @@ class BaseWrapper(object, metaclass=BaseMeta):
         See PIL documentation to know what you can do with the resulting
         image.
         """
-        control_rectangle = self.rectangle()
-        if not (control_rectangle.width() and control_rectangle.height()):
-            return None
-
         # PIL is optional so check first
         if not ImageGrab:
             print("PIL does not seem to be installed. "
@@ -535,8 +531,10 @@ class BaseWrapper(object, metaclass=BaseMeta):
                              "PIL is required for capture_as_image")
             return None
 
-        if rect:
-            control_rectangle = rect
+        # use given rectangle or get control rectangle
+        control_rectangle = rect or self.rectangle()
+        if not (control_rectangle.width() and control_rectangle.height()):
+            return None
 
         # get the control rectangle in a way that PIL likes it
         left = control_rectangle.left
