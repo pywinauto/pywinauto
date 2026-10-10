@@ -56,7 +56,8 @@ sys.path.append(setup_path())
 #    if not os.path.exists(setup_path("docs")):
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
-install_requires = []
+install_requires = ['injectlib']  # cross-platform requirements
+# TODO: add Linux x86 and arm64 support or add a platform condition
 
 if sys.platform == 'win32':
     packages = ["pywinauto",
@@ -72,7 +73,7 @@ else:
     packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
 
 setup(name='pywinauto',
-    version = '0.6.9',
+    version = '1.0.0beta1',
     description = 'A set of Python modules to automate the Microsoft Windows GUI',
     keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
     url = "https://github.com/pywinauto/pywinauto",
