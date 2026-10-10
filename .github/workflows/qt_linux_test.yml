@@ -34,7 +34,7 @@ jobs:
           qml6-module-qtquick qml6-module-qtquick-window qml6-module-qtquick-particles \
           libgl1-mesa-dri libglx-mesa0
         pip3 install mock python-xlib pytest
-        pip3 install https://github.com/Makarov-AA/injected/releases/download/0.0.3/injectlib-0.0.3-py2.py3-none-any.whl
+        pip3 install injectlib
 
     - name: Run Qt Linux tests
       run: |
