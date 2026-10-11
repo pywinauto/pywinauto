@@ -35,8 +35,6 @@
 from __future__ import unicode_literals
 from __future__ import print_function
 
-import six
-
 from .. import backend
 from .win_base_wrapper import WinBaseWrapper
 from ..base_wrapper import BaseMeta
@@ -70,8 +68,7 @@ class WpfMeta(BaseMeta):
         return wrapper_match
 
 
-@six.add_metaclass(WpfMeta)
-class WPFWrapper(WinBaseWrapper):
+class WPFWrapper(WinBaseWrapper, metaclass=WpfMeta):
 
     """Default wrapper for WPF control in the specified process."""
 

@@ -30,8 +30,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Implementation of the class to deal with an UI element of WPF via injected managed DLL/assembly."""
-from six import integer_types, string_types
-
 from pywinauto.handleprops import dumpwindow
 from pywinauto.element_info import ElementInfo
 from .win32structures import RECT
@@ -43,7 +41,7 @@ def is_element_satisfying_criteria(element, process=None, class_name=None, name=
     """Check if element satisfies filter criteria."""
     is_appropriate_control_type = True
     if control_type:
-        if isinstance(control_type, string_types):
+        if isinstance(control_type, str):
             is_appropriate_control_type = element.control_type == control_type
         else:
             raise TypeError('control_type must be string')
@@ -75,7 +73,7 @@ class WPFElementInfo(ElementInfo):
         """
         self._pid = pid
         if elem_id is not None:
-            if isinstance(elem_id, integer_types):
+            if isinstance(elem_id, int):
                 # Create instance of WPFElementInfo from a handle
                 self._element = elem_id
             else:
@@ -226,7 +224,7 @@ class WPFElementInfo(ElementInfo):
         # cache_enable = kwargs.pop('cache_enable', False)
         depth = kwargs.pop("depth", None)
         process = kwargs.pop("process", None)
-        if not isinstance(depth, (integer_types, type(None))) or isinstance(depth, integer_types) and depth < 0:
+        if not isinstance(depth, (int, type(None))) or isinstance(depth, int) and depth < 0:
             raise Exception("Depth must be an integer")
 
         if depth == 0:
@@ -290,7 +288,7 @@ class WPFElementInfo(ElementInfo):
         """Return current active element."""
         from .application import Application
 
-        if isinstance(app_or_pid, integer_types):
+        if isinstance(app_or_pid, int):
             pid = app_or_pid
         elif isinstance(app_or_pid, Application):
             pid = app_or_pid.process
