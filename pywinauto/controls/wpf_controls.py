@@ -33,7 +33,6 @@
 """Wrap various WPF windows controls. To be used with 'wpf' backend."""
 import locale
 import time
-import six
 
 from . import wpfwrapper
 from . import common_controls
@@ -255,7 +254,7 @@ class ComboBoxWrapper(wpfwrapper.WPFWrapper):
         The item can be either a 0 based index of the item to select
         or it can be the string that you want to select
         """
-        if isinstance(item, six.integer_types):
+        if isinstance(item, int):
             self.set_native_property('SelectedIndex', item)
         else:
             index = None
@@ -399,28 +398,19 @@ class EditWrapper(wpfwrapper.WPFWrapper):
             start, end = self.selection_indices()
             if pos_start is None:
                 pos_start = start
-            if pos_end is None and not isinstance(start, six.string_types):
+            if pos_end is None and not isinstance(start, str):
                 pos_end = end
         else:
             pos_start = 0
             pos_end = len(self.window_text())
 
-        if isinstance(text, six.text_type):
-            if six.PY3:
-                aligned_text = text
-            else:
-                aligned_text = text.encode(locale.getpreferredencoding())
-        elif isinstance(text, six.binary_type):
-            if six.PY3:
-                aligned_text = text.decode(locale.getpreferredencoding())
-            else:
-                aligned_text = text
+        if isinstance(text, str):
+            aligned_text = text
+        elif isinstance(text, bytes):
+            aligned_text = text.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            if six.PY3:
-                aligned_text = six.text_type(text)
-            else:
-                aligned_text = six.binary_type(text)
+            aligned_text = str(text)
 
         # Calculate new text value
         current_text = self.window_text()
@@ -430,7 +420,7 @@ class EditWrapper(wpfwrapper.WPFWrapper):
 
         # time.sleep(Timings.after_editsetedittext_wait)
 
-        if isinstance(aligned_text, six.text_type):
+        if isinstance(aligned_text, str):
             self.actions.log('Set text to the edit box: ' + aligned_text)
         else:
             self.actions.log(b'Set text to the edit box: ' + aligned_text)
@@ -446,16 +436,16 @@ class EditWrapper(wpfwrapper.WPFWrapper):
         self.verify_actionable()
         self.set_focus()
 
-        if isinstance(start, six.integer_types):
-            if isinstance(end, six.integer_types) and start > end:
+        if isinstance(start, int):
+            if isinstance(end, int) and start > end:
                 start, end = end, start
             elif end is None:
                 end = len(self.window_text())
         else:
             # if we have been asked to select a string
-            if isinstance(start, six.text_type):
+            if isinstance(start, str):
                 string_to_select = start
-            elif isinstance(start, six.binary_type):
+            elif isinstance(start, bytes):
                 string_to_select = start.decode(locale.getpreferredencoding())
             else:
                 raise ValueError('start and end should be integer or string')
@@ -496,7 +486,7 @@ class TabControlWrapper(wpfwrapper.WPFWrapper):
     # ----------------------------------------------------------------
     def select(self, item):
         """Select a tab by index or by name."""
-        if isinstance(item, six.integer_types):
+        if isinstance(item, int):
             self.set_native_property('SelectedIndex', item)
         else:
             index = None
@@ -564,9 +554,9 @@ class SliderWrapper(wpfwrapper.WPFWrapper):
         """Set position of slider's thumb."""
         if isinstance(value, float):
             value_to_set = value
-        elif isinstance(value, six.integer_types):
+        elif isinstance(value, int):
             value_to_set = value
-        elif isinstance(value, six.text_type):
+        elif isinstance(value, str):
             value_to_set = float(value)
         else:
             raise ValueError("value should be either string or number")
@@ -633,7 +623,7 @@ class ToolbarWrapper(wpfwrapper.WPFWrapper):
         cc = self.buttons()
         texts = [c.window_text() for c in cc]
 
-        if isinstance(button_identifier, six.string_types):
+        if isinstance(button_identifier, str):
             self.actions.log('Toolbar buttons: ' + str(texts))
 
             if exact:
@@ -867,7 +857,7 @@ class TreeItemWrapper(wpfwrapper.WPFWrapper):
         with the best match for the string.
         """
         cc = self.children(control_type='TreeItem')
-        if isinstance(child_spec, six.string_types):
+        if isinstance(child_spec, str):
             texts = [c.window_text() for c in cc]
             if exact:
                 if child_spec in texts:
@@ -989,7 +979,7 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
             return None
 
         # Ensure the path is absolute
-        if isinstance(path, six.string_types):
+        if isinstance(path, str):
             if not path.startswith("\\"):
                 raise RuntimeError(
                     "Only absolute paths allowed - "
@@ -1023,7 +1013,7 @@ class TreeViewWrapper(wpfwrapper.WPFWrapper):
                 current_elem.expand()
                 current_elem = current_elem.get_child(child_spec, exact)
             except IndexError:
-                if isinstance(child_spec, six.string_types):
+                if isinstance(child_spec, str):
                     raise IndexError("Item '{0}' does not have a child '{1}'".format(
                                      current_elem.window_text(), child_spec))
                 raise IndexError("Item '{0}' does not have {1} children".format(
@@ -1135,7 +1125,7 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
           with the text of a cell in the row you want returned.
         """
         # Verify arguments
-        if isinstance(row, six.string_types):
+        if isinstance(row, str):
             # Get DataGrid row
             try:
                 itm = self.descendants(name=row)[0]
@@ -1146,7 +1136,7 @@ class ListViewWrapper(wpfwrapper.WPFWrapper):
                     itm = itm.parent()
             except IndexError:
                 raise ValueError("Element '{0}' not found".format(row))
-        elif isinstance(row, six.integer_types):
+        elif isinstance(row, int):
             # Get the item by a row index
             list_items = self.children(content_only=True)
             itm = list_items[row]
@@ -1282,7 +1272,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
         * **row** is an index of a row in the list.
         * **column** is an index of a column in the specified row.
         """
-        if not isinstance(row, six.integer_types) or not isinstance(column, six.integer_types):
+        if not isinstance(row, int) or not isinstance(column, int):
             raise TypeError("row and column must be numbers")
 
         _row = self.get_item(row).children()
@@ -1300,7 +1290,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
           with the text of a cell in the row you want returned.
         """
         # Verify arguments
-        if isinstance(row, six.string_types):
+        if isinstance(row, str):
             # Get DataGrid row
             try:
                 itm = self.descendants(name=row)[0]
@@ -1311,7 +1301,7 @@ class DataGridWrapper(wpfwrapper.WPFWrapper):
                     itm = itm.parent()
             except IndexError:
                 raise ValueError("Element '{0}' not found".format(row))
-        elif isinstance(row, six.integer_types):
+        elif isinstance(row, int):
             # Get the item by a row index
             list_items = self.children(control_type='DataItem')
             itm = list_items[row]
