@@ -30,7 +30,7 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Basic wrapping of UI Automation elements"""
-import six, time
+import time
 
 try:
     from PIL import ImageGrab, Image
@@ -92,8 +92,7 @@ class AXMeta(BaseMeta):
 
 
 # =========================================================================
-@six.add_metaclass(AXMeta)
-class AXWrapper(BaseWrapper):
+class AXWrapper(BaseWrapper, metaclass=AXMeta):
 
     """
     Default wrapper for User Interface Automation (AX) controls.
@@ -183,13 +182,13 @@ class AXWrapper(BaseWrapper):
         if set_foreground:
             self.set_focus()
 
-        if isinstance(keys, six.text_type):
+        if isinstance(keys, str):
             aligned_keys = keys
-        elif isinstance(keys, six.binary_type):
+        elif isinstance(keys, bytes):
             aligned_keys = keys.decode(locale.getpreferredencoding())
         else:
             # convert a non-string input
-            aligned_keys = six.text_type(keys)
+            aligned_keys = str(keys)
 
         keyboard.send_keys(
             aligned_keys,
@@ -312,7 +311,7 @@ class AXWrapper(BaseWrapper):
         if use_log:
             ctrl_text = self.window_text()
             if ctrl_text is None:
-                ctrl_text = six.text_type(ctrl_text)
+                ctrl_text = str(ctrl_text)
             if button.lower() == 'move':
                 message = 'Moved mouse over ' + self.friendly_class_name() + \
                           ' "' + ctrl_text + '" to screen point ('

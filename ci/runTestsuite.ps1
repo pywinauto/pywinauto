@@ -52,7 +52,7 @@ function run {
             "--ignore=pywinauto\unittests\test_qt6_element_info.py"
         )
     }
-    pytest --junit-xml=$results --tb=native --capture=no --show-capture=stdout $faulthandler_opt -v --verbosity=3 --cache-clear --durations=15 $ignored --log-level=DEBUG --cov-report html:Coverage_report --cov=pywinauto pywinauto\unittests\windows
+    pytest --junit-xml=$results --tb=native --capture=no --show-capture=stdout $faulthandler_opt -v --verbosity=3 --cache-clear --durations=15 $ignored --log-level=DEBUG --cov-report html:Coverage_report --cov=pywinauto pywinauto\unittests\windows pywinauto\unittests
     $success = $?
     Write-Output "result code of pytest: $success"
 

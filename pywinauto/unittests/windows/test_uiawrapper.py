@@ -2324,8 +2324,8 @@ if UIA_support:
             """Set some data and ensure the application is in the state we want"""
             _set_timings()
 
-            test_folder = os.path.join(os.path.dirname(os.path.dirname(
-                os.path.dirname(os.path.abspath(__file__)))), r"apps/WinForms_samples")
+            test_folder = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(
+                os.path.dirname(os.path.abspath(__file__))))), r"apps/WinForms_samples")
             self.toolbar_test = os.path.join(test_folder, "ToolBarTest.exe")
 
             # start the application
