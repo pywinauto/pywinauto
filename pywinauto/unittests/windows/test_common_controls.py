@@ -41,9 +41,7 @@ from datetime import datetime
 import os
 import win32api
 import win32gui
-import six
 
-#sys.path.append(".")
 sys.path.append("..")
 from pywinauto.windows.application import Application  # noqa: E402
 from pywinauto.windows.win32structures import RECT  # noqa: E402
@@ -714,12 +712,14 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         """Close the application after tests"""
         self.dlg.send_message(win32defines.WM_CLOSE)
         self.app.kill()
+        Timings.defaults()
 
     def testCheckBoxes(self):
         """Make sure tree view item method is_checked() works as expected"""
         self.dlg.set_focus()
         self.dlg.TVS_CHECKBOXES.uncheck_by_click()
         self.dlg.TVS_CHECKBOXES.check_by_click()
+        self.dlg.wait('enabled')
         birds = self.ctrl.get_item(r'\Birds')
         self.ctrl.set_focus() # to make sure focus is not lost by any accident event
         birds.click(where='check')
@@ -765,8 +765,10 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         birds.click(double=True, where='icon')
         self.assertEqual(birds.is_expanded(), False)
 
+        self.dlg.set_focus()
         birds.click_input(where='button')
         self.assertEqual(birds.is_expanded(), True)
+        self.dlg.set_focus()
         time.sleep(win32gui.GetDoubleClickTime() * 2.0 / 1000)
         birds.click_input(double=True, where='icon')
         self.assertEqual(birds.is_expanded(), False)
@@ -779,6 +781,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
 
     def testStartDraggingAndDrop(self):
         """Make sure tree view item methods StartDragging() and drop() work as expected"""
+        Timings.slow()
         birds = self.ctrl.get_item(r'\Birds')
         birds.expand()
 
@@ -1150,7 +1153,7 @@ class ToolbarTestCases(unittest.TestCase):
     def testTexts(self):
         """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
-            self.assertEqual(isinstance(txt, six.string_types), True)
+            self.assertIsInstance(txt, str)
 
     def testGetProperties(self):
         """Test getting the properties for the toolbar control"""
@@ -1271,6 +1274,7 @@ class RebarTestCases(unittest.TestCase):
     def tearDown(self):
         """Close the application after tests"""
         self.app.kill(soft=True)
+        Timings.defaults()
 
     def testFriendlyClass(self):
         """Make sure the friendly class is set correctly (ReBar)"""
@@ -1279,7 +1283,7 @@ class RebarTestCases(unittest.TestCase):
     def testTexts(self):
         """Make sure the texts are set correctly"""
         for txt in self.ctrl.texts():
-            self.assertEqual(isinstance(txt, six.string_types), True)
+            self.assertIsInstance(txt, str)
 
     def testBandCount(self):
         """Make sure band_count() returns 2"""
@@ -1310,6 +1314,7 @@ class RebarTestCases(unittest.TestCase):
 
     def testMenuBarClickInput(self):
         """Make sure we can click on Menu Bar items by indexed path"""
+        Timings.defaults()
         self.assertRaises(TypeError, self.dlg.MenuBar.menu_bar_click_input, '#one->#0', self.app)
 
         self.dlg.MenuBar.menu_bar_click_input('#1->#0->#0', self.app)

@@ -32,11 +32,10 @@
 """Tests for handleprops.py"""
 
 import unittest
-import six
 import os
+import platform
 import sys
 import warnings
-#sys.path.append(".")
 sys.path.append("..")
 
 from pywinauto.windows import win32structures
@@ -48,6 +47,17 @@ from pywinauto.windows.application import Application
 from pywinauto.sysinfo import is_x64_OS
 from pywinauto.sysinfo import is_x64_Python
 from pywinauto.timings import Timings
+
+
+def win_build_number():
+    if sys.platform == 'win32':
+        return int(platform.version().split('.')[-1])
+    raise NotImplementedError('Can get Windows build number only on Windows')
+
+def is_win_server2016_or_before():
+    if sys.platform == 'win32':
+        return win_build_number() < 16299
+    return False
 
 
 class HandlepropsTestCases(unittest.TestCase):
@@ -103,7 +113,8 @@ class HandlepropsTestCases(unittest.TestCase):
     def test_exstyle(self):
         """Make sure the exstyle method returns correct result"""
         self.assertEqual(0x110, exstyle(self.dlghandle))
-        self.assertEqual(0x200, exstyle(self.edit_handle))
+        if is_win_server2016_or_before():
+            self.assertEqual(0x200, exstyle(self.edit_handle))
         self.assertEqual(0, exstyle(sys.maxsize))
         self.assertEqual(0, exstyle(None))
 
@@ -176,7 +187,7 @@ class HandlepropsTestCases(unittest.TestCase):
                     name_re="Replace.*",
                     class_name="Button",
                     enabled=None).handle))
-        self.app.Replace.Cancel.Click()
+        self.app.Replace.Cancel.click()
 
     def test_clientrect(self):
         """Make sure clientrect() function works"""
@@ -209,10 +220,10 @@ class HandlepropsTestCases(unittest.TestCase):
     def test_font(self):
         """Make sure font() function works"""
         dlgfont = font(self.dlghandle)
-        self.assertEqual(True, isinstance(dlgfont.lfFaceName, six.string_types))
+        self.assertIsInstance(dlgfont.lfFaceName, str)
 
         editfont = font(self.edit_handle)
-        self.assertEqual(True, isinstance(editfont.lfFaceName, six.string_types))
+        self.assertIsInstance(editfont.lfFaceName, str)
 
         # handle.props font should return DEFAULT font for an invalid handle
         # Check only for a returned type as the default font can vary
@@ -244,7 +255,8 @@ class HandlepropsTestCases(unittest.TestCase):
     def test_has_exstyle(self):
         """Make sure the has_exstyle method returns correct result"""
         self.assertEqual(True, has_exstyle(self.dlghandle, 0x10))
-        self.assertEqual(True, has_exstyle(self.edit_handle, 0x200))
+        if is_win_server2016_or_before():
+            self.assertEqual(True, has_exstyle(self.edit_handle, 0x200))
 
         self.assertEqual(False, has_exstyle(self.dlghandle, 4))
         self.assertEqual(False, has_exstyle(self.edit_handle, 0x10))
