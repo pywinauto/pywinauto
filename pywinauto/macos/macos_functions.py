@@ -64,8 +64,8 @@ from PyObjCTools import AppHelper
 is_debug = False
 
 def __get_string_value(value):
-    if isinstance(value, six.string_types):
-        return six.text_type(value)
+    if isinstance(value, str):
+        return value
 
 def launch_application(name):
     # Open application by name(without package name)

@@ -31,8 +31,6 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 """Wrap various macos controls. It is used with 'ax' backend"""
-import six
-
 from . import ax_wrapper
 from ..macos.macos_functions import get_list_of_actions
 from ..macos.macos_functions import perform_action
@@ -199,7 +197,7 @@ class ComboBoxWrapper(ax_wrapper.AXWrapper):
         Item can be specified as string or as index
         """
         self.expand()
-        if isinstance(item, six.string_types):
+        if isinstance(item, str):
             if item in self.texts:
                 set_ax_attribute(self.element_info.ref,'AXValue',item)
         else:
