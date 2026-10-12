@@ -56,8 +56,7 @@ sys.path.append(setup_path())
 #    if not os.path.exists(setup_path("docs")):
 #        shutil.move(setup_path("website"), setup_path("docs"))
 
-install_requires = ['injectlib']  # cross-platform requirements
-# TODO: add Linux x86 and arm64 support or add a platform condition
+install_requires = []
 
 if sys.platform == 'win32':
     packages = ["pywinauto",
@@ -69,7 +68,6 @@ elif sys.platform.startswith('linux'):
     packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls", "pywinauto.qt"]
 elif sys.platform == 'darwin':
     install_requires = [
-        'codecov',
         'six',
         'pyobjc-core==5.3',
         'pyobjc-framework-AppleScriptObjC==5.3',
@@ -88,6 +86,9 @@ setup(name='pywinauto',
     description = 'A set of Python modules to automate the Microsoft Windows GUI',
     keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
     url = "https://github.com/pywinauto/pywinauto",
+    project_urls = {
+        "Source": "https://github.com/pywinauto/pywinauto",
+    },
     author = 'Mark Mc Mahon and Contributors',
     author_email = 'pywinauto-users@lists.sourceforge.net',
     long_description = """
@@ -114,10 +115,14 @@ Useful links
         'License :: OSI Approved :: BSD License',
         'Operating System :: Microsoft :: Windows',
         'Programming Language :: Python',
-        'Programming Language :: Python :: 2.7',
-        'Programming Language :: Python :: 3.5',
-        'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
+        'Programming Language :: Python :: 3.10',
+        'Programming Language :: Python :: 3.11',
+        'Programming Language :: Python :: 3.12',
+        'Programming Language :: Python :: 3.13',
+        'Programming Language :: Python :: 3.14',
         'Programming Language :: Python :: Implementation :: CPython',
         'Topic :: Software Development :: Libraries :: Python Modules',
         'Topic :: Software Development :: Testing',
@@ -129,13 +134,16 @@ Useful links
         ':python_version <= "3.6"': [
             'comtypes<=1.2.1',
             'pywin32<=227',
+            'injectlib',
         ],
         ':python_version > "3.6" and sys_platform == "win32"': [
             'comtypes',
             'pywin32',
+            'injectlib',
         ],
         ':platform_system == "Linux"': [
             'python-xlib',
+            'injectlib',  # add condition on Linux x86_64 (TODO: arm64 support)
         ],
     },
     )

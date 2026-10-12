@@ -6,6 +6,7 @@ import sys
 import os
 import unittest
 
+
 if sys.platform == 'win32':
     import win32clipboard
     sys.path.append(".")

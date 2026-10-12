@@ -33,7 +33,6 @@
 from __future__ import print_function
 from __future__ import unicode_literals
 
-import six
 import time
 #import pprint
 #import pdb
@@ -45,7 +44,6 @@ import locale
 import sys
 import os
 import unittest
-#sys.path.append(".")
 sys.path.append("..")
 
 import mock
@@ -549,10 +547,7 @@ class HwndWrapperTests(unittest.TestCase):
 
     def test_pretty_print(self):
         """Test __str__ method for HwndWrapper based controls"""
-        if six.PY3:
-            assert_regex = self.assertRegex
-        else:
-            assert_regex = self.assertRegexpMatches
+        assert_regex = self.assertRegex
 
         wrp = self.dlg.find()
         assert_regex(wrp.__str__(), "^hwndwrapper.DialogWrapper - 'Common Controls Sample', Dialog$")

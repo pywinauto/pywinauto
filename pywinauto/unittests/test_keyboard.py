@@ -85,7 +85,7 @@ class SendKeysTests(unittest.TestCase):
         if sys.platform == 'win32':
             self.app = Application()
             self.app.start(_notepad_exe())
-            self.dlg = self.app.UntitledNotepad
+            self.dlg = self.app.UnnamedNotepad
             self.ctrl = self.dlg.Edit
         elif sys.platform == 'darwin':
             launch_application("send_keys_test_app")
@@ -331,16 +331,50 @@ if sys.platform == 'win32':
         def testModifiersForFewChars(self):
             """Make sure that repeated action works"""
             send_keys("%(SC)", pause = .3)
-            dlg = self.app.window(title='Using C++ Derived Class')
+            dlg = self.app.window(name='Using C++ Derived Class')
             dlg.wait('ready')
             dlg.Done.close_click()
             dlg.wait_not('visible')
 
             send_keys("%(H{LEFT}{UP}{ENTER})", pause = .3)
-            dlg = self.app.window(title='Sample Dialog with spin controls')
+            dlg = self.app.window(name='Sample Dialog with spin controls')
             dlg.wait('ready')
             dlg.Done.close_click()
             dlg.wait_not('visible')
+
+
+if sys.platform == 'win32':
+    class VkPacketTests(unittest.TestCase):
+        def testBasic(self):
+            keys = parse_keys('AAA', vk_packet=False)
+            self.assertEqual(3, len(keys))
+            for key in keys:
+                self.assertTrue(isinstance(key, VirtualKeyAction))
+                wVk, wScan, dwFlags = key._get_key_info()
+                self.assertEqual(ord('A'), wVk)
+                self.assertEqual(0, dwFlags)
+
+        def testRepeat(self):
+            keys = parse_keys('{A 3}', vk_packet=False)
+            self.assertEqual(3, len(keys))
+            for key in keys:
+                self.assertTrue(isinstance(key, VirtualKeyAction))
+                wVk, wScan, dwFlags = key._get_key_info()
+                self.assertEqual(ord('A'), wVk)
+                self.assertEqual(0, dwFlags)
+
+        def testSymbol(self):
+            key, = parse_keys('{=}', vk_packet=False)
+            self.assertTrue(isinstance(key, VirtualKeyAction))
+            wVk, wScan, dwFlags = key._get_key_info()
+            self.assertEqual(0xbb, wVk)
+            self.assertEqual(0, dwFlags)
+
+        def testNoVk(self):
+            key, = parse_keys('!', vk_packet=False)
+            self.assertTrue(isinstance(key, KeyAction))
+            wVk, wScan, dwFlags = key._get_key_info()
+            self.assertEqual(0, wVk)
 
 
 #====================================================================
