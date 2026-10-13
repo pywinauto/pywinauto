@@ -10,7 +10,7 @@ jobs:
     timeout-minutes: 30
     steps:
     - name: Checkout Code
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
 
     - name: Unpack test apps
       run: |
@@ -44,7 +44,7 @@ jobs:
         # Example: Grant 'Accessibility' permissions to '/usr/bin/osascript'
         # (Used frequently for AppleScript-based UI testing automation)
         SERVICE="kTCCServiceAccessibility"
-        CLIENT="~/Applications/mousebuttons"
+        CLIENT="/Users/runner/Applications/mousebuttons"
         CLIENT_TYPE=0 # 0 for binary path, 1 for Bundle ID
         AUTH_VALUE=2  # 2 indicates 'Allowed'
         AUTH_REASON=1 # 1 indicates 'System Set / Policy'
