@@ -58,7 +58,7 @@ else:
 
 def mfc_samples():
     mfc_samples_folder = os.path.join(
-       os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
+       os.path.dirname(__file__), r"..\..\apps\MFC_samples")
     if is_x64_Python():
         mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
     return mfc_samples_folder
@@ -85,7 +85,7 @@ class SendKeysTests(unittest.TestCase):
         if sys.platform == 'win32':
             self.app = Application()
             self.app.start(_notepad_exe())
-            self.dlg = self.app.UnnamedNotepad
+            self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
         elif sys.platform == 'darwin':
             launch_application("send_keys_test_app")
@@ -111,8 +111,8 @@ class SendKeysTests(unittest.TestCase):
             except Exception: # TimeoutError:
                 pass
             finally:
-                if self.dlg.Exists(timeout=0.1):
-                    self.app.kill_()
+                if self.dlg.exists(timeout=0.1):
+                    self.app.kill()
         elif sys.platform == 'darwin':
             os.system("killall send_keys_test_app")
             time.sleep(2)
@@ -124,7 +124,7 @@ class SendKeysTests(unittest.TestCase):
         """Receive data from text field"""
         received = ' '
         if sys.platform == 'win32':
-            received = self.ctrl.TextBlock()
+            received = self.ctrl.text_block()
         elif sys.platform == 'darwin':
             # Clear clipboard
             os.system("pbcopy < /dev/null")

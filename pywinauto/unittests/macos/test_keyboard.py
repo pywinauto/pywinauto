@@ -40,7 +40,7 @@ import os
 import unittest
 import subprocess
 import time
-sys.path.append(".")
+sys.path.append("..")
 from pywinauto.application import Application
 if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError
@@ -58,7 +58,7 @@ else:
 
 def mfc_samples():
     mfc_samples_folder = os.path.join(
-       os.path.dirname(__file__), r"..\..\apps\MFC_samples")
+       os.path.dirname(__file__), r"..\..\..\apps\MFC_samples")
     if is_x64_Python():
         mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
     return mfc_samples_folder

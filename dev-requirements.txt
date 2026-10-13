@@ -5,17 +5,17 @@ pywin32>=300; python_version > '3.6' and platform_system == 'Windows'
 
 # macOS specific packages
 #
-pyobjc-core==5.3                          ; sys_platform == 'darwin'
-pyobjc-framework-AppleScriptObjC==5.3     ; sys_platform == 'darwin'
-pyobjc-framework-ApplicationServices==5.3 ; sys_platform == 'darwin'
-pyobjc-framework-Cocoa==5.3               ; sys_platform == 'darwin'
-pyobjc-framework-CoreText==5.3            ; sys_platform == 'darwin'
-pyobjc-framework-FSEvents==5.3            ; sys_platform == 'darwin'
-pyobjc-framework-Quartz==5.3              ; sys_platform == 'darwin'
+pyobjc-core                          ; sys_platform == 'darwin'
+pyobjc-framework-AppleScriptObjC     ; sys_platform == 'darwin'
+pyobjc-framework-ApplicationServices ; sys_platform == 'darwin'
+pyobjc-framework-Cocoa               ; sys_platform == 'darwin'
+pyobjc-framework-CoreText            ; sys_platform == 'darwin'
+pyobjc-framework-FSEvents            ; sys_platform == 'darwin'
+pyobjc-framework-Quartz              ; sys_platform == 'darwin'
 
 # Linux specific packages
 #
-python-xlib                               ; sys_platform == 'linux'
+python-xlib                          ; sys_platform == 'linux'
 
 # Cross Platform packages
 #
@@ -37,4 +37,4 @@ codacy-coverage
 PyQt5==5.15.9; python_version >= '3.6'
 PyQt5-sip==12.15.0; python_version >= '3.9' and python_version < '3.10'
 PyQt5-sip; python_version >= '3.10'
-injectlib                                 ; sys_platform != 'darwin'
+injectlib

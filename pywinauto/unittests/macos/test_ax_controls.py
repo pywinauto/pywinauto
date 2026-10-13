@@ -39,138 +39,143 @@ import sys
 import os
 import time
 import unittest
+
+
 if sys.platform == 'darwin':
     sys.path.append(".")
     from pywinauto.macos.application import Application
     from pywinauto.macos.macos_structures import AX_POINT, AX_RECT
 
-class ButtonWrapperTests(unittest.TestCase):
 
-    """Unit tests for the ButtonWrapper"""
+    class ButtonWrapperTests(unittest.TestCase):
 
-    def setUp(self):
-        self.app_name = "ControlsTestAppSB"
-        self.app = Application()
-        self.app.start(name = self.app_name,new_instance = False)
-        self.app_window = self.app.RootWindow.wrapper_object()
-        self.app_window.set_focus()
+        """Unit tests for the ButtonWrapper"""
 
-        self.checkbox = self.app.RootWindow.Check.wrapper_object()
-        self.recessed_btn = self.app.RootWindow.Recessed.wrapper_object()
+        def setUp(self):
+            self.app_name = "ControlsTestAppSB"
+            self.app = Application()
+            self.app.start(name = self.app_name,new_instance = False)
+            self.app_window = self.app.RootWindow.wrapper_object()
+            self.app_window.set_focus()
 
-    def tearDown(self):
-        self.app.kill()
+            self.checkbox = self.app.RootWindow.Check.wrapper_object()
+            self.recessed_btn = self.app.RootWindow.Recessed.wrapper_object()
 
-    def test_click(self):
-        self.assertTrue(self.checkbox.get_toggle_state())
-        self.checkbox.click()
-        self.assertTrue(not self.checkbox.get_toggle_state())
+        def tearDown(self):
+            self.app.kill()
 
-    def test_toggle(self):
-        self.assertTrue(self.checkbox.get_toggle_state())
-        self.checkbox.click()
-        self.assertTrue(not self.checkbox.get_toggle_state())
+        def test_click(self):
+            self.assertTrue(self.checkbox.get_toggle_state())
+            self.checkbox.click()
+            self.assertTrue(not self.checkbox.get_toggle_state())
 
-    def test_get_toggle_state(self):
-        self.assertTrue(self.checkbox.get_toggle_state())
+        def test_toggle(self):
+            self.assertTrue(self.checkbox.get_toggle_state())
+            self.checkbox.click()
+            self.assertTrue(not self.checkbox.get_toggle_state())
 
-    def test_is_dialog(self):
-        self.assertEqual(self.checkbox.is_dialog(), False)
+        def test_get_toggle_state(self):
+            self.assertTrue(self.checkbox.get_toggle_state())
 
-    def test_is_window_managment_button(self):
-        children = self.app.RootWindow.children(subrole='AXFullScreenButton')
-        self.assertTrue(len(children)>0)
-        full_screen_button = children[0]
-        self.assertTrue(full_screen_button.is_window_managment_button)
+        def test_is_dialog(self):
+            self.assertEqual(self.checkbox.is_dialog(), False)
 
-class ImageWrapperTests(unittest.TestCase):
+        def test_is_window_managment_button(self):
+            children = self.app.RootWindow.children(subrole='AXFullScreenButton')
+            self.assertTrue(len(children)>0)
+            full_screen_button = children[0]
+            self.assertTrue(full_screen_button.is_window_managment_button)
 
-    """Unit tests for the ImageWrapper"""
 
-    def setUp(self):
-        self.app_name = "ControlsTestAppSB"
-        self.app = Application()
-        self.app.start(name=self.app_name, new_instance=False)
-        self.app_window = self.app.RootWindow.wrapper_object()
-        self.app_window.set_focus()
-        self.image = self.app.RootWindow.Image.wrapper_object()
-        self.checkbox = self.app.RootWindow.Check.wrapper_object()
+    class ImageWrapperTests(unittest.TestCase):
 
-    def tearDown(self):
-        self.app.kill()
+        """Unit tests for the ImageWrapper"""
 
-    def test_description(self):
-        """Get image description"""
-        self.assertEqual(self.image.description,'pywinautoImage')
+        def setUp(self):
+            self.app_name = "ControlsTestAppSB"
+            self.app = Application()
+            self.app.start(name=self.app_name, new_instance=False)
+            self.app_window = self.app.RootWindow.wrapper_object()
+            self.app_window.set_focus()
+            self.image = self.app.RootWindow.Image.wrapper_object()
+            self.checkbox = self.app.RootWindow.Check.wrapper_object()
 
-    def test_size(self):
-        """Get image size. Return a tuple with width and height"""
-        self.assertEqual(self.image.size,(60,60))
+        def tearDown(self):
+            self.app.kill()
 
-    def test_bounding_box(self):
-        """Get image bounding box"""
-        textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
-        textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
-        textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
-        self.assertEqual(textfield1 + 30,textfield2)
-        self.assertEqual(textfield2 + 30, textfield3)
+        def test_description(self):
+            """Get image description"""
+            self.assertEqual(self.image.description,'pywinautoImage')
 
-    def test_position(self):
-        """Get image position coordinates"""
-        textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
-        textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
-        textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
-        self.assertEqual(textfield1 + 30,textfield2)
-        self.assertEqual(textfield2 + 30, textfield3)
+        def test_size(self):
+            """Get image size. Return a tuple with width and height"""
+            self.assertEqual(self.image.size,(60,60))
 
-class ComboboxWrapperTests(unittest.TestCase):
+        def test_bounding_box(self):
+            """Get image bounding box"""
+            textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
+            textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
+            textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
+            self.assertEqual(textfield1 + 30,textfield2)
+            self.assertEqual(textfield2 + 30, textfield3)
 
-    """Unit tests for the ComboboxWrapper"""
+        def test_position(self):
+            """Get image position coordinates"""
+            textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
+            textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
+            textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
+            self.assertEqual(textfield1 + 30,textfield2)
+            self.assertEqual(textfield2 + 30, textfield3)
 
-    def setUp(self):
-        self.app_name = "ControlsTestAppSB"
-        self.app = Application()
-        self.app.start(name = self.app_name,new_instance = False)
-        self.app_window = self.app.RootWindow.wrapper_object()
-        self.app_window.set_focus()
 
-        self.combobox = self.app.RootWindow.Combobox.wrapper_object()
+    class ComboboxWrapperTests(unittest.TestCase):
 
-    def tearDown(self):
-        self.app.kill()
+        """Unit tests for the ComboboxWrapper"""
 
-    def test_can_expand(self):
-        """Checks that combobox can be expanded"""
-        self.combobox.expand()
-        self.assertTrue(self.combobox.is_expanded)
+        def setUp(self):
+            self.app_name = "ControlsTestAppSB"
+            self.app = Application()
+            self.app.start(name = self.app_name,new_instance = False)
+            self.app_window = self.app.RootWindow.wrapper_object()
+            self.app_window.set_focus()
 
-    def test_can_collapse(self):
-        """Checks that combobox can be expanded"""
-        self.combobox.collapse()
-        self.assertTrue(not self.combobox.is_expanded)
+            self.combobox = self.app.RootWindow.Combobox.wrapper_object()
 
-    def test_can_get_texts(self):
-        """Checks that combobox options can be obtained"""
-        self.assertEqual(self.combobox.texts, ['BoxItem1', 'BoxItem2', 'BoxItem3', 'Default'])
+        def tearDown(self):
+            self.app.kill()
 
-    def test_can_get_selected_text(self):
-        """Checks that combobox value can be obtained"""
-        self.assertEqual(self.combobox.selected_text, 'Default')
+        def test_can_expand(self):
+            """Checks that combobox can be expanded"""
+            self.combobox.expand()
+            self.assertTrue(self.combobox.is_expanded)
 
-    def test_can_get_item_count(self):
-        """Checks that the lenght of items can be obtained"""
-        self.assertEqual(self.combobox.item_count, 4)
+        def test_can_collapse(self):
+            """Checks that combobox can be expanded"""
+            self.combobox.collapse()
+            self.assertTrue(not self.combobox.is_expanded)
 
-    def test_can_get_selected_index(self):
-        """Checks that selected index can be obtained"""
-        self.assertEqual(self.combobox.selected_index, self.combobox.item_count-1)
+        def test_can_get_texts(self):
+            """Checks that combobox options can be obtained"""
+            self.assertEqual(self.combobox.texts, ['BoxItem1', 'BoxItem2', 'BoxItem3', 'Default'])
 
-    def test_can_select_by_index(self):
-        """Checks that the combobox value can set by index"""
-        desired_index = 0
-        self.assertNotEqual(self.combobox.selected_index, desired_index)
-        self.combobox.select(desired_index)
-        self.assertEqual(self.combobox.selected_index, desired_index)
+        def test_can_get_selected_text(self):
+            """Checks that combobox value can be obtained"""
+            self.assertEqual(self.combobox.selected_text, 'Default')
+
+        def test_can_get_item_count(self):
+            """Checks that the lenght of items can be obtained"""
+            self.assertEqual(self.combobox.item_count, 4)
+
+        def test_can_get_selected_index(self):
+            """Checks that selected index can be obtained"""
+            self.assertEqual(self.combobox.selected_index, self.combobox.item_count-1)
+
+        def test_can_select_by_index(self):
+            """Checks that the combobox value can set by index"""
+            desired_index = 0
+            self.assertNotEqual(self.combobox.selected_index, desired_index)
+            self.combobox.select(desired_index)
+            self.assertEqual(self.combobox.selected_index, desired_index)
 
 if __name__ == "__main__":
     unittest.main()
