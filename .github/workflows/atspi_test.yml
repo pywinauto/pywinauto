@@ -26,9 +26,9 @@ jobs:
       DISPLAY: ':0'
     steps:
     - name: get repo
-      uses: actions/checkout@v1
+      uses: actions/checkout@v7
     - name: Set up Python
-      uses: actions/setup-python@v1
+      uses: actions/setup-python@v6
       with:
         python-version: ${{ matrix.python }}
     - name: Install dependencies
