@@ -40,7 +40,7 @@ import os
 import unittest
 import subprocess
 import time
-sys.path.append(".")
+sys.path.append("..")
 from pywinauto.application import Application
 if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError

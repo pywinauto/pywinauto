@@ -5,7 +5,7 @@ import unittest
 import subprocess
 import time
 
-sys.path.append(".")
+sys.path.append("..")
 from pywinauto.application import WindowSpecification  # noqa: E402
 if sys.platform.startswith('linux'):
     from pywinauto.controls import atspiwrapper  # register atspi backend
@@ -21,13 +21,12 @@ def _test_app():
     test_folder = os.path.join(os.path.dirname
                                (os.path.dirname
                                 (os.path.dirname
-                                 (os.path.abspath(__file__)))),
+                                 (os.path.dirname
+                                  (os.path.abspath(__file__))))),
                                r"apps/Gtk_samples")
     sys.path.append(test_folder)
     return os.path.join(test_folder, app_name)
 
-
-sys.path.append(".")
 
 if sys.platform.startswith('linux'):
     class ApplicationTestCases(unittest.TestCase):

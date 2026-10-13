@@ -164,9 +164,28 @@ def right_click(coords=(0, 0)):
     _perform_click_input(button='right', coords=coords)
 
 
-def move(coords=(0, 0)):
+def move(coords=(0, 0), duration=0.0):
     """Move the mouse"""
-    _perform_click_input(button='move',coords=coords,button_down=False,button_up=False)
+    if not isinstance(duration, float):
+        raise TypeError("duration must be float (in seconds)")
+    minimum_duration = 0.05
+    if duration >= minimum_duration:
+        x_start, y_start = _get_cursor_pos()
+        delta_x = coords[0] - x_start
+        delta_y = coords[1] - y_start
+        max_delta = max(abs(delta_x), abs(delta_y))
+        num_steps = max_delta
+        sleep_amount = duration / max(num_steps, 1)
+        if sleep_amount < minimum_duration:
+            num_steps = int(num_steps * sleep_amount / minimum_duration)
+            sleep_amount = minimum_duration
+        delta_x /= max(num_steps, 1)
+        delta_y /= max(num_steps, 1)
+        for step in range(num_steps):
+            _perform_click_input(button='move', coords=(x_start + int(delta_x*step), y_start + int(delta_y*step)),
+                                button_down=False, button_up=False, fast_move=True)
+            time.sleep(sleep_amount)
+    _perform_click_input(button='move', coords=coords, button_down=False, button_up=False)
 
 
 def press(button='left', coords=(0, 0)):

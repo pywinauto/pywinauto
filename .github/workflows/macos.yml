@@ -1,0 +1,77 @@
+name: macOS CI
+on:
+  push:
+    branches: ["master" ]
+  pull_request:
+    branches: ["master" ]
+jobs:
+  macOS-latest:
+    runs-on: macos-latest
+    timeout-minutes: 30
+    steps:
+    - name: Checkout Code
+      uses: actions/checkout@v4
+
+    - name: Unpack test apps
+      run: |
+        echo "=== Unpacking test apps ==="
+        hdiutil attach ./apps/MouseTester/macos/mousebuttons.dmg -nobrowse
+        ls -l /Volumes/
+        ls -l /Volumes/mousebuttons/
+        ls -l /Volumes/mousebuttons/mousebuttons.app/
+        mkdir ~/Applications/
+        cp -R /Volumes/mousebuttons/mousebuttons.app/Contents/MacOS/mousebuttons ~/Applications/
+        hdiutil detach /Volumes/mousebuttons
+
+    - name: Configure TCC Permissions for Testing
+      run: |
+        echo "=== Configuring User TCC Database ==="
+        
+        # Define the target local user TCC database path
+        TCC_DB="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+        
+        # Create directory structure if it doesn't exist
+        mkdir -p "$(dirname "$TCC_DB")"
+        
+        # Ensure the SQLite database exists or initialize it
+        if [ ! -f "$TCC_DB" ]; then
+          sqlite3 "$TCC_DB" "VACUUM;"
+        fi
+        
+        pwd
+        echo "Home: $HOME"
+
+        # Example: Grant 'Accessibility' permissions to '/usr/bin/osascript'
+        # (Used frequently for AppleScript-based UI testing automation)
+        SERVICE="kTCCServiceAccessibility"
+        CLIENT="~/Applications/mousebuttons"
+        CLIENT_TYPE=0 # 0 for binary path, 1 for Bundle ID
+        AUTH_VALUE=2  # 2 indicates 'Allowed'
+        AUTH_REASON=1 # 1 indicates 'System Set / Policy'
+        
+        echo "Granting $SERVICE to $CLIENT..."
+        
+        sqlite3 "$TCC_DB" <<EOF
+        INSERT OR REPLACE INTO access 
+        (service, client, client_type, auth_value, auth_reason, flags, value_valid) 
+        VALUES ('$SERVICE', '$CLIENT', $CLIENT_TYPE, $AUTH_VALUE, $AUTH_REASON, 0, 1);
+        EOF
+        
+        # Verification check
+        echo "=== Current Authorized Applications ==="
+        sqlite3 "$TCC_DB" "SELECT service, client, auth_value FROM access;"
+
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python3 -m pip install --upgrade pip
+        pip3 install mock pytest
+        pip3 install -r dev-requirements.txt
+
+    - name: Run macOS "ax" backend tests
+      run: |
+        python3 -m unittest pywinauto.unittests.macos

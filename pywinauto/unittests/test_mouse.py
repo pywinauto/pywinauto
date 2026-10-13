@@ -45,8 +45,10 @@ def _test_app():
                                r"apps/MouseTester")
     if sys.platform == 'win32':
         return os.path.join(test_folder, "mousebuttons.exe")
-    else:
+    elif sys.platform.startswith('linux'):
         return os.path.join(test_folder, "mousebuttons")
+    else:
+        return "mousebuttons"
 
 
 class MouseTests(unittest.TestCase):

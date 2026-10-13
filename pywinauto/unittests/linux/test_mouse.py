@@ -6,15 +6,16 @@ import sys
 import os
 import unittest
 
+
 if sys.platform == 'win32':
     import win32clipboard
-    sys.path.append(".")
+    sys.path.append("..")
     from pywinauto.application import Application
     from pywinauto.keyboard import send_keys
     from pywinauto import mouse
     from pywinauto.timings import Timings
 elif sys.platform == 'darwin':
-    sys.path.append(".")
+    sys.path.append("..")
     from pywinauto import mouse
 
     from pywinauto.macos.macos_functions import launch_application
@@ -40,12 +41,15 @@ def _test_app():
     test_folder = os.path.join(os.path.dirname
                                (os.path.dirname
                                 (os.path.dirname
-                                 (os.path.abspath(__file__)))),
+                                 (os.path.dirname
+                                  (os.path.abspath(__file__))))),
                                r"apps/MouseTester")
     if sys.platform == 'win32':
         return os.path.join(test_folder, "mousebuttons.exe")
-    else:
+    elif sys.platform.startswith('linux'):
         return os.path.join(test_folder, "mousebuttons")
+    else:
+        return "mousebuttons"
 
 
 class MouseTests(unittest.TestCase):
