@@ -16,50 +16,54 @@ jobs:
       run: |
         echo "=== Unpacking test apps ==="
         hdiutil attach ./apps/MouseTester/macos/mousebuttons.dmg -nobrowse
-        ls -l /Volumes/
-        ls -l /Volumes/mousebuttons/
-        ls -l /Volumes/mousebuttons/mousebuttons.app/
-        mkdir ~/Applications/
+        mkdir -p ~/Applications/
         cp -R /Volumes/mousebuttons/mousebuttons.app/Contents/MacOS/mousebuttons ~/Applications/
         hdiutil detach /Volumes/mousebuttons
+
+        hdiutil attach ./apps/SendKeysTester/macos/send_keys_test_app.dmg -nobrowse
+        mkdir -p ~/Applications/
+        cp -R /Volumes/send_keys_test_app/send_keys_test_app.app/Contents/MacOS/send_keys_test_app ~/Applications/
+        hdiutil detach /Volumes/send_keys_test_app
 
     - name: Configure TCC Permissions for Testing
       run: |
         echo "=== Configuring User TCC Database ==="
         
-        # Define the target local user TCC database path
-        TCC_DB="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+        TCC_DB_PATH="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
+        MOUSE_APP="$HOME/Applications/mousebuttons"
+        SEND_KEYS_APP="$HOME/Applications/send_keys_test_app"
         
-        # Create directory structure if it doesn't exist
-        mkdir -p "$(dirname "$TCC_DB")"
+        # 1. Ensure the parent directory exists
+        mkdir -p "$(dirname "$TCC_DB_PATH")"
         
-        # Ensure the SQLite database exists or initialize it
-        if [ ! -f "$TCC_DB" ]; then
-          sqlite3 "$TCC_DB" "VACUUM;"
+        # 2. Check if database exists, create it with a modern fallback schema if missing
+        if [ ! -f "$TCC_DB_PATH" ]; then
+          sqlite3 "$TCC_DB_PATH" "CREATE TABLE IF NOT EXISTS access (service TEXT NOT NULL, client TEXT NOT NULL, client_type INTEGER NOT NULL, auth_value INTEGER NOT NULL, auth_reason INTEGER NOT NULL, auth_version INTEGER NOT NULL DEFAULT 1, csreq BLOB, PRIMARY KEY (service, client, client_type));"
         fi
-        
-        pwd
-        echo "Home: $HOME"
 
-        # Example: Grant 'Accessibility' permissions to '/usr/bin/osascript'
-        # (Used frequently for AppleScript-based UI testing automation)
-        SERVICE="kTCCServiceAccessibility"
-        CLIENT="/Users/runner/Applications/mousebuttons"
-        CLIENT_TYPE=0 # 0 for binary path, 1 for Bundle ID
-        AUTH_VALUE=2  # 2 indicates 'Allowed'
-        AUTH_REASON=1 # 1 indicates 'System Set / Policy'
-        
-        echo "Granting $SERVICE to $CLIENT..."
-        
-        sqlite3 "$TCC_DB" <<EOF
-        INSERT OR REPLACE INTO access 
-        (service, client, client_type, auth_value, auth_reason, flags, value_valid) 
-        VALUES ('$SERVICE', '$CLIENT', $CLIENT_TYPE, $AUTH_VALUE, $AUTH_REASON, 0, 1);
+        # 3. Explicitly mapped Insert Statement incorporating auth_version
+        sqlite3 "$TCC_DB_PATH" <<EOF
+        INSERT OR REPLACE INTO access (
+          service, client, client_type, auth_value, auth_reason, auth_version
+        ) VALUES (
+          'kTCCServiceAccessibility', 
+          '$MOUSE_APP', 
+          1, 2, 1, 1
+        );
         EOF
-        
-        # Verification check
-        echo "=== Current Authorized Applications ==="
-        sqlite3 "$TCC_DB" "SELECT service, client, auth_value FROM access;"
+
+        # 4. Do the same for $SEND_KEYS_APP
+        sqlite3 "$TCC_DB_PATH" <<EOF
+        INSERT OR REPLACE INTO access (
+          service, client, client_type, auth_value, auth_reason, auth_version
+        ) VALUES (
+          'kTCCServiceAccessibility', 
+          '$SEND_KEYS_APP', 
+          1, 2, 1, 1
+        );
+        EOF
+
+        echo "=== Configure TCC Permissions Complete ==="
 
     - name: Set up Python
       uses: actions/setup-python@v6

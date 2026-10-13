@@ -55,6 +55,8 @@ else:
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
     from pywinauto.linux import clipboard
+    from pywinauto.application import Application
+
 
 def mfc_samples():
     mfc_samples_folder = os.path.join(
@@ -77,6 +79,7 @@ def _test_app():
                                r"apps/SendKeysTester")
     return os.path.join(test_folder, r"send_keys_test_app")
 
+
 class SendKeysTests(unittest.TestCase):
     """Unit tests for the Sendkeys module"""
 
@@ -92,6 +95,7 @@ class SendKeysTests(unittest.TestCase):
             self.app = get_instance_of_app("send_keys_test_app")
             time.sleep(1.5)
         else:
+            self.app = Application()
             self.app.start(_test_app())
             time.sleep(0.1)
             mouse.click(coords=(300, 300))
