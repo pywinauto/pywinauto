@@ -69,7 +69,7 @@ class Application(BaseApplication):
         """Start the application as specified by cmd_line"""
         command_line = shlex.split(cmd_line)
         try:
-            process = subprocess.Popen(command_line, shell=create_new_console)
+            process = subprocess.Popen(command_line, shell=False)
         except Exception as exc:
             # if it failed for some reason
             message = ('Could not create the process "%s"\n'

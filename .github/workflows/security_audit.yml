@@ -1,0 +1,35 @@
+name: "Security Audit"
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+  schedule:
+    - cron: "0 8 * * 1"
+
+jobs:
+  security:
+    name: bandit + pip-audit
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install audit tools
+        run: pip install bandit pip-audit
+
+      - name: Run bandit (medium+ severity)
+        run: bandit -r pywinauto/ --severity-level medium --confidence-level medium -f txt
+        continue-on-error: false
+
+      - name: Run pip-audit
+        run: pip-audit -r dev-requirements.txt
+        continue-on-error: false

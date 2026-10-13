@@ -38,14 +38,14 @@ Supported tools:
  * ``xclip``
  * ``pbcopy / pbpaste`` (Mac OS X)
 """
+import shutil
 import subprocess
 import sys
 
 
 def cmd_exists(cmd):
     """Check is app exist"""
-    return subprocess.call("type " + cmd, shell=True,
-        stdout=subprocess.PIPE, stderr=subprocess.PIPE) == 0
+    return shutil.which(cmd) is not None
 
 
 def set_up_clipboard(is_input):
