@@ -5,23 +5,23 @@ import os
 import unittest
 import subprocess
 import time
-if sys.platform != 'win32':
+
+if sys.platform.startswith('linux'):
     sys.path.append(".")
     from pywinauto import mouse
     from pywinauto.linux.keyboard import send_keys
     from pywinauto.linux import clipboard
 
 
-def _test_app():
-    test_folder = os.path.join(os.path.dirname
-                               (os.path.dirname
-                                (os.path.dirname
-                                 (os.path.abspath(__file__)))),
-                               r"apps/SendKeysTester")
-    return os.path.join(test_folder, r"send_keys_test_app")
+    def _test_app():
+        test_folder = os.path.join(os.path.dirname
+                                   (os.path.dirname
+                                    (os.path.dirname
+                                     (os.path.abspath(__file__)))),
+                                   r"apps/SendKeysTester")
+        return os.path.join(test_folder, r"send_keys_test_app")
 
 
-if sys.platform != 'win32':
     class SendKeysTests(unittest.TestCase):
         """Unit tests for the linux clipboard module"""
 
@@ -30,7 +30,7 @@ if sys.platform != 'win32':
             self.app = subprocess.Popen("exec " + _test_app(), shell=True)
             time.sleep(0.1)
             mouse.click(coords=(300, 300))
-            time.sleep(0.2)
+            time.sleep(0.5)
 
         def tearDown(self):
             """Close the application after tests"""
