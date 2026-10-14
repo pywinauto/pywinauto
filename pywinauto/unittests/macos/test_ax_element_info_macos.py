@@ -55,7 +55,8 @@ if sys.platform == 'darwin':
         """Unit tests for the application.Application class"""
         def setUp(self):
             self.app = Application()
-            self.app.start(bundle_id='pywinauto.testapps.send-keys-test-app',new_instance=False)
+            self.app.start(bundle_id='pywinauto.testapps.send-keys-test-app', new_instance=False)
+            time.sleep(1)
 
         def tearDown(self):
             self.app.kill()

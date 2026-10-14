@@ -846,7 +846,7 @@ class WindowSpecificationTestCases(unittest.TestCase):
 
         self.assertRaises(AttributeError, wspec)
 
-    def test_wrapper_object(self):
+    def test_find(self):
         """Test that we can get a control"""
         self.assertEqual(True, isinstance(self.dlgspec, WindowSpecification))
 
@@ -1230,7 +1230,7 @@ class ChildWindowSpecificationFromWrapperTests(unittest.TestCase):
         """Close the application after tests"""
         self.app.kill()
         
-    def test_wrapper_object(self):
+    def test_find(self):
         """Test that we can get a control"""
         self.assertEqual(True, isinstance(self.ctrlspec, WindowSpecification))
 

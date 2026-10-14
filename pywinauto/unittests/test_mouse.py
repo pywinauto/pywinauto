@@ -48,7 +48,7 @@ def _test_app():
     elif sys.platform.startswith('linux'):
         return os.path.join(test_folder, "mousebuttons")
     else:
-        return "mousebuttons"
+        return os.path.expanduser("~/Applications/mousebuttons.app")
 
 
 class MouseTests(unittest.TestCase):
@@ -61,9 +61,12 @@ class MouseTests(unittest.TestCase):
             self.app.start(_test_app())
             self.dlg = self.app.mousebuttons
         elif sys.platform == 'darwin':
-            launch_application("mousebuttons")
+            launch_application(_test_app())
             self.app = get_instance_of_app("mousebuttons")
             os.system("ps -ax | grep mousebuttons")
+            time.sleep(1)
+            self.app.activateWithOptions_(1 << 1)
+            time.sleep(0.5)
         else:
             self.display = Display()
             self.app = subprocess.Popen("exec " + _test_app(), shell=True)

@@ -65,6 +65,7 @@ Repetition count can be specified for special keys. ``{ENTER 2}`` says to
 press Enter twice.
 '''
 import time
+import warnings
 
 from Quartz.CoreGraphics import CGEventCreateKeyboardEvent
 from Quartz.CoreGraphics import CGEventSourceCreate
@@ -662,11 +663,14 @@ def parse_keys(string,
 
 def send_keys(keys,
               pause=0.05,
-              with_spaces=True,
-              with_tabs=True,
+              with_spaces=False,
+              with_tabs=False,
               with_newlines=True,
-              turn_off_numlock=True):
+              turn_off_numlock=True,
+              vk_packet=True):
     """Parse the keys and type them"""
+    if vk_packet:
+        warnings.warn("Option vk_packet=True is not supported on macOS yet! It takes no effect.", RuntimeWarning)
     keys = parse_keys(keys, with_spaces, with_tabs, with_newlines,flag=None)
     for k in keys:
         k.run()

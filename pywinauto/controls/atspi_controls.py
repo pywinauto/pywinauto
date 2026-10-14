@@ -313,7 +313,7 @@ class ImageWrapper(atspiwrapper.AtspiWrapper):
     def size(self):
         """Get image size. Return a tuple with width and height"""
         pnt = self.image.get_size()
-        return (pnt.x, pnt.y)
+        return (int(pnt.x), int(pnt.y))
 
     def bounding_box(self):
         """Get image bounding box"""

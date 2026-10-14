@@ -16,28 +16,30 @@ jobs:
       run: |
         hdiutil attach ./apps/MouseTester/macos/mousebuttons.dmg -nobrowse
         mkdir -p ~/Applications/
-        cp -R /Volumes/mousebuttons/mousebuttons.app/Contents/MacOS/mousebuttons ~/Applications/
+        cp -R /Volumes/mousebuttons/mousebuttons.app ~/Applications/
         hdiutil detach /Volumes/mousebuttons
+
     - name: Install SendKeysTester application
       run: |
         hdiutil attach ./apps/SendKeysTester/macos/send_keys_test_app.dmg -nobrowse
         mkdir -p ~/Applications/
-        cp -R /Volumes/send_keys_test_app/send_keys_test_app.app/Contents/MacOS/send_keys_test_app ~/Applications/
+        cp -R /Volumes/send_keys_test_app/send_keys_test_app.app ~/Applications/
         hdiutil detach /Volumes/send_keys_test_app
+
     - name: Install ControlsTestAppSB application
       run: |
         hdiutil attach ./apps/Controls/macos/test_app_controls.dmg -nobrowse
-        cp -R /Volumes/test_app_controls/ControlsTestAppSB.app/Contents/MacOS/ControlsTestAppSB ~/Applications/
-        hdiutil detach /Volumes/test_app_controls/
+        cp -R /Volumes/test_app_controls/ControlsTestAppSB.app ~/Applications/
+        hdiutil detach /Volumes/test_app_controls
 
     - name: Configure TCC Permissions for Testing
       run: |
         echo "=== Configuring User TCC Database ==="
         
         TCC_DB_PATH="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
-        MOUSE_APP="$HOME/Applications/mousebuttons"
-        SEND_KEYS_APP="$HOME/Applications/send_keys_test_app"
-        CONTROLS_APP="$HOME/Applications/ControlsTestAppSB"
+        MOUSE_APP="$HOME/Applications/mousebuttons.app"
+        SEND_KEYS_APP="$HOME/Applications/send_keys_test_app.app"
+        CONTROLS_APP="$HOME/Applications/ControlsTestAppSB.app"
         
         # 1. Ensure the parent directory exists
         mkdir -p "$(dirname "$TCC_DB_PATH")"
@@ -82,6 +84,32 @@ jobs:
 
         echo "=== Configure TCC Permissions Complete ==="
 
+    - name: Remove security blocks for test apps
+      run: |
+        BUNDLE_ID=$(defaults read "$HOME/Applications/mousebuttons.app/Contents/Info.plist" CFBundleIdentifier)
+        echo "Extracted Bundle ID: $BUNDLE_ID"
+        BUNDLE_ID=$(defaults read "$HOME/Applications/send_keys_test_app.app/Contents/Info.plist" CFBundleIdentifier)
+        echo "Extracted Bundle ID: $BUNDLE_ID"
+        BUNDLE_ID=$(defaults read "$HOME/Applications/ControlsTestAppSB.app/Contents/Info.plist" CFBundleIdentifier)
+        echo "Extracted Bundle ID: $BUNDLE_ID"
+
+        xattr -cr $HOME/Applications/mousebuttons.app
+        xattr -cr $HOME/Applications/send_keys_test_app.app
+        xattr -cr $HOME/Applications/ControlsTestAppSB.app
+        codesign --force --deep -s - $HOME/Applications/mousebuttons.app
+        codesign --force --deep -s - $HOME/Applications/send_keys_test_app.app
+        codesign --force --deep -s - $HOME/Applications/ControlsTestAppSB.app
+
+        # Launch and wait for it to open
+        open -W $HOME/Applications/mousebuttons.app &
+        open -W $HOME/Applications/send_keys_test_app.app &
+        open -W $HOME/Applications/ControlsTestAppSB.app &
+        sleep 10
+        pkill -x "mousebuttons"
+        pkill -x "send_keys_test_app"
+        pkill -x "ControlsTestAppSB"
+        echo "Applications launched and closed."
+
     - name: Set up Python
       uses: actions/setup-python@v6
       with:
@@ -94,9 +122,7 @@ jobs:
 
     - name: Run macOS "ax" backend tests
       run: |
-        pip3 freeze
-        python3 --version
-        coverage --version
-        coverage debug sys
         coverage run -m pytest pywinauto/unittests/test_keyboard.py pywinauto/unittests/test_mouse.py pywinauto/unittests/macos/test_application_macos.py pywinauto/unittests/macos/test_ax_controls.py pywinauto/unittests/macos/test_ax_element_info_macos.py pywinauto/unittests/macos/test_ax_wrapper.py
-        coverage report -m
+
+    - name: Upload Coverage to Codecov
+      uses: codecov/codecov-action@v7
