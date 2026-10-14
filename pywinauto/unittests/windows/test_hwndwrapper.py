@@ -649,7 +649,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         # make sure that it is not visible
         try:
             #self.assertRaises(ElementNotFoundError,
-            #                  self.app.window(name='About RowList', class_name='#32770').wrapper_object())
+            #                  self.app.window(name='About RowList', class_name='#32770').find())
             # vvryabov: TimeoutError is caught by assertRaises, so the second raise is not caught correctly
             self.app.window(name='About RowList', class_name='#32770').find()
         except ElementNotFoundError:

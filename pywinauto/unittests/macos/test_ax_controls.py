@@ -52,14 +52,14 @@ if sys.platform == 'darwin':
         """Unit tests for the ButtonWrapper"""
 
         def setUp(self):
-            self.app_name = "ControlsTestAppSB"
+            self.app_name = os.path.expanduser("~/Applications/ControlsTestAppSB.app")
             self.app = Application()
-            self.app.start(name = self.app_name,new_instance = False)
-            self.app_window = self.app.RootWindow.wrapper_object()
+            self.app.start(name = self.app_name, new_instance=False)
+            self.app_window = self.app.RootWindow.find()
             self.app_window.set_focus()
 
-            self.checkbox = self.app.RootWindow.Check.wrapper_object()
-            self.recessed_btn = self.app.RootWindow.Recessed.wrapper_object()
+            self.checkbox = self.app.RootWindow.Check.find()
+            self.recessed_btn = self.app.RootWindow.Recessed.find()
 
         def tearDown(self):
             self.app.kill()
@@ -92,13 +92,13 @@ if sys.platform == 'darwin':
         """Unit tests for the ImageWrapper"""
 
         def setUp(self):
-            self.app_name = "ControlsTestAppSB"
+            self.app_name = os.path.expanduser("~/Applications/ControlsTestAppSB.app")
             self.app = Application()
             self.app.start(name=self.app_name, new_instance=False)
-            self.app_window = self.app.RootWindow.wrapper_object()
+            self.app_window = self.app.RootWindow.find()
             self.app_window.set_focus()
-            self.image = self.app.RootWindow.Image.wrapper_object()
-            self.checkbox = self.app.RootWindow.Check.wrapper_object()
+            self.image = self.app.RootWindow.Image.find()
+            self.checkbox = self.app.RootWindow.Check.find()
 
         def tearDown(self):
             self.app.kill()
@@ -109,21 +109,21 @@ if sys.platform == 'darwin':
 
         def test_size(self):
             """Get image size. Return a tuple with width and height"""
-            self.assertEqual(self.image.size,(60,60))
+            self.assertIn(self.image.size, [(60, 60), (62, 62)])  # local and CI sizes
 
         def test_bounding_box(self):
             """Get image bounding box"""
-            textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
-            textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
-            textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
+            textfield1 = self.app.RootWindow.TextField1.find().element_info.rectangle.bottom
+            textfield2 = self.app.RootWindow.TextField2.find().element_info.rectangle.bottom
+            textfield3 = self.app.RootWindow.TextField3.find().element_info.rectangle.bottom
             self.assertEqual(textfield1 + 30,textfield2)
             self.assertEqual(textfield2 + 30, textfield3)
 
         def test_position(self):
             """Get image position coordinates"""
-            textfield1 = self.app.RootWindow.TextField1.wrapper_object().element_info.rectangle.bottom
-            textfield2 = self.app.RootWindow.TextField2.wrapper_object().element_info.rectangle.bottom
-            textfield3 = self.app.RootWindow.TextField3.wrapper_object().element_info.rectangle.bottom
+            textfield1 = self.app.RootWindow.TextField1.find().element_info.rectangle.bottom
+            textfield2 = self.app.RootWindow.TextField2.find().element_info.rectangle.bottom
+            textfield3 = self.app.RootWindow.TextField3.find().element_info.rectangle.bottom
             self.assertEqual(textfield1 + 30,textfield2)
             self.assertEqual(textfield2 + 30, textfield3)
 
@@ -133,13 +133,13 @@ if sys.platform == 'darwin':
         """Unit tests for the ComboboxWrapper"""
 
         def setUp(self):
-            self.app_name = "ControlsTestAppSB"
+            self.app_name = os.path.expanduser("~/Applications/ControlsTestAppSB.app")
             self.app = Application()
-            self.app.start(name = self.app_name,new_instance = False)
-            self.app_window = self.app.RootWindow.wrapper_object()
+            self.app.start(name = self.app_name, new_instance=False)
+            self.app_window = self.app.RootWindow.find()
             self.app_window.set_focus()
 
-            self.combobox = self.app.RootWindow.Combobox.wrapper_object()
+            self.combobox = self.app.RootWindow.Combobox.find()
 
         def tearDown(self):
             self.app.kill()

@@ -81,7 +81,7 @@ class Application(BaseApplication):
             elem = AxElementInfo()
             for app in elem.children():
                 if app.process_id == pid:
-                    return True
+                    return self.ns_app.isFinishedLaunching()
             return False
 
         wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_idle, value=True)

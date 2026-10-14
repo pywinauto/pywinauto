@@ -53,12 +53,12 @@ if sys.platform == 'darwin':
         """Unit tests for the AXWrapper class"""
 
         def setUp(self):
-            self.app_name = "ControlsTestAppSB"
+            self.app_name = os.path.expanduser("~/Applications/ControlsTestAppSB.app")
             self.desktop_info = AxElementInfo()
             self.desktop_wrapper = AXWrapper(self.desktop_info)
             self.app = Application()
-            self.app.start(name = self.app_name,new_instance = False)
-            self.window_wrapper = self.app.window(name='RootWindow',control_type='Window').wrapper_object()
+            self.app.start(name = self.app_name, new_instance=False)
+            self.window_wrapper = self.app.window(name='RootWindow',control_type='Window').find()
             self.window_wrapper.set_focus()
 
         def tearDown(self):
@@ -71,7 +71,7 @@ if sys.platform == 'darwin':
                              "Window")
 
         def test_can_get_rectangle(self):
-            rect = self.app.RootWindow.TexturedRoundedButton.wrapper_object().rectangle()
+            rect = self.app.RootWindow.TexturedRoundedButton.find().rectangle()
             self.assertAlmostEqual(rect.height, 23, delta=2)
 
         def test_client_to_screen(self):

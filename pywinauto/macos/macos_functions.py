@@ -32,7 +32,6 @@
 from __future__ import print_function
 
 import subprocess
-import six
 
 from .ax_error import AXError
 
@@ -56,9 +55,13 @@ from AppKit import NSWorkspace
 from AppKit import NSRunningApplication
 from AppKit import NSBundle
 from AppKit import NSWorkspaceLaunchNewInstance
+from AppKit import NSWorkspaceLaunchDefault
 from AppKit import NSApplicationActivateIgnoringOtherApps
+from AppKit import NSWorkspaceOpenConfiguration
 
-from Foundation import NSAppleEventDescriptor, NSRectFromCGRect
+from Foundation import NSAppleEventDescriptor
+from Foundation import NSRectFromCGRect
+from Foundation import NSURL
 from PyObjCTools import AppHelper
 
 is_debug = False
@@ -71,11 +74,32 @@ def launch_application(name):
     # Open application by name(without package name)
     # Return the application instance
     # TODO: Should open unique app
-    return get_ws_instance().launchApplication_(name)
+
+    workspace = get_ws_instance()
+
+    app_url = NSURL.fileURLWithPath_(name)
+
+    # Use the error-returning API. PyObjC translates NSError** into a tuple return
+    # Syntax: launchApplicationAtURL_options_configuration_error_
+    app, error = workspace.launchApplicationAtURL_options_configuration_error_(
+        app_url,
+        NSWorkspaceLaunchDefault,
+        {}, # Empty configuration dictionary
+        None # Pass None for the pointer; PyObjC maps it automatically
+    )
+
+    if not app:
+        raise AXError("Launch failed! Error code: {0}, domain: {1}, reason: {2}".format(
+            error.code(), error.domain(), error.localizedDescription())
+        )
+
+    return app
 
 def bundle_identifier_for_application_name(app_name):
-    path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
+    path = get_ws_instance().fullPathForApplication_(app_name)
     bundle = NSBundle.bundleWithPath_(path)
+    if bundle is None:
+        raise AXError('Failed to get bundle id by app name "{0}"'.format(app_name))
     bundleIdentifier = bundle.bundleIdentifier()
     return bundleIdentifier
 
@@ -93,7 +117,7 @@ def launch_application_by_bundle(bundle_id, new_instance=True):
         raise RuntimeError('Error launching specified application. Result: {}'.format(r))
 
 def url_for_application_name(app_name):
-    path = NSWorkspace.sharedWorkspace().fullPathForApplication_(app_name)
+    path = get_ws_instance().fullPathForApplication_(app_name)
     bundle = NSBundle.bundleWithPath_(path)
     return bundle.executableURL()
 

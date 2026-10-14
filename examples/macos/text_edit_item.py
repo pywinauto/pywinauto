@@ -42,7 +42,7 @@ from pywinauto.macos.application import Application
 app = Application()
 app.start('TextEdit')
 text_edit = app.Window_().TextEdit
-text_edit_wrapper = text_edit.wrapper_object().set_focus()
+text_edit_wrapper = text_edit.find().set_focus()
 
 text_edit.type_keys("\t This simple example shows how keyboard module works\n")
 text_edit.type_keys("You can disable space using\n", with_spaces=False)

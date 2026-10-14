@@ -9,17 +9,10 @@ if sys.platform == 'darwin':
     from pywinauto.application import Application
     from pywinauto.base_application import ProcessNotFoundError, AppNotConnected
 
-def _test_app():
-    test_folder = os.path.join(os.path.dirname
-                               (os.path.dirname
-                                (os.path.dirname
-                                 (os.path.abspath(__file__)))),
-                               r"apps/SendKeysTester")
-    return os.path.join(test_folder, r"send_keys_test_app")
+    def _test_app():
+        return os.path.expanduser("~/Applications/send_keys_test_app.app")
 
-sys.path.append(".")
 
-if sys.platform == 'darwin':
     class ApplicationEspecialTestCases(unittest.TestCase):
         """
         Unit tests for the application.Application class

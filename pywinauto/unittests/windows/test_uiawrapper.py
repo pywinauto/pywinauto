@@ -474,7 +474,7 @@ if UIA_support:
             #     self.dlg.draw_outline()
             #
             #     # outline control
-            #     button = self.dlg.OK.wrapper_object()
+            #     button = self.dlg.OK.find()
             #     button.draw_outline()
             #     img1 = button.capture_as_image()
             #     self.assertEqual(img1.getpixel((0, 0)), (0, 255, 0))  # green
@@ -533,7 +533,7 @@ if UIA_support:
 
         def test_issue_296(self):
             """Test handling of disappeared descendants"""
-            wrp = self.dlg.wrapper_object()
+            wrp = self.dlg.find()
             with mock.patch.object(uia_defs.IUIA().raw_tree_walker, 'GetFirstChildElement') as mock_get_first_child:
                 mock_get_first_child.side_effect = ValueError("Mocked value error")
                 self.assertEqual([], wrp.descendants())

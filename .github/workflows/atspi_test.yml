@@ -93,4 +93,4 @@ jobs:
         # TODO: pywinauto/unittests/test_mouse.py has 7 failures out of 13 tests
         # TODO: pywinauto/unittests/linux/test_clipboard_linux.py has 1 failure out of 2 tests
     - name: Upload Coverage to Codecov
-      uses: codecov/codecov-action@v3
+      uses: codecov/codecov-action@v7
