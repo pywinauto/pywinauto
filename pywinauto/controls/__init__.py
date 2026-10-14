@@ -30,10 +30,12 @@
 # OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 """Controls package"""
 import sys
+import platform
 
-import pywinauto.qt  # register "qt5" and "qt6" backends
-from . import qt5_controls
-from . import qt6_controls
+if sys.platform == "win32" or (sys.platform.startswith("linux") and platform.machine() == 'x86_64'):
+    import pywinauto.qt  # register "qt5" and "qt6" backends
+    from . import qt5_controls
+    from . import qt6_controls
 
 
 if sys.platform == 'win32':

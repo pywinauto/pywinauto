@@ -12,18 +12,23 @@ jobs:
     - name: Checkout Code
       uses: actions/checkout@v7
 
-    - name: Unpack test apps
+    - name: Install mousebuttons application
       run: |
-        echo "=== Unpacking test apps ==="
         hdiutil attach ./apps/MouseTester/macos/mousebuttons.dmg -nobrowse
         mkdir -p ~/Applications/
         cp -R /Volumes/mousebuttons/mousebuttons.app/Contents/MacOS/mousebuttons ~/Applications/
         hdiutil detach /Volumes/mousebuttons
-
+    - name: Install SendKeysTester application
+      run: |
         hdiutil attach ./apps/SendKeysTester/macos/send_keys_test_app.dmg -nobrowse
         mkdir -p ~/Applications/
         cp -R /Volumes/send_keys_test_app/send_keys_test_app.app/Contents/MacOS/send_keys_test_app ~/Applications/
         hdiutil detach /Volumes/send_keys_test_app
+    - name: Install ControlsTestAppSB application
+      run: |
+        hdiutil attach ./apps/Controls/macos/test_app_controls.dmg -nobrowse
+        cp -R /Volumes/test_app_controls/ControlsTestAppSB.app/Contents/MacOS/ControlsTestAppSB ~/Applications/
+        hdiutil detach /Volumes/test_app_controls/
 
     - name: Configure TCC Permissions for Testing
       run: |
@@ -32,6 +37,7 @@ jobs:
         TCC_DB_PATH="$HOME/Library/Application Support/com.apple.TCC/TCC.db"
         MOUSE_APP="$HOME/Applications/mousebuttons"
         SEND_KEYS_APP="$HOME/Applications/send_keys_test_app"
+        CONTROLS_APP="$HOME/Applications/ControlsTestAppSB"
         
         # 1. Ensure the parent directory exists
         mkdir -p "$(dirname "$TCC_DB_PATH")"
@@ -63,6 +69,17 @@ jobs:
         );
         EOF
 
+        # 5. Do the same for $CONTROLS_APP
+        sqlite3 "$TCC_DB_PATH" <<EOF
+        INSERT OR REPLACE INTO access (
+          service, client, client_type, auth_value, auth_reason, auth_version
+        ) VALUES (
+          'kTCCServiceAccessibility', 
+          '$CONTROLS_APP', 
+          1, 2, 1, 1
+        );
+        EOF
+
         echo "=== Configure TCC Permissions Complete ==="
 
     - name: Set up Python
@@ -73,9 +90,13 @@ jobs:
     - name: Install dependencies
       run: |
         python3 -m pip install --upgrade pip
-        pip3 install mock pytest
         pip3 install -r dev-requirements.txt
 
     - name: Run macOS "ax" backend tests
       run: |
-        python3 -m unittest pywinauto.unittests.macos
+        pip3 freeze
+        python3 --version
+        coverage --version
+        coverage debug sys
+        coverage run -m pytest pywinauto/unittests/test_keyboard.py pywinauto/unittests/test_mouse.py pywinauto/unittests/macos/test_application_macos.py pywinauto/unittests/macos/test_ax_controls.py pywinauto/unittests/macos/test_ax_element_info_macos.py pywinauto/unittests/macos/test_ax_wrapper.py
+        coverage report -m

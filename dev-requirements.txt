@@ -34,7 +34,7 @@ rst2pdf
 Sphinx
 mock==2.0.0
 codacy-coverage
-PyQt5==5.15.11; python_version >= '3.6'
+PyQt5==5.15.10; python_version >= '3.6'
 PyQt5-sip==12.15.0; python_version >= '3.9' and python_version < '3.10'
 PyQt5-sip; python_version >= '3.10'
 injectlib

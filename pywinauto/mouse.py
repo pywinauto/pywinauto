@@ -41,6 +41,7 @@ if sys.platform == 'win32':
 elif sys.platform == 'darwin':
     from .macos.macos_defines import mouse_buttons_map
 
+    import objc
     from Quartz import kCGScrollEventUnitPixel
     from Quartz import kCGEventOtherMouseDown
     from Quartz import kCGEventLeftMouseDown
@@ -53,8 +54,11 @@ elif sys.platform == 'darwin':
     from Quartz import kCGHIDEventTap
     from Quartz import CGEventCreateMouseEvent
     from Quartz import CGEventCreateScrollWheelEvent
-    from Quartz import objc
     from Quartz import CGEventPost
+    from Quartz import CGEventCreate
+    from Quartz import CGEventGetLocation
+    from Quartz import CGDisplayPixelsHigh
+    from Quartz import CGMainDisplayID
 else:
     from Xlib.display import Display
     from Xlib import X
@@ -106,6 +110,21 @@ if sys.platform == 'darwin':
             if pause_value > 0:
                 time.sleep(pause_value)
 
+
+    def _get_cursor_pos():
+        # Get the current mouse location using Quartz
+        event = CGEventCreate(None)
+        loc = CGEventGetLocation(event)
+
+        # Note: macOS native Quartz coordinates have the origin (0,0) at the bottom-left.
+        # To convert to a top-left origin (standard for web/windows), flip the Y coordinate:
+        screen_height = CGDisplayPixelsHigh(CGMainDisplayID())
+        top_left_x = int(loc.x)
+        top_left_y = int(screen_height - loc.y)
+
+        return top_left_x, top_left_y
+
+
 elif sys.platform.startswith('linux'):
     _display = Display()
 
@@ -144,7 +163,7 @@ elif sys.platform.startswith('linux'):
                     _display.sync()
 
     # TODO: check this method
-    def _get_cursor_pos():  # get global coordinate
+    def _get_cursor_pos():  # get global coordinates
         data = _display.screen().root.query_pointer()._data
         return data["root_x"], data["root_y"]
 
