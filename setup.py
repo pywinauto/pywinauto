@@ -63,7 +63,9 @@ if sys.platform == 'win32':
                 "pywinauto.tests",
                 "pywinauto.controls",
                 "pywinauto.windows",
-                "pywinauto.qt"]
+                "pywinauto.qt",
+                "pywinauto.linux",  # workaround to build a source release on Windows
+                "pywinauto.macos"]
 elif sys.platform.startswith('linux'):
     packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls", "pywinauto.qt"]
 elif sys.platform == 'darwin':
@@ -78,12 +80,15 @@ elif sys.platform == 'darwin':
     ]
     packages = ["pywinauto", "pywinauto.macos"]
 else:
-    packages = ["pywinauto", "pywinauto.linux", "pywinauto.controls"]
+    packages = [
+        "pywinauto", "pywinauto.windows", "pywinauto.linux", "pywinauto.macos", "pywinauto.qt",
+        "pywinauto.controls", "pywinauto.tests",
+    ]
 
 setup(name='pywinauto',
     version = '1.0.0b1',
-    description = 'A set of Python modules to automate the Microsoft Windows GUI',
-    keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard",
+    description = 'A set of Python modules to automate GUI on Windows, Linux and macOS',
+    keywords = "windows gui automation GuiAuto testing test desktop mouse keyboard linux macos",
     url = "https://github.com/pywinauto/pywinauto",
     project_urls = {
         "Source": "https://github.com/pywinauto/pywinauto",
@@ -102,7 +107,7 @@ Useful links
 - Getting Started Guide: https://pywinauto.readthedocs.io/en/latest/getting_started.html
 - StackOverflow tag: https://stackoverflow.com/questions/tagged/pywinauto
 """,
-    platforms=['win32'],
+    platforms=['win32', 'linux', 'darwin'],
 
     packages = packages,
 
@@ -111,8 +116,9 @@ Useful links
         'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Developers',
-        'License :: OSI Approved :: BSD License',
         'Operating System :: Microsoft :: Windows',
+        'Operating System :: POSIX :: Linux',
+        'Operating System :: MacOS',
         'Programming Language :: Python',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
