@@ -9,8 +9,8 @@ Requirements:
 from __future__ import print_function
 import pywinauto
 
-pywinauto.Application().Start(r'explorer.exe')
-explorer = pywinauto.Application().Connect(path='explorer.exe')
+pywinauto.Application(backend='win32').Start(r'explorer.exe')
+explorer = pywinauto.Application(backend='win32').Connect(path='explorer.exe')
 
 # Go to "Control Panel -> Programs and Features"
 NewWindow = explorer.window(top_level_only=True, active_only=True, class_name='CabinetWClass')

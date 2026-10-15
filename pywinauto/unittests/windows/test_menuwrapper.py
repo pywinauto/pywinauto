@@ -55,7 +55,7 @@ class MenuWrapperTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start("Notepad.exe")
 
         self.dlg = self.app.Notepad
@@ -132,7 +132,7 @@ class OwnerDrawnMenuTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"BCDialogMenu.exe"))
         self.dlg = self.app.BCDialogMenu
         self.app.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
         self.dlg.wait('ready')

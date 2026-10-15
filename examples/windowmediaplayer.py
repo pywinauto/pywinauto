@@ -49,7 +49,7 @@ except ImportError:
 
 def windows_media():
 
-    app = application.Application()
+    app = application.Application(backend='win32')
 
     try:
         app.start(   # connect_(path =

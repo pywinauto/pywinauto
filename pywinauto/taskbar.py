@@ -76,7 +76,7 @@ def RightClickHiddenSystemTrayIcon(button, exact=False, by_tooltip=False):
 
 
 # windows explorer owns all these windows so get that app
-explorer_app = application.Application().connect(handle=TaskBarHandle())
+explorer_app = application.Application(backend='win32').connect(handle=TaskBarHandle())
 
 # Get the taskbar
 TaskBar = explorer_app.window(handle=TaskBarHandle())

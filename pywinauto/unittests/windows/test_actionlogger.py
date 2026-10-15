@@ -61,7 +61,7 @@ class ActionLoggerOnStadardLoggerTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
         actionlogger.enable()
-        self.app = Application().start(_notepad_exe())
+        self.app = Application(backend='win32').start(_notepad_exe())
         self.logger = logging.getLogger('pywinauto')
         self.out = self.logger.handlers[0].stream
         self.logger.handlers[0].stream = open('test_logging.txt', 'w')

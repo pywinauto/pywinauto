@@ -89,7 +89,7 @@ class HwndWrapperTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.select('CButton (Command Link)')
@@ -577,7 +577,7 @@ class SendKeystrokesTests(unittest.TestCase):
         os.path.dirname(__file__), r"..\..\..\apps\Notepad2-mod")
         if is_x64_Python():
             notepad2_mod_folder = os.path.join(notepad2_mod_folder, 'x64')
-        self.app = Application().start(os.path.join(notepad2_mod_folder, u"Notepad2.exe"))
+        self.app = Application(backend='win32').start(os.path.join(notepad2_mod_folder, u"Notepad2.exe"))
 
         self.dlg = self.app.window(name_re=".*Untitled - Notepad2-mod", visible=None)
         self.ctrl = HwndWrapper(self.dlg.Scintilla.handle)
@@ -610,7 +610,7 @@ class HwndWrapperMenuTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"RowList.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"RowList.exe"))
 
         self.dlg = self.app.RowListSampleApplication
         self.ctrl = self.app.RowListSampleApplication.ListView.find()
@@ -690,7 +690,7 @@ class HwndWrapperMouseTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.select('CButton (Command Link)')
@@ -776,9 +776,9 @@ class NonActiveWindowFocusTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
-        self.app2 = Application().start(_notepad_exe())
+        self.app2 = Application(backend='win32').start(_notepad_exe())
 
     def tearDown(self):
         """Close the application after tests"""
@@ -810,10 +810,10 @@ class WindowWithoutMessageLoopFocusTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app1 = Application().start(u"cmd.exe",
+        self.app1 = Application(backend='win32').start(u"cmd.exe",
                                         create_new_console=True,
                                         wait_for_idle=False)
-        self.app2 = Application().start(os.path.join(
+        self.app2 = Application(backend='win32').start(os.path.join(
             mfc_samples_folder, u"CmnCtrl2.exe"))
         self.app2.wait_cpu_usage_lower(threshold=1.5, timeout=30, usage_interval=1)
 
@@ -848,14 +848,14 @@ class NotepadRegressionTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(_notepad_exe())
 
         self.dlg = self.app.window(name='Untitled - Notepad', class_name='Notepad')
         self.ctrl = HwndWrapper(self.dlg.Edit.handle)
         self.dlg.Edit.set_edit_text("Here is some text\r\n and some more")
 
-        self.app2 = Application().start(_notepad_exe())
+        self.app2 = Application(backend='win32').start(_notepad_exe())
 
     def tearDown(self):
         """Close the application after tests"""
@@ -906,7 +906,7 @@ class ControlStateTests(unittest.TestCase):
         is in the state we want it.
         """
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
@@ -935,7 +935,7 @@ class DragAndDropTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
@@ -977,7 +977,7 @@ class GetDialogPropsFromHandleTest(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(_notepad_exe())
 
         self.dlg = self.app.UntitledNotepad
@@ -1004,7 +1004,7 @@ class SendEnterKeyTest(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(_notepad_exe())
 
         self.dlg = self.app.UntitledNotepad
@@ -1029,7 +1029,7 @@ class SendKeystrokesAltComboTests(unittest.TestCase):
     def setUp(self):
         Timings.defaults()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u'CtrlTest.exe'))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u'CtrlTest.exe'))
         self.dlg = self.app.Control_Test_App
 
     def tearDown(self):
@@ -1049,7 +1049,7 @@ class RemoteMemoryBlockTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample

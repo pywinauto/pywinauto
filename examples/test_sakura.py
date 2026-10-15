@@ -40,7 +40,7 @@ from pywinauto import application
 
 def sakura_test():
 
-    app = application.Application()
+    app = application.Application(backend='win32')
     app.start(r"C:\Program Files\sakura\sakura.exe")
 
     mainwin = app.window(name_re = u'\(無題\) - sakura .*')

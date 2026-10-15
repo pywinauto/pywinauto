@@ -253,11 +253,12 @@ class Application(BaseApplication):
     .. automethod:: __getitem__
     """
 
-    def __init__(self, backend="win32", datafilename=None, allow_magic_lookup=True):
+    def __init__(self, backend="uia", datafilename=None, allow_magic_lookup=True):
         """
         Initialize the Application object
 
-        * **backend** is a name of used back-end (values: "win32", "uia").
+        * **backend** is a name of used back-end.
+           - Possible values: "win32", "uia" (default), "wpf", "qt5", "qt6".
         * **datafilename** is a file name for reading matching history.
         * **allow_magic_lookup** whether attribute access must turn into
                 child_window(best_match=...) search as fallback

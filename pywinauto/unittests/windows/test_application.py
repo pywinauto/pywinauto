@@ -119,7 +119,7 @@ class ApplicationWarningTestCases(unittest.TestCase):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            app = Application().start(self.sample_exe_inverted_bitness)
+            app = Application(backend='win32').start(self.sample_exe_inverted_bitness)
             app.kill()
             assert len(w) >= 1
             assert issubclass(w[-1].category, UserWarning)
@@ -130,12 +130,12 @@ class ApplicationWarningTestCases(unittest.TestCase):
             self.defaultTestResult()
             return
 
-        app = Application().start(self.sample_exe_inverted_bitness)
+        app = Application(backend='win32').start(self.sample_exe_inverted_bitness)
         # Appveyor misteries...
         self.assertEqual(app.is_process_running(), True)
 
         with mock.patch("warnings.warn") as mockWarn:
-            Application().connect(pid=app.process)
+            Application(backend='win32').connect(pid=app.process)
             app.kill()
             args, kw = mockWarn.call_args
             assert len(args) == 2
@@ -162,20 +162,20 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
 
     def test_kill_hard(self):
         self.assertTrue(self.app.kill(soft=False))
-        self.assertRaises(ProcessNotFoundError, Application().connect, pid=self.target_process)
+        self.assertRaises(ProcessNotFoundError, Application(backend='win32').connect, pid=self.target_process)
 
     def test_kill_soft(self):
         self.assertTrue(self.app.kill(soft=True))
-        self.assertRaises(ProcessNotFoundError, Application().connect, pid=self.target_process)
+        self.assertRaises(ProcessNotFoundError, Application(backend='win32').connect, pid=self.target_process)
 
     def test_already_killed_hard(self):
         self.assertTrue(self.app.kill(soft=False))
-        self.assertRaises(ProcessNotFoundError, Application().connect, pid=self.target_process)
+        self.assertRaises(ProcessNotFoundError, Application(backend='win32').connect, pid=self.target_process)
         self.assertTrue(self.app.kill(soft=False)) # already killed, returned True anyway
 
     def test_already_killed_soft(self):
         self.assertTrue(self.app.kill(soft=False))
-        self.assertRaises(ProcessNotFoundError, Application().connect, pid=self.target_process)
+        self.assertRaises(ProcessNotFoundError, Application(backend='win32').connect, pid=self.target_process)
         self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
 
     def test_kill_soft_with_modal_subdialog(self):
@@ -189,7 +189,7 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
             raise NotImplementedError('test_kill_soft_with_modal_subdialog: ' \
                 'backend "{}" is not supported'.format(self.backend))
         self.assertTrue(self.app.kill(soft=True))
-        self.assertRaises(ProcessNotFoundError, Application().connect, pid=self.target_process)
+        self.assertRaises(ProcessNotFoundError, Application(backend='win32').connect, pid=self.target_process)
         self.assertTrue(self.app.kill(soft=True)) # already killed, returned True anyway
 
 
@@ -209,7 +209,7 @@ if ctypes.windll.shell32.IsUserAnAdmin() == 0:
             """Set some data and ensure the application is in the state we want"""
             super(AdminTestCases, self).setUp()
             cmd = 'powershell -Command "Start-Process {} -Verb RunAs"'.format(self.sample_exe)
-            self.app = Application().start(cmd, wait_for_idle=False)
+            self.app = Application(backend='win32').start(cmd, wait_for_idle=False)
 
         def tearDown(self):
             """Close the application after tests"""
@@ -220,13 +220,13 @@ if ctypes.windll.shell32.IsUserAnAdmin() == 0:
             warnings.filterwarnings('always', category=UserWarning, append=True)
             with warnings.catch_warnings(record=True) as w:
                 warnings.simplefilter("always")
-                self.app = Application().connect(name="Common Controls Sample", timeout=20)
+                self.app = Application(backend='win32').connect(name="Common Controls Sample", timeout=20)
                 assert len(w) >= 1
                 assert issubclass(w[-1].category, UserWarning)
                 assert "process has no rights" in str(w[-1].message)
 
         def test_non_admin_click(self):
-            self.app = Application().connect(name="Common Controls Sample", timeout=20)
+            self.app = Application(backend='win32').connect(name="Common Controls Sample", timeout=20)
             with self.assertRaises(RuntimeError):
                 self.app.CommonControlsSample.OK.click()
             with self.assertRaises(RuntimeError):
@@ -240,7 +240,7 @@ class NonAdminTestCases(ApplicationWarningTestCases):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         super(NonAdminTestCases, self).setUp()
-        self.app = Application().start(self.sample_exe)
+        self.app = Application(backend='win32').start(self.sample_exe)
 
     def tearDown(self):
         """Close the application after tests"""
@@ -251,11 +251,11 @@ class NonAdminTestCases(ApplicationWarningTestCases):
         warnings.filterwarnings('always', category=UserWarning, append=True)
         with warnings.catch_warnings(record=True) as w:
             warnings.simplefilter("always")
-            self.app = Application().connect(name="Common Controls Sample", timeout=5)
+            self.app = Application(backend='win32').connect(name="Common Controls Sample", timeout=5)
             assert len(w) == 0
 
     def test_both_non_admin_click(self):
-        self.app = Application().connect(name="Common Controls Sample", timeout=5)
+        self.app = Application(backend='win32').connect(name="Common Controls Sample", timeout=5)
         self.app.CommonControlsSample.TVS_HASBUTTON.check()
         self.assertEqual(self.app.CommonControlsSample.TVS_HASBUTTON.is_checked(), True)
         self.app.CommonControlsSample.OK.click()
@@ -289,7 +289,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test__iter__(self):
         """Verify that Application instance is not iterable"""
-        app = Application()
+        app = Application(backend='win32')
         app.start(_notepad_exe())
         with self.assertRaises(NotImplementedError):
             for a in app:
@@ -298,18 +298,18 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_not_connected(self):
         """Verify that it raises when the app is not connected"""
-        self.assertRaises (AppNotConnected, Application().__getattribute__, 'Hiya')
-        self.assertRaises (AppNotConnected, Application().__getitem__, 'Hiya')
-        self.assertRaises (AppNotConnected, Application().window_, name='Hiya')
-        self.assertRaises (AppNotConnected, Application().top_window_,)
+        self.assertRaises (AppNotConnected, Application(backend='win32').__getattribute__, 'Hiya')
+        self.assertRaises (AppNotConnected, Application(backend='win32').__getitem__, 'Hiya')
+        self.assertRaises (AppNotConnected, Application(backend='win32').window_, name='Hiya')
+        self.assertRaises (AppNotConnected, Application(backend='win32').top_window_,)
 
     def test_start_problem(self):
         """Verify start_ raises on unknown command"""
-        self.assertRaises (AppStartError, Application().start, 'Hiya')
+        self.assertRaises (AppStartError, Application(backend='win32').start, 'Hiya')
 
     def test_start(self):
         """test start() works correctly"""
-        app = Application()
+        app = Application(backend='win32')
         self.assertEqual(app.process, None)
         app.start(_notepad_exe())
         self.assertNotEqual(app.process, None)
@@ -323,7 +323,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def testStart_bug01(self):
         """On SourceForge forum AppStartError forgot to include %s for application name"""
-        app = Application()
+        app = Application(backend='win32')
         self.assertEqual(app.process, None)
         application.app_start_timeout = 1
         app_name = r"I am not * and Application!/\.exe"
@@ -366,14 +366,14 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_path(self):
         """Test that connect_() works with a path"""
-        app1 = Application()
+        app1 = Application(backend='win32')
         app1.start(_notepad_exe())
 
-        app_conn = Application()
+        app_conn = Application(backend='win32')
         app_conn.connect(path=self.notepad_subpath)
         self.assertEqual(app1.process, app_conn.process)
 
-        app_conn = Application()
+        app_conn = Application(backend='win32')
         if is_x64_Python() or not is_x64_OS():
             app_conn.connect(path=r"c:\windows\system32\notepad.exe")
         else:
@@ -388,14 +388,14 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_path_timeout(self):
         """Test that connect_() works with a path with timeout"""
-        app1 = Application()
+        app1 = Application(backend='win32')
         def delayed_launch():
             time.sleep(2)
             app1.start(_notepad_exe())
         thread = Thread(target=delayed_launch)
         thread.start()
 
-        app_conn = Application()
+        app_conn = Application(backend='win32')
         app_conn.connect(path=_notepad_exe(), timeout=3)
 
         self.assertEqual(app1.process, app_conn.process)
@@ -408,14 +408,14 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_path_timeout_problem(self):
         """Test that connect_() raise error when no process start"""
-        app1 = Application()
+        app1 = Application(backend='win32')
         def delayed_launch():
             time.sleep(1)
             app1.start(_notepad_exe())
         thread = Thread(target=delayed_launch)
         thread.start()
 
-        self.assertRaises(ProcessNotFoundError, Application().connect, path=_notepad_exe(), timeout=0.5)
+        self.assertRaises(ProcessNotFoundError, Application(backend='win32').connect, path=_notepad_exe(), timeout=0.5)
 
         time.sleep(0.7)
 
@@ -423,21 +423,21 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_process_timeout_failed(self):
         """Test that connect_(pid=...) raise error when set timeout"""
-        app1 = Application()
+        app1 = Application(backend='win32')
         app1.start(_notepad_exe())
-        self.assertRaises(ProcessNotFoundError, Application().connect, pid=0, timeout=0.5)
+        self.assertRaises(ProcessNotFoundError, Application(backend='win32').connect, pid=0, timeout=0.5)
         app1.UntitledNotepad.menu_select('File->Exit')
 
 #    def test_Connect(self):
 #        """Test that connect_() works with a path"""
-#        app1 = Application()
+#        app1 = Application(backend='win32')
 #        app1.start_("notepad.exe")
 #
-#        app_conn = Application()
+#        app_conn = Application(backend='win32')
 #        app_conn.connect_(path = r"system32\notepad.exe")
 #        self.assertEqual(app1.process, app_conn.process)
 #
-#        app_conn = Application()
+#        app_conn = Application(backend='win32')
 #        app_conn.connect_(path = r"c:\windows\system32\notepad.exe")
 #        self.assertEqual(app1.process, app_conn.process)
 #
@@ -445,10 +445,10 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_process(self):
         """Test that connect_() works with a process"""
-        app1 = Application()
+        app1 = Application(backend='win32')
         app1.start(_notepad_exe())
 
-        app_conn = Application()
+        app_conn = Application(backend='win32')
         app_conn.connect(pid=app1.process)
         self.assertEqual(app1.process, app_conn.process)
 
@@ -457,11 +457,11 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_handle(self):
         """Test that connect_() works with a handle"""
-        app1 = Application()
+        app1 = Application(backend='win32')
         app1.start(_notepad_exe())
         handle = app1.UntitledNotepad.handle
 
-        app_conn = Application()
+        app_conn = Application(backend='win32')
         app_conn.connect(handle=handle)
         self.assertEqual(app1.process, app_conn.process)
 
@@ -469,11 +469,11 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_connect_windowspec(self):
         """Test that connect_() works with a windowspec"""
-        app1 = Application()
+        app1 = Application(backend='win32')
         app1.start(_notepad_exe())
         #unused var: handle = app1.UntitledNotepad.handle
 
-        app_conn = Application()
+        app_conn = Application(backend='win32')
         try:
             app_conn.connect(name="Untitled - Notepad")
         except findwindows.WindowAmbiguousError:
@@ -493,31 +493,31 @@ class ApplicationTestCases(unittest.TestCase):
         # try an argument that does not exist
         self.assertRaises (
             KeyError,
-            Application().connect, **{'not_arg': 23})
+            Application(backend='win32').connect, **{'not_arg': 23})
 
         self.assertRaises (
             RuntimeError,
-            Application().connect)
+            Application(backend='win32').connect)
 
         # try to pass an invalid process
         self.assertRaises (
             ProcessNotFoundError,
-            Application().connect, **{'pid': 0})
+            Application(backend='win32').connect, **{'pid': 0})
 
         # try to pass an invalid handle
         self.assertRaises(
             RuntimeError,
-            Application().connect, **{'handle' : 0})
+            Application(backend='win32').connect, **{'handle' : 0})
 
         # try to pass an invalid path
         self.assertRaises(
             ProcessNotFoundError,
-            Application().connect, **{'path': "no app here", 'timeout': 0.0})
+            Application(backend='win32').connect, **{'path': "no app here", 'timeout': 0.0})
 
     def test_top_window(self):
         """Test that top_window_() works correctly"""
         Timings.window_find_timeout = 5
-        app = Application()
+        app = Application(backend='win32')
         self.assertRaises(AppNotConnected, app.top_window_)
 
         app.start(_notepad_exe())
@@ -535,7 +535,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_active_window(self):
         """Test that active_() works correctly"""
-        app = Application()
+        app = Application(backend='win32')
         self.assertRaises(AppNotConnected, app.active_)
         self.assertRaises(AppNotConnected, app.is64bit)
         app.start(_notepad_exe())
@@ -547,7 +547,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_cpu_usage(self):
         """Verify that cpu_usage() works correctly"""
-        app = Application()
+        app = Application(backend='win32')
         self.assertRaises(AppNotConnected, app.cpu_usage)
         app.start(_notepad_exe())
         self.assertEqual(0.0 <= app.cpu_usage() <= 100.0, True)
@@ -559,7 +559,7 @@ class ApplicationTestCases(unittest.TestCase):
         if is_x64_Python() != is_x64_OS():
             return None
 
-        Application().Start(r'explorer.exe')
+        Application(backend='win32').start(r'explorer.exe')
 
         def _cabinetwclass_exist():
             "Verify if at least one active 'CabinetWClass' window is created"
@@ -569,17 +569,17 @@ class ApplicationTestCases(unittest.TestCase):
         WaitUntil(40, 0.5, _cabinetwclass_exist)
         handle = findwindows.find_elements(active_only = True, class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, 'backend': 'win32', })
-        explorer = Application().Connect(pid = window.process_id())
+        explorer = Application(backend='win32').Connect(pid = window.process_id())
 
         try:
-            explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
-            window.AddressBandRoot.ClickInput()
+            explorer.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
+            window.AddressBandRoot.click_input()
             window.TypeKeys(r'Control Panel\Programs\Programs and Features', with_spaces=True, set_foreground=True)
             window.TypeKeys(r'{ENTER}', set_foreground = False)
             WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(active_only=True,
                                                                      name='Programs and Features',
                                                                      class_name='CabinetWClass')) > 0)
-            explorer.WaitCPUUsageLower(threshold = 1.5, timeout = 60, usage_interval = 2)
+            explorer.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
             installed_programs = window.FolderView.texts()[1:]
             programs_list = ','.join(installed_programs)
             if ('Microsoft' not in programs_list) and ('Python' not in programs_list):
@@ -589,7 +589,7 @@ class ApplicationTestCases(unittest.TestCase):
                     hwndwrapper.ActionLogger().log(prog)
             self.assertEqual(('Microsoft' in programs_list) or ('Python' in programs_list), True)
         finally:
-            window.Close(2.0)
+            window.close(2.0)
 
     if UIA_support:
         def test_wait_cpu_usage_lower_uia(self):
@@ -608,14 +608,14 @@ class ApplicationTestCases(unittest.TestCase):
 
     # def test_wait_for_idle_exception(self):
     #    """Test that method start() raises an exception when wait for idle failed"""
-    #    app = Application()
+    #    app = Application(backend='win32')
     #    self.assertRaises(Exception, app.start, 'cmd.exe')
     #    # TODO: test and fix the case when cmd.exe can't be killed by app.kill()
 
     def test_windows(self):
-        """Test that windows_() works correctly"""
+        """Test that windows() works correctly"""
         Timings.window_find_timeout = 5
-        app = Application()
+        app = Application(backend='win32')
 
         self.assertRaises(AppNotConnected, app.windows_, **{'title' : 'not connected'})
 
@@ -638,7 +638,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_window(self):
         """Test that window_() works correctly"""
-        app = Application()
+        app = Application(backend='win32')
 
         self.assertRaises(AppNotConnected, app.window_, **{'title' : 'not connected'})
 
@@ -671,7 +671,7 @@ class ApplicationTestCases(unittest.TestCase):
     def test_getitem(self):
         """Test that __getitem__() works correctly"""
         Timings.window_find_timeout = 5
-        app = Application()
+        app = Application(backend='win32')
         app.start(_notepad_exe())
 
         self.assertRaises(Exception, app['blahblah'])
@@ -696,7 +696,7 @@ class ApplicationTestCases(unittest.TestCase):
     def test_getattribute(self):
         """Test that __getattribute__() works correctly"""
         Timings.window_find_timeout = 5
-        app = Application()
+        app = Application(backend='win32')
         app.start(_notepad_exe())
 
         self.assertRaises(
@@ -724,7 +724,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_kill(self):
         """test killing the application"""
-        app = Application()
+        app = Application(backend='win32')
         app.start(_notepad_exe())
 
         app.UntitledNotepad.Edit.type_keys("hello")
@@ -740,7 +740,7 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_process_is_running(self):
         """Tests process is running and wait for exit function"""
-        app = Application()
+        app = Application(backend='win32')
         app.start(_notepad_exe())
         app.UntitledNotepad.wait("ready")
         self.assertTrue(app.is_process_running())
@@ -754,7 +754,7 @@ class ApplicationTestCases(unittest.TestCase):
 
         is_process_running/wait_for_process_exit can be called on not started/disconnected instance
         """
-        app = Application()
+        app = Application(backend='win32')
         app.wait_for_process_exit(timeout=10, retry_interval=1)
         self.assertFalse(app.is_process_running())
 
@@ -768,14 +768,14 @@ class ApplicationTestCases(unittest.TestCase):
 
     def test_application_inheritance(self):
         """Test that Application class can be inherited and has it's own methods"""
-        app = ApplicationTestCases.TestInheritedApp()
+        app = ApplicationTestCases.TestInheritedApp(backend='win32')
         self.assertTrue(app.test_method())
 
     def test_non_magic_application(self):
-        app = Application()
+        app = Application(backend='win32')
         self.assertEqual(app.allow_magic_lookup, True)
 
-        app_no_magic = Application(allow_magic_lookup=False)
+        app_no_magic = Application(backend='win32', allow_magic_lookup=False)
         self.assertEqual(app_no_magic.allow_magic_lookup, False)
 
         app_no_magic.start(_notepad_exe())
@@ -1373,7 +1373,8 @@ if UIA_support:
         def setUp(self):
             """Set some data and ensure the application is in the state we want"""
             Timings.slow()
-            self.app = Application().start('explorer.exe "' + mfc_samples_folder_32 + '"')
+            # only start the app, self.app is not used later
+            self.app = Application(backend='win32').start('explorer.exe "' + mfc_samples_folder_32 + '"')
             self.desktop = Desktop(backend='uia')
             self.desktop_no_magic = Desktop(backend='uia', allow_magic_lookup=False)
 

@@ -41,7 +41,7 @@ from pywinauto import application
 
 #application.set_timing(3, .5, 10, .5, .4, .2, .2, .1, .2, .5)
 
-app = application.Application()
+app = application.Application(backend='win32')
 app.start(r"notepad.exe")
 
 app['Notepad'].wait('ready')

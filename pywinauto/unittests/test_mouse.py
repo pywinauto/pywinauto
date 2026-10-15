@@ -57,7 +57,7 @@ class MouseTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         if sys.platform == 'win32':
             Timings.defaults()
-            self.app = Application()
+            self.app = Application(backend='win32')
             self.app.start(_test_app())
             self.dlg = self.app.mousebuttons
         elif sys.platform == 'darwin':

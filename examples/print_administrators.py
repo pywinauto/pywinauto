@@ -44,7 +44,7 @@ if is_user_an_admin():
     @always_wait_until_passes(4, 2, application.ProcessNotFoundError)
     def connect_to_mmc():
         """ Returns connect app to instance """
-        return application.Application().connect(path="mmc.exe")
+        return application.Application(backend='win32').connect(path="mmc.exe")
 
 
     app = connect_to_mmc()
