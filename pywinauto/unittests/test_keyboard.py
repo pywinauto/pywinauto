@@ -89,7 +89,7 @@ class SendKeysTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application is in the state we want it."""
         if sys.platform == 'win32':
-            self.app = Application()
+            self.app = Application(backend='win32')
             self.app.start(_notepad_exe())
             self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
@@ -335,7 +335,7 @@ if sys.platform == 'win32':
 
         def setUp(self):
             """Start the application and ensure it's in the state we want"""
-            self.app = Application().start(os.path.join(mfc_samples(), u"CtrlTest.exe"))
+            self.app = Application(backend='win32').start(os.path.join(mfc_samples(), u"CtrlTest.exe"))
             self.dlg = self.app.Control_Test_App
 
         def tearDown(self):

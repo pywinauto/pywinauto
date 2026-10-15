@@ -84,7 +84,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     window should be accessed with a localized title"
     """
 
-    Application().start(r'explorer.exe')
+    Application(backend='win32').start(r'explorer.exe')
     class_name = 'CabinetWClass'
 
     def _cabinetwclass_exist():
@@ -96,7 +96,7 @@ def _toggle_notification_area_icons(show_all=True, debug_img=None):
     handle = findwindows.find_elements(active_only=True,
                                        class_name=class_name)[-1].handle
     window = WindowSpecification({'handle': handle, 'backend': 'win32', })
-    explorer = Application().connect(pid=window.process_id())
+    explorer = Application(backend='win32').connect(pid=window.process_id())
     cur_state = None
 
     try:
@@ -193,7 +193,7 @@ class TaskbarTestCases(unittest.TestCase):
         try:
             for i in range(2):
                 l.log("Look for unclosed sample apps")
-                app = Application()
+                app = Application(backend='win32')
                 app.connect(path="TrayMenu.exe")
                 l.log("Forse closing a leftover app: {0}".format(app))
                 app.kill()
@@ -318,7 +318,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
-        app2 = Application()
+        app2 = Application(backend='win32')
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         dlg2 = app2.top_window()
         dlg2.wait('visible', timeout=self.tm)
@@ -352,7 +352,7 @@ class TaskbarTestCases(unittest.TestCase):
 
         # Run one more instance of the sample app
         # hopefully one of the icons moves into the hidden area
-        app2 = Application()
+        app2 = Application(backend='win32')
         app2.start(os.path.join(mfc_samples_folder, u"TrayMenu.exe"))
         dlg2 = app2.top_window()
         dlg2.wait('visible', timeout=self.tm)

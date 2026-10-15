@@ -63,7 +63,7 @@ outputfilename = os.path.abspath(outputfilename)
 
 
 # start IE with a start URL of what was passed in
-app = application.Application().start(
+app = application.Application(backend='win32').start(
     r"c:\program files\internet explorer\iexplore.exe {}".format(web_address))
 
 # some pages are slow to open - so wait some seconds

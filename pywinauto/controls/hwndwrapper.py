@@ -52,6 +52,7 @@ import warnings
 # the actions - as such I don't want to require sendkeys - so
 # the following makes the import optional.
 
+from ..sysinfo import UIA_support
 from ..windows import win32defines, win32functions, win32structures
 from .. import controlproperties
 from ..actionlogger import ActionLogger
@@ -1789,4 +1790,6 @@ GetDialogPropsFromHandle = deprecated(get_dialog_props_from_handle)
 
 backend.register('win32', HwndElementInfo, HwndWrapper)
 backend.registry.backends['win32'].dialog_class = DialogWrapper
-backend.activate('win32') # default
+if not UIA_support:
+    # default only if comtypes is not installed (for isolated 'win32' tests)
+    backend.activate('win32')

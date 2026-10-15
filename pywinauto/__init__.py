@@ -32,7 +32,7 @@
 
 """Python package for automating GUI manipulation on Windows"""
 
-__version__ = "0.6.9"
+__version__ = "1.0.0b1"
 
 import sys  # noqa: E402
 import warnings  # noqa: E402

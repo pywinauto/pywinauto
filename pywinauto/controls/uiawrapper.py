@@ -891,3 +891,4 @@ class UIAWrapper(WinBaseWrapper, metaclass=UiaMeta):
 
 
 backend.register('uia', UIAElementInfo, UIAWrapper)
+backend.activate('uia') # default for Windows

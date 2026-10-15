@@ -58,7 +58,7 @@ Timings.slow()
 def run_notepad():
     """Run notepad and do some small stuff with it"""
     start = time.time()
-    app = application.Application()
+    app = application.Application(backend='win32')
 
     ## for distribution we don't want to connect to anybodies application
     ## because we may mess up something they are working on!

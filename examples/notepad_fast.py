@@ -79,7 +79,7 @@ def run_notepad():
         app = application.Application(
             os.path.join(scriptdir, "Notepad_fast.pkl"))
     else:
-        app = application.Application()
+        app = application.Application(backend='win32')
 
     ## for distribution we don't want to connect to anybodies application
     ## because we may mess up something they are working on!

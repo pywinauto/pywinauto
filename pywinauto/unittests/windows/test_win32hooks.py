@@ -73,7 +73,7 @@ class Win32HooksTests(unittest.TestCase):
         if is_x64_Python():
             mfc_samples_folder = os.path.join(mfc_samples_folder, 'x64')
         sample_exe = os.path.join(mfc_samples_folder, "CmnCtrl1.exe")
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(sample_exe)
         self.app.CommonControlsSample.wait("ready")
         return self.app.CommonControlsSample.rectangle().mid_point()

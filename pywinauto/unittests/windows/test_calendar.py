@@ -29,7 +29,7 @@ class CalendarWrapperTests(unittest.TestCase):
     def setUp(self):
         """Start the application set some data and ensure the application
         is in the state we want it."""
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.select(4)

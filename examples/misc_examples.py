@@ -53,7 +53,7 @@ def test_exceptions():
     """Test some things that should raise exceptions"""
     # test that trying to connect_ to a non existent app fails
     try:
-        app = application.Application()
+        app = application.Application(backend='win32')
         app.connect(path=r"No process with this please")
         assert False
     except application.ProcessNotFoundError:
@@ -61,7 +61,7 @@ def test_exceptions():
 
     # test that trying to connect_ to a non existent app fails
     try:
-        app = application.Application()
+        app = application.Application(backend='win32')
         app.start(cmd_line = r"No process with this please")
         assert False
     except application.AppStartError:
@@ -69,7 +69,7 @@ def test_exceptions():
 
 #    # try when it isn't connected
 #    try:
-#        app = application.Application()
+#        app = application.Application(backend='win32')
 #        #app.start_(ur"c:\windows\system32\notepad.exe")
 #        app.Notepad.click()
 #        #assert False
@@ -80,7 +80,7 @@ def test_exceptions():
 
 def get_info():
     """Run Notepad, print some identifiers and exit"""
-    app = application.Application()
+    app = application.Application(backend='win32')
 
     app.start(r"notepad.exe")
 

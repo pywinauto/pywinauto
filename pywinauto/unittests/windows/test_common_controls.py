@@ -84,7 +84,7 @@ class ListViewTestCases32(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        app = Application()
+        app = Application(backend='win32')
         app.start(self.path)
 
         self.texts = [
@@ -481,7 +481,7 @@ class ListViewWinFormTestCases32(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
 
-        app = Application()
+        app = Application(backend='win32')
         app.start(self.path)
 
         self.dlg = app.ListViewEx
@@ -581,7 +581,7 @@ class TreeViewTestCases32(unittest.TestCase):
             ("Pluto",   '5,913,520,000', '2,274', '1.27e22'),
         ]
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(self.path)
         self.dlg = self.app.MicrosoftControlSpy
         self.ctrl = self.app.MicrosoftControlSpy.TreeView.find()
@@ -702,7 +702,7 @@ class TreeViewAdditionalTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.dlg = self.app.CommonControlsSample
         self.ctrl = self.app.CommonControlsSample.TreeView.find()
@@ -809,7 +809,7 @@ class HeaderTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, "RowList.exe"), timeout=20)
 
         self.texts = [u'Color', u'Red', u'Green', u'Blue', u'Hue', u'Sat', u'Lum', u'Type']
@@ -890,7 +890,7 @@ class StatusBarTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(controlspy_folder, "Status bar.exe"))
 
         self.texts = ["Long text", "", "Status Bar"]
@@ -989,7 +989,7 @@ class TabControlTestCases(unittest.TestCase):
         Timings.fast()
         self.screen_w = win32api.GetSystemMetrics(0)
 
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.texts = [
@@ -1123,7 +1123,7 @@ class ToolbarTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
 
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.app = app
@@ -1263,7 +1263,7 @@ class RebarTestCases(unittest.TestCase):
         even though the app is started with a short title "RebarTest".
         """
         Timings.fast()
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, "RebarTest.exe"))
         mouse.move((-500, 200))  # remove the mouse from the screen to avoid side effects
         self.app = app
@@ -1333,7 +1333,7 @@ class DatetimeTestCases(unittest.TestCase):
     def setUp(self):
         """Start the application and get 'Date Time Picker' control"""
         Timings.fast()
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
 
         self.app = app
@@ -1407,7 +1407,7 @@ class ToolTipsTestCases(unittest.TestCase):
         Timings.fast()
         self.texts = [u'', u'New', u'Open', u'Save', u'Cut', u'Copy', u'Paste', u'Print', u'About', u'Help']
 
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, "CmnCtrl1.exe"))
         #app.start_(os.path.join(controlspy_folder, "Tooltip.exe"))
 
@@ -1474,7 +1474,7 @@ class UpDownTestCases(unittest.TestCase):
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(controlspy_folder, "Up-Down.exe"))
 
         self.app = app
@@ -1561,7 +1561,7 @@ class TrackbarWrapperTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        app = Application()
+        app = Application(backend='win32')
         app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
         dlg = app.top_window()
         dlg.TabControl.select(1)

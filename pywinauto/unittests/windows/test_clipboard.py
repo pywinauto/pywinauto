@@ -51,8 +51,8 @@ class ClipboardTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.fast()
         EmptyClipboard()
-        self.app1 = Application().start("notepad.exe")
-        self.app2 = Application().start("notepad.exe")
+        self.app1 = Application(backend='win32').start("notepad.exe")
+        self.app2 = Application(backend='win32').start("notepad.exe")
 
         self.app1.UntitledNotepad.move_window(RECT(0, 0, 200, 200))
         self.app2.UntitledNotepad.move_window(RECT(0, 200, 200, 400))

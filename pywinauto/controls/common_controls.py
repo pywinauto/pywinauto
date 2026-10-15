@@ -2753,7 +2753,7 @@ class ToolbarWrapper(hwndwrapper.HwndWrapper):
 
         # circle import doesn't work with current package structure
         # so use the app instance as a method param
-        #app = Application().Connect(handle=self.handle)
+        #app = Application(backend='win32').Connect(handle=self.handle)
 
         current_toolbar = self
         current_toolbar.set_focus() # to make sure it can be clicked immediately

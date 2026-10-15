@@ -73,7 +73,7 @@ class ButtonTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         _set_timings_fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app = self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.app.Common_Controls_Sample.TabControl.select("CDateTimeCtrl")
@@ -155,7 +155,7 @@ class CheckBoxTests(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         _set_timings_fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
@@ -212,7 +212,7 @@ class ButtonOwnerdrawTestCases(unittest.TestCase):
         """Start the sample application. Open a tab with ownerdraw button."""
         _set_timings_fast()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl3.exe"))
         # open the needed tab
         self.app.active().TabControl.select(1)
 
@@ -241,7 +241,7 @@ class ComboBoxTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         _set_timings_fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl2.exe"))
         self.app.Common_Controls_Sample.TabControl.select("CSpinButtonCtrl")
 
@@ -327,7 +327,7 @@ class ListBoxTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         _set_timings_fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
 
         app_path = os.path.join(MFC_tutorial_folder, "MFC_Tutorial9.exe")
         self.app.start(app_path)
@@ -415,7 +415,7 @@ class EditTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         Timings.defaults()
 
-        app = Application()
+        app = Application(backend='win32')
 
         path = os.path.split(__file__)[0]
         test_file = os.path.join(path, "test.txt")
@@ -552,7 +552,7 @@ class UnicodeEditTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         _set_timings_fast()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.dlg = self.app.Common_Controls_Sample
         self.dlg.TabControl.select("CAnimateCtrl")
@@ -599,7 +599,7 @@ class DialogTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         _set_timings_fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
         self.app = self.app.start(os.path.join(mfc_samples_folder, u"CmnCtrl1.exe"))
 
         self.cmn_ctrl = self.app.Common_Controls_Sample
@@ -699,7 +699,7 @@ class PopupMenuTestCases(unittest.TestCase):
         """Set some data and ensure the application is in the state we want"""
         _set_timings_fast()
 
-        self.app = Application()
+        self.app = Application(backend='win32')
 
         self.app.start("notepad.exe")
         self.app.Notepad.Edit.right_click()
@@ -741,7 +741,7 @@ class StaticTestCases(unittest.TestCase):
         """Start the sample application. Open a tab with ownerdraw button."""
         Timings.defaults()
 
-        self.app = Application().start(os.path.join(mfc_samples_folder, u"RebarTest.exe"))
+        self.app = Application(backend='win32').start(os.path.join(mfc_samples_folder, u"RebarTest.exe"))
         # open the Help dailog
         self.app.active().type_keys('%h{ENTER}')
 
