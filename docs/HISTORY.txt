@@ -2,6 +2,27 @@
 Change Log
 ==========
 
+1.0.0b1 Linux, macOS, WPF and Qt/QML Backends and Recfactoring
+--------------------------------------------------------------------
+15-October-2026
+
+ * Linux "atspi" backend is released with beta quality. Thanks @IvanMagazinnik_ and @RadaevValentin_.
+ * macOS "ax" backend is released with beta quality. Thanks @zemtsov-artem_, @briaclg_ and @dariacher_.
+ * Windows "wpf" backend (with DLL injection) is released with beta quality. Thanks @eltimen_.
+ * Windows and Linux x86_64 "qt5" and "qt6" backends (with DLL/SO injection) are released with beta quality.
+   Thanks @Makarov-AA_.
+ * A lot of refactoring and bug fixes made by many people. Thanks everyone!
+ * Windows default backend is "uia" now.
+
+ .. _IvanMagazinnik: https://github.com/IvanMagazinnik
+ .. _RadaevValentin: https://github.com/RadaevValentin
+ .. _zemtsov-artem: https://github.com/zemtsov-artem
+ .. _briaclg: https://github.com/briaclg
+ .. _dariacher: https://github.com/dariacher
+ .. _eltimen: https://github.com/eltimen
+ .. _Makarov-AA: https://github.com/Makarov-AA
+
+
 0.6.9 Last Python 2.7 Compatible Version
 --------------------------------------------------------------------
 06-January-2025
