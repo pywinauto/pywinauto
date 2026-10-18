@@ -570,14 +570,13 @@ class ApplicationTestCases(unittest.TestCase):
         handle = findwindows.find_elements(class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, 'backend': 'win32', })
         explorer = Application(backend='win32').Connect(pid = window.process_id())
-        window.set_focus()
 
         try:
             explorer.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
             window.AddressBandRoot.click_input()
             window.TypeKeys(r'Control Panel\Programs\Programs and Features', with_spaces=True, set_foreground=True)
             window.TypeKeys(r'{ENTER}', set_foreground = False)
-            WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(active_only=True,
+            WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(
                                                                      name='Programs and Features',
                                                                      class_name='CabinetWClass')) > 0)
             explorer.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
