@@ -13,9 +13,9 @@ dialogs and controls.
 Manual Installation
 ------------
 Install the following Python packages
-(Required) pyWin32      http://sourceforge.net/projects/pywin32/files/pywin32/
+(Required) pywin32      https://github.com/mhammond/pywin32
 (Required) comtypes     https://github.com/enthought/comtypes
-(Optional) PIL          http://www.pythonware.com/products/pil/index.htm
+(Optional) Pillow       https://github.com/python-pillow/Pillow
 Unzip the pywinauto zip file to a folder.
 Run "python setup.py install"
 

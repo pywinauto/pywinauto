@@ -85,7 +85,7 @@ Properties.wait_not('visible') # make sure the dialog is closed
 
 ### Dependencies (if install manually)
 * Windows:
-  - [pyWin32](https://github.com/mhammond/pywin32/)
+  - [pywin32](https://github.com/mhammond/pywin32/)
   - [comtypes](https://github.com/enthought/comtypes)
 * Linux:
   - [python-xlib](https://github.com/python-xlib/python-xlib)
