@@ -576,7 +576,7 @@ class ApplicationTestCases(unittest.TestCase):
             window.AddressBandRoot.click_input()
             window.TypeKeys(r'Control Panel\Programs\Programs and Features', with_spaces=True, set_foreground=True)
             window.TypeKeys(r'{ENTER}', set_foreground = False)
-            WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(
+            WaitUntil(40, 0.5, lambda: len(findwindows.find_elements(active_only=True,
                                                                      name='Programs and Features',
                                                                      class_name='CabinetWClass')) > 0)
             explorer.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
