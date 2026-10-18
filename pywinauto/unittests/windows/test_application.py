@@ -570,6 +570,7 @@ class ApplicationTestCases(unittest.TestCase):
         handle = findwindows.find_elements(class_name = 'CabinetWClass')[-1].handle
         window = WindowSpecification({'handle': handle, 'backend': 'win32', })
         explorer = Application(backend='win32').Connect(pid = window.process_id())
+        window.set_focus()
 
         try:
             explorer.wait_cpu_usage_lower(threshold = 1.5, timeout = 60, usage_interval = 2)
