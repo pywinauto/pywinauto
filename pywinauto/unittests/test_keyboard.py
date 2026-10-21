@@ -45,17 +45,15 @@ if sys.platform == 'win32':
     from pywinauto.keyboard import send_keys, parse_keys, KeySequenceError
     from pywinauto.keyboard import KeyAction, VirtualKeyAction, PauseAction
     from pywinauto.sysinfo import is_x64_Python, is_x64_OS
-    from pywinauto.application import Application
 elif sys.platform == 'darwin':
-    from pywinauto.macos.macos_functions import launch_application
-    from pywinauto.macos.macos_functions import get_instance_of_app
     from pywinauto.macos.macos_functions import read_from_clipboard
     from pywinauto.macos.keyboard_helper import send_keys, KeyAction, KeySequenceError
 else:
     from pywinauto import mouse
-    from pywinauto.linux.keyboard import send_keys, KeySequenceError, KeyAction
+    from pywinauto.keyboard import send_keys, KeySequenceError, KeyAction
     from pywinauto.linux import clipboard
-    from pywinauto.application import Application
+
+from pywinauto.application import Application
 
 
 def mfc_samples():
@@ -94,11 +92,11 @@ class SendKeysTests(unittest.TestCase):
             self.dlg = self.app.UntitledNotepad
             self.ctrl = self.dlg.Edit
         elif sys.platform == 'darwin':
-            launch_application(_test_app())
-            self.app = get_instance_of_app("send_keys_test_app")
-            time.sleep(2.0)
-            self.app.activateWithOptions_(1 << 1)
-            time.sleep(0.5)
+            self.app = Application(backend='ax')
+            self.app.start(_test_app())
+            self.app.set_frontmost()
+            self.app.ns_app.activateWithOptions_(1 << 1)
+            time.sleep(1.0)
         else:
             self.app = Application()
             self.app.start(_test_app())
