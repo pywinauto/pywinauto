@@ -3,7 +3,7 @@ import os
 import sys
 import subprocess
 
-from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchAllowingClassicStartup
+from AppKit import NSWorkspaceLaunchNewInstance, NSWorkspaceLaunchDefault
 from Foundation import NSAppleEventDescriptor
 
 from . import macos_functions
@@ -35,6 +35,8 @@ class Application(BaseApplication):
         if name == None and bundle_id == None and new_instance == True:
             raise AttributeError('Cannot start application without its name or bundle_id. Please use name=name_of_application or bundle_id=bundle_id_of_application.')
         self.process = None
+        self.connected = False
+
         pids_before = get_process_ids(cache_update=False)
 
         if name and bundle_id:
@@ -44,23 +46,16 @@ class Application(BaseApplication):
             bundle = macos_functions.bundle_identifier_for_application_name(name)
             if bundle is not None:
                 macos_functions.launch_application_by_bundle(bundle, new_instance)
-                ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
-                self.ns_app = ns_app_array[0]
             else:
                 # Workaround when user has not opened the application
                 executable_url = macos_functions.url_for_application_name(name)
                 macos_functions.launch_application_by_url(executable_url, new_instance)
-                self.ns_app = macos_functions.get_instance_of_app(name)
-
-            if (self.ns_app is None):
-                message = ('Could not get instance of "%s" app\n') % (name)
-                raise AppStartError(message)
 
         if bundle_id is not None:
             if new_instance:
                 param = NSWorkspaceLaunchNewInstance
             else:
-                param = NSWorkspaceLaunchAllowingClassicStartup
+                param = NSWorkspaceLaunchDefault
 
             r = macos_functions.get_ws_instance().launchAppWithBundleIdentifier_options_additionalEventParamDescriptor_launchIdentifier_(bundle_id,
                     param,
@@ -69,22 +64,34 @@ class Application(BaseApplication):
             if not r[0]:
                 raise AppStartError('Could not launch application by bundle id "{}". Verify you use correct bundle_id of application. Verify the application with this bundle_id is installed. Error code: {}'.format(bundle_id, r))
 
-            ns_app_array = macos_functions.get_app_instance_by_bundle(bundle_id)
-            self.ns_app = ns_app_array[0]
-
-        self.connected = True
-        self.process = self.ns_app.processIdentifier()
+        def app_instance():
+            if name:
+                if bundle is not None:
+                    ns_app_array = macos_functions.get_app_instance_by_bundle(bundle)
+                    if ns_app_array:
+                        return ns_app_array[0]
+                else:
+                    return macos_functions.get_instance_of_app(name)
+            if bundle_id is not None:
+                ns_app_array = macos_functions.get_app_instance_by_bundle(bundle_id)
+                if ns_app_array:
+                    return ns_app_array[0]
 
         def app_idle():
             macos_functions.cache_update()
-            pid = self.ns_app.processIdentifier()
+            if not self.ns_app:
+                self.ns_app = app_instance()
+                if not self.ns_app:
+                    return False
+            self.process = self.ns_app.processIdentifier()
             elem = AxElementInfo()
             for app in elem.children():
-                if app.process_id == pid:
+                if app.process_id == self.process:
                     return self.ns_app.isFinishedLaunching()
             return False
 
         wait_until(Timings.app_start_timeout, Timings.app_start_retry, app_idle, value=True)
+        self.connected = True
 
         return self
 
@@ -97,7 +104,7 @@ class Application(BaseApplication):
                 self.connected = True
                 self.process = app.processIdentifier()
             else:
-                raise ProcessNotFoundError('pid = ' + str(self.process_id))
+                raise ProcessNotFoundError('pid = ' + str(kwargs['process']))
         elif 'name' in kwargs:
             # For os x you have to pass just app name
             app = macos_functions.get_instance_of_app(kwargs['name'])
@@ -166,7 +173,7 @@ class Application(BaseApplication):
         result = False
         if self.ns_app:
             name = self.ns_app.localizedName()
-            pid = self.process_id
+            pid = self.process
             app_by_pid = macos_functions.get_app_instance_by_pid(pid)
             if app_by_pid and app_by_pid.localizedName() == name:
                 result = True
@@ -206,7 +213,7 @@ class Application(BaseApplication):
         The application is activated regardless of the currently active app.
         All windows of application will be frontmost
         """
-        macos_functions.setAppFrontmost(self.process_id)
+        macos_functions.setAppFrontmost(self.process)
 
     def close(self):
         self.kill(soft=True)

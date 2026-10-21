@@ -56,6 +56,7 @@ if sys.platform == 'darwin':
         def setUp(self):
             self.app = Application()
             self.app.start(bundle_id='pywinauto.testapps.send-keys-test-app', new_instance=False)
+            self.app.set_frontmost()
             time.sleep(1)
 
         def tearDown(self):
