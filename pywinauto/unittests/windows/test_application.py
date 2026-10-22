@@ -151,7 +151,7 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
 
     def setUp(self):
         """Set some data and ensure the application is in the state we want"""
-        Timings.defaults()
+        Timings.slow()
 
         self.sample_exe = os.path.join(mfc_samples_folder, 'RowList.exe')
         self.app = Application(backend=self.backend).start(self.sample_exe)
@@ -159,6 +159,7 @@ class ApplicationWin32KillTestCases(unittest.TestCase):
 
     def tearDown(self):
         self.app.kill(soft=False)
+        Timings.defaults()
 
     def test_kill_hard(self):
         self.assertTrue(self.app.kill(soft=False))
