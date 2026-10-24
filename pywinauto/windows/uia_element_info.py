@@ -491,6 +491,8 @@ class UIAElementInfo(ElementInfo):
 
     def _get_elements(self, tree_scope, cond=IUIA().true_condition, cache_enable=False):
         """Find all elements according to the given tree scope and conditions"""
+        if isinstance(cond, UIACondition):
+            cond = cond.condition
         try:
             ptrs_array = self._element.FindAll(tree_scope, cond)
             return elements_from_uia_array(ptrs_array, cache_enable)
@@ -499,13 +501,11 @@ class UIAElementInfo(ElementInfo):
                           "Try to set pywinauto.windows.uia_element_info.UIAElementInfo.use_raw_view_walker = True".format(e), RuntimeWarning)
             return []
 
-    def _iter_children_raw(self):
+    def _iter_children_raw(self, cache_enable):
         """Return a generator of only immediate children of the element"""
         try:
-            element = IUIA().raw_tree_walker.GetFirstChildElement(self._element)
-            while element:
-                yield element
-                element = IUIA().raw_tree_walker.GetNextSiblingElement(element)
+            for element in UIATreeWalker("raw", cache_enable=cache_enable).walk(self):
+                yield element.element
         except (COMError, ValueError) as e:
             warnings.warn("Can't get descendant elements due to error: {}".format(e), RuntimeWarning)
 
@@ -517,16 +517,13 @@ class UIAElementInfo(ElementInfo):
         """
         cache_enable = kwargs.pop('cache_enable', False)
         if UIAElementInfo.use_raw_view_walker:
-            for element in self._iter_children_raw():
+            for element in self._iter_children_raw(cache_enable=cache_enable):
                 if is_element_satisfying_criteria(element, **kwargs):
                     yield UIAElementInfo(element, cache_enable)
         else:
-            cond = IUIA().build_condition(**kwargs)
-            tree_walker = IUIA().iuia.CreateTreeWalker(cond)
-            element = tree_walker.GetFirstChildElement(self._element)
-            while element:
-                yield UIAElementInfo(element, cache_enable)
-                element = tree_walker.GetNextSiblingElement(element)
+            cond = UIACondition(IUIA().build_condition(**kwargs))
+            for element in UIATreeWalker(cond, cache_enable=cache_enable).walk(self):
+                yield element
 
     def iter_descendants(self, **kwargs):
         """Iterate over descendants of the element"""
@@ -538,7 +535,7 @@ class UIAElementInfo(ElementInfo):
         if depth == 0:
             return
         if UIAElementInfo.use_raw_view_walker:
-            for raw_child in self._iter_children_raw():
+            for raw_child in self._iter_children_raw(cache_enable=cache_enable):
                 child = UIAElementInfo(raw_child, cache_enable)
                 if is_element_satisfying_criteria(raw_child, **kwargs):
                     yield child
@@ -564,7 +561,7 @@ class UIAElementInfo(ElementInfo):
             return list(self.iter_children(**kwargs))
         else:
             cache_enable = kwargs.pop('cache_enable', False)
-            cond = IUIA().build_condition(**kwargs)
+            cond = UIACondition(IUIA().build_condition(**kwargs))
             return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
@@ -579,13 +576,13 @@ class UIAElementInfo(ElementInfo):
             cache_enable = kwargs.pop('cache_enable', False)
             depth = kwargs.pop('depth', None)
             if depth is None:
-                cond = IUIA().build_condition(**kwargs)
+                cond = UIACondition(IUIA().build_condition(**kwargs))
                 return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
             if depth == 1:
                 return self.children(cache_enable=cache_enable, **kwargs)
             else:
                 if kwargs:
-                    cond = IUIA().build_condition(**kwargs)
+                    cond = UIACondition(IUIA().build_condition(**kwargs))
                     elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
                     return ElementInfo.filter_with_depth(elements, self, depth)
                 else:
