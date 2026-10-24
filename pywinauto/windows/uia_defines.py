@@ -61,6 +61,8 @@ class IUIA(object, metaclass=Singleton):
                 }
         self.root = self.iuia.GetRootElement()
         self.raw_tree_walker = self.iuia.RawViewWalker
+        self.content_tree_walker = self.iuia.ContentViewWalker
+        self.control_tree_walker = self.iuia.ControlViewWalker
 
         self.get_focused_element = self.iuia.GetFocusedElement
 
