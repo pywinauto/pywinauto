@@ -83,38 +83,10 @@ class IUIA(object, metaclass=Singleton):
     def build_condition(self, process=None, class_name=None, name=None, control_type=None,
                         content_only=None, auto_id=None):
         """Build UIA filtering conditions"""
-        conditions = []
-        if process:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ProcessIdPropertyId, process))
+        from .uia_element_info import UIACondition
 
-        if class_name:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ClassNamePropertyId, class_name))
-
-        if control_type:
-            if isinstance(control_type, str):
-                control_type = self.known_control_types[control_type]
-            elif not isinstance(control_type, int):
-                raise TypeError('control_type must be string or integer')
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
-
-        if name:
-            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, name))
-
-        if auto_id:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_AutomationIdPropertyId, auto_id))
-
-        if isinstance(content_only, bool):
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,
-                                                                content_only))
-
-        if len(conditions) > 1:
-            return self.iuia.CreateAndConditionFromArray(conditions)
-
-        if len(conditions) == 1:
-            return conditions[0]
-
-        return self.true_condition
+        return UIACondition.build(process, class_name, name, control_type,
+                                  content_only, auto_id).condition
 
 
 # Build a list of named constants that identify Microsoft UI Automation
