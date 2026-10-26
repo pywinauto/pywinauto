@@ -190,6 +190,12 @@ you will have a successful name matching.
 4. By top-left label and control type: ``app.OpenDialog.FileNameEdit.set_text("")``
 5. By control type and item text: ``app.Properties.TabControlSharing.select("General")``
 
+These attribute names look up windows and controls by their accessible names; they do
+not refer to the application itself. For example, ``app.Properties`` uses
+``Properties`` as the best-match name for a window. It will not select a Notepad
+window. For Notepad, use ``app.UntitledNotepad`` as shown above, or specify the title
+with ``app.window(title_re='.*Notepad$')`` when the document title may vary.
+
 Often not all of these matching names are available simultaneously. To check
 these names for specified dialog you can use ``print_control_identifiers()``
 method. Possible "best_match" names are displayed as a Python list for every
