@@ -123,7 +123,34 @@ class UIACondition(object):
             return cls(IUIA().iuia.CreateOrConditionFromArray([c.condition for c in condition_array]))
         raise TypeError("operator_type must be 'and' or 'or'")
 
+    @classmethod
+    def build(cls, process=None, class_name=None, name=None, control_type=None,
+                        content_only=None, auto_id=None):
+        """Build UIA filtering conditions"""
+        conditions = []  # type: list[UIACondition]
+        if process:
+            conditions.append(cls.create_property("ProcessId", process))
+        if class_name:
+            conditions.append(cls.create_property("ClassName", class_name))
+        if control_type:
+            conditions.append(cls.create_control_type(control_type))
+        if name:
+            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
+            # cls.create_property("Name", name, UIA_dll.PropertyConditionFlags_IgnoreCase)
+            conditions.append(cls.create_property("Name", name))
+        if auto_id:
+            conditions.append(cls.create_property("AutomationId", auto_id))
+        if isinstance(content_only, bool):
+            conditions.append(cls.create_property("IsContentElement",content_only))
+
+        if len(conditions) > 1:
+            return cls.from_array(conditions)
+        if len(conditions) == 1:
+            return conditions[0]
+        return cls.create_bool(True)
+
     def __and__(self, other):
+        # type: (UIACondition) -> UIACondition
         cond = IUIA().iuia.CreateAndCondition(self._condition, other.condition)
         return type(self)(cond)
 
@@ -132,6 +159,7 @@ class UIACondition(object):
         return self & other
 
     def __or__(self, other):
+        # type: (UIACondition) -> UIACondition
         cond = IUIA().iuia.CreateOrCondition(self._condition, other.condition)
         return type(self)(cond)
 
@@ -140,6 +168,7 @@ class UIACondition(object):
         return self | other
 
     def __invert__(self):
+        # type: () -> UIACondition
         cond = IUIA().iuia.CreateNotCondition(self._condition)
         return type(self)(cond)
 
@@ -521,7 +550,7 @@ class UIAElementInfo(ElementInfo):
                 if is_element_satisfying_criteria(element, **kwargs):
                     yield UIAElementInfo(element, cache_enable)
         else:
-            cond = UIACondition(IUIA().build_condition(**kwargs))
+            cond = UIACondition.build(**kwargs)
             for element in UIATreeWalker(cond, cache_enable=cache_enable).walk(self):
                 yield element
 
@@ -561,7 +590,7 @@ class UIAElementInfo(ElementInfo):
             return list(self.iter_children(**kwargs))
         else:
             cache_enable = kwargs.pop('cache_enable', False)
-            cond = UIACondition(IUIA().build_condition(**kwargs))
+            cond = UIACondition.build(**kwargs)
             return self._get_elements(IUIA().tree_scope["children"], cond, cache_enable)
 
     def descendants(self, **kwargs):
@@ -576,13 +605,13 @@ class UIAElementInfo(ElementInfo):
             cache_enable = kwargs.pop('cache_enable', False)
             depth = kwargs.pop('depth', None)
             if depth is None:
-                cond = UIACondition(IUIA().build_condition(**kwargs))
+                cond = UIACondition.build(**kwargs)
                 return self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
             if depth == 1:
                 return self.children(cache_enable=cache_enable, **kwargs)
             else:
                 if kwargs:
-                    cond = UIACondition(IUIA().build_condition(**kwargs))
+                    cond = UIACondition.build(**kwargs)
                     elements = self._get_elements(IUIA().tree_scope["descendants"], cond, cache_enable)
                     return ElementInfo.filter_with_depth(elements, self, depth)
                 else:
