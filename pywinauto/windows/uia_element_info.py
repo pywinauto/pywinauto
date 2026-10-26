@@ -84,13 +84,13 @@ class UIACondition(object):
     @classmethod
     def create_property(cls, propid, value, flags=None):
         """Create a condition filtering by property, value and optional flags"""
-        if isinstance(propid, string_types):
+        if isinstance(propid, str):
             propid = property_ids[propid]
-        elif not isinstance(propid, integer_types):
+        elif not isinstance(propid, int):
             raise TypeError('propid must be string or integer')
-        if isinstance(flags, string_types):
+        if isinstance(flags, str):
             flags = property_condition_flags[flags]
-        elif not isinstance(flags, (integer_types, type(None))):
+        elif not isinstance(flags, (int, type(None))):
             raise TypeError('flags must be string, integer or None')
         if flags is None:
             cond = IUIA().iuia.CreatePropertyCondition(propid, value)
@@ -101,9 +101,9 @@ class UIACondition(object):
     @classmethod
     def create_control_type(cls, value):
         """Create a condition filtering by control type"""
-        if isinstance(value, string_types):
+        if isinstance(value, str):
             value = IUIA().known_control_types[value]
-        elif not isinstance(value, integer_types):
+        elif not isinstance(value, int):
             raise TypeError('control_type must be string or integer')
         return cls.create_property('ControlType', value)
 
