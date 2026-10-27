@@ -189,3 +189,18 @@ class ElementInfo(object):
     def dump_window(self):
         """Dump an element to a set of properties"""
         raise NotImplementedError()
+
+    @classmethod
+    def get_active(cls):
+        """Return current active element"""
+        raise NotImplementedError()
+
+    @classmethod
+    def from_point(cls, x, y):
+        """Return child element at specified point coordinates"""
+        raise NotImplementedError()
+
+    @classmethod
+    def top_from_point(cls, x, y):
+        """Return top level element at specified point coordinates"""
+        raise NotImplementedError()
