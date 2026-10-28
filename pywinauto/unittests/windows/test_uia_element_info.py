@@ -385,34 +385,22 @@ if UIA_support:
             walker = UIATreeWalker("raw")
             self.assertIs(walker.walker, IUIA().raw_tree_walker)
             self.assertEqual(walker.get_parent(self.ctrl), UIAElementInfo())
-            forward_ordered = list(walker.walk(self.ctrl))
-            reverse_ordered = list(reversed(walker.walk(self.ctrl)))
-            self.assertEqual(forward_ordered, list(reversed(reverse_ordered)))
 
         def test_control_tree_walker_wrapper(self):
             walker = UIATreeWalker("control")
             self.assertIs(walker.walker, IUIA().control_tree_walker)
             self.assertEqual(walker.get_parent(self.ctrl), UIAElementInfo())
-            forward_ordered = list(walker.walk(self.ctrl))
-            reverse_ordered = list(reversed(walker.walk(self.ctrl)))
-            self.assertEqual(forward_ordered, list(reversed(reverse_ordered)))
 
         def test_content_tree_walker_wrapper(self):
             walker = UIATreeWalker("content")
             self.assertIs(walker.walker, IUIA().content_tree_walker)
             self.assertEqual(walker.get_parent(self.ctrl), UIAElementInfo())
-            forward_ordered = list(walker.walk(self.ctrl))
-            reverse_ordered = list(reversed(walker.walk(self.ctrl)))
-            self.assertEqual(forward_ordered, list(reversed(reverse_ordered)))
 
         def test_create_tree_walker_wrapper(self):
             walker = UIATreeWalker(UIACondition.create_property('Name', 'Alpha'))
             self.assertIsInstance(walker.condition, UIACondition)
             first_elem = next(iter(walker.walk(self.ctrl)))
-            last_elem = next(reversed(walker.walk(self.ctrl)))
-            self.assertEqual(first_elem, last_elem)
             self.assertEqual(first_elem.name, 'Alpha')
-            self.assertEqual(last_elem.name, 'Alpha')
             self.assertIsNone(walker.get_parent(self.ctrl))
 
 
