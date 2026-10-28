@@ -144,7 +144,7 @@ class UIACondition(object):
             conditions.append(cls.create_property("IsContentElement",content_only))
 
         if len(conditions) > 1:
-            return cls.from_array(conditions)
+            return cls.from_array("and", conditions)
         if len(conditions) == 1:
             return conditions[0]
         return cls.create_bool(True)
