@@ -56,31 +56,6 @@ class UIACondition(object):
         """Return the pointer of IUIAutomationCondition"""
         return self._condition
 
-    @property
-    def condition_ex(self):
-        """Return the pointer of IUIAutomationCondition inheritance"""
-        cond = self._condition
-        try:
-            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationAndCondition)
-        except COMError:
-            pass
-        try:
-            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationOrCondition)
-        except COMError:
-            pass
-        try:
-            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationNotCondition)
-        except COMError:
-            pass
-        try:
-            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
-        except COMError:
-            pass
-        try:
-            return cond.QueryInterface(IUIA().UIA_dll.IUIAutomationBoolCondition)
-        except COMError:
-            raise TypeError
-
     @classmethod
     def create_property(cls, propid, value, flags=None):
         """Create a condition filtering by property, value and optional flags"""
