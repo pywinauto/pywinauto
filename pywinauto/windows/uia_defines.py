@@ -50,6 +50,7 @@ class IUIA(object, metaclass=Singleton):
                 clsctx=comtypes.CLSCTX_INPROC_SERVER
                 )
         self.true_condition = self.iuia.CreateTrueCondition()
+        self.false_condition = self.iuia.CreateFalseCondition()
         self.tree_scope = {
                 'ancestors': self.UIA_dll.TreeScope_Ancestors,
                 'children': self.UIA_dll.TreeScope_Children,
@@ -60,6 +61,8 @@ class IUIA(object, metaclass=Singleton):
                 }
         self.root = self.iuia.GetRootElement()
         self.raw_tree_walker = self.iuia.RawViewWalker
+        self.content_tree_walker = self.iuia.ContentViewWalker
+        self.control_tree_walker = self.iuia.ControlViewWalker
 
         self.get_focused_element = self.iuia.GetFocusedElement
 
@@ -80,38 +83,10 @@ class IUIA(object, metaclass=Singleton):
     def build_condition(self, process=None, class_name=None, name=None, control_type=None,
                         content_only=None, auto_id=None):
         """Build UIA filtering conditions"""
-        conditions = []
-        if process:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ProcessIdPropertyId, process))
+        from .uia_element_info import UIACondition
 
-        if class_name:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ClassNamePropertyId, class_name))
-
-        if control_type:
-            if isinstance(control_type, str):
-                control_type = self.known_control_types[control_type]
-            elif not isinstance(control_type, int):
-                raise TypeError('control_type must be string or integer')
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_ControlTypePropertyId, control_type))
-
-        if name:
-            # TODO: CreatePropertyConditionEx with PropertyConditionFlags_IgnoreCase
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_NamePropertyId, name))
-
-        if auto_id:
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_AutomationIdPropertyId, auto_id))
-
-        if isinstance(content_only, bool):
-            conditions.append(self.iuia.CreatePropertyCondition(self.UIA_dll.UIA_IsContentElementPropertyId,
-                                                                content_only))
-
-        if len(conditions) > 1:
-            return self.iuia.CreateAndConditionFromArray(conditions)
-
-        if len(conditions) == 1:
-            return conditions[0]
-
-        return self.true_condition
+        return UIACondition.build(process, class_name, name, control_type,
+                                  content_only, auto_id).condition
 
 
 # Build a list of named constants that identify Microsoft UI Automation
@@ -179,6 +154,78 @@ def _get_ptrn_names(base):
 
 
 pattern_ids = _build_pattern_ids_dic()
+
+
+def _build_property_ids_dic():
+    base_names = [
+        'AcceleratorKey', 'AccessKey', 'AnnotationAnnotationTypeId', 'AnnotationAnnotationTypeName',
+        'AnnotationAuthor', 'AnnotationDateTime', 'AnnotationObjects', 'AnnotationTarget', 'AnnotationTypes',
+        'AriaProperties', 'AriaRole', 'AutomationId', 'BoundingRectangle', 'CenterPoint', 'ClassName',
+        'ClickablePoint', 'ControlType', 'ControllerFor', 'Culture', 'DescribedBy', 'DockDockPosition',
+        'DragDropEffect', 'DragDropEffects', 'DragGrabbedItems', 'DragIsGrabbed', 'DropTargetDropTargetEffect',
+        'DropTargetDropTargetEffects', 'ExpandCollapseExpandCollapseState', 'FillColor', 'FillType', 'FlowsFrom',
+        'FlowsTo', 'FrameworkId', 'FullDescription', 'GridColumnCount', 'GridItemColumn', 'GridItemColumnSpan',
+        'GridItemContainingGrid', 'GridItemRow', 'GridItemRowSpan', 'GridRowCount', 'HasKeyboardFocus',
+        'HeadingLevel', 'HelpText', 'IsAnnotationPatternAvailable', 'IsContentElement', 'IsControlElement',
+        'IsCustomNavigationPatternAvailable', 'IsDataValidForForm', 'IsDialog', 'IsDockPatternAvailable',
+        'IsDragPatternAvailable', 'IsDropTargetPatternAvailable', 'IsEnabled',
+        'IsExpandCollapsePatternAvailable', 'IsGridItemPatternAvailable', 'IsGridPatternAvailable',
+        'IsInvokePatternAvailable', 'IsItemContainerPatternAvailable', 'IsKeyboardFocusable',
+        'IsLegacyIAccessiblePatternAvailable', 'IsMultipleViewPatternAvailable', 'IsObjectModelPatternAvailable',
+        'IsOffscreen', 'IsPassword', 'IsPeripheral', 'IsRangeValuePatternAvailable', 'IsRequiredForForm',
+        'IsScrollItemPatternAvailable', 'IsScrollPatternAvailable', 'IsSelectionItemPatternAvailable',
+        'IsSelectionPattern2Available', 'IsSelectionPatternAvailable', 'IsSpreadsheetItemPatternAvailable',
+        'IsSpreadsheetPatternAvailable', 'IsStylesPatternAvailable', 'IsSynchronizedInputPatternAvailable',
+        'IsTableItemPatternAvailable', 'IsTablePatternAvailable', 'IsTextChildPatternAvailable',
+        'IsTextEditPatternAvailable', 'IsTextPattern2Available', 'IsTextPatternAvailable',
+        'IsTogglePatternAvailable', 'IsTransformPattern2Available', 'IsTransformPatternAvailable',
+        'IsValuePatternAvailable', 'IsVirtualizedItemPatternAvailable', 'IsWindowPatternAvailable', 'ItemStatus',
+        'ItemType', 'LabeledBy', 'LandmarkType', 'LegacyIAccessibleChildId', 'LegacyIAccessibleDefaultAction',
+        'LegacyIAccessibleDescription', 'LegacyIAccessibleHelp', 'LegacyIAccessibleKeyboardShortcut',
+        'LegacyIAccessibleName', 'LegacyIAccessibleRole', 'LegacyIAccessibleSelection', 'LegacyIAccessibleState',
+        'LegacyIAccessibleValue', 'Level', 'LiveSetting', 'LocalizedControlType', 'LocalizedLandmarkType',
+        'MultipleViewCurrentView', 'MultipleViewSupportedViews', 'Name', 'NativeWindowHandle',
+        'OptimizeForVisualContent', 'Orientation', 'OutlineColor', 'OutlineThickness', 'PositionInSet',
+        'ProcessId', 'ProviderDescription', 'RangeValueIsReadOnly', 'RangeValueLargeChange', 'RangeValueMaximum',
+        'RangeValueMinimum', 'RangeValueSmallChange', 'RangeValueValue', 'Rotation', 'RuntimeId',
+        'ScrollHorizontalScrollPercent', 'ScrollHorizontalViewSize', 'ScrollHorizontallyScrollable',
+        'ScrollVerticalScrollPercent', 'ScrollVerticalViewSize', 'ScrollVerticallyScrollable',
+        'Selection2CurrentSelectedItem', 'Selection2FirstSelectedItem', 'Selection2ItemCount',
+        'Selection2LastSelectedItem', 'SelectionCanSelectMultiple', 'SelectionIsSelectionRequired',
+        'SelectionItemIsSelected', 'SelectionItemSelectionContainer', 'SelectionSelection', 'Size', 'SizeOfSet',
+        'SpreadsheetItemAnnotationObjects', 'SpreadsheetItemAnnotationTypes', 'SpreadsheetItemFormula',
+        'StylesExtendedProperties', 'StylesFillColor', 'StylesFillPatternColor', 'StylesFillPatternStyle',
+        'StylesShape', 'StylesStyleId', 'StylesStyleName', 'TableColumnHeaders', 'TableItemColumnHeaderItems',
+        'TableItemRowHeaderItems', 'TableRowHeaders', 'TableRowOrColumnMajor', 'ToggleToggleState',
+        'Transform2CanZoom', 'Transform2ZoomLevel', 'Transform2ZoomMaximum', 'Transform2ZoomMinimum',
+        'TransformCanMove', 'TransformCanResize', 'TransformCanRotate', 'ValueIsReadOnly', 'ValueValue',
+        'VisualEffects', 'WindowCanMaximize', 'WindowCanMinimize', 'WindowIsModal', 'WindowIsTopmost',
+        'WindowWindowInteractionState', 'WindowWindowVisualState'
+    ]
+    prop_ids_dic = {}
+    for name in base_names:
+        const_name = ''.join(['UIA_', name, 'PropertyId'])
+        if hasattr(IUIA().ui_automation_client, const_name):
+            value = getattr(IUIA().ui_automation_client, const_name)
+            prop_ids_dic[name] = value
+    return prop_ids_dic
+
+
+property_ids = _build_property_ids_dic()
+
+
+def _build_property_condition_flags():
+    base_names = ['none', 'ignore_case', 'match_substring']
+    prop_cond_dic = {}
+    for name in base_names:
+        const_name = ''.join(['PropertyConditionFlags_'] + [n.capitalize() for n in name.split('_')])
+        if hasattr(IUIA().ui_automation_client, const_name):
+            value = getattr(IUIA().ui_automation_client, const_name)
+            prop_cond_dic[name] = value
+    return prop_cond_dic
+
+
+property_condition_flags = _build_property_condition_flags()
 
 
 # Return values for the toggle_state propery
