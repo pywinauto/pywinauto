@@ -739,7 +739,7 @@ class UIATreeWalker(object):
     def walk(self, element):
         """Iterate over children of the element satisfying the condition"""
         try:
-            elem = self._walker.GetFirstChildElement(element)
+            elem = self._walker.GetFirstChildElement(element.element)
             while elem:
                 yield UIAElementInfo(elem, self._cache_enable)
                 elem = self._walker.GetNextSiblingElement(elem)
