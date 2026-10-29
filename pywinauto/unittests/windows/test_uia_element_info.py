@@ -22,21 +22,17 @@ wpf_app_1 = os.path.join(mfc_samples_folder, u"WpfApplication1.exe")
 
 if UIA_support:
     class UIAConditionTests(unittest.TestCase):
-        def test_condition_ex_returns_bool_condition(self):
+        def test_true_condition(self):
             condition = UIACondition.create_bool(True)
             self.assertIs(condition.condition, IUIA().true_condition)
-            cond = condition.condition_ex
-            self.assertIsInstance(cond, IUIA().UIA_dll.IUIAutomationBoolCondition)
-            self.assertTrue(cond.BooleanValue)
+
+        def test_false_condition(self):
             condition = UIACondition.create_bool(False)
             self.assertIs(condition.condition, IUIA().false_condition)
-            cond = condition.condition_ex
-            self.assertIsInstance(cond, IUIA().UIA_dll.IUIAutomationBoolCondition)
-            self.assertFalse(cond.BooleanValue)
 
-        def test_condition_ex_returns_property_condition(self):
-            cond = UIACondition.create_property('Name', 'Foo').condition_ex
-            self.assertIsInstance(cond, IUIA().UIA_dll.IUIAutomationPropertyCondition)
+        def test_property_condition(self):
+            condition = UIACondition.create_property('Name', 'Foo')
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
             self.assertEqual(cond.propertyId, IUIA().UIA_dll.UIA_NamePropertyId)
             self.assertEqual(cond.PropertyValue, 'Foo')
 
@@ -44,8 +40,9 @@ if UIA_support:
             hasattr(IUIA().UIA_dll, "PropertyConditionFlags_None"),
             'The UIA dll in this env does not support PropertyConditionFlags_None',
         )
-        def test_condition_ex_returns_property_condition_with_none_flags(self):
-            cond = UIACondition.create_property('Name', 'Foo', 'none').condition_ex
+        def test_property_condition_with_none_flags(self):
+            condition = UIACondition.create_property('Name', 'Foo', 'none')
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
             self.assertEqual(cond.propertyId, IUIA().UIA_dll.UIA_NamePropertyId)
             self.assertEqual(cond.PropertyValue, 'Foo')
             self.assertEqual(cond.PropertyConditionFlags, IUIA().UIA_dll.PropertyConditionFlags_None)
@@ -54,8 +51,9 @@ if UIA_support:
             hasattr(IUIA().UIA_dll, "PropertyConditionFlags_IgnoreCase"),
             'The UIA dll in this env does not support PropertyConditionFlags_IgnoreCase',
         )
-        def test_condition_ex_returns_property_condition_with_ignore_case_flags(self):
-            cond = UIACondition.create_property('Name', 'Foo', 'ignore_case').condition_ex
+        def test_property_condition_with_ignore_case_flags(self):
+            condition = UIACondition.create_property('Name', 'Foo', 'ignore_case')
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
             self.assertEqual(cond.propertyId, IUIA().UIA_dll.UIA_NamePropertyId)
             self.assertEqual(cond.PropertyValue, 'Foo')
             self.assertEqual(cond.PropertyConditionFlags, IUIA().UIA_dll.PropertyConditionFlags_IgnoreCase)
@@ -64,34 +62,35 @@ if UIA_support:
             hasattr(IUIA().UIA_dll, "PropertyConditionFlags_MatchSubstring"),
             'The UIA dll in this env does not support PropertyConditionFlags_MatchSubstring',
         )
-        def test_condition_ex_returns_property_condition_with_match_substring_flags(self):
-            cond = UIACondition.create_property('Name', 'Foo', 'match_substring').condition_ex
+        def test_property_condition_with_match_substring_flags(self):
+            condition = UIACondition.create_property('Name', 'Foo', 'match_substring')
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
             self.assertEqual(cond.propertyId, IUIA().UIA_dll.UIA_NamePropertyId)
             self.assertEqual(cond.PropertyValue, 'Foo')
             self.assertEqual(cond.PropertyConditionFlags, IUIA().UIA_dll.PropertyConditionFlags_MatchSubstring)
 
-        def test_condition_ex_returns_not_condition(self):
-            cond = (~UIACondition.create_bool(True)).condition_ex
-            self.assertIsInstance(cond, IUIA().UIA_dll.IUIAutomationNotCondition)
+        def test_not_condition(self):
+            condition = (~UIACondition.create_bool(True))
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationNotCondition)
             self.assertTrue(cond.GetChild().QueryInterface(IUIA().UIA_dll.IUIAutomationBoolCondition).BooleanValue)
 
-        def test_condition_ex_returns_or_condition(self):
-            cond = (UIACondition.create_bool(True) | UIACondition.create_bool(False)).condition_ex
-            self.assertIsInstance(cond, IUIA().UIA_dll.IUIAutomationOrCondition)
+        def test_or_condition(self):
+            condition = (UIACondition.create_bool(True) | UIACondition.create_bool(False))
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationOrCondition)
             self.assertEqual(cond.ChildCount, 2)
             for ch, expected in zip(cond.GetChildren(), (True, False)):
                 actual = ch.QueryInterface(IUIA().UIA_dll.IUIAutomationBoolCondition).BooleanValue
                 self.assertEqual(expected, actual)
 
-        def test_condition_ex_returns_and_condition(self):
-            cond = (UIACondition.create_bool(True) & UIACondition.create_bool(False)).condition_ex
-            self.assertIsInstance(cond, IUIA().UIA_dll.IUIAutomationAndCondition)
+        def test_and_condition(self):
+            condition = (UIACondition.create_bool(True) & UIACondition.create_bool(False))
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationAndCondition)
             self.assertEqual(cond.ChildCount, 2)
             for ch, expected in zip(cond.GetChildren(), (True, False)):
                 actual = ch.QueryInterface(IUIA().UIA_dll.IUIAutomationBoolCondition).BooleanValue
                 self.assertEqual(expected, actual)
 
-        def test_create_or_condition_from_array(self):
+        def test_or_condition_from_array(self):
             cond = UIACondition.from_array("or", [
                 UIACondition.create_property('Name', 'Foo'),
                 UIACondition.create_property('Name', 'Bar'),
@@ -111,7 +110,7 @@ if UIA_support:
                 self.assertEqual(child.propertyId, prop_id)
                 self.assertEqual(child.PropertyValue, value)
 
-        def test_create_and_condition_from_array(self):
+        def test_and_condition_from_array(self):
             cond = UIACondition.from_array("and", [
                 UIACondition.create_property('Name', 'Spam'),
                 UIACondition.create_property('ClassName', 'Button'),
@@ -133,16 +132,20 @@ if UIA_support:
             condition = UIACondition.create_control_type('SplitButton')
             condition |= UIACondition.create_control_type('Button')
             condition &= UIACondition.create_property('Name', 'Foo')
-            cond = condition.condition_ex
-            ctrl_or_condition, name_condition = (UIACondition(c) for c in cond.GetChildren())
-            splitbtn_condition, btn_condition = (UIACondition(c) for c in ctrl_or_condition.condition_ex.GetChildren())
-            splitbtn_cond = splitbtn_condition.condition_ex
+            cond = condition.condition.QueryInterface(IUIA().UIA_dll.IUIAutomationAndCondition)
+            ctrl_or_condition, name_condition = (c for c in cond.GetChildren())
+            splitbtn_condition, btn_condition = (
+                c for c in ctrl_or_condition.QueryInterface(
+                    IUIA().UIA_dll.IUIAutomationOrCondition
+                ).GetChildren()
+            )
+            splitbtn_cond = splitbtn_condition.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
             self.assertEqual(splitbtn_cond.propertyId, IUIA().UIA_dll.UIA_ControlTypePropertyId)
             self.assertEqual(splitbtn_cond.PropertyValue, IUIA().UIA_dll.UIA_SplitButtonControlTypeId)
-            btn_cond = btn_condition.condition_ex
+            btn_cond = btn_condition.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
             self.assertEqual(btn_cond.propertyId, IUIA().UIA_dll.UIA_ControlTypePropertyId)
             self.assertEqual(btn_cond.PropertyValue, IUIA().UIA_dll.UIA_ButtonControlTypeId)
-            name_cond = name_condition.condition_ex
+            name_cond = name_condition.QueryInterface(IUIA().UIA_dll.IUIAutomationPropertyCondition)
             self.assertEqual(name_cond.propertyId, IUIA().UIA_dll.UIA_NamePropertyId)
             self.assertEqual(name_cond.PropertyValue, 'Foo')
 
