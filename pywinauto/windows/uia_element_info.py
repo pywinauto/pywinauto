@@ -698,7 +698,9 @@ class UIATreeWalker(object):
         elif condition == "control":
             self._walker = IUIA().control_tree_walker
         else:
-            raise TypeError
+            raise TypeError(
+                "condition must be a UIACondition instance or one of 'raw', 'content', 'control'"
+            )
         self._cache_enable = cache_enable
 
     @property
