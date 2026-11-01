@@ -96,7 +96,7 @@ class UIACondition(object):
             return cls(IUIA().iuia.CreateAndConditionFromArray([c.condition for c in condition_array]))
         elif operator_type == "or":
             return cls(IUIA().iuia.CreateOrConditionFromArray([c.condition for c in condition_array]))
-        raise TypeError("operator_type must be 'and' or 'or'")
+        raise ValueError("operator_type must be 'and' or 'or'")
 
     @classmethod
     def build(cls, process=None, class_name=None, name=None, control_type=None,
