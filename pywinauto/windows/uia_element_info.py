@@ -712,7 +712,7 @@ class UIATreeWalker(object):
         return UIACondition(self._walker.condition)
 
     def walk(self, element):
-        """Iterate over children of the element satisfying the condition"""
+        """Iterate over the immediate children of the element satisfying the condition"""
         try:
             elem = self._walker.GetFirstChildElement(element.element)
             while elem:
