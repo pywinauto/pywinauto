@@ -156,7 +156,7 @@ if UIA_support:
                 UIACondition.create_property('Name', 'Foo', object())  # type: ignore
             with self.assertRaises(TypeError):
                 UIACondition.create_control_type(object())  # type: ignore
-            with self.assertRaises(TypeError):
+            with self.assertRaises(ValueError):
                 UIACondition.from_array("nor", [])  # type: ignore
 
     class UIAElementInfoTests(unittest.TestCase):
