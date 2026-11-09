@@ -112,3 +112,5 @@ Pywinauto 0.5.4 and before was distributed under the LGPL v2.1 or later.
 * (c) Intel Corporation, 2015 (0.5.x maintenance)
 * (c) Michael Herrmann, 2012-2013 (0.4.2)
 * (c) Mark Mc Mahon, 2006-2010 (0.4.0 and before)
+> **Note:** Copying selected text programmatically may not work in all scenarios.
+> Some workflows require workarounds or external clipboard handling.
